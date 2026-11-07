@@ -6,11 +6,13 @@ const on=(id,ev,fn)=>{const e=$(id);if(e&&e.addEventListener)e.addEventListener(
 function fit(){try{const w=window.innerWidth,h=window.innerHeight;if(!w||!h)return;let t=0,b=0,l=0,r=0;
 if(typeof getComputedStyle=='function'){const cs=getComputedStyle($('sa'));t=parseFloat(cs.paddingTop)||0;b=parseFloat(cs.paddingBottom)||0;l=parseFloat(cs.paddingLeft)||0;r=parseFloat(cs.paddingRight)||0}
 let k=Math.min((w-l-r)/DW,(h-t-b)/DH);if(!(k>0))return;k=Math.min(k,2);if(k>.97&&k<1.03)k=1;
-$('scl').style.transform='scale('+k.toFixed(4)+')'}catch(e){}}
+const sc=$('scl').style;sc.transform='scale('+k.toFixed(4)+')';
+/* タップ領域: 縮小時も画面上で44px相当になるよう、ボタンの当たり判定だけを広げる(見た目は変えない) */
+if(sc.setProperty){const x=Math.max(0,Math.min(6,(44/k-44)/2));sc.setProperty('--hv',x.toFixed(1)+'px');sc.setProperty('--hh',Math.min(4,x).toFixed(1)+'px');sc.setProperty('--k',k.toFixed(3))}}catch(e){}}
 if(window.addEventListener){window.addEventListener('resize',fit);window.addEventListener('orientationchange',fit);if(window.visualViewport&&window.visualViewport.addEventListener)window.visualViewport.addEventListener('resize',fit)}
 fit();setTimeout(fit,50);
 /* --- 小アイコン --- */
-UX.icons();UX.putIcon('ubi','up');UX.putIcon('cfi','gear');UX.putIcon('mui','note');
+UX.icons();UX.putIcon('ubi','up');UX.putIcon('cfi','gear');UX.putIcon('mui','note');UX.putIcon('fxmi','menu');
 /* --- 強化シート --- */
 function sheet(v){const a=$('app');if(a&&a.classList)a.classList[v?'add':'remove']('upo')}
 let so=false;on('ubt','click',()=>{so=!so;sheet(so)});on('shx','click',()=>{so=false;sheet(false)});

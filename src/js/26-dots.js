@@ -70,6 +70,7 @@ gol:['..yyyyyy..','.yywwyyyy.','yywyyyyyyY','ywyyyyyyyY','yyyyyyyyyY','yyyyyyyyy
 fes:['...r..o...','.o..r..r..','..r.oo.o..','r..ooyy..o','.roywwyor.','..oywwyo.r','o..oyyo...','..o.oo.r.o','.r.r.o....','...o..r...']};
 ICN.gear=['....kk....','.k.kyyk.k.','.kkyyyykk.','..kyYYyk..','kyyYkkYyyk','kyyYkkYyyk','..kyYYyk..','.kkyyyykk.','.k.kyyk.k.','....kk....'];
 ICN.note=['....kkkkk.','....kwwwk.','....kwkkk.','....kwk...','....kwk...','..kkkwk...','.kyyykk...','.kyyyk....','..kkk.....','..........'];
+ICN.menu=['..........','.wwwwwwww.','.wwwwwwwS.','..........','.wwwwwwww.','.wwwwwwwS.','..........','.wwwwwwww.','.wwwwwwwS.','..........'];
 ICN.up=['....yy....','...yyyy...','..yywwyy..','.yywwwwyy.','yyyywwyyyy','...yywwy..','...yywwy..','...yyyyy..','..........','..........'];
 const ICNC={};for(const k in ICN)ICNC[k]=fromMap(ICN[k]);
 const UPI=['atk','spd','hit','gld','cri','luk','chg','ext','gol','fes'];

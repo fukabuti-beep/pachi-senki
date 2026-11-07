@@ -13,6 +13,7 @@
 /*@CSS*/
 </style></head><body>
 <div id="sa"></div>
+<div id="rot" aria-hidden="true">縦向きで遊ぶと大きく見やすくなります</div>
 <div id="fit"><div id="scl"><div id="app">
 <i class="led tp"></i><i class="led bt"></i><i class="led lf"></i><i class="led rg"></i>
 <canvas id="mq" width="120" height="14"></canvas>
@@ -21,12 +22,12 @@
 <div id="slot"><div class="r" id="r0">7</div><div class="r" id="r1">7</div><div class="r" id="r2">7</div><div id="info"><div id="msg">START!</div><div id="q"></div><div id="pl"></div></div></div>
 <div id="pw"><canvas id="p" width="360" height="400"></canvas></div>
 <div id="ctl">
-<button id="ubt" class="bv" type="button"><canvas id="ubi" width="10" height="10"></canvas><span>強化</span><em id="ubd"></em></button>
+<button id="ubt" class="bv" type="button" aria-label="強化メニュー"><canvas id="ubi" width="10" height="10"></canvas><span>強化</span><em id="ubd"></em></button>
 <button id="cfgb" class="bv sq" type="button" aria-label="設定"><canvas id="cfi" width="10" height="10"></canvas></button>
 <button id="mu" class="bv sq" type="button" aria-label="BGM"><canvas id="mui" width="10" height="10"></canvas></button>
 <button id="hd" type="button" aria-label="ハンドル(タップで玉を発射)"><canvas id="hdc" width="28" height="28"></canvas></button>
 </div>
-<div id="sheet"><div class="sh"><b>UPGRADE</b><button id="shx" class="bv" type="button">閉じる</button></div><div id="up"></div><div class="hint">盤面orハンドルをタップで玉を追加 / SP MAXで必殺技が自動発動</div></div>
+<div id="sheet"><div class="sh"><b>UPGRADE</b><small id="shn"></small><button id="shx" class="bv" type="button">閉じる</button></div><div id="up"></div><div class="hint">盤面orハンドルをタップで玉を追加 / SP MAXで必殺技が自動発動</div></div>
 </div></div></div>
 <div id="rl"><div class="rb"><div id="rt">ROULETTE CHANCE</div><canvas id="w" width="240" height="240"></canvas><div id="rr"></div></div></div>
 <div id="push"><div class="sun"></div><div id="pkT">押せ!!</div><div id="pkB"><canvas id="pkC0" width="55" height="55"></canvas><canvas id="pkC1" width="55" height="55"></canvas><i>PUSH</i></div><div class="pkbar"><b></b></div><div class="pksub">TAP!</div></div>

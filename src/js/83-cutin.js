@@ -4,7 +4,7 @@ function drawCut(t){if(!cut)return;const p=t-cut.t0,D=1.0;if(p>D){cut=null;retur
  if(p>.65&&!cut.f){cut.f=1;cut.cb()}
  const open=Math.min(1,p/.1),close=p>D-.12?Math.max(0,(D-p)/.12):1,h=Math.round(88*open*close),y0=76-(h>>1),col=cut.c;
  bc.save();
- const g=bc.createLinearGradient(0,0,360,0);g.addColorStop(0,'#05030f');g.addColorStop(.45,'#1a0b3a');g.addColorStop(1,col);
+ let g=cut.g;if(!g){g=cut.g=bc.createLinearGradient(0,0,360,0);g.addColorStop(0,'#05030f');g.addColorStop(.45,'#1a0b3a');g.addColorStop(1,col)}
  bc.globalAlpha=.94;bc.fillStyle=g;bc.fillRect(0,y0,360,h);bc.globalAlpha=1;
  bc.beginPath();bc.rect(0,y0,360,h);bc.clip();
  bc.fillStyle='rgba(255,255,255,.07)';for(let yy=0;yy<150;yy+=8)for(let xx=((yy/8)%2)*4;xx<360;xx+=8)bc.fillRect(xx,yy,2,2);

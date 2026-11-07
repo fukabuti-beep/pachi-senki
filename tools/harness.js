@@ -10,7 +10,8 @@ function loadBundle() {
   return fs.readdirSync(jsDir).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
 }
 
-function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
+// ls: 'ok'(既定) | 'throw'(localStorage への参照自体が例外=一部のプライベートモード) | 'setthrow'(setItem だけ例外=容量超過)
+function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok' } = {}) {
   let simTime = 0;
   const timers = []; let tid = 1;
   const audio = { osc: 0, noise: 0, byMinute: {}, spans: [], resumes: 0, waves: 0, pwaves: 0 };
@@ -30,11 +31,15 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 360, height: 400 }),
     appendChild: noop, setAttribute: noop,
   });
+  const stats = { appended: 0, created: 0 };   // DOM 増加の監視用(堅牢性テスト)
+  const docEv = {}, winEv = {};
   const document = {
     getElementById: id => els[id] || (els[id] = makeEl(id)),
-    createElement: t => makeEl('<' + t + '>'),
-    fonts: { ready: Promise.resolve() }, body: makeEl('body'),
+    createElement: t => { stats.created++; return makeEl('<' + t + '>'); },
+    fonts: { ready: Promise.resolve() }, body: makeEl('body'), hidden: false,
+    addEventListener: (t, f) => (docEv[t] = docEv[t] || []).push(f),
   };
+  document.body.appendChild = () => { stats.appended++; };
   // WebAudio スタブ(sound担当): 発音数(audio.osc/noise/byMinute)と同時発音の区間(audio.spans)を記録する。
   // audio オプション: 'ok'(既定) | 'none'(AudioContext無し) | 'broken'(生成は成功、create* が全て例外) | 'suspended'(resume() 後に running)
   const P = (v = 0) => ({ value: v, setValueAtTime: noop, exponentialRampToValueAtTime: noop, linearRampToValueAtTime: noop, setTargetAtTime: noop, cancelScheduledValues: noop });
@@ -66,7 +71,8 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
   const store = { ...storage };
   const sandbox = {
     document, console, Float32Array, Promise, JSON, Date,
-    localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } },
+    innerWidth: 393, innerHeight: 852,
+    addEventListener: (t, f) => (winEv[t] = winEv[t] || []).push(f),
     AudioContext: audioMode === 'none' ? undefined : AudioContext, requestAnimationFrame: noop,
     setTimeout: (fn, ms = 0) => { const id = tid++; timers.push({ id, at: simTime + ms / 1000, fn }); return id; },
     clearTimeout: id => { const i = timers.findIndex(t => t.id === id); if (i >= 0) timers.splice(i, 1); },
@@ -74,6 +80,9 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
     clearInterval: id => { const i = timers.findIndex(t => t.id === id); if (i >= 0) timers.splice(i, 1); },
     performance: { now: () => simTime * 1000 },
   };
+  const lsObj = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { if (ls === 'setthrow') throw new Error('QuotaExceededError'); store[k] = String(v); }, removeItem: k => { delete store[k]; } };
+  if (ls === 'throw') Object.defineProperty(sandbox, 'localStorage', { get() { throw new Error('SecurityError: localStorage denied'); } });
+  else sandbox.localStorage = lsObj;
   sandbox.window = sandbox;
   const M = Object.create(Math); M.random = rnd; sandbox.Math = M;
   const ctx = vm.createContext(sandbox);
@@ -90,7 +99,10 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
     }
   };
   const game = {
-    ctx, audio, els, store,
+    ctx, audio, els, store, stats,
+    // ブラウザイベントの発火(visibilitychange / resize など)。hidden は document.hidden に反映
+    fire(type, { hidden } = {}) { if (hidden != null) document.hidden = hidden; for (const f of (docEv[type] || []).concat(winEv[type] || [])) f({ type, target: document }); },
+    setSize(w, h) { sandbox.innerWidth = w; sandbox.innerHeight = h; },
     get time() { return simTime; },
     eval: code => vm.runInContext(code, ctx, { filename: 'probe.js' }),
     start() { game.eval("$('go').onclick()"); },

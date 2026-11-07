@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0a0720">
 <title>パチ戦記 | 放置バトルパチンコ</title>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 <style>
 /*@CSS*/
 </style></head><body>
-<div id="app">
-<canvas id="mq" width="120" height="14"></canvas><div id="hud"><div class="plate">STAGE <b id="st">1</b></div><span id="cb"></span><div class="plate"><span class="coin"></span><b id="gd">0</b></div></div>
-<div id="spw"><div id="spb"></div><i>SP</i></div>
-<canvas id="b" width="360" height="150"></canvas>
+<div id="sa"></div>
+<div id="fit"><div id="scl"><div id="app">
+<i class="led tp"></i><i class="led bt"></i><i class="led lf"></i><i class="led rg"></i>
+<canvas id="mq" width="120" height="14"></canvas>
+<div id="hud"><div class="plate"><small>STAGE</small> <b id="st">1</b></div><span id="cb"></span><div class="plate g"><span class="coin"></span><b id="gd">0</b></div></div>
+<div id="bw"><canvas id="b" width="360" height="150"></canvas><div id="spw"><div id="spb"></div><i>SP</i></div></div>
 <div id="slot"><div class="r" id="r0">7</div><div class="r" id="r1">7</div><div class="r" id="r2">7</div><div id="info"><div id="msg">START!</div><div id="q"></div><div id="pl"></div></div></div>
-<canvas id="p" width="360" height="400"></canvas>
-<div id="up"></div>
-<div class="hint">盤面をタップで玉を追加 / ゲージMAXで必殺技が自動発動</div>
+<div id="pw"><canvas id="p" width="360" height="400"></canvas></div>
+<div id="ctl">
+<button id="ubt" class="bv" type="button"><canvas id="ubi" width="10" height="10"></canvas><span>強化</span><em id="ubd"></em></button>
+<button id="cfgb" class="bv sq" type="button" aria-label="設定"><canvas id="cfi" width="10" height="10"></canvas></button>
+<button id="mu" class="bv sq" type="button" aria-label="BGM"><canvas id="mui" width="10" height="10"></canvas></button>
+<button id="hd" type="button" aria-label="ハンドル(タップで玉を発射)"><canvas id="hdc" width="28" height="28"></canvas></button>
 </div>
+<div id="sheet"><div class="sh"><b>UPGRADE</b><button id="shx" class="bv" type="button">閉じる</button></div><div id="up"></div><div class="hint">盤面orハンドルをタップで玉を追加 / SP MAXで必殺技が自動発動</div></div>
+</div></div></div>
 <div id="rl"><div class="rb"><div id="rt">ROULETTE CHANCE</div><canvas id="w" width="240" height="240"></canvas><div id="rr"></div></div></div>
-<div id="mg"><div class="rb"><div style="font-size:18px;color:#ffd400" id="mt">BONUS STOP!</div><canvas id="mc" width="240" height="60" style="margin:10px 0"></canvas><div id="mr" style="font-size:26px;height:34px;color:#ffd400"></div><div style="font-size:11px;opacity:.7">タップでストップ(5秒で自動)</div></div></div><div id="bn"></div><button id="mu">♪</button><div id="fl"></div>
-<div id="ov"><h1>パチ戦記</h1><p>玉を打つ。リーチが燃える。<br>大当たりはルーレットで倍々に。<br>コンボと会心で敵をドット単位で粉砕。</p><button id="go">TAP TO START</button></div>
+<div id="mg"><div class="rb"><div style="font-size:18px;color:#ffd400" id="mt">BONUS STOP!</div><canvas id="mc" width="240" height="60" style="margin:10px 0"></canvas><div id="mr" style="font-size:26px;height:34px;color:#ffd400"></div><div style="font-size:11px;opacity:.7">タップでストップ(5秒で自動)</div></div></div><div id="bn"></div><div id="fl"></div>
+<div id="cfg"><div class="cfgb"><h2>SETTINGS</h2>
+<div class="row"><span>BGM</span><input type="range" id="cfgBgm" min="0" max="100" step="5" value="70"><b id="cfgBgmV">70</b></div>
+<div class="row"><span>SE</span><input type="range" id="cfgSe" min="0" max="100" step="5" value="70"><b id="cfgSeV">70</b></div>
+<div class="row"><span>フラッシュ</span><div class="seg"><button id="cfgF2" class="bv" type="button">強</button><button id="cfgF1" class="bv" type="button">弱</button><button id="cfgF0" class="bv" type="button">OFF</button></div></div>
+<div class="note">強=演出どおり / 弱=薄く・間引き / OFF=出さない。点滅が苦手な方は弱かOFFをおすすめします。</div>
+<div class="row"><span>ミュート</span><button id="cfgMute" class="bv tg" type="button">OFF</button></div>
+<div class="row"><span>データ</span><button id="cfgRst" class="bv bad" type="button">リセット</button></div>
+<div id="cfgCf"><p>ゴールド・ステージ・強化がすべて消えます。<br>本当にリセットしますか?</p><div class="seg"><button id="cfgYes" class="bv bad" type="button">消去する</button><button id="cfgNo" class="bv" type="button">やめる</button></div></div>
+<button id="cfgX" class="bv big" type="button">閉じる</button></div></div>
+<div id="ov"><div class="tt-s">- CR -</div><h1><span>パチ</span><span>戦記</span></h1><canvas id="tc" width="104" height="24"></canvas><p>玉を打つ。リーチが燃える。<br>大当たりはルーレットで倍々に。<br>コンボと会心で敵をドット単位で粉砕。</p><button id="go">TAP TO START</button><div class="tt-c">放置バトルパチンコ</div></div>
 <script>
 /*@JS*/
 </script></body></html>

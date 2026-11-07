@@ -3,8 +3,8 @@ $('up').innerHTML=UP.map((u,i)=>`<button id="u${i}" onclick="buy(${i})"><canvas 
 function uiSet(id,t){const e=$(id);t=''+t;if(e._t!==t){e._t=t;e.textContent=t}}
 function refresh(){let n=0;UP.forEach((u,i)=>{const c=cost(i),ok=G.gold>=c,vis=G.stage>=(u[4]||0);uiSet('l'+i,G.lv[i]);uiSet('c'+i,'G '+fmt(c));const b=$('u'+i),cl=ok?'ok':'',d=vis?'':'none';if(b.className!==cl)b.className=cl;if(b.style.display!==d)b.style.display=d;if(ok&&vis)n++});
 uiSet('ubd',n||'');uiSet('gd',fmt(G.gold));uiSet('st',G.stage+(isBoss()?' BOSS':''));uiSet('cb',G.rush>0?'RUSH x'+G.combo+' '+Math.ceil(G.rush)+'s':'');
-const qh='保留 '+QL.map(o=>'<s style="text-decoration:none;color:'+['#fff','#4af','#3d6','#f24','#ffd400'][o.c]+'">●</s>').join('')+'○'.repeat(4-QL.length),q=$('q');if(q._h!==qh){q._h=qh;q.innerHTML=qh}
-const w=G.sp+'%',sb=$('spb');if(sb.style.width!==w)sb.style.width=w;uiSet('pl','JACKPOT G '+fmt(G.pool))}
+const qh='<b class="hl">保留</b>'+QL.map(o=>'<i class="gm c'+o.c+'"></i>').join('')+'<i class="gm"></i>'.repeat(4-QL.length),q=$('q');if(q._h!==qh){q._h=qh;q.innerHTML=qh}
+const w=G.sp+'%',sb=$('spb');if(sb.style.width!==w)sb.style.width=w;uiSet('pl','G '+fmt(G.pool))}
 /* フラッシュ強度: UX.S.fl 2=強(演出どおり) 1=弱(薄く・約2Hz以下に間引き) 0=OFF */
 let uiFlT=-1e9;
 function flash(c){const f=$('fl'),S=(typeof UX!=='undefined'&&UX.S)||{fl:2};if(S.fl<=0)return;const now=(typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();

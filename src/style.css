@@ -149,3 +149,40 @@ text-shadow:1px 1px 0 #ff9a1f,2px 2px 0 #ff9a1f,3px 3px 0 #ff5a2a,4px 4px 0 #ff2
 #go:active{transform:translateY(5px)}
 .tt-c{font-size:11px;letter-spacing:4px;opacity:.55}
 @media (prefers-reduced-motion:reduce){.shake,#fl.on,#slot:before,#go,#up button.ok em,.led,#ov:before,#ov:after,#ubd,#slot.reach #msg,.r.stp{animation:none}}
+
+/* ===== スロット強化 v2 (デザイン): 金属ベゼル+リベット / LED電飾 / LED液晶パネル / 保留ジェム / 状態別の縁取り ===== */
+#slot{height:66px;padding:5px 8px 3px;gap:7px;
+ background:
+  repeating-linear-gradient(90deg,var(--cy) 0 4px,transparent 4px 8px) 8px calc(100% - 1px)/calc(100% - 16px) 2px no-repeat,
+  repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),
+  linear-gradient(90deg,rgba(255,255,255,.07),transparent 28%,transparent 72%,rgba(0,0,0,.28)),
+  linear-gradient(#4c30c0,#1f1363 52%,#0f0838);
+ box-shadow:0 0 0 2px #000,0 0 0 4px #ffe56a,0 0 0 6px #a87500,0 0 0 8px #000,inset 0 3px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.45)}
+#slot:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+ background:
+  radial-gradient(circle,#fff8c0 0 1px,#e0aa00 2px,#5e4000 3.5px,transparent 4px) left 2px top 4px/10px 10px no-repeat,
+  radial-gradient(circle,#fff8c0 0 1px,#e0aa00 2px,#5e4000 3.5px,transparent 4px) right 2px top 4px/10px 10px no-repeat,
+  radial-gradient(circle,#fff8c0 0 1px,#e0aa00 2px,#5e4000 3.5px,transparent 4px) left 2px bottom 3px/10px 10px no-repeat,
+  radial-gradient(circle,#fff8c0 0 1px,#e0aa00 2px,#5e4000 3.5px,transparent 4px) right 2px bottom 3px/10px 10px no-repeat}
+#slot .r{margin-top:2px}
+#info{height:52px;padding:3px 5px;position:relative;
+ background:repeating-linear-gradient(0deg,rgba(60,255,200,.07) 0 1px,transparent 1px 3px),linear-gradient(#0a0830,#04030d);
+ box-shadow:0 0 0 2px #000,0 0 0 3px #6f64d8,inset 0 0 0 2px #000,inset 0 0 0 3px #2a2468,inset 0 0 14px rgba(70,50,200,.5)}
+#msg{font-size:15px;line-height:17px;letter-spacing:1px;text-shadow:0 0 7px currentColor,2px 2px 0 #000}
+#q{display:flex;align-items:center;justify-content:center;gap:5px;height:14px;letter-spacing:0;opacity:1}
+#q .hl{font-weight:400;font-size:10px;color:#9fa6ff;margin-right:2px;letter-spacing:1px}
+.gm{display:block;width:8px;height:8px;transform:rotate(45deg);margin:0 1px;background:#1a1646;box-shadow:0 0 0 1px #000,inset 1px 1px 0 #34307a}
+.gm.c0{background:#e9eefc;box-shadow:0 0 0 1px #000,inset -1px -1px 0 #9aa4d0}
+.gm.c1{background:#4aa8ff;box-shadow:0 0 0 1px #000,inset -1px -1px 0 #1c5fb8,0 0 5px #4aa8ff}
+.gm.c2{background:#3ddc6e;box-shadow:0 0 0 1px #000,inset -1px -1px 0 #1b8a40,0 0 5px #3ddc6e}
+.gm.c3{background:#ff2b4a;box-shadow:0 0 0 1px #000,inset -1px -1px 0 #9c0f26,0 0 7px #ff2b4a;animation:gmp .5s steps(2) infinite}
+.gm.c4{background:#ffd400;box-shadow:0 0 0 1px #000,inset -1px -1px 0 #b88a00,0 0 8px #ffd400;animation:gmp .3s steps(2) infinite}
+@keyframes gmp{50%{filter:brightness(1.6)}}
+#pl{display:flex;align-items:center;justify-content:center;gap:6px;height:14px;font-size:13px;line-height:14px;color:var(--ac);letter-spacing:1px;text-shadow:0 0 6px #ff9a00,1px 1px 0 #000}
+#pl:before{content:"JACKPOT";font-size:9px;padding:1px 3px;color:#fff;background:var(--pk);box-shadow:0 0 0 1px #000;letter-spacing:0;text-shadow:none}
+#app.fev #slot{animation:slotc .6s steps(2) infinite;--sc1:#22e0ff;--sc2:#fff}
+#app.rush #slot{animation:slotr .7s steps(4) infinite}
+#slot.reach{box-shadow:0 0 0 2px #000,0 0 0 4px #ff7a9c,0 0 0 6px #c40f45,0 0 0 8px #000,0 0 16px 6px rgba(255,45,122,.7),inset 0 3px 0 rgba(255,255,255,.2)}
+@keyframes slotr{0%{box-shadow:0 0 0 2px #000,0 0 0 4px #ffe56a,0 0 0 6px #ff2d7a,0 0 0 8px #000,0 0 14px 3px #ff2d7a}25%{box-shadow:0 0 0 2px #000,0 0 0 4px #fff,0 0 0 6px #ffd400,0 0 0 8px #000,0 0 14px 3px #ffd400}50%{box-shadow:0 0 0 2px #000,0 0 0 4px #aaf,0 0 0 6px #22e0ff,0 0 0 8px #000,0 0 14px 3px #22e0ff}75%{box-shadow:0 0 0 2px #000,0 0 0 4px #fff,0 0 0 6px #7dff7a,0 0 0 8px #000,0 0 14px 3px #7dff7a}}
+@keyframes slotc{50%{box-shadow:0 0 0 2px #000,0 0 0 4px #bff6ff,0 0 0 6px #22a8c8,0 0 0 8px #000,0 0 12px 2px #22e0ff}}
+@media (prefers-reduced-motion:reduce){.gm.c3,.gm.c4,#app.fev #slot,#app.rush #slot{animation:none}}

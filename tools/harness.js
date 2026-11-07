@@ -38,12 +38,19 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
   // WebAudio スタブ(sound担当): 発音数(audio.osc/noise/byMinute)と同時発音の区間(audio.spans)を記録する。
   // audio オプション: 'ok'(既定) | 'none'(AudioContext無し) | 'broken'(生成は成功、create* が全て例外) | 'suspended'(resume() 後に running)
   const P = (v = 0) => ({ value: v, setValueAtTime: noop, exponentialRampToValueAtTime: noop, linearRampToValueAtTime: noop, setTargetAtTime: noop, cancelScheduledValues: noop });
+  // audio:'render' = グラフを記録して audio.rec.render(t0,t1,sr,taps) で波形を計算できる(tools/audiorender.js)
+  const REC = audioMode === 'render' ? require('./audiorender').createRecorder(() => simTime, {
+    osc: () => { audio.osc++; const m = Math.floor(simTime / 60); audio.byMinute[m] = (audio.byMinute[m] || 0) + 1; },
+    noise: () => { audio.noise++; }, wave: () => { audio.waves++; }, span: (s, e) => { audio.spans.push([s, e]); },
+  }) : null;
+  if (REC) audio.rec = REC;
   class AudioContext {
     get currentTime() { return simTime; }
     constructor() {
-      this.destination = {}; this.sampleRate = 44100;
+      this.destination = REC ? REC.destination : {}; this.sampleRate = 44100;
       this.state = audioMode === 'suspended' ? 'suspended' : 'running';
-      if (audioMode === 'broken') for (const m of ['createOscillator', 'createGain', 'createBuffer', 'createBufferSource', 'createBiquadFilter', 'createDynamicsCompressor', 'createPeriodicWave', 'createStereoPanner', 'createDelay']) this[m] = () => { throw new Error('broken audio'); };
+      if (audioMode === 'broken') for (const m of ['createOscillator', 'createGain', 'createBuffer', 'createBufferSource', 'createBiquadFilter', 'createDynamicsCompressor', 'createPeriodicWave', 'createStereoPanner', 'createDelay', 'createWaveShaper']) this[m] = () => { throw new Error('broken audio'); };
+      if (REC) for (const m of ['createOscillator', 'createGain', 'createBuffer', 'createBufferSource', 'createBiquadFilter', 'createDynamicsCompressor', 'createPeriodicWave', 'createStereoPanner', 'createDelay', 'createWaveShaper']) this[m] = REC[m];
     }
     resume() { audio.resumes++; this.state = 'running'; return Promise.resolve(); }
     suspend() { this.state = 'suspended'; return Promise.resolve(); }
@@ -59,6 +66,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
     createPeriodicWave(re, im) { audio.waves++; return {}; }
     createStereoPanner() { return { pan: P(), connect: noop, disconnect: noop }; }
     createDelay() { return { delayTime: P(), connect: noop, disconnect: noop }; }
+    createWaveShaper() { return { curve: null, oversample: 'none', connect: noop, disconnect: noop }; }
     createBuffer(c, n) { return { length: n, getChannelData: () => new Float32Array(n) }; }
     createBufferSource() { audio.noise++; return { buffer: null, loop: false, playbackRate: P(1), connect: noop, disconnect: noop, start: noop, stop: noop }; }
     createBiquadFilter() { return { type: '', frequency: P(), Q: P(), gain: P(), connect: noop, disconnect: noop }; }

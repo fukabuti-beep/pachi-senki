@@ -19,9 +19,12 @@ try { new vm.Script(js, { filename: 'bundle.js' }); }
 catch (e) { bad++; console.error('SYNTAX ERROR in bundle: ' + e.message); }
 if (bad) process.exit(1);
 
+// CSS: src/style.css の後ろに src/css/*.css をファイル名順で連結(担当ごとに追記ファイルを分けて衝突を避ける)
+const cssDir = path.join(root, 'src/css');
+const css = read('src/style.css') + (fs.existsSync(cssDir) ? fs.readdirSync(cssDir).filter(f => f.endsWith('.css')).sort().map(f => '\n/* ' + f + ' */\n' + fs.readFileSync(path.join(cssDir, f), 'utf8')).join('') : '');
 const ICON = n => fs.readFileSync(path.join(root, 'src/pwa', n));
 const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
-const base = read('src/index.html').replace('/*@CSS*/', () => read('src/style.css')).replace('/*@JS*/', () => js);
+const base = read('src/index.html').replace('/*@CSS*/', () => css).replace('/*@JS*/', () => js);
 // 単一HTML版: アイコンはdata URI(外部ファイル不要)。manifest/SWなし(file:// や埋め込み表示でも動く)
 const single = base.replace('<!--@PWA-->', () => '<link rel="apple-touch-icon" href="data:image/png;base64,' + ICON('apple-touch-icon.png').toString('base64') + '">');
 const out = path.join(root, process.env.OUT || 'dist/pachi-senki.html');

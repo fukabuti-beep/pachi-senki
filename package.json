@@ -4,7 +4,7 @@
   "description": "パチ戦記 - 放置バトルパチンコ (ブラウザ / スマホ向け単一HTML)",
   "scripts": {
     "build": "node tools/build.js",
-    "test": "node tools/build.js && node tests/smoke.js",
+    "test": "node tools/build.js && node tests/smoke.js && node tests/feature.js",
     "sim": "node tools/sim.js"
   }
 }

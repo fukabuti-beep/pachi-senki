@@ -85,5 +85,36 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   g3.advance(3, 0.05); noErr(g3, 'stats');
 }
 
+// 5) 転生: 条件/リセット/魂の永続/ボーナス/旧セーブ互換
+{
+  const g = createGame({ seed: 6, storage: mkStore(undefined, { gold: 5000, stage: 29, lv: [5, 4, 3] }) });
+  g.start(); g.advance(1, 0.05);
+  ok(g.eval('soulGain(29)') === 0 && g.eval('soulGain(30)') === 5, 'soulGain thresholds');
+  g.eval('presAsk()'); ok(g.eval('X.souls') === 0, 'no prestige below PRES_MIN');
+  g.eval('G.stage=40;spawn()');
+  while (g.eval('presBusy()')) g.advance(1, 0.05); // 演出が終わるまで
+  g.eval('presAsk()'); ok(g.eval('fxOpen') === true, 'confirm dialog opens');
+  g.eval('FB[1][1]()'); // やめる → メニューに戻るだけ
+  ok(g.eval('X.souls') === 0 && g.eval('G.stage') === 40, 'cancel does not prestige');
+  const dmgBefore = g.eval('SB.a()');
+  const gn = g.eval('presDo()');
+  ok(gn === g.eval('soulGain(40)') && gn > 0, 'prestige returns soul gain ' + gn);
+  ok(g.eval('G.stage') === 1 && g.eval('G.gold') < 5000 && g.eval('G.lv.every(v=>v===1)'), 'prestige resets stage/gold/lv');
+  ok(g.eval('X.souls') === gn && g.eval('X.pres') === 1 && g.eval('X.best') >= 40, 'souls/pres/best kept');
+  ok(g.eval('SB.a()') > dmgBefore && g.eval('SB.g()') > 1, 'soul bonus active');
+  const sv = JSON.parse(g.store.pachi2);
+  ok(sv.stage === 1 && sv.gold === 0 && sv.lv.every(v => v === 1), 'pachi2 saved immediately after prestige');
+  ok(g.eval('Object.keys(X.ach).includes("pr1")') || (g.advance(1, 0.05), g.eval('X.ach.pr1') === 1), 'first prestige achievement');
+  g.advance(60, 0.05); noErr(g, 'prestige');
+  ok(['gold', 'hp', 'mx', 'stage'].every(k => fin(g.eval('G.' + k))), 'state finite after prestige');
+  // ゴールド上乗せ: 魂ありのほうが収入が多い(同シード/同条件)
+  const run = (souls) => { const q = createGame({ seed: 7, storage: mkStore({ souls }, { gold: 0, stage: 3, lv: [] }) }); q.start(); q.advance(60, 0.05); return q.eval('G.gold + 0'); };
+  ok(run(50) > run(0), 'souls increase income');
+  // 再起動しても魂が残る
+  const g2 = createGame({ seed: 6, storage: g.store });
+  ok(g2.eval('X.souls') === gn && g2.eval('SB.a()') === g.eval('SB.a()'), 'souls persist across reload');
+  g2.start(); g2.advance(5, 0.05); noErr(g2, 'reload');
+}
+
 if (failures) { console.error('\n' + failures + ' feature test failure(s)'); process.exit(1); }
 console.log('FEATURE OK');

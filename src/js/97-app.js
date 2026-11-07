@@ -1,6 +1,11 @@
 /* ---------- app: アプリ化(PWA)まわり ----------
    常時点灯(Wake Lock) / ホーム画面に追加の案内(iOS: 共有→ホーム画面に追加, Android: インストールプロンプト) / standalone 判定。
    Service Worker 登録は PWA ビルド(dist/pwa/index.html)側のインラインscriptが行う。ここはDOMがあれば動き、無くても落ちない。 */
+/* メニュー(☰)ボタンは feature(91) が body に作る固定ボタン。縮小表示のとき筐体と重なるので、操作パネルの先頭へ移して他のボタンと並べる */
+try{const m=$('fxmb'),c=$('ctl');if(m&&c&&c.insertBefore){m.classList.add('bv','sq');m.setAttribute&&m.setAttribute('aria-label','メニュー');
+ const cv=document.createElement('canvas');cv.id='fxmi';cv.width=10;cv.height=10;m.insertBefore(cv,m.firstChild);
+ for(const n of Array.from(m.childNodes))if(n.nodeType===3)m.removeChild(n);
+ c.insertBefore(m,c.firstChild);UX.putIcon('fxmi','menu')}}catch(e){}
 const APPK='pachi2app';
 const APP={wake:1,standalone:false,deferred:null,lock:null};
 try{const j=JSON.parse(localStorage.getItem(APPK)||'null');if(j&&typeof j.wake=='number')APP.wake=j.wake?1:0}catch(e){}

@@ -1,0 +1,87 @@
+/* ===== ui: 品質の底上げ(画面サイズ対応 / タップ領域 / 強化シート / 横向き) =====
+   style.css の後ろに連結される。feature(91) が JS で注入するCSSより前なので、同じ詳細度のものは向こうが勝つ → #ctl #fxmb のように詳細度を上げて上書きする。 */
+html{-webkit-text-size-adjust:100%}
+.plate b,#gd,#st,#pl,#cb,#ubd,#rr,.pkbar,.fxn{font-variant-numeric:tabular-nums}
+
+/* --- タップ領域: 縮小表示でも44px相当(JS が --hv/--hh を設定)。見た目は変わらず当たり判定だけ広がる --- */
+#ctl>button,#shx{position:relative}
+#ctl>button:before,#shx:before{content:"";position:absolute;inset:calc(-1*var(--hv,0px)) calc(-1*var(--hh,0px));z-index:1}
+#hd:before{border-radius:50%}
+#shx{height:44px;min-width:64px;font-size:13px}
+.fxb,.fxt button{min-height:44px}
+
+/* --- メニュー(☰)は操作パネルの先頭に並べる(97-app.js が移動) --- */
+#ctl #fxmb{position:relative;left:auto;bottom:auto;z-index:auto;flex:none;width:44px;height:44px;border:0;padding:0;font-size:0;
+ background:#2b2f7a;color:#fff;box-shadow:0 0 0 2px #000,inset 3px 3px 0 #6f78e8,inset -3px -3px 0 #151852,0 5px 0 2px #000;transform:translateY(0)}
+#ctl #fxmb:active{transform:translateY(4px);box-shadow:0 0 0 2px #000,inset 3px 3px 0 #151852,inset -3px -3px 0 #4a52b8,0 1px 0 2px #000}
+#ctl #fxmb canvas{width:20px;height:20px}
+#ctl #fxmb i{right:-4px;top:-8px}
+#ctl{gap:9px}
+#ubt{min-width:0;gap:6px;letter-spacing:2px;padding:0 4px}
+
+/* --- 強化シート --- */
+#sheet{bottom:76px}
+.sh{gap:8px}
+.sh b{font-weight:400}
+.sh small{flex:1;font-size:11px;color:var(--cy);letter-spacing:0;text-align:right;white-space:nowrap;padding-right:4px}
+#up{align-content:start;grid-auto-rows:min-content}
+#up button{position:relative;overflow:hidden;min-height:66px;padding:6px 6px 9px;gap:0 8px;align-items:start;transition:none}
+#up b{align-self:end;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#up span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-top:1px}
+#up .lv,#up .lv i{font-style:normal;color:var(--cy);opacity:1}
+#up em{align-self:end;margin-top:2px;text-align:right;font-variant-numeric:tabular-nums}
+/* 所持金ゲージ(価格に対する所持金の割合) */
+#up button:after{content:"";position:absolute;left:5px;bottom:5px;height:3px;width:calc((100% - 10px)*var(--pf,0));background:var(--cy);box-shadow:0 0 0 1px #000;opacity:.9}
+#up button{--pf:0}
+#up button.ok:after{background:var(--ac)}
+#up button.ok{background:#37257f}
+#up button.ok em,#up button.ok b{text-shadow:0 0 8px #ffd40088}
+#up button.mx{opacity:.55}#up button.mx:after{display:none}#up button.mx em{color:var(--cy)}
+#up button.nx{box-shadow:0 0 0 2px #000,inset 0 0 0 2px var(--cy),inset 0 -3px 0 #0b0730}
+#up button.nx:before{content:"NEXT";position:absolute;right:0;top:0;padding:1px 5px;font-size:9px;line-height:11px;color:#04202a;background:var(--cy);letter-spacing:1px}
+.hint{line-height:1.5}
+
+/* --- 通知バナー: 狭い画面で見切れない --- */
+#bn{font-size:min(52px,12.2vw);letter-spacing:2px}
+
+/* --- タイトル: 狭い画面で折り返さない --- */
+#ov{overflow:hidden}
+#ov h1{font-size:clamp(46px,17.2vw,68px);white-space:nowrap;flex:none}
+#tc{width:min(312px,86vw);height:auto;aspect-ratio:104/24}
+#ov p{max-width:min(290px,88vw)}
+#go{min-width:min(240px,74vw)}
+#go:active{transform:translateY(5px)}
+.tt-c{max-width:92vw}
+
+/* --- 設定: 狭い/低い画面でも閉じるが見える --- */
+#cfg{padding:12px}
+.cfgb{max-height:calc(100% - 8px)}
+.cfgb .row{min-height:44px}
+.note{margin-left:0;padding-left:88px;margin-top:-4px}
+
+/* --- 横向き(低い画面): 全体が縮小表示される。縦向き推奨の案内を出し、モーダル類を縮める --- */
+#rot{display:none}
+@media (orientation:landscape) and (max-height:520px){
+ #rot{display:block;position:fixed;left:calc(8px + env(safe-area-inset-left,0px));top:50%;width:min(210px,calc(50vw - 230px));transform:translateY(-50%);z-index:1;pointer-events:none;
+  font-size:13px;line-height:1.7;letter-spacing:1px;color:var(--cy);text-shadow:0 0 8px var(--cy);text-align:center;opacity:.9}
+ #rot:before{content:"";display:block;width:18px;height:30px;margin:0 auto 10px;border:3px solid var(--cy);box-shadow:0 0 8px var(--cy)}
+ .rb{zoom:.78}
+ #bn{top:22%}
+ .cfgb{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;max-width:660px;padding:8px 14px 10px}
+ .cfgb h2{grid-column:1/3;margin-bottom:2px;font-size:17px}
+ .cfgb .note,.cfgb #cfgCf,.cfgb .big{grid-column:1/3}
+ .cfgb .note{padding-left:0;margin:-2px 0 2px}
+ .cfgb .row{min-height:44px}
+ .cfgb .big{height:44px;margin-top:6px}
+ #pkT{font-size:clamp(40px,14vh,72px)}
+ #pkB{width:150px;height:150px}
+ #push{gap:6px}
+ #push.small{padding-bottom:3vh}
+}
+@media (max-width:359px){
+ .plate{min-width:96px}
+ #fxm .rb,#fxg .rb{padding:8px 10px}
+ .row>span{width:70px}
+ .note{padding-left:80px}
+}
+@media (prefers-reduced-motion:reduce){#up button.ok em{animation:none}}

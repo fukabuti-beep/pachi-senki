@@ -61,5 +61,29 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   ok(g2.eval('G.gold') === gold2, 'offline: no double grant after restart');
 }
 
+// 4) 実績: 条件達成で一度だけ報酬、保存、再起動後も維持
+{
+  const g = createGame({ seed: 4, storage: mkStore(undefined, { gold: 0, stage: 1, lv: [] }) });
+  g.start(); g.advance(1, 0.05);
+  const gold0 = g.eval('G.gold');
+  g.eval('X.st.cmb=100;X.st.jp=1;X.best=25;X.st.r50=1;G.stage=25');
+  g.advance(2, 0.05);
+  const a = g.eval('Object.keys(X.ach).sort().join()');
+  ok(['c30', 'c100', 'jp1', 's10', 's25', 'r50'].every(k => a.includes(k)), 'achievements granted: ' + a);
+  ok(g.eval('G.gold') > gold0, 'achievement gold granted');
+  const n1 = g.eval('Object.keys(X.ach).length'), gA = g.eval('G.gold');
+  g.eval('achCheck()'); ok(g.eval('Object.keys(X.ach).length') === n1 && g.eval('achCheck()') === 0, 'achievements not granted twice');
+  ok(JSON.parse(g.store.pachi2x).ach.c100 === 1, 'achievements saved');
+  g.eval("AC_.forEach(a=>{X.ach[a[0]]=1});$('x');FM[0].r()"); // 一覧描画が例外を出さない
+  noErr(g, 'achievements');
+  const g2 = createGame({ seed: 4, storage: g.store });
+  ok(g2.eval('X.ach.c100') === 1, 'achievements persisted across reload');
+  // 実統計: bigHit/kill/ボス撃破のラップが数える
+  const g3 = createGame({ seed: 5 });
+  g3.start(); g3.eval('bigHit(false);bigHit(true);G.stage=5;spawn();kill()');
+  ok(g3.eval('X.st.hit') === 2 && g3.eval('X.st.jp') === 1 && g3.eval('X.st.boss') === 1, 'stat wrappers count bigHit/jackpot/boss kills');
+  g3.advance(3, 0.05); noErr(g3, 'stats');
+}
+
 if (failures) { console.error('\n' + failures + ' feature test failure(s)'); process.exit(1); }
 console.log('FEATURE OK');

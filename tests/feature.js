@@ -151,5 +151,45 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   noErr(g, 'minigames soak');
 }
 
+// 7) 仲間: 解放(最高到達)/援護攻撃/転生後も残る/描画で例外なし
+{
+  const g = createGame({ seed: 9, storage: mkStore({ best: 1 }, { gold: 0, stage: 1, lv: [] }) });
+  g.start(); g.advance(20, 0.05);
+  ok(g.eval('ALY.every(a=>a.h===-9)'), 'no ally acts before unlock');
+  g.eval('G.stage=70;X.best=70;G.hp=G.mx=1e30'); g.advance(30, 0.05);
+  ok(g.eval('ALY.every(a=>a.h>0)'), 'all allies act once unlocked');
+  ok(g.eval('alyAnn') === 70, 'unlock announced once');
+  g.eval('ALY.forEach(a=>a.go())'); // 直接発動も安全
+  g.advance(30, 0.05);
+  ok(fin(g.eval('G.gold')) && fin(g.eval('G.sp')) && g.eval('G.sp') <= 100, 'allies keep state finite/bounded');
+  ok(g.eval('PT.length') <= 1500 && g.eval('F.length') <= 150, 'allies do not leak fx arrays');
+  g.eval('FM[3].r()'); noErr(g, 'allies');
+  // 転生しても最高到達が残る → 仲間も残る
+  g.eval('G.stage=70;spawn();'); while (g.eval('presBusy()')) g.advance(1, 0.05);
+  g.eval('presDo()'); ok(g.eval('G.stage') === 1 && g.eval('ALY.every(alyOn)'), 'allies survive prestige');
+  const g2 = createGame({ seed: 9, storage: g.store }); ok(g2.eval('ALY.every(alyOn)'), 'allies persist across reload');
+  g.advance(10, 0.05); noErr(g, 'allies after prestige');
+}
+
+// 8) 総合: 全機能を強制発火しながら長時間回しても NaN/例外/配列リークなし
+{
+  const g = createGame({ seed: 10, storage: mkStore({ t: Date.now() - 2 * H, gps: 50 }, { gold: 0, stage: 1, lv: [] }) });
+  g.start();
+  for (let s = 0; s < 4 * 60; s++) {
+    g.advance(1, 0.05);
+    if (s % 20 === 5) g.eval('G.gold=Math.max(G.gold,1e6);for(let i=0;i<UP.length;i++)buy(i)');
+    if (s % 40 === 10) g.eval('bigHit(Math.random()<.3)');
+    if (s % 50 === 20) g.eval('mini()');
+    if (s % 50 === 22) g.eval("MG2&&mg2Tap({})");
+    if (s % 90 === 30) g.eval('G.stage+=7;X.best=Math.max(X.best,G.stage);spawn()');
+    if (s % 120 === 100 && !g.eval('presBusy()')) g.eval('presDo()');
+    if (s % 60 === 0) g.eval('FM.forEach(m=>m.r())');
+    const st = g.eval('({gold:G.gold,hp:G.hp,sp:G.sp,souls:X.souls,gps:X.gps,pt:PT.length,f:F.length,pr:PR.length,fx:FX.length,b:balls.length,q:fxQ.length})');
+    for (const k of ['gold', 'hp', 'sp', 'souls', 'gps']) if (!fin(st[k])) { ok(false, `${k}=${st[k]} at ${s}s`); break; }
+    if (st.pt > 1500 || st.f > 150 || st.pr > 100 || st.fx > 20 || st.b > 200 || st.q > 6) { ok(false, 'array leak ' + JSON.stringify(st) + ' at ' + s); break; }
+  }
+  noErr(g, 'soak');
+}
+
 if (failures) { console.error('\n' + failures + ' feature test failure(s)'); process.exit(1); }
 console.log('FEATURE OK');

@@ -1,11 +1,12 @@
 /* ---------- audio core (sound担当): 音声グラフ / 発音プリミティブ / ミキサーAPI ----------
    構成: 75=コア(このファイル) 76=BGM 77=SE 78=他ファイルの関数へのSEフック
    AC は 99-main.js が「開始」ボタンで生成する(ユーザー操作後)。AC が無い/壊れても例外は出さない。
-   公開API: beep tone noise kyuin jara fan bgm / setVol(bgm,se) getVol() setMute(m) isMuted() */
+   公開API: beep tone noise kyuin jara fan bgm / setVol(bgm,se) getVol() setMute(m) isMuted()
+   マスター: bg/se -> mx -> コンプ -> リミッタ -> ソフトクリップ(|y|<=.92) -> destination。BGMは曲ごとのバス(BG.bus)を通し、切替時にクロスフェード */
 let AC,SGR=null,SNB,SNBH,SNBM;
-let BG={nx:0,st:0,on:1,iv:0,s:'n'};
+let BG={nx:0,st:0,on:1,iv:0,s:'n',bus:null};
 const mf=n=>440*Math.pow(2,(n-69)/12);
-const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7]};
+const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7],mg:1,bk:1,sk:1};
 const SND_KEY='pachi2snd';
 const sClamp=(v,d)=>{v=+v;return isFinite(v)?Math.max(0,Math.min(1,v)):d};
 try{const o=JSON.parse(localStorage.getItem(SND_KEY)||'null');if(o){SND.b=sClamp(o.b,SND.b);SND.s=sClamp(o.s,SND.s);SND.m=o.m?1:0;BG.on=SND.m?0:1}}catch(e){}
@@ -19,7 +20,12 @@ function sGr(){
   SGR={ac:AC,bad:1};
   try{
     const mx=AC.createGain(),bg=AC.createGain(),se=AC.createGain(),ld=AC.createGain();
-    try{const cp=AC.createDynamicsCompressor();cp.threshold.value=-16;cp.knee.value=18;cp.ratio.value=5;cp.attack.value=.004;cp.release.value=.18;mx.connect(cp);cp.connect(AC.destination)}catch(e){mx.connect(AC.destination)}
+    // マスター: mx -> compressor -> limiter -> soft clip -> destination。どれかが作れない環境でも残りで繋ぐ(最悪 mx -> destination)
+    let last=mx;
+    try{const cp=AC.createDynamicsCompressor();cp.threshold.value=-14;cp.knee.value=14;cp.ratio.value=4;cp.attack.value=.004;cp.release.value=.2;last.connect(cp);last=cp}catch(e){}
+    try{const lm=AC.createDynamicsCompressor();lm.threshold.value=-4;lm.knee.value=0;lm.ratio.value=20;lm.attack.value=.001;lm.release.value=.08;last.connect(lm);last=lm}catch(e){}
+    try{const sh=AC.createWaveShaper(),N=2049,cv=new Float32Array(N);for(let i=0;i<N;i++){const x=i/(N-1)*2-1,a=Math.abs(x);cv[i]=(a<.7?a:.7+.28*Math.tanh((a-.7)/.28))*(x<0?-1:1)}sh.curve=cv;last.connect(sh);last=sh}catch(e){}
+    last.connect(AC.destination);
     bg.connect(mx);se.connect(mx);ld.connect(bg);
     let dl=null;
     try{dl=AC.createDelay(1);const wet=AC.createGain(),fb=AC.createGain();wet.gain.value=.28;fb.gain.value=.3;dl.delayTime.value=.35;ld.connect(dl);dl.connect(wet);wet.connect(bg);dl.connect(fb);fb.connect(dl)}catch(e){dl=null}
@@ -35,9 +41,9 @@ function sGr(){
   }catch(e){SGR={ac:AC,bad:1}}
   return SGR.bad?null:SGR;
 }
-const bgGain=()=>SND.b*SND.b*.9, seGain=()=>SND.s*SND.s;
+const bgGain=()=>SND.b*SND.b*SND.bk, seGain=()=>SND.s*SND.s*SND.sk;
 function sSetP(p,v){try{p.cancelScheduledValues&&p.cancelScheduledValues(0)}catch(e){}p.value=v}
-function applyMix(){const g=SGR&&!SGR.bad?SGR:null;if(!g)return;try{sSetP(g.mx.gain,SND.m?0:.9);sSetP(g.bg.gain,bgGain());sSetP(g.se.gain,seGain())}catch(e){}}
+function applyMix(){const g=SGR&&!SGR.bad?SGR:null;if(!g)return;try{sSetP(g.mx.gain,SND.m?0:SND.mg);sSetP(g.bg.gain,bgGain());sSetP(g.se.gain,seGain())}catch(e){}}
 /* ミキサーAPI(ui担当が設定画面から使う): 0〜1。null/undefined の引数は変更しない */
 function setVol(bgm,se){if(bgm!=null)SND.b=sClamp(bgm,SND.b);if(se!=null)SND.s=sClamp(se,SND.s);applyMix();sndSave()}
 function getVol(){return{bgm:SND.b,se:SND.s,mute:!!SND.m}}
@@ -62,7 +68,21 @@ function sPwave(ty){
   if(PWC[ty]===undefined){PWC[ty]=null;try{const N=24,re=new Float32Array(N),im=new Float32Array(N);for(let n=1;n<N;n++)re[n]=2/(n*Math.PI)*Math.sin(n*Math.PI*d);PWC[ty]=AC.createPeriodicWave(re,im)}catch(e){}}
   return PWC[ty];
 }
-const sDst=k=>{const g=sGr();return g?g[k]:AC.destination};
+const sDst=k=>{const g=sGr();if(g&&BG.bus&&BG.bus.ac===AC&&(k==='bg'||k==='ld'))return BG.bus[k];return g?g[k]:AC.destination};
+/* BGMの曲バス: 切替ごとに新しい gain を作り、旧バスは xf 秒でフェードアウト(クロスフェード)。tr=曲ごとの音量補正 */
+function bgNewBus(t,xf,tr){
+  const g=sGr();if(!g){BG.bus=null;return}
+  try{
+    const old=BG.bus&&BG.bus.ac===AC?BG.bus:null;tr=tr||1;
+    const nb={ac:AC,bg:AC.createGain(),ld:AC.createGain(),tr};
+    nb.bg.gain.setValueAtTime(tr,t);nb.ld.gain.setValueAtTime(tr,t);nb.bg.connect(g.bg);nb.ld.connect(g.ld);
+    if(old){
+      [old.bg,old.ld].forEach(n=>{try{n.gain.cancelScheduledValues(t);n.gain.setValueAtTime(old.tr,t);n.gain.linearRampToValueAtTime(0,t+xf)}catch(e){}});
+      setTimeout(()=>{try{old.bg.disconnect();old.ld.disconnect()}catch(e){}},Math.max(0,(t+xf-AC.currentTime))*1000+2500);
+    }
+    BG.bus=nb;
+  }catch(e){BG.bus=null}
+}
 
 /* 低レベル発声(制限なし・BGM用): o={f2:終了周波数, sus:音を保つ割合0〜1, dest:'se'|'bg'|'ld', vib:ビブラート} */
 function sVo(f,t,d,ty,v,o){
@@ -76,7 +96,7 @@ function sVo(f,t,d,ty,v,o){
   g.gain.setValueAtTime(v,t);
   if(o.sus)g.gain.setValueAtTime(v,t+d*o.sus);
   g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  osc.connect(g);g.connect(sDst(o.dest||'se'));
+  osc.connect(g);g.connect(typeof o.dest==='object'&&o.dest?o.dest:sDst(o.dest||'se'));
   osc.start(t);osc.stop(t+d+.02);
 }
 /* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) */
@@ -85,7 +105,7 @@ function sNs(t,v,d,k,dest){
   sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:SNB;
   v=Math.max(v,.0002);
   g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  s.connect(g);g.connect(sDst(dest||'se'));
+  s.connect(g);g.connect(typeof dest==='object'&&dest?dest:sDst(dest||'se'));
   s.start(t,Math.random()*.4,d+.02);
 }
 

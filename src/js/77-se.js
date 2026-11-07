@@ -42,7 +42,8 @@ function jara(){
 /* ファンファーレ: 主和音のアルペジオ(+1オクターブ下を重ねる)→最後に和音をロングで */
 function fan(){
   if(!sOK())return;
-  try{const n=sNow(),r=fanRoot();
+  try{if(SND.fs&&AC.currentTime<SND.fs)return; // ボス撃破の専用ファンファーレ(seBossDown)と重ねない
+    const n=sNow(),r=fanRoot();
     sBig(()=>{
       [0,4,7,12,16].forEach((s,i)=>{tone(mf(r+s),n+i*.07,.14,'p25',.05);tone(mf(r+s-12),n+i*.07,.14,'triangle',.04)});
       [0,4,7,12].forEach(s=>{tone(mf(r+s),n+.37,.5,'square',.032);tone(mf(r+s-12),n+.37,.5,'triangle',.035)});
@@ -65,10 +66,12 @@ function sePend(q){
   try{const t=sNow(),r=fanRoot();tone(mf(r+[0,4,7,12][Math.min(Math.max(q-1,0),3)]),t,.07,'triangle',.04);tone(mf(r+7+[0,4,7,12][Math.min(Math.max(q-1,0),3)]),t+.06,.1,'p25',.03)}catch(e){}
 }
 function seSpin(){if(!sOK())return;try{const t=sNow();tone(400,t,.09,'sawtooth',.02,800);noise(t,.012,.06,'h')}catch(e){}}
-/* リール停止: 左→中→右で 根音/長3度/5度 のポン */
+/* リール停止「カチッ」: 高域ノイズの一瞬 + 矩形の短い下降 + 胴鳴り(三角波)。左→中→右で 根音/長3度/5度 の小さな「ポン」を添える */
 function seReelStop(i){
   if(!sOK())return;
-  try{const t=sNow(),r=fanRoot()-12;tone(mf(r+[0,4,7][i%3]),t,.1,'p50',.05);noise(t,.03,.03,'w');tone(mf(r+12+[0,4,7][i%3]),t,.06,'triangle',.03)}catch(e){}
+  try{const t=sNow(),r=fanRoot()-12;
+    noise(t,.05,.012,'h');tone(2600,t,.02,'p12',.04,1100);tone(190,t+.004,.05,'triangle',.07,95);
+    tone(mf(r+12+[0,4,7][i%3]),t+.01,.09,'p50',.03)}catch(e){}
 }
 /* 予告音(段階別) 1=チャンス 2=チャンス!! 3=激アツ 4=激アツ確定。kyuin と同時に鳴るので「アクセント」に徹する */
 function seYk(L){
@@ -76,9 +79,9 @@ function seYk(L){
   try{const t=sNow(),r=fanRoot()+12;
     sBig(()=>{
       if(L===1)tone(mf(r+7),t,.3,'sine',.05);
-      else if(L===2){tone(mf(r+4),t,.25,'sine',.05);tone(mf(r+12),t+.1,.3,'sine',.05)}
-      else if(L===3){tone(70,t,.6,'sawtooth',.07,150);tone(mf(r-12),t+.25,.4,'p25',.05);tone(mf(r-5),t+.25,.4,'p25',.04);noise(t+.25,.05,.2,'w')}
-      else{tone(60,t,.8,'sawtooth',.08,180);noise(t+.2,.1,.9,'w');[0,4,7,12].forEach(s=>{tone(mf(r+s-12),t+.2,.6,'square',.035);tone(mf(r+s-24),t+.2,.6,'sawtooth',.025)})}
+      else if(L===2){tone(mf(r+4),t,.25,'sine',.05);tone(mf(r+12),t+.1,.3,'sine',.05);sePipo(2,r+19,t+.2)}
+      else if(L===3){sePipo(3,r+19,t+.3);tone(70,t,.6,'sawtooth',.07,150);tone(mf(r-12),t+.25,.4,'p25',.05);tone(mf(r-5),t+.25,.4,'p25',.04);noise(t+.25,.05,.2,'w')}
+      else{sePipo(4,r+24,t+.3);tone(60,t,.8,'sawtooth',.08,180);noise(t+.2,.1,.9,'w');[0,4,7,12].forEach(s=>{tone(mf(r+s-12),t+.2,.6,'square',.035);tone(mf(r+s-24),t+.2,.6,'sawtooth',.025)})}
     });if(L>=3)sDuck(.3,.9)}catch(e){}
 }
 /* リーチ: 鼓動 + 上昇音。SUPER は サイレン(2音交互) */
@@ -99,7 +102,7 @@ function seWin(jp){
       tone(110,t,.7,'sine',.2,32);noise(t,.12,.9,'w');
       [0,.14,.28].forEach((o,k)=>[0,4,7].forEach(s=>{tone(mf(r-12+s+(k?k*0:0)),t+o,k===2?.7:.12,'square',.035);tone(mf(r+s),t+o,k===2?.7:.12,'sawtooth',.025)}));
       if(jp)for(let i=0;i<8;i++)tone(mf(sLad(5+i*2)),t+.5+i*.07,.14,'p25',.045);
-    });sDuck(.4,1.2)}catch(e){}
+    });seJaraStream(t+.8,1.4,jp?20:14);sDuck(.4,1.2)}catch(e){}
 }
 /* JACKPOT: 0.6秒ごとの上昇スタブ(画面フラッシュと同期)x6 + 約3秒のコイン雨 */
 function seJackpot(){

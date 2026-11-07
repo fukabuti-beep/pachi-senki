@@ -6,7 +6,7 @@
 let AC,SGR=null,SNB,SNBH,SNBM;
 let BG={nx:0,st:0,on:1,iv:0,s:'n',bus:null};
 const mf=n=>440*Math.pow(2,(n-69)/12);
-const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7],mg:1,bk:1,sk:1};
+const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7],mg:1,bk:.6,sk:1.6};
 const SND_KEY='pachi2snd';
 const sClamp=(v,d)=>{v=+v;return isFinite(v)?Math.max(0,Math.min(1,v)):d};
 try{const o=JSON.parse(localStorage.getItem(SND_KEY)||'null');if(o){SND.b=sClamp(o.b,SND.b);SND.s=sClamp(o.s,SND.s);SND.m=o.m?1:0;BG.on=SND.m?0:1}}catch(e){}

@@ -116,5 +116,40 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   g2.start(); g2.advance(5, 0.05); noErr(g2, 'reload');
 }
 
+// 6) ミニゲーム: 解放条件 / 放置で自動決着 / 連打 / 重複防止 / stopMG の null 安全
+{
+  const g = createGame({ seed: 8, storage: mkStore(undefined, { gold: 0, stage: 1, lv: [] }) });
+  g.start(); g.advance(1, 0.05);
+  ok(g.eval('mgPick()') === 'stop' && g.eval('mgPick()') === 'stop', 'stage1: only BONUS STOP');
+  g.eval('G.stage=12'); const seen12 = new Set([g.eval('mgPick()'), g.eval('mgPick()'), g.eval('mgPick()'), g.eval('mgPick()')]);
+  ok(seen12.has('chest') && !seen12.has('tap'), 'stage12: chest unlocked, tap locked');
+  g.eval('G.stage=25'); const seen25 = new Set(Array.from({ length: 6 }, () => g.eval('mgPick()')));
+  ok(['stop', 'chest', 'tap'].every(k => seen25.has(k)), 'stage25: all three rotate');
+  g.eval('stopMG()'); // MG が無くても落ちない
+  for (const ty of ['chest', 'tap']) {
+    g.eval('G.stage=25;G.gold=0;MG2=null;fg=0'); g.advance(2, 0.05);
+    const g0 = g.eval('G.gold');
+    g.eval(`mg2Start('${ty}')`); ok(g.eval('!!MG2'), ty + ' starts');
+    g.eval('mini()'); ok(g.eval('MG2.ty') === ty && g.eval('MG') === null, ty + ': mini() during a minigame is ignored');
+    g.advance(10, 0.05); // 放置 → 自動決着して閉じる
+    ok(g.eval('MG2') === null, ty + ': auto-resolves and closes with no input');
+    ok(g.eval('G.gold') > g0 && fin(g.eval('G.gold')), ty + ': pays out with no input');
+  }
+  // 連打は放置より多い
+  const tap = (n) => { g.eval("G.stage=25;MG2=null;mg2Start('tap')"); for (let i = 0; i < n; i++) g.eval('mg2Tap({})'); const before = g.eval('G.gold'); g.advance(6, 0.05); return g.eval('G.gold') - before; };
+  ok(tap(50) > tap(0), 'tapping beats idle');
+  g.eval("G.stage=25;MG2=null;mg2Start('chest');mg2Tap({clientX:0})"); ok(g.eval('MG2.s') === 1 && g.eval('MG2.pk') === 0, 'chest tap picks');
+  g.eval('mg2Tap({clientX:0})'); g.advance(3, 0.05); ok(g.eval('MG2') === null, 'chest result closes');
+  // ボス撃破経由(既存フロー: setTimeout(mini,1200))
+  g.eval('MG2=null;G.stage=25;spawn();kill()'); g.advance(20, 0.05);
+  ok(g.eval('X.st.mg') >= 1 && g.eval('MG') === null && g.eval('MG2') === null, 'boss kill -> minigame -> closes');
+  ok(g.eval('(function(){let k=0;for(let i=0;i<9;i++){mini();k++;if(MG)stopMG();MG2=null}return k})()') === 9, 'repeated mini() ok');
+  noErr(g, 'minigames');
+  // 配列/状態の健全性(長時間 + ボス連打)
+  for (let i = 0; i < 12; i++) { g.eval('G.stage=Math.max(G.stage,5);G.stage=G.stage-G.stage%5+4;spawn();G.stage++;spawn();kill()'); g.advance(8, 0.05); }
+  ok(g.eval('MG2?MG2.co.length:0') <= 30 && fin(g.eval('G.gold')), 'coin particles bounded');
+  noErr(g, 'minigames soak');
+}
+
 if (failures) { console.error('\n' + failures + ' feature test failure(s)'); process.exit(1); }
 console.log('FEATURE OK');

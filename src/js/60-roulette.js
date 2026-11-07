@@ -4,7 +4,7 @@ function drawW(a,kick){const c=wc;c.clearRect(0,0,240,240);c.save();c.translate(
 WS.forEach((m,i)=>{c.beginPath();c.moveTo(0,0);c.arc(0,0,104,i*SG,(i+1)*SG);c.fillStyle=WC[i];c.fill();c.strokeStyle='#000';c.lineWidth=3;c.stroke();c.save();c.rotate((i+.5)*SG);c.fillStyle=m==50?'#000':'#fff';c.font=(m>=10?20:16)+'px '+FN;c.textAlign='right';c.fillText('x'+m,94,6);c.restore()});c.restore();
 c.beginPath();c.arc(120,128,16,0,TAU);c.fillStyle='#ffd400';c.fill();c.strokeStyle='#000';c.lineWidth=3;c.stroke();
 c.save();c.translate(120,18);c.rotate(kick);c.beginPath();c.moveTo(-12,-10);c.lineTo(12,-10);c.lineTo(0,28);c.closePath();c.fillStyle='#ff2d7a';c.fill();c.stroke();c.restore()}
-function startRoul(base){$('rl').style.display='flex';$('rr').textContent='';const w=WS.map(m=>({2:30,3:22,5:14,10:6,50:1}[m]*(m>=5?1+.2*(G.lv[5]-1):1)));let r=Math.random()*w.reduce((a,b)=>a+b),k=0;while(r>w[k]){r-=w[k];k++}
+function startRoul(base){$('rl').style.display='flex';$('rr').textContent='';const w=WS.map(m=>({2:30,3:22,5:14,10:6,50:1}[m]*(m>=5?luck():1)));let r=Math.random()*w.reduce((a,b)=>a+b),k=0;while(r>w[k]){r-=w[k];k++}
 const tg=-1.5708-(k+.2+Math.random()*.6)*SG;RL={a1:((tg%TAU)+TAU)%TAU+TAU*6,t:0,k,m:WS[k],last:-1,base,kick:0,ph:0,a:0};showMsg('ROULETTE!!','#ffd400')}
 function updRoul(dt){if(!RL)return;RL.t+=dt;RL.kick*=.85;
 if(RL.ph==0){const p=Math.min(1,RL.t/4.6),e=1-Math.pow(1-p,4);RL.a=RL.a1*e;const idx=Math.floor((((-1.5708-RL.a)%TAU)+TAU)%TAU/SG);if(idx!=RL.last){RL.last=idx;RL.kick=.55;beep(300+(1-p)*500,.04,'square',.04)}

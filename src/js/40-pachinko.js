@@ -4,9 +4,9 @@ for(let r=0;r<10;r++){const y=40+r*29,o=r%2?15:0;for(let x=15+o;x<350;x+=30){if(
 for(let i=0;i<10;i++){pegs.push([20+i*14,312+i*5,3.5,.45,0]);pegs.push([340-i*14,312+i*5,3.5,.45,0])}
 bump.forEach(b=>pegs.push([b[0],b[1],9,1.15,1]));
 const balls=[],bk=(x,y,vx,vy,g)=>({x,y,vx,vy,g});
-function pkHit(s){cmb++;cmbT=1.6;if(cmb==30)awaken();if([10,25,50,100].includes(cmb)){banner(cmb+' COMBO!','#ffd400');kyuin(4,'#ffd400')}if(CB&&CB.g==2){CB.g=0;golden()}G.sp=Math.min(100,G.sp+s*(1+.15*(G.lv[6]-1)));beep(500+Math.min(cmb,24)*45,.06,'triangle',.035)}
+function pkHit(s){cmb++;cmbT=1.6;if(cmb==30)awaken();if([10,25,50,100].includes(cmb)){banner(cmb+' COMBO!','#ffd400');kyuin(4,'#ffd400')}if(CB&&CB.g==2){CB.g=0;golden()}spAdd(s*BAL.spBall*spm());beep(500+Math.min(cmb,24)*45,.06,'triangle',.035)}
 function onSide(){pkHit(3);hurt(atk()*1.5*cm(),'#8ff')}
-function onChucker(){if(AC)tone(1800,AC.currentTime,.06,'sawtooth',.03,2600);pkHit(6);if(G.q<4){G.q++;const h=Math.random()<(G.rush>0?.25:hitP());QL.push({h,c:ykLv(h)})}startSpin()}
+function onChucker(){if(AC)tone(1800,AC.currentTime,.06,'sawtooth',.03,2600);pkHit(6);if(G.q<4){G.q++;const h=hitRoll();QL.push({h,c:heatYk(h)})}startSpin()}
 function onAtk(){jara();pkHit(2);hurt(atk()*3*(1+G.combo*.2)*cm(),'#ffd400');G.gold+=Math.ceil(G.stage*mul())}
 function stepBalls(dt){const h=dt*60/2;for(let k=balls.length-1;k>=0;k--){const b=balls[k];CB=b;let gone=0;
 for(let s=0;s<2&&!gone;s++){b.vy=Math.min(6,b.vy+.09*h);b.x+=b.vx*h;b.y+=b.vy*h;

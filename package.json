@@ -1,0 +1,10 @@
+{
+  "name": "pachi-senki",
+  "private": true,
+  "description": "パチ戦記 - 放置バトルパチンコ (ブラウザ / スマホ向け単一HTML)",
+  "scripts": {
+    "build": "node tools/build.js",
+    "test": "node tools/build.js && node tests/smoke.js",
+    "sim": "node tools/sim.js"
+  }
+}

@@ -1,0 +1,11 @@
+/* ---------- audio: SE + 8bit BGM (WebAudio) ---------- */
+let AC;function beep(f,d=.08,t='square',v=.04){if(!AC)return;try{const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+const CH=[[57,3],[53,4],[55,4],[52,3]],mf=n=>440*Math.pow(2,(n-69)/12);let BG={nx:0,st:0,on:1,iv:0},NB;
+function tone(f,t,d,ty,v,f2){const o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d)}
+function noise(t,v,d){const s=AC.createBufferSource(),g=AC.createGain();s.buffer=NB;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g);g.connect(AC.destination);s.start(t)}
+function note(s,t,R,sd){const k=s%16,[r,th]=CH[Math.floor(s/16)%4],ar=R?(s%128<64?[0,7,12,16,12,7,12,19]:[0,4,7,12,16,12,7,4]):(s%128<64?[0,th,7,12,7,th,12,7]:[12,7,th,0,7,th,12,19]);tone(mf(r+12+ar[k%8]+(R?12:0)),t,sd*1.5,'square',.016);if(k%4==0)tone(mf(r-12),t,sd*3.5,'triangle',.05);if(k%(R?4:8)==0)tone(150,t,.1,'triangle',.08,40);if(k%4==2||(R&&k%2==0))noise(t,R?.03:.02,.04)}
+function bgm(){if(!AC||BG.iv)return;NB=AC.createBuffer(1,4410,44100);const d=NB.getChannelData(0);for(let i=0;i<4410;i++)d[i]=Math.random()*2-1;BG.nx=AC.currentTime+.1;BG.iv=setInterval(()=>{if(!BG.on)return;const R=G.rush>0,sd=60/(R?172:isBoss()?150:128)/4;while(BG.nx<AC.currentTime+.2){note(BG.st++,BG.nx,R,sd);BG.nx+=sd}},60)}
+$('mu').onclick=()=>{BG.on=!BG.on;$('mu').style.opacity=BG.on?1:.4;if(AC)BG.nx=AC.currentTime+.1};
+function kyuin(n,c){for(let i=0;i<n;i++)setTimeout(()=>{if(!AC)return;const f=1000+i*260,t=AC.currentTime;tone(f,t,.1,'sawtooth',.045,f*1.9);tone(f*2,t,.1,'square',.015,f*3.6);flash(i%2?c:'#fff')},i*105)}
+function jara(){if(!AC)return;tone(2000+Math.random()*900,AC.currentTime,.03,'square',.02)}
+function fan(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>AC&&tone(f,AC.currentTime,.14,'square',.05),i*70))}

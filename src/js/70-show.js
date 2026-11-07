@@ -1,0 +1,4 @@
+/* ---------- show / bgm ---------- */
+function banner(t,c){const b=$('bn');b.textContent=t;b.style.color=c;b.className='';void b.offsetWidth;b.className='on'}
+function bigHit(jp){const was=G.rush>0;G.roul=1;G.combo++;G.rush=Math.min(15,G.rush+(jp?12:9)+.5*(G.lv[7]-1));showMsg(jp?'777 JACKPOT!!':'大当たり!! RUSH x'+G.combo,'#ffd400');beep(1400,.5,'sawtooth',.06);kyuin(jp?10:7,'#ffd400');banner(jp?'JACKPOT!!':was?G.combo+'連チャン!!':'確変突入!!',jp?'#ffd400':'#ff2d7a');cutin(Math.floor(Math.random()*3),jp?'JACKPOT!!':'大当たり!!',jp?'#ffd400':'#ff2d7a',()=>jp?jackpot():startRoul(atk()*40*(1+G.combo*.5)))}
+function jackpot(){G.jp=5;const g=Math.floor(G.pool+G.stage*500*mul());G.gold+=g;G.pool=0;hurt(atk()*150,'#ffd400',1,1);F.push({x:150,y:135,t:0,s:'+'+fmt(g),c:'#ffd400',b:1});showMsg('JACKPOT +'+fmt(g),'#ffd400');for(let i=0;i<6;i++)setTimeout(()=>{flash(i%2?'#fff':'#ffd400');shake();beep(800+i*150,.2,'square',.06)},i*600)}

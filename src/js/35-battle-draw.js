@@ -36,6 +36,4 @@ drawHitFx(t);drawDeath(t);
 for(let i=PT.length-1;i>=0;i--){const p=PT[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.l-=.025;if(p.l<=0){PT.splice(i,1);continue}bc.globalAlpha=Math.min(1,p.l);bc.fillStyle=p.c;const s=p.l>.5?4:2;bc.fillRect(Math.round(p.x),Math.round(p.y),s,s)}bc.globalAlpha=1;
 bc.restore();
 modeFront(t);drawHP(t);drawWarn(t);drawF();drawCmb(t);
-if(cut){const p=t-cut.t0;if(p>.95){cut=null}else{if(p>.6&&!cut.f){cut.f=1;cut.cb()}bc.fillStyle='rgba(0,0,0,.8)';bc.fillRect(0,32,360,88);bc.fillStyle=cut.c;bc.fillRect(0,32,360,3);bc.fillRect(0,117,360,3);bc.globalAlpha=.3;for(let i=-2;i<14;i++){const o=i*30+(p*240)%30;bc.beginPath();bc.moveTo(o,35);bc.lineTo(o+15,35);bc.lineTo(o-15,117);bc.lineTo(o-30,117);bc.fill()}bc.globalAlpha=1;
-const e=Math.min(1,p/.2);bc.drawImage(SPR['h'+cut.h+'s'],Math.round(30-(1-e)*160),26,96,96);bc.font='34px '+FN;bc.textAlign='right';bc.strokeStyle='#000';bc.lineWidth=6;bc.fillStyle='#fff';bc.strokeText(cut.txt,350-(1-e)*200,88);bc.fillText(cut.txt,350-(1-e)*200,88);bc.textAlign='center';
-lines(cut.c,t,6)}}jpShow(t);drawRes(t)}
+drawCut(t);jpShow(t);drawRes(t)}

@@ -8,16 +8,33 @@ const H = 3600 * 1000;
 const mkStore = (x, g) => { const s = {}; if (g) s.pachi2 = JSON.stringify(g); if (x !== undefined) s.pachi2x = typeof x === 'string' ? x : JSON.stringify(x); return s; };
 const noErr = (g, name) => ok(g.eval('FERR') === 0, name + ': feature hook threw (FERR=' + g.eval('FERR') + ')');
 
-// 1) 旧セーブ {gold,stage,lv} だけで起動できる
+// 1) 旧セーブ {gold,stage,lv} (v無し) だけで起動できる。旧バランスのstageは攻撃力で倒せる範囲に補正される(Lv・ゴールドは維持)
 {
   const g = createGame({ seed: 1, storage: mkStore(undefined, { gold: 100, stage: 7, lv: [2, 2] }) });
   g.start(); g.advance(10, 0.05);
-  ok(g.eval('G.stage') >= 7, 'old save: stage kept');
-  ok(g.eval('X.best') >= 7, 'old save: best initialised from stage');
+  ok(g.eval('G.stage') >= 1 && g.eval('G.stage') <= 7, 'old save: stage kept or clamped down (never raised)');
+  ok(g.eval('X.best') >= 1, 'old save: best initialised from stage');
   ok(g.eval('X.souls') === 0 && g.eval('X.pres') === 0, 'old save: meta defaults');
   noErr(g, 'old save');
   ok(JSON.parse(g.store.pachi2).lv.length === 10, 'pachi2 still {gold,stage,lv}');
-  ok(Object.keys(JSON.parse(g.store.pachi2)).sort().join() === 'gold,lv,stage', 'pachi2 format untouched');
+  ok(Object.keys(JSON.parse(g.store.pachi2)).sort().join() === 'gold,lv,stage,v', 'pachi2 format: {v,gold,stage,lv}');
+}
+// 1b) v:2 のセーブはそのまま(補正されない)
+{
+  const g = createGame({ seed: 1, storage: mkStore(undefined, { v: 2, gold: 100, stage: 7, lv: [2, 2] }) });
+  ok(g.eval('G.stage') === 7, 'v2 save: stage untouched');
+  ok(g.eval('X.best') >= 7, 'v2 save: best initialised from stage');
+}
+// 1c) 旧バランスで伸びすぎたセーブ(stage120/Lv120)は、倒せる範囲に戻され進行が止まらない
+{
+  const lv = [120, 11, 12, 120, 15, 15, 8, 5, 10, 10];
+  const g = createGame({ seed: 1, storage: mkStore(undefined, { gold: 5000, stage: 120, lv }) });
+  const s0 = g.eval('G.stage');
+  ok(s0 >= 1 && s0 < 120, 'old overgrown save: stage clamped down (' + s0 + ')');
+  ok(g.eval('G.lv[0]') === 120 && g.eval('G.gold') >= 5000, 'old overgrown save: Lv and gold kept');
+  g.start(); g.advance(120, 0.05);
+  ok(g.eval('G.stage') > s0, 'old overgrown save: can still progress (' + s0 + ' -> ' + g.eval('G.stage') + ')');
+  noErr(g, 'old overgrown save');
 }
 
 // 2) 壊れた/悪意あるメタセーブでも NaN/例外なし

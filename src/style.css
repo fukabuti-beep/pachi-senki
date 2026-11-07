@@ -186,3 +186,47 @@ text-shadow:1px 1px 0 #ff9a1f,2px 2px 0 #ff9a1f,3px 3px 0 #ff5a2a,4px 4px 0 #ff2
 @keyframes slotr{0%{box-shadow:0 0 0 2px #000,0 0 0 4px #ffe56a,0 0 0 6px #ff2d7a,0 0 0 8px #000,0 0 14px 3px #ff2d7a}25%{box-shadow:0 0 0 2px #000,0 0 0 4px #fff,0 0 0 6px #ffd400,0 0 0 8px #000,0 0 14px 3px #ffd400}50%{box-shadow:0 0 0 2px #000,0 0 0 4px #aaf,0 0 0 6px #22e0ff,0 0 0 8px #000,0 0 14px 3px #22e0ff}75%{box-shadow:0 0 0 2px #000,0 0 0 4px #fff,0 0 0 6px #7dff7a,0 0 0 8px #000,0 0 14px 3px #7dff7a}}
 @keyframes slotc{50%{box-shadow:0 0 0 2px #000,0 0 0 4px #bff6ff,0 0 0 6px #22a8c8,0 0 0 8px #000,0 0 12px 2px #22e0ff}}
 @media (prefers-reduced-motion:reduce){.gm.c3,.gm.c4,#app.fev #slot,#app.rush #slot{animation:none}}
+
+/* ===== PUSH演出(押せ!!) / ルーレット枠 ===== */
+#push{position:fixed;inset:0;z-index:12;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;touch-action:manipulation;overflow:hidden;
+ background:radial-gradient(circle at 50% 58%,rgba(255,40,90,.38),rgba(8,3,26,.93) 70%);-webkit-user-select:none;user-select:none}
+#push.on{display:flex}
+#push .sun{position:absolute;left:50%;top:58%;width:230vmax;height:230vmax;margin:-115vmax 0 0 -115vmax;pointer-events:none;
+ background:repeating-conic-gradient(from 0deg,rgba(255,220,0,.2) 0 6deg,transparent 6deg 12deg);animation:pkspin 7s linear infinite}
+@keyframes pkspin{to{transform:rotate(360deg)}}
+#pkT{position:relative;font-size:clamp(60px,21vw,96px);line-height:1;letter-spacing:4px;color:#fff3a0;white-space:nowrap;
+ text-shadow:-4px 0 #000,4px 0 #000,0 -4px #000,-4px -4px #000,4px -4px #000,-4px 4px #000,4px 4px #000,0 8px 0 #d24a00,0 12px 0 #000,0 0 32px #ff2d7a;
+ animation:pktxt .16s steps(2) infinite}
+@keyframes pktxt{0%{transform:translate(-3px,0) scale(1)}50%{transform:translate(3px,-2px) scale(1.05)}100%{transform:translate(-3px,0) scale(1)}}
+#pkB{position:relative;width:220px;height:220px;animation:pkpulse .5s steps(2) infinite;filter:drop-shadow(0 0 22px rgba(255,40,70,.9))}
+@keyframes pkpulse{50%{transform:scale(1.06)}}
+#pkB canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;border:0;box-shadow:none}
+#pkC1{display:none}
+#pkB i{position:absolute;left:0;right:0;top:50%;margin-top:-22px;text-align:center;font-style:normal;font-size:40px;line-height:44px;letter-spacing:2px;color:#fff;text-shadow:-3px 0 #000,3px 0 #000,0 -3px #000,0 3px #000,3px 3px 0 #000,-3px -3px 0 #000,0 0 14px #ff9aa8}
+.pkbar{width:220px;height:14px;background:#000;box-shadow:0 0 0 3px #000,0 0 0 5px #ffe56a;overflow:hidden}
+.pkbar b{display:block;height:100%;width:100%;background:repeating-linear-gradient(90deg,#ffd400 0 6px,#ff8a00 6px 8px)}
+#push.go .pkbar b{animation:pkbar var(--pkms,2400ms) linear forwards}
+@keyframes pkbar{to{width:0}}
+.pksub{font-size:16px;letter-spacing:6px;color:#fff;text-shadow:2px 2px 0 #000;animation:bl .4s steps(2) infinite}
+#push.jp #pkT{color:#fff36a;text-shadow:-4px 0 #000,4px 0 #000,0 -4px #000,-4px -4px #000,4px -4px #000,-4px 4px #000,4px 4px #000,0 8px 0 #b88a00,0 12px 0 #000,0 0 36px #ffd400}
+#push.hit{animation:pkhit .42s steps(3)}
+#push.hit #pkC0{display:none}#push.hit #pkC1{display:block}
+#push.hit #pkB{animation:none;transform:translateY(12px) scale(.95)}
+#push.hit #pkT{animation:none;transform:scale(1.25);color:#fff}
+#push.hit .pkbar,#push.hit .pksub{visibility:hidden}
+@keyframes pkhit{0%{background-color:#fff}100%{background-color:transparent}}
+/* 小さいPUSH(ルーレットのDOUBLE UP?)。ルーレットが見えるよう薄く、下寄せ */
+#push.small{background:rgba(5,3,20,.4);justify-content:flex-end;padding-bottom:9vh;gap:6px}
+#push.small .sun{display:none}
+#push.small #pkT{font-size:clamp(40px,13vw,56px)}
+#push.small #pkB{width:165px;height:165px}#push.small #pkB i{font-size:30px;margin-top:-17px}
+#push.small .pkbar{width:165px}
+@media (prefers-reduced-motion:reduce){#push .sun,#pkT,#pkB,.pksub,#push.hit{animation:none}}
+/* ルーレット枠: 金属ベゼル+LEDタイトル */
+#rl .rb{background:radial-gradient(circle at 50% 45%,#2b1a6e,#0b0624 75%);padding:12px 14px 14px;
+ box-shadow:0 0 0 3px #000,0 0 0 6px #ffe56a,0 0 0 9px #a87500,0 0 0 11px #000,0 0 50px 10px rgba(255,45,122,.55);animation:rlin .28s steps(4)}
+@keyframes rlin{from{transform:scale(.55);opacity:.2}to{transform:none;opacity:1}}
+#rt{font-size:20px;letter-spacing:3px;color:#fff;margin-bottom:4px;text-shadow:2px 2px 0 #c40f45,0 0 12px #ff2d7a}
+#rt:before,#rt:after{content:"◆";color:var(--ac);margin:0 8px;font-size:12px;vertical-align:2px;animation:bl .4s steps(2) infinite}
+#rr{font-size:34px;height:42px;letter-spacing:2px;text-shadow:3px 3px 0 #000,0 0 14px #ff2d7a}
+@media (prefers-reduced-motion:reduce){#rl .rb,#rt:before,#rt:after{animation:none}}

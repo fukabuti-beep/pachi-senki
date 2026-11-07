@@ -230,3 +230,7 @@ text-shadow:1px 1px 0 #ff9a1f,2px 2px 0 #ff9a1f,3px 3px 0 #ff5a2a,4px 4px 0 #ff2
 #rt:before,#rt:after{content:"◆";color:var(--ac);margin:0 8px;font-size:12px;vertical-align:2px;animation:bl .4s steps(2) infinite}
 #rr{font-size:34px;height:42px;letter-spacing:2px;text-shadow:3px 3px 0 #000,0 0 14px #ff2d7a}
 @media (prefers-reduced-motion:reduce){#rl .rb,#rt:before,#rt:after{animation:none}}
+
+/* ===== 設定: 常時点灯(ON=緑) / 小さい画面ではパネルをスクロール ===== */
+#cfgWake.on{background:#12803a;box-shadow:0 0 0 2px #000,inset 3px 3px 0 #6af09a,inset -3px -3px 0 #084a20,0 5px 0 2px #000}
+.cfgb{max-height:calc(100vh - 32px);overflow-y:auto;-webkit-overflow-scrolling:touch}

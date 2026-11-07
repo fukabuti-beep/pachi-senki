@@ -15,8 +15,11 @@ const run = (tap) => {
   else g.advance(2.4, 0.05);                    // 放置 → 自動で押される
   ok(g.eval('!PUSH'), 'PUSH finished (' + (tap ? 'tap' : 'auto') + ')');
   ok(g.eval('!!RL'), 'roulette started after PUSH');
-  g.advance(14, 0.05);                          // ルーレット(回転4.6s+DOUBLE UP PUSH最大2.4s+表示1.8s)
-  ok(g.eval('!RL && G.roul') === 0 || (g.eval('!RL') && g.eval('G.roul') === 0), 'roulette finished and game unlocked (RL=' + g.eval('!!RL') + ' roul=' + g.eval('G.roul') + ')');
+  // ルーレット(回転4.6s+DOUBLE UP PUSH最大2.4s+表示1.8s)。終了後は通常抽選に戻るので、
+  // 乱数次第で次の大当たりが来て G.roul=1 に戻り得る → 「終わった瞬間」に解除されているかを見る
+  let endRoul = null;
+  for (let i = 0; i < 280 && endRoul === null; i++) { g.advance(0.05, 0.05); if (g.eval("!RL")) endRoul = g.eval("G.roul"); }
+  ok(endRoul === 0, "roulette finished and game unlocked (roul at end=" + endRoul + ")");
   ok(g.eval('!PUSH'), 'no PUSH left over');
   ok(Number.isFinite(g.eval('G.gold')) && Number.isFinite(g.eval('G.rush')), 'no NaN');
 };

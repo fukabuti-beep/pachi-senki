@@ -1,11 +1,107 @@
-/* ---------- audio: SE + 8bit BGM (WebAudio) ---------- */
-let AC;function beep(f,d=.08,t='square',v=.04){if(!AC)return;try{const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
-const CH=[[57,3],[53,4],[55,4],[52,3]],mf=n=>440*Math.pow(2,(n-69)/12);let BG={nx:0,st:0,on:1,iv:0},NB;
-function tone(f,t,d,ty,v,f2){const o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d)}
-function noise(t,v,d){const s=AC.createBufferSource(),g=AC.createGain();s.buffer=NB;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g);g.connect(AC.destination);s.start(t)}
-function note(s,t,R,sd){const k=s%16,[r,th]=CH[Math.floor(s/16)%4],ar=R?(s%128<64?[0,7,12,16,12,7,12,19]:[0,4,7,12,16,12,7,4]):(s%128<64?[0,th,7,12,7,th,12,7]:[12,7,th,0,7,th,12,19]);tone(mf(r+12+ar[k%8]+(R?12:0)),t,sd*1.5,'square',.016);if(k%4==0)tone(mf(r-12),t,sd*3.5,'triangle',.05);if(k%(R?4:8)==0)tone(150,t,.1,'triangle',.08,40);if(k%4==2||(R&&k%2==0))noise(t,R?.03:.02,.04)}
-function bgm(){if(!AC||BG.iv)return;NB=AC.createBuffer(1,4410,44100);const d=NB.getChannelData(0);for(let i=0;i<4410;i++)d[i]=Math.random()*2-1;BG.nx=AC.currentTime+.1;BG.iv=setInterval(()=>{if(!BG.on)return;const R=G.rush>0,sd=60/(R?172:isBoss()?150:128)/4;while(BG.nx<AC.currentTime+.2){note(BG.st++,BG.nx,R,sd);BG.nx+=sd}},60)}
-$('mu').onclick=()=>{BG.on=!BG.on;$('mu').style.opacity=BG.on?1:.4;if(AC)BG.nx=AC.currentTime+.1};
-function kyuin(n,c){for(let i=0;i<n;i++)setTimeout(()=>{if(!AC)return;const f=1000+i*260,t=AC.currentTime;tone(f,t,.1,'sawtooth',.045,f*1.9);tone(f*2,t,.1,'square',.015,f*3.6);flash(i%2?c:'#fff')},i*105)}
-function jara(){if(!AC)return;tone(2000+Math.random()*900,AC.currentTime,.03,'square',.02)}
-function fan(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>AC&&tone(f,AC.currentTime,.14,'square',.05),i*70))}
+/* ---------- audio core (sound担当): 音声グラフ / 発音プリミティブ / ミキサーAPI ----------
+   構成: 75=コア(このファイル) 76=BGM 77=SE 78=他ファイルの関数へのSEフック
+   AC は 99-main.js が「開始」ボタンで生成する(ユーザー操作後)。AC が無い/壊れても例外は出さない。
+   公開API: beep tone noise kyuin jara fan bgm / setVol(bgm,se) getVol() setMute(m) isMuted() */
+let AC,SGR=null,SNB,SNBH,SNBM;
+let BG={nx:0,st:0,on:1,iv:0,s:'n'};
+const mf=n=>440*Math.pow(2,(n-69)/12);
+const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7]};
+const SND_KEY='pachi2snd';
+const sClamp=(v,d)=>{v=+v;return isFinite(v)?Math.max(0,Math.min(1,v)):d};
+try{const o=JSON.parse(localStorage.getItem(SND_KEY)||'null');if(o){SND.b=sClamp(o.b,SND.b);SND.s=sClamp(o.s,SND.s);SND.m=o.m?1:0;BG.on=SND.m?0:1}}catch(e){}
+try{$('mu').style.opacity=SND.m?.4:1}catch(e){}
+function sndSave(){try{localStorage.setItem(SND_KEY,JSON.stringify({b:SND.b,s:SND.s,m:SND.m}))}catch(e){}}
+
+/* --- 音声グラフ: bg/se/ld(リード) -> mx(マスター) -> compressor -> destination。lead は dotted-8th ディレイにも送る --- */
+function sGr(){
+  if(!AC)return null;
+  if(SGR&&SGR.ac===AC)return SGR.bad?null:SGR;
+  SGR={ac:AC,bad:1};
+  try{
+    const mx=AC.createGain(),bg=AC.createGain(),se=AC.createGain(),ld=AC.createGain();
+    try{const cp=AC.createDynamicsCompressor();cp.threshold.value=-16;cp.knee.value=18;cp.ratio.value=5;cp.attack.value=.004;cp.release.value=.18;mx.connect(cp);cp.connect(AC.destination)}catch(e){mx.connect(AC.destination)}
+    bg.connect(mx);se.connect(mx);ld.connect(bg);
+    let dl=null;
+    try{dl=AC.createDelay(1);const wet=AC.createGain(),fb=AC.createGain();wet.gain.value=.28;fb.gain.value=.3;dl.delayTime.value=.35;ld.connect(dl);dl.connect(wet);wet.connect(bg);dl.connect(fb);fb.connect(dl)}catch(e){dl=null}
+    const sr=AC.sampleRate||44100,n=sr,w=new Float32Array(n),h=new Float32Array(n),m=new Float32Array(n);
+    for(let i=0;i<n;i++)w[i]=Math.random()*2-1;
+    for(let i=0;i<n;i++)h[i]=(w[i]-(i?w[i-1]:0))*.6;
+    const lf=[];for(let i=0;i<93;i++)lf.push(Math.random()<.5?-1:1);
+    for(let i=0;i<n;i++)m[i]=lf[Math.floor(i/3)%93];
+    const mk=a=>{const b=AC.createBuffer(1,n,sr);try{b.getChannelData(0).set(a)}catch(e){}return b};
+    SNB=mk(w);SNBH=mk(h);SNBM=mk(m);
+    SGR={ac:AC,mx,bg,se,ld,dl};
+    applyMix();
+  }catch(e){SGR={ac:AC,bad:1}}
+  return SGR.bad?null:SGR;
+}
+const bgGain=()=>SND.b*SND.b*.9, seGain=()=>SND.s*SND.s;
+function sSetP(p,v){try{p.cancelScheduledValues&&p.cancelScheduledValues(0)}catch(e){}p.value=v}
+function applyMix(){const g=SGR&&!SGR.bad?SGR:null;if(!g)return;try{sSetP(g.mx.gain,SND.m?0:.9);sSetP(g.bg.gain,bgGain());sSetP(g.se.gain,seGain())}catch(e){}}
+/* ミキサーAPI(ui担当が設定画面から使う): 0〜1。null/undefined の引数は変更しない */
+function setVol(bgm,se){if(bgm!=null)SND.b=sClamp(bgm,SND.b);if(se!=null)SND.s=sClamp(se,SND.s);applyMix();sndSave()}
+function getVol(){return{bgm:SND.b,se:SND.s,mute:!!SND.m}}
+function isMuted(){return !!SND.m}
+function setMute(m){SND.m=m?1:0;BG.on=SND.m?0:1;try{$('mu').style.opacity=SND.m?.4:1}catch(e){}if(AC&&!SND.m){BG.nx=AC.currentTime+.1;sndResume()}applyMix();sndSave()}
+$('mu').onclick=()=>setMute(!SND.m);
+
+/* --- iOS Safari: ユーザー操作で resume / 無音バッファ再生でアンロック --- */
+function sndResume(){try{if(AC&&AC.state&&AC.state!=='running'&&AC.resume){const p=AC.resume();p&&p.catch&&p.catch(()=>{})}}catch(e){}}
+function sndUnlock(){try{const s=AC.createBufferSource();s.buffer=AC.createBuffer(1,1,22050);s.connect(AC.destination);s.start(0)}catch(e){}}
+try{if(document.addEventListener){['pointerdown','touchend','keydown'].forEach(e=>document.addEventListener(e,sndResume,{passive:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden)sndResume()})}}catch(e){}
+
+/* --- 同時発音上限(SEのみ): 発音時刻 t に重なっている声が mv を超えたら捨てる。sPri>0 の重要音は +14 --- */
+let sVq=[],sPri=0;
+function sVok(t,d){const n=AC.currentTime;sVq=sVq.filter(v=>v[1]>n);let c=0;for(let i=0;i<sVq.length;i++)if(sVq[i][0]<=t&&sVq[i][1]>t)c++;if(c>=SND.mv+(sPri?14:0))return false;sVq.push([t,t+d]);return true}
+
+/* --- PeriodicWave パルス波(デューティ比): p12=12.5% p25=25% p75=75%。未対応環境は square にフォールバック --- */
+const PWD={p12:.125,p25:.25,p75:.75};let PWC={ac:null};
+function sPwave(ty){
+  const d=PWD[ty];if(!d)return null;
+  if(PWC.ac!==AC)PWC={ac:AC};
+  if(PWC[ty]===undefined){PWC[ty]=null;try{const N=24,re=new Float32Array(N),im=new Float32Array(N);for(let n=1;n<N;n++)re[n]=2/(n*Math.PI)*Math.sin(n*Math.PI*d);PWC[ty]=AC.createPeriodicWave(re,im)}catch(e){}}
+  return PWC[ty];
+}
+const sDst=k=>{const g=sGr();return g?g[k]:AC.destination};
+
+/* 低レベル発声(制限なし・BGM用): o={f2:終了周波数, sus:音を保つ割合0〜1, dest:'se'|'bg'|'ld', vib:ビブラート} */
+function sVo(f,t,d,ty,v,o){
+  o=o||{};
+  const osc=AC.createOscillator(),g=AC.createGain(),w=sPwave(ty);
+  if(w)osc.setPeriodicWave(w);else osc.type=(ty==='p50'||PWD[ty])?'square':ty;
+  v=Math.max(v,.0002);
+  osc.frequency.setValueAtTime(f,t);
+  if(o.f2)osc.frequency.exponentialRampToValueAtTime(o.f2,t+d);
+  else if(o.vib&&d>.2){for(let k=1,x=t+.12;x<t+d;k++,x+=.07)osc.frequency.linearRampToValueAtTime(f*(1+(k%2?.007:-.005)),x)}
+  g.gain.setValueAtTime(v,t);
+  if(o.sus)g.gain.setValueAtTime(v,t+d*o.sus);
+  g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  osc.connect(g);g.connect(sDst(o.dest||'se'));
+  osc.start(t);osc.stop(t+d+.02);
+}
+/* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) */
+function sNs(t,v,d,k,dest){
+  const s=AC.createBufferSource(),g=AC.createGain();
+  sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:SNB;
+  v=Math.max(v,.0002);
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  s.connect(g);g.connect(sDst(dest||'se'));
+  s.start(t,Math.random()*.4,d+.02);
+}
+
+/* --- 既存API(シグネチャ維持) --- */
+function tone(f,t,d,ty,v,f2){if(!AC||SND.m)return;try{if(!sVok(t,d))return;sVo(f,t,d,ty,v,{f2})}catch(e){}}
+function noise(t,v,d,k){if(!AC||SND.m)return;try{if(!sVok(t,d))return;sNs(t,v,d,k)}catch(e){}}
+// beep は現在のBGMのキーの音階に丸める(どのSEもBGMと不協和にならない)
+function sSnap(f){
+  if(!(f>180&&f<3300))return f;
+  const m=69+12*Math.log2(f/440);let b=f,bd=9;
+  for(let k=Math.floor(m)-2;k<=Math.ceil(m)+2;k++){if(SND.pcs.indexOf(((k%12)+12)%12)<0)continue;const dd=Math.abs(k-m);if(dd<bd){bd=dd;b=k}}
+  return bd<9?mf(b):f;
+}
+function beep(f,d=.08,t='square',v=.04){
+  if(!AC||SND.m||SND.sup>0)return;
+  try{if(SND.supUntil&&AC.currentTime<SND.supUntil)return;tone(sSnap(f),AC.currentTime,d,t,v)}catch(e){}
+}
+/* BGMを一瞬下げる(ファンファーレ等を聞かせる) */
+function sDuck(a,d){const g=SGR&&!SGR.bad?SGR:null;if(!g||SND.m)return;try{const p=g.bg.gain,n=AC.currentTime,b=bgGain();p.cancelScheduledValues(n);p.setValueAtTime(b*(1-a),n);p.linearRampToValueAtTime(b,n+d)}catch(e){}}

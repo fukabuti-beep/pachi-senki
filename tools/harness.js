@@ -10,10 +10,10 @@ function loadBundle() {
   return fs.readdirSync(jsDir).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
 }
 
-function createGame({ seed = 1, storage = {} } = {}) {
+function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok' } = {}) {
   let simTime = 0;
   const timers = []; let tid = 1;
-  const audio = { osc: 0, noise: 0, byMinute: {} };
+  const audio = { osc: 0, noise: 0, byMinute: {}, spans: [], resumes: 0, waves: 0, pwaves: 0 };
   const rnd = mulberry(seed);
   const noop = () => {};
   const ctxMethods = ['save', 'restore', 'translate', 'rotate', 'scale', 'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'ellipse', 'fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'fillText', 'strokeText', 'drawImage', 'setLineDash', 'clip', 'rect', 'quadraticCurveTo', 'bezierCurveTo', 'putImageData'];
@@ -35,20 +35,39 @@ function createGame({ seed = 1, storage = {} } = {}) {
     createElement: t => makeEl('<' + t + '>'),
     fonts: { ready: Promise.resolve() }, body: makeEl('body'),
   };
+  // WebAudio スタブ(sound担当): 発音数(audio.osc/noise/byMinute)と同時発音の区間(audio.spans)を記録する。
+  // audio オプション: 'ok'(既定) | 'none'(AudioContext無し) | 'broken'(生成は成功、create* が全て例外) | 'suspended'(resume() 後に running)
+  const P = (v = 0) => ({ value: v, setValueAtTime: noop, exponentialRampToValueAtTime: noop, linearRampToValueAtTime: noop, setTargetAtTime: noop, cancelScheduledValues: noop });
   class AudioContext {
     get currentTime() { return simTime; }
-    constructor() { this.destination = {}; }
-    createOscillator() { audio.osc++; const m = Math.floor(simTime / 60); audio.byMinute[m] = (audio.byMinute[m] || 0) + 1; const p = { value: 0, setValueAtTime: noop, exponentialRampToValueAtTime: noop, linearRampToValueAtTime: noop }; return { type: '', frequency: p, connect: noop, start: noop, stop: noop }; }
-    createGain() { const p = { value: 1, setValueAtTime: noop, exponentialRampToValueAtTime: noop, linearRampToValueAtTime: noop }; return { gain: p, connect: noop }; }
-    createBuffer(c, n) { return { getChannelData: () => new Float32Array(n) }; }
-    createBufferSource() { audio.noise++; return { buffer: null, connect: noop, start: noop }; }
-    createBiquadFilter() { return { type: '', frequency: { value: 0, setValueAtTime: noop }, Q: { value: 0 }, connect: noop }; }
+    constructor() {
+      this.destination = {}; this.sampleRate = 44100;
+      this.state = audioMode === 'suspended' ? 'suspended' : 'running';
+      if (audioMode === 'broken') for (const m of ['createOscillator', 'createGain', 'createBuffer', 'createBufferSource', 'createBiquadFilter', 'createDynamicsCompressor', 'createPeriodicWave', 'createStereoPanner', 'createDelay']) this[m] = () => { throw new Error('broken audio'); };
+    }
+    resume() { audio.resumes++; this.state = 'running'; return Promise.resolve(); }
+    suspend() { this.state = 'suspended'; return Promise.resolve(); }
+    createOscillator() {
+      audio.osc++; const m = Math.floor(simTime / 60); audio.byMinute[m] = (audio.byMinute[m] || 0) + 1;
+      const o = { type: '', frequency: P(), detune: P(), connect: noop, disconnect: noop, setPeriodicWave: () => { audio.pwaves++; }, onended: null };
+      o.start = (t = simTime) => { o._s = t; };
+      o.stop = (t = simTime) => { audio.spans.push([o._s == null ? simTime : o._s, t]); };
+      return o;
+    }
+    createGain() { return { gain: P(1), connect: noop, disconnect: noop }; }
+    createDynamicsCompressor() { return { threshold: P(), knee: P(), ratio: P(), attack: P(), release: P(), reduction: 0, connect: noop, disconnect: noop }; }
+    createPeriodicWave(re, im) { audio.waves++; return {}; }
+    createStereoPanner() { return { pan: P(), connect: noop, disconnect: noop }; }
+    createDelay() { return { delayTime: P(), connect: noop, disconnect: noop }; }
+    createBuffer(c, n) { return { length: n, getChannelData: () => new Float32Array(n) }; }
+    createBufferSource() { audio.noise++; return { buffer: null, loop: false, playbackRate: P(1), connect: noop, disconnect: noop, start: noop, stop: noop }; }
+    createBiquadFilter() { return { type: '', frequency: P(), Q: P(), gain: P(), connect: noop, disconnect: noop }; }
   }
   const store = { ...storage };
   const sandbox = {
     document, console, Float32Array, Promise, JSON, Date,
     localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } },
-    AudioContext, requestAnimationFrame: noop,
+    AudioContext: audioMode === 'none' ? undefined : AudioContext, requestAnimationFrame: noop,
     setTimeout: (fn, ms = 0) => { const id = tid++; timers.push({ id, at: simTime + ms / 1000, fn }); return id; },
     clearTimeout: id => { const i = timers.findIndex(t => t.id === id); if (i >= 0) timers.splice(i, 1); },
     setInterval: (fn, ms = 0) => { const id = tid++; timers.push({ id, at: simTime + ms / 1000, fn, every: ms / 1000 }); return id; },

@@ -25,7 +25,7 @@ const relicCount=()=>RLD.filter(r=>RLV[r.id]).length;
 // ドロップ
 const RDR={q:null,show:null};
 function relicRoll(force){const cand=RLD.filter(r=>(RLV[r.id]||0)<RLMAX);if(!cand.length)return null;const r=cand[Math.floor(Math.random()*cand.length)];const nw=!RLV[r.id];RLV[r.id]=(RLV[r.id]||0)+1;relicSave();return {r,lv:RLV[r.id],nw}}
-{const _k=kill;kill=function(){const wb=isBoss();const res=_k.apply(this,arguments);try{if(wb&&run&&(relicCount()===0||Math.random()<.35)){const d=relicRoll();if(d){d.ready=T+1.8;RDR.q=d}}}catch(e){}return res}}
+{const _k=kill;kill=function(){const wb=isBoss();const res=_k.apply(this,arguments);try{if(wb&&run&&(relicCount()===0||Math.random()<(typeof relicDropP==='function'?relicDropP():.35))){const d=relicRoll();if(d){d.ready=T+1.8;RDR.q=d}}}catch(e){}return res}}
 function relicUpd(){const q=RDR.q;if(q&&T>=q.ready&&!MG&&!(typeof MG2!=='undefined'&&MG2)&&!cut){RDR.q=null;RDR.show={t0:T,...q};
   banner(q.nw?'遺物ゲット!!':'遺物 Lv UP!!',q.r.c);kyuin(6,q.r.c);try{if(sOK()){const t=sNow();[784,988,1175,1568,1976].forEach((f,i)=>tone(f,t+i*.07,.14,'square',.035))}}catch(e){}}
   if(RDR.show&&T-RDR.show.t0>3.2)RDR.show=null}
@@ -43,5 +43,5 @@ function relicDraw(t){const S=RDR.show;if(!S)return;const p=t-S.t0,a=Math.min(1,
   thickTxt(bc,'遺物 '+relicCount()+'/'+RLD.length,135,120,10,'#9aa0c8');bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{relicDraw(t)}catch(e){RDR.show=null}return r}}
 // メニュー
-FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すとドロップ(初回確定・以降35%)。同じ遺物は Lv アップ(最大'+RLMAX+')。転生しても残る。</div><div class="fxl">'+
+FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すとドロップ(初回確定・以降'+Math.round((typeof relicDropP==='function'?relicDropP():.35)*100)+'%)。同じ遺物は Lv アップ(最大'+RLMAX+')。転生しても残る。</div><div class="fxl">'+
   RLD.map(r=>{const lv=RLV[r.id]||0;return '<div class="'+(lv?'ok':'no')+'"><span>'+(lv?'<b style="color:'+r.c+'">['+r.ch+']</b> '+r.n:'??? ')+'</span><span>'+(lv?r.d+' Lv'+lv+(lv>=RLMAX?' MAX':''):'未発見')+'</span></div>'}).join('')+'</div>'});

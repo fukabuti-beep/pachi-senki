@@ -33,7 +33,7 @@ let bad = 0; const ok = (c, m) => { if (!c) { bad++; console.error('FAIL: ' + m)
   for (let s = 0; s < 25 * 60; s++) {
     g.advance(1);
     const r = g.eval('GK.rr?GK.rr.t0+"|"+GK.rr.n+"|"+GK.rr.g:null');
-    if (r && r !== lastRR) { lastRR = r; g.eval('__st.rr++;__st.maxN=Math.max(__st.maxN,GK.rr.n)'); const p = r.split('|'); ok(+p[1] >= 1 && isFinite(+p[2]) && +p[2] >= 0, 'リザルトの値が不正: ' + r) }
+    if (r && r !== lastRR) { lastRR = r; g.eval('__st.rr++;__st.maxN=Math.max(__st.maxN,GK.rr.n)'); const p = r.split('|'); ok(+p[1] >= 1 && isFinite(+p[2]) && +p[2] >= 0, 'リザルトの値が不正: ' + r); ok(['C', 'C+', 'B', 'B+', 'A', 'A+', 'S', 'S+'].includes(g.eval('GK.rr.gr')) && g.eval('GK.rr.sc') >= 12, 'ランク評価: ' + g.eval('GK.rr.gr')) }
   }
   const st = g.eval('__st'), pend = g.eval('sp&&sp.hit?1:0');
   ok(st.bh === st.hitSpin - pend, `当否と大当たり回数が不一致: hitSpin=${st.hitSpin} bigHit=${st.bh} pending=${pend}`);

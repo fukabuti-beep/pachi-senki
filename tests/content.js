@@ -46,5 +46,45 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
   const g2 = createGame({ seed: 4, storage: { pachi2_relic: JSON.stringify({ ken: 99, xxx: 3, hai: 'a' }) } });
   ok(g2.eval('RLV.ken') === 5 && g2.eval('RLV.hai') === undefined && g2.eval('RLV.xxx') === undefined, '不正な遺物セーブ: ' + g2.eval('JSON.stringify(RLV)'));
 }
+// (d) 魂の祭壇: 魂を使っても所持魂(ボーナス)は減らない / 開始ステージ・初期ゴールド・魂の器・自動強化
+{
+  const g = createGame({ seed: 5 }); g.start(); g.advance(1);
+  g.eval('X.souls=100;saveX()'); const a0 = g.eval('SB.a()');
+  for (let i = 0; i < 3; i++) g.eval("soulBuy('start')"); g.eval("soulBuy('gold');soulBuy('auto');soulBuy('soul');soulBuy('relic')");
+  ok(g.eval('X.souls') === 100 && g.eval('SB.a()') === a0, '魂を使ったらボーナスが減った');
+  ok(g.eval('SOUL.spent') === 3 + 6 + 9 + 2 + 5 + 5 + 4, '使用済み魂: ' + g.eval('SOUL.spent'));
+  ok(g.eval('relicDropP()') > .35, '遺物の目利き');
+  g.eval('sp=null;RL=null;G.roul=0;G.jp=0;cut=null;MG=null;if(typeof MG2!=="undefined")MG2=null;G.stage=80;X.best=80');
+  const gn = g.eval('soulGain(80)'); g.eval('presDo()');
+  ok(g.eval('G.stage') === 16, '開始ステージ(+15): ' + g.eval('G.stage'));
+  ok(g.eval('G.gold') > 0, '初期ゴールド: ' + g.eval('G.gold'));
+  ok(g.eval('X.souls') === 100 + gn + Math.floor(gn * .1), '魂の器: ' + g.eval('X.souls') + ' gn=' + gn);
+  const lv0 = g.eval('G.lv.reduce((a,b)=>a+b,0)'); g.eval('G.gold=1e9'); g.advance(5);
+  ok(g.eval('G.lv.reduce((a,b)=>a+b,0)') > lv0, '自動強化が買わない');
+  g.eval('soulAutoToggle()'); const lv1 = g.eval('G.lv.reduce((a,b)=>a+b,0)'); g.advance(5); ok(g.eval('G.lv.reduce((a,b)=>a+b,0)') === lv1, '自動強化OFFでも買う');
+  ok(JSON.parse(g.store.pachi2_soul).lv.start === 3, '祭壇の保存');
+  ok(g.eval('soulNext(30)') > 30, '次の魂ステージ');
+  const g2 = createGame({ seed: 5, storage: { pachi2_soul: '{bad' } }); ok(g2.eval('SOUL.spent') === 0, '壊れた祭壇セーブ');
+}
+// (e) 図鑑: 撃破で記録・★でダメージ+1%・保存
+{
+  const g = createGame({ seed: 6 }); g.start(); g.advance(1);
+  const a0 = g.eval('SB.a()');
+  g.eval('for(let i=0;i<10;i++){G.stage=1;spawn();G.hp=1;kill()}');
+  ok(g.eval('ZK.m0') === 10 && g.eval("zkStar('m0')") === 1, '図鑑の記録: ' + g.eval('JSON.stringify(ZK)'));
+  ok(Math.abs(g.eval('SB.a()') / a0 - 1.01) < 1e-9, '★のダメージボーナス: ' + g.eval('SB.a()') / a0);
+  g.eval('G.stage=5;spawn();G.hp=1;kill()'); ok(g.eval("zkStar('b0')") === 1, 'ボスの★');
+  ok(JSON.parse(g.store.pachi2_zukan).m0 === 10, '図鑑の保存');
+  const g2 = createGame({ seed: 6, storage: { pachi2_zukan: JSON.stringify({ m0: 'x', b9: 5, m1: 1e99 }) } }); ok(g2.eval('ZK.m0') === undefined && g2.eval('ZK.b9') === undefined && g2.eval('ZK.m1') === 1e9, '不正な図鑑セーブ');
+}
+// (f) 攻撃モーション: 特殊モーションの位置オフセットが有限で、時間が経てば戻る
+{
+  const g = createGame({ seed: 7 }); g.start(); g.advance(1);
+  for (const [i, k] of [[0, 'jump'], [0, 'spin'], [0, 'double'], [1, 'cast'], [1, 'nova'], [2, 'back'], [2, 'rain']]) {
+    g.eval(`AMV.m[${i}]={k:'${k}',t0:T}`); g.advance(.2);
+    ok(Number.isFinite(g.eval(`heroDX(${i},T)`)) && Number.isFinite(g.eval(`heroDY(${i},T)`)), 'モーション ' + k);
+    g.advance(1); ok(g.eval(`AMV.m[${i}]===null||AMV.m[${i}].k!=='${k}'||T-AMV.m[${i}].t0<AMD['${k}']`), 'モーションが終わらない ' + k);
+  }
+}
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('CONTENT OK');

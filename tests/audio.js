@@ -252,10 +252,10 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null;hryUp=function(q,i,to
   }
   // リーチ発展: SUPER は3段(音程上昇)、通常は1段。3列目のティックが鳴る
   g.eval('G.q=1;QL.push({h:0,c:0});startSpin();sp.type=2;sp.hit=false;sp.pzN=0;sp.rv=0;sp.stop=[1,1.9,7.5];sp.f=[1,2,3];sp.sc=1');
-  g.advance(9, .05, () => g.eval(KEEP.replace('G.q=0;', '')));
+  g.advance(9, .05, () => g.eval(KEEP)); // 測定中は自然な回転(保留)を止める
   ok(g.eval('__c.rs') === 3, `SUPERリーチの発展SEが3段でない: ${g.eval('__c.rs')}`); ok(g.eval('__c.tick') >= 5, `リーチ中のティックが少ない: ${g.eval('__c.tick')}`);
   g.eval('__c.rs=0;G.q=1;QL.push({h:0,c:0});startSpin();sp.type=1;sp.hit=false;sp.pzN=0;sp.rv=0;sp.stop=[1,1.9,4.8];sp.f=[1,2,3];sp.sc=1');
-  g.advance(7, .05, () => g.eval(KEEP.replace('G.q=0;', ''))); ok(g.eval('__c.rs') === 1, `通常リーチの発展SEが1段でない: ${g.eval('__c.rs')}`);
+  g.advance(7, .05, () => g.eval(KEEP)); ok(g.eval('__c.rs') === 1, `通常リーチの発展SEが1段でない: ${g.eval('__c.rs')}`);
   const pit = g.eval('[1,2,3].map(k=>sRise(5+k*3))'); ok(pit[0] < pit[1] && pit[1] < pit[2], '発展段階で音程が上がらない: ' + pit);
   // ボス撃破
   g.eval('G.stage=5;spawn();kill()'); g.advance(1); ok(g.eval('__c.boss') === 1, 'ボス撃破ファンファーレが鳴らない');

@@ -203,7 +203,7 @@ namespace PachiSenki.View
             if (jpSlamT0 > 0 && now - jpSlamT0 < PachiGame.JpAnim)
             {
                 float p = now - (float)jpSlamT0; Box(new Rect(0, BATTLE_Y, 360, 150), new Color(.03f, .01f, .07f, .88f));
-                for (int k = 0; k < 3; k++) { float q = p - (.35f + k * .38f); if (q < 0) continue; float s = q < .12f ? 3.2f - q / .12f * 2.2f : 1; GUIUtility.ScaleAroundPivot(new Vector2(s, s), new Vector2(110 + k * 70, BATTLE_Y + 80)); Outline(new Rect(80 + k * 70, BATTLE_Y + 45, 60, 70), "7", St(sBig, 64, TextAnchor.MiddleCenter), Rainbow(now, k * .3f), 4); GUI.matrix = m0; }
+                for (int k = 0; k < 3; k++) { float q = p - (.35f + k * .38f); if (q < 0) continue; float s = q < .12f ? 2.2f - q / .12f * 1.2f : 1; GUIUtility.ScaleAroundPivot(new Vector2(s, s), new Vector2(110 + k * 70, BATTLE_Y + 80)); Outline(new Rect(80 + k * 70, BATTLE_Y + 45, 60, 70), "7", St(sBig, 64, TextAnchor.MiddleCenter), Rainbow(now, k * .3f), 4); GUI.matrix = m0; }
                 if (p > 1.6f) Outline(new Rect(0, BATTLE_Y + 115, 360, 34), "JACKPOT!!!", sMid, Rainbow(now));
             }
             // JACKPOT パネル(7秒): 777揃い → POOL / ステージボーナス / 合計 のカウントアップ
@@ -228,7 +228,7 @@ namespace PachiSenki.View
             float bp = now - bnT0;
             if (bp >= 0 && bp < 1.7f)
             {
-                float s = bp < .2f ? 3 - bp / .2f * 2 : 1 + (bp > 1.4f ? (bp - 1.4f) * 1.5f : Mathf.Sin(bp * 10) * .03f), a = bp > 1.4f ? 1 - (bp - 1.4f) / .3f : 1;
+                float s = bp < .2f ? 1.8f - bp / .2f * .8f : 1 + (bp > 1.4f ? (bp - 1.4f) * 1.5f : Mathf.Sin(bp * 10) * .03f), a = bp > 1.4f ? 1 - (bp - 1.4f) / .3f : 1;
                 var oc = GUI.color; GUI.color = new Color(1, 1, 1, a);
                 GUIUtility.RotateAroundPivot(-3, new Vector2(180, BOARD_Y + 70)); GUIUtility.ScaleAroundPivot(new Vector2(s, s), new Vector2(180, BOARD_Y + 70));
                 if (bnHot) Wave(180, BOARD_Y + 45, bnText, St(sBig, 40, TextAnchor.MiddleCenter), now, true, bnCol, 4);

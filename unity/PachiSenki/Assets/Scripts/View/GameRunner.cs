@@ -185,6 +185,7 @@ namespace PachiSenki.View
             }
             Styles(); var G = Game.G;
             GUI.matrix = Matrix4x4.TRS(new Vector3(vOx, vOy, 0), Quaternion.identity, new Vector3(vScale, vScale, 1));
+            GUI.BeginGroup(new Rect(0, 0, VW, VH));   // ゲーム画面(360x760)の外に文字がはみ出さないよう切り抜く
             Txt(new Rect(8, 4, 200, 22), "STAGE " + G.stage + (Game.IsBoss ? " BOSS" : ""), stM, new Color(1, .85f, .3f));
             Txt(new Rect(200, 4, 152, 22), "G " + Fmt.N(G.gold), stR, new Color(1, .85f, .3f));
             var tag = (G.rush > 0 ? $"RUSH x{G.combo} {G.rush:0.0}s  " : "") + (G.fv > 0 ? "FEVER  " : "") + (G.aw > 0 ? "覚醒  " : "") + (G.jp > 0 ? "JACKPOT" : "");
@@ -225,6 +226,7 @@ namespace PachiSenki.View
             pres?.DrawGUI();
             GUI.matrix = Matrix4x4.TRS(new Vector3(vOx, vOy, 0), Quaternion.identity, new Vector3(vScale, vScale, 1));
             Fx.I?.DrawFlashGUI();
+            GUI.EndGroup();
         }
     }
 }

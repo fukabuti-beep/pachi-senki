@@ -66,6 +66,7 @@ namespace Gree.UnityWebView
     
     public class WebViewObject : MonoBehaviour
     {
+        static bool legacyInputOk = true;   // パチ戦記: 旧方式の入力が使えない設定ならキーボード転送をやめる(改変)
         Callback onJS;
         Callback onError;
         Callback onHttpError;
@@ -1923,8 +1924,8 @@ namespace Gree.UnityWebView
                 bg.transform.SetAsLastSibling();
             }
 #if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
-            if (hasFocus) {
-                inputString += Input.inputString;
+            if (hasFocus && legacyInputOk) {
+                try { inputString += Input.inputString; } catch (InvalidOperationException) { legacyInputOk = false; }
             }
 #endif
             for (;;) {
@@ -2160,6 +2161,9 @@ namespace Gree.UnityWebView
         void SendSpecialKeys(bool focused)
         {
 #if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
+            if (!legacyInputOk) return;
+            try
+            {
             foreach (var entry in specialKeys)
             {
                 if (focused && Input.GetKeyDown(entry.key))
@@ -2171,6 +2175,8 @@ namespace Gree.UnityWebView
                     _CWebViewPlugin_SendKeyEvent(webView, 0, 0, null, entry.vk, 3);
                 }
             }
+            }
+            catch (InvalidOperationException) { legacyInputOk = false; }   // パチ戦記: 入力設定が「Input System のみ」でも止まらないように(改変)
 #else
             var keyboard = Keyboard.current;
             if (keyboard == null)
@@ -2204,9 +2210,9 @@ namespace Gree.UnityWebView
                 bg.transform.SetAsLastSibling();
             }
 #if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
-            if (hasFocus)
+            if (hasFocus && legacyInputOk)
             {
-                inputString += Input.inputString;
+                try { inputString += Input.inputString; } catch (InvalidOperationException) { legacyInputOk = false; }
             }
 #endif
             for (;;)

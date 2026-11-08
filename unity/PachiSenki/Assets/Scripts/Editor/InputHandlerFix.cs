@@ -9,10 +9,11 @@ static class InputHandlerFix
     {
         EditorApplication.delayCall += () =>
         {
-            var objs = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
-            if (objs == null || objs.Length == 0) return;
-            var so = new SerializedObject(objs[0]); var p = so.FindProperty("activeInputHandler");
-            if (p == null || p.intValue != 1) return;   // 0=旧方式 2=両方 は OK
+            var ps = Unsupported.GetSerializedAssetInterfaceSingleton("PlayerSettings");
+            if (ps == null) return;
+            var so = new SerializedObject(ps); var p = so.FindProperty("activeInputHandler");
+            if (p == null) { UnityEngine.Debug.LogWarning("[パチ戦記] 入力設定が見つかりません。編集 > プロジェクト設定 > プレイヤー > アクティブな入力処理 を「入力マネージャー(旧)」にしてください"); return; }
+            if (p.intValue != 1) return;   // 0=旧方式 2=両方 は OK
             p.intValue = 0; so.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
             if (EditorUtility.DisplayDialog("パチ戦記", "入力の設定を自動で直しました。\n反映には Unity の再起動が必要です。", "今すぐ再起動", "あとで"))
                 EditorApplication.OpenProject(System.IO.Directory.GetCurrentDirectory());

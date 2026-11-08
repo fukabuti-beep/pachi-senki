@@ -31,7 +31,7 @@ html body #fxm .fxn{display:inline-block;margin:8px 0 10px;padding:6px 14px;back
 html body #fxm .fxl{display:flex;flex-direction:column;gap:5px;margin-top:6px}
 html body #fxm .fxl>div{align-items:center;padding:7px 8px!important;border:0!important;background:linear-gradient(90deg,#1e1258,#140a3c);
  box-shadow:inset 0 0 0 1px #3a2a8a,0 2px 0 #000}
-html body #fxm .fxl>div>span:first-child::before{content:"◆";color:#ffd400;margin-right:6px;font-size:10px;vertical-align:1px}
+html body #fxm .fxl>div>span:first-child:not(.nob)::before{content:"◆";color:#ffd400;margin-right:6px;font-size:10px;vertical-align:1px}
 html body #fxm .fxl>div.no>span:first-child::before{color:#5a4a9a}
 html body #fxm .fxl>div.ok{color:#ffe9a0}
 html body #fxm .fxl small{color:#a8a0e0;font-size:11px}

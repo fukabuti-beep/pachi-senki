@@ -104,5 +104,43 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
   const g3 = createGame({ seed: 9, storage: { pachi2_res: JSON.stringify({ ms: -5, gem: 'x', w: [3, 1e9, null], bg: 99999 }) } });
   ok(g3.eval('RES.ms') === 0 && g3.eval('RES.gem') === 0 && g3.eval('RES.w.join()') === '3,999,0' && g3.eval('RES.bg') === 3600, '不正なリソースセーブ: ' + g3.eval('JSON.stringify(RES)'));
 }
+const tick = () => new Promise(r => setImmediate(r));
+(async () => {
+// (h) 応援(97s): 既定(Web・URL未設定)では課金なし / mock で購入→お礼(ゲーム数値は変えない)
+{
+  const g = createGame({ seed: 10 }); g.start(); g.advance(1);
+  ok(g.eval('supNative()') === null && g.eval('SUPPORT_URL') === '', '既定で応援の課金が有効になっている');
+  g.eval('MON.mock=1'); ok(!!g.eval('supNative()'), 'mock で応援が出ない');
+  const a0 = g.eval('SB.a()'), g0 = g.eval('SB.g()'); g.eval("supBuy('tip_s')"); g.advance(1); await tick(); g.advance(.1); await tick();
+  ok(g.eval('SUP.n') === 1 && JSON.parse(g.store.pachi2_sup).n === 1, '応援の記録');
+  ok(g.eval('SB.a()') === a0 && g.eval('SB.g()') === g0, '応援でゲームが有利になった');
+  ok(/★/.test(g.eval('MQP.n[0]')), 'サポーターの★');
+}
+// (i) ランキング(97t): 自己ベスト記録 / 名前の検証 / 既定は通信しない / プロバイダへ送信
+{
+  const g = createGame({ seed: 11 }); g.start(); g.advance(1);
+  ok(g.eval('rkProvider()') === '', '既定でオンライン接続している');
+  g.eval('G.stage=33;X.best=33'); g.advance(1.2); ok(g.eval('RK.best.stage') === 33, '自己ベスト(ステージ)');
+  ok(g.eval("rkName('<b>あいう&えお12345678</b>')") === 'bあいうえお1234', '名前の検証: ' + g.eval("rkName('<b>あいう&えお12345678</b>')"));
+  g.eval("var __sub=[];window.PachiNative=Object.assign(window.PachiNative||{},{rank:{submit:(b,v,n)=>{__sub.push([b,v,n]);return Promise.resolve(true)},top:b=>Promise.resolve([{name:'A',score:9},{name:'<x>',score:'5'}])}});RK.name='テスト';RK.last=-99;RK.pend.stage=33");
+  g.advance(1.2); await tick(); ok(g.eval('__sub.length') >= 1 && g.eval('__sub[0][0]') === 'stage', '送信されない: ' + g.eval('JSON.stringify(__sub)'));
+  g.eval("rkFetch('stage')"); await tick(); await tick(); g.advance(.2); ok(g.eval('RK.top.stage.length') === 2 && g.eval('RK.top.stage[1].name') === 'x', 'ランキング取得: ' + g.eval('JSON.stringify(RK.top)'));
+  ok(/自己ベスト/.test(g.eval('rkShareText()')), '共有テキスト');
+}
+// (j) ログインボーナス(92b): 初日/連続/途切れ/同日2回目なし
+{
+  const g = createGame({ seed: 12 }); g.start();
+  g.eval("var __d='2026-11-01';dailyToday=()=>__d;DLY.last='';DLY.streak=0");
+  const ms0 = g.eval('RES.ms'), gm0 = g.eval('RES.gem');
+  const r1 = g.eval('dailyClaim()'); ok(r1 && r1.streak === 1 && g.eval('RES.gem') === gm0 + 1 && g.eval('RES.ms') > ms0, '初日');
+  ok(g.eval('dailyClaim()') === null, '同日に2回もらえる');
+  g.eval("__d='2026-11-02'"); ok(g.eval('dailyClaim().streak') === 2, '連続');
+  g.eval("for(const d of ['03','04','05','06']){__d='2026-11-'+d;dailyClaim()}__d='2026-11-07'"); const r7 = g.eval('dailyClaim()'); ok(r7.day === 7 && r7.gem === 5, '7日目の宝石5');
+  g.eval("__d='2026-11-10'"); ok(g.eval('dailyClaim().streak') === 1, '途切れたら1日目');
+  g.eval("__d='2026-12-01';DLY.last='2026-11-30';DLY.streak=3"); ok(g.eval('dailyClaim().streak') === 4, '月またぎの連続');
+  ok(JSON.parse(g.store.pachi2_daily).last === '2026-12-01', 'ログインボーナスの保存');
+}
+})().then(() => {
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('CONTENT OK');
+});

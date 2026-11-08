@@ -51,13 +51,13 @@ function cutTxtOld(p,ex,t,y0,col){cutLine();const tx=Math.round(350-(1-ex)*220+(
 // 提供イラストを「コード描画の胸像と同じ顔位置」に合わせて描く(顔=胸像の(32,31))
 function cutImg(k,x,y,sc,fx,size){const im=typeof PIMGI!=='undefined'?PIMGI[k]:null;if(!im)return false;const f=PIMGF[k],S=size||64*sc*1.75,w=S*(im.width/im.height),h=S,X=Math.round(x+32*sc-f[0]*w),Y=Math.round(y+31*sc-f[1]*h),col=cut&&cut.c||'#ffd400',t=T;
   if(fx){bc.save();bc.globalAlpha*=.5;for(let k2=0;k2<9;k2++){const ax=X+w*(.1+k2*.1),fh=h*(.3+.2*Math.abs(Math.sin(t*9+k2*1.7))),ay=Y+h*.6;bc.fillStyle=k2%2?col:'#fff';bc.beginPath();bc.moveTo(ax-w*.06,ay);bc.lineTo(ax+Math.sin(t*12+k2)*w*.04,ay-fh);bc.lineTo(ax+w*.06,ay);bc.closePath();bc.fill()}bc.restore();
-    const R=PIMGRim(k,col);if(R){const d=Math.max(2,Math.round(sc*1.2));bc.drawImage(R,X-d,Y,w,h);bc.drawImage(R,X+d,Y-d,w,h)}}
+    const R=PIMGRim(k,col);if(R){const d=Math.max(2,Math.round(sc*1.1));for(const [ox,oy] of [[-d,0],[d,0],[0,-d],[0,d]])bc.drawImage(R,X+ox,Y+oy,w,h)}}
   const sm=bc.imageSmoothingEnabled;bc.imageSmoothingEnabled=true;bc.drawImage(im,X,Y,w,h);bc.imageSmoothingEnabled=sm;return true}
 function cutChar(i,x,y,sc,fx){if(cutImg('hero'+i,x,y,sc,fx))return;const P=typeof PORT==='function'?PORT(i):null;if(P){const w=Math.round(64*sc),h=Math.round(72*sc),X=Math.round(x),Y=Math.round(y),col=cut&&cut.c||'#ffd400',t=T;
   if(fx){// オーラの炎(キャラの後ろ)
     bc.save();bc.globalAlpha*=.55;for(let k=0;k<9;k++){const ax=X+w*(.1+k*.1),fh=h*(.35+.25*Math.abs(Math.sin(t*9+k*1.7))),ay=Y+h*.55;bc.fillStyle=k%2?col:'#fff';bc.beginPath();bc.moveTo(ax-w*.07,ay);bc.lineTo(ax+Math.sin(t*12+k)*w*.04,ay-fh);bc.lineTo(ax+w*.07,ay);bc.closePath();bc.fill()}bc.restore();
     // リムライト(色付きシルエットを左右にずらして重ねる)
-    const R=typeof PORTRim==='function'?PORTRim(i,col):null;if(R){const d=Math.max(2,Math.round(sc*1.2));bc.drawImage(R,X-d,Y,w,h);bc.drawImage(R,X+d,Y-d,w,h)}}
+    const R=typeof PORTRim==='function'?PORTRim(i,col):null;if(R){const d=Math.max(2,Math.round(sc*1.1));for(const [ox,oy] of [[-d,0],[d,0],[0,-d],[0,d]])bc.drawImage(R,X+ox,Y+oy,w,h)}}
   bc.drawImage(P,X,Y,w,h);
   if(fx){// 目の光(フレア)
     const p=cut?t-cut.t0:1,a=p>.22&&p<.62?Math.sin((p-.22)/.4*Math.PI):0;if(a>0){bc.save();bc.globalAlpha*=a;bc.fillStyle='#fff';for(const ex of [27,37]){const fx2=X+ex*sc,fy=Y+31.5*sc,L=sc*9;bc.fillRect(Math.round(fx2-L),Math.round(fy),Math.round(L*2),Math.max(1,Math.round(sc*.6)));bc.fillRect(Math.round(fx2),Math.round(fy-L*.5),Math.max(1,Math.round(sc*.6)),Math.round(L))}bc.restore()}}
@@ -70,7 +70,7 @@ function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   const e=Math.min(1,p/.22),ex=1-Math.pow(1-e,3);bc.imageSmoothingEnabled=false;
   if(cut.v==1){bc.fillStyle='rgba(255,255,255,.5)';for(let i=0;i<14;i++){const x=360-((t*(520+(i%4)*150)+i*97)%520);bc.fillRect(x,y0+((i*29)%88),60+(i%3)*40,2)}
     const TI=typeof PIMGI!=='undefined'&&PIMGI.trio;if(TI){const q=Math.max(0,Math.min(1,p/.22)),qe=1-Math.pow(1-q,3),H=112,W=H*TI.width/TI.height,x=-W+qe*(W-4),y=y0+44-H*.43;
-      for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);bc.imageSmoothingEnabled=true;bc.drawImage(TI,x-k*20,y,W,H)}bc.globalAlpha=1;const R=PIMGRim('trio',col);if(R){bc.drawImage(R,x-2,y,W,H);bc.drawImage(R,x+2,y-2,W,H)}bc.drawImage(TI,x,y,W,H);bc.imageSmoothingEnabled=false}
+      for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);bc.imageSmoothingEnabled=true;bc.drawImage(TI,x-k*20,y,W,H)}bc.globalAlpha=1;const R=PIMGRim('trio',col);if(R){for(const [ox,oy] of [[-2,0],[2,0],[0,-2],[0,2]])bc.drawImage(R,x+ox,y+oy,W,H)}bc.drawImage(TI,x,y,W,H);bc.imageSmoothingEnabled=false}
     else for(let i=0;i<3;i++){const q=Math.max(0,Math.min(1,(p-i*.07)/.2)),qe=1-Math.pow(1-q,3),sc=1.6,x=-110+qe*(110+i*60),y=y0+44-31*sc+Math.sin(t*14+i)*1.5;
       for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);cutChar(i,x-k*16,y,sc)}bc.globalAlpha=1;cutChar(i,x,y,sc,1)}}
   else if(cut.v==2){bc.fillStyle='rgba(255,255,255,.45)';for(let i=0;i<18;i++){const y=((t*(600+(i%3)*200)+i*53)%(88+60))-30+y0;bc.fillRect(8+i*13,y,2,30+(i%4)*10)}

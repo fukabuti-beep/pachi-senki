@@ -32,8 +32,8 @@ function resUpd(dt){if(RES.bg>0)RES.bg=Math.max(0,RES.bg-dt);if(RES.ba>0)RES.ba=
 addEventListener('pagehide',()=>{try{resSave()}catch(e){}});
 // 鍛冶屋
 function smithUp(i){const l=RES.w[i],c=wCost(l),g=wGem(l);if(RES.ms<c||RES.gem<g){fxToast(RES.ms<c?'魔石が足りない(あと '+fmt(c-RES.ms)+')':'限界突破に宝石 '+g+' 個が必要','#aaa');return}
-  RES.ms-=c;RES.gem-=g;RES.w[i]=l+1;resSave();fxToast(WPN[i][0]+' Lv'+(l+1)+(g?' 限界突破!!':'')+'  攻撃 x'+wMul(i).toFixed(2),g?'#7ff3ff':'#ffd400');try{kyuin(g?5:2,g?'#7ff3ff':'#ffd400');if(typeof chJump==='function')chJump(i,g?2:0)}catch(e){}try{fxMenu()}catch(e){}}
-function smithBuff(k){if(RES.gem<3){fxToast('宝石が3個必要','#aaa');return}RES.gem-=3;if(k=='g')RES.bg+=180;else RES.ba+=180;resSave();banner(k=='g'?'金運の護符!! G x2':'闘気の護符!! ダメージ x2',k=='g'?'#ffd400':'#ff5a5a');try{kyuin(5,'#ffd400')}catch(e){}try{fxMenu()}catch(e){}}
+  RES.ms-=c;RES.gem-=g;RES.w[i]=l+1;resSave();fxToast(WPN[i][0]+' Lv'+(l+1)+(g?' 限界突破!!':'')+'  攻撃 x'+wMul(i).toFixed(2),g?'#7ff3ff':'#ffd400');try{kyuin(g?5:2,g?'#7ff3ff':'#ffd400');if(typeof chJump==='function')chJump(i,g?2:0)}catch(e){}try{grpRefresh()}catch(e){}}
+function smithBuff(k){if(RES.gem<3){fxToast('宝石が3個必要','#aaa');return}RES.gem-=3;if(k=='g')RES.bg+=180;else RES.ba+=180;resSave();banner(k=='g'?'金運の護符!! G x2':'闘気の護符!! ダメージ x2',k=='g'?'#ffd400':'#ff5a5a');try{kyuin(5,'#ffd400')}catch(e){}try{grpRefresh()}catch(e){}}
 const resT=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 FM.push({n:'鍛冶屋',r:()=>'<div class="fxh">鍛冶屋</div><div class="fxs">魔石は敵を倒すと、宝石は JACKPOT・高ランク・図鑑★・お宝で手に入る。武器と素材は転生しても残る。</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">魔石 '+fmt(RES.ms)+'</span>  <span style="color:#7ff3ff">宝石 '+RES.gem+'</span></div><div class="fxl">'+
   WPN.map((w,i)=>{const l=RES.w[i],c=wCost(l),g=wGem(l),ok=RES.ms>=c&&RES.gem>=g;return '<div class="ok"><span>'+w[1]+'の'+w[0]+' Lv'+l+'<br><small>攻撃 x'+wMul(i).toFixed(2)+(g?' / 次は限界突破':'')+'</small></span><span><button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithUp('+i+')">魔石'+fmt(c)+(g?' 宝石'+g:'')+'</button></span></div>'}).join('')+

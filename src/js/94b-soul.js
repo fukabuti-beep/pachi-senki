@@ -19,8 +19,8 @@ function soulSave(){try{localStorage.setItem('pachi2_soul',JSON.stringify(SOUL))
 const soulLv=k=>SOUL.lv[k]||0;
 const soulFree=()=>Math.max(0,X.souls-SOUL.spent);
 function soulBuy(k){const s=SOULD.find(d=>d.k===k);if(!s)return;const l=soulLv(k);if(l>=s.max)return;const c=s.c(l);if(soulFree()<c){fxToast('魂が足りない(あと '+(c-soulFree())+')','#aaa');return}
-  SOUL.spent+=c;SOUL.lv[k]=l+1;soulSave();fxToast(s.n+' Lv'+(l+1)+'!','#c8b8ff');try{kyuin(3,'#c8b8ff')}catch(e){}try{fxMenu()}catch(e){}}
-function soulAutoToggle(){SOUL.auto=SOUL.auto?0:1;soulSave();try{fxMenu()}catch(e){}}
+  SOUL.spent+=c;SOUL.lv[k]=l+1;soulSave();fxToast(s.n+' Lv'+(l+1)+'!','#c8b8ff');try{kyuin(3,'#c8b8ff')}catch(e){}try{grpRefresh()}catch(e){}}
+function soulAutoToggle(){SOUL.auto=SOUL.auto?0:1;soulSave();try{grpRefresh()}catch(e){}}
 const relicDropP=()=>.35+.05*soulLv('relic');
 // 次の魂までのステージ
 function soulNext(s){const g=soulGain(s);for(let t=Math.max(s,PRES_MIN);t<s+5000;t++)if(soulGain(t)>g)return t;return 0}

@@ -1,0 +1,17 @@
+/* 強化画面のグループ切り替えタブ(#upg)と、鍛冶屋/魂の祭壇の表示エリア(#upx)。見た目は三本線メニュー(34-menu.css)に合わせる */
+#upg{display:flex;gap:6px;padding:6px 8px 0}
+#upg button{flex:1;font:inherit;font-size:13px;padding:7px 2px;color:#c8c0ff;border:0;background:linear-gradient(#3a2a8a,#22145a);
+ box-shadow:inset 2px 2px 0 #6a5ad0,inset -2px -2px 0 #120838,0 0 0 2px #000,0 3px 0 2px #000;cursor:pointer}
+#upg button.on{background:linear-gradient(#ffe56a,#e0a800);color:#2a1000;transform:translateY(2px);box-shadow:inset 2px 2px 0 #fff6b0,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 1px 0 2px #000,0 0 10px rgba(255,212,0,.6)}
+#upx{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px;text-align:center}
+#upx .fxh{font-size:20px;color:#ffd400;letter-spacing:2px;margin:2px 0 6px;text-shadow:0 2px 0 #b85a00,2px 2px 0 #000,-2px -2px 0 #000}
+#upx .fxs{font-size:12px;color:#c8c0ff;line-height:1.6}
+#upx .fxn{display:inline-block;margin:6px 0 8px;padding:5px 12px;background:#0a1a10;color:#9bff6b;box-shadow:inset 0 0 0 2px #000,0 0 0 2px #3a4a3a,0 0 0 4px #000;text-shadow:0 0 8px rgba(155,255,107,.8),2px 2px 0 #000}
+#upx .fxl{display:flex;flex-direction:column;gap:5px;margin-top:6px;text-align:left;font-size:12px}
+#upx .fxl>div{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 8px;background:linear-gradient(90deg,#1e1258,#140a3c);box-shadow:inset 0 0 0 1px #3a2a8a,0 2px 0 #000;color:#ffe9a0}
+#upx .fxl>div.no{opacity:.6;color:#fff}
+#upx .fxl small{color:#a8a0e0;font-size:11px}
+#upx .fxb{font:inherit;font-size:13px;color:#fff;border:0;padding:6px 12px;margin:8px 4px 0;background:linear-gradient(#ff5a8a,#d0105a);
+ box-shadow:inset 2px 2px 0 #ffb0c8,inset -2px -2px 0 #7a0030,0 0 0 2px #000,0 4px 0 2px #000;text-shadow:2px 2px 0 #6a0028;cursor:pointer}
+#upx .fxb.d{background:linear-gradient(#5a5a70,#3a3a4a);box-shadow:inset 2px 2px 0 #8a8aa0,inset -2px -2px 0 #22222e,0 0 0 2px #000,0 4px 0 2px #000;opacity:.75}
+#upx .fxb:active{transform:translateY(3px)}

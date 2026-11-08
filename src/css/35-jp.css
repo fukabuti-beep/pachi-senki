@@ -9,3 +9,7 @@
 #push.jp .pksub{color:#fff36a;animation:pkhue 1.1s linear infinite}
 @keyframes pkhue{to{filter:hue-rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){#push.jp #pkT,#push.jp .sun,#push.jp .pksub{animation:none}}
+/* 押せ!! の文字を一文字ずつ波打たせる(87b-jpfx.js が span に分割) */
+#pkT .ch{display:inline-block;animation:pkwave .7s ease-in-out infinite;animation-delay:calc(var(--i) * -.08s)}
+@keyframes pkwave{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-12px) rotate(-4deg)}75%{transform:translateY(4px) rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){#pkT .ch{animation:none}}

@@ -27,11 +27,18 @@ function jpxDraw(t){
   // パネル
   pc.fillStyle='rgba(10,4,30,.86)';pc.fillRect(20,70,320,210);pc.fillStyle='#ffd400';pc.fillRect(20,70,320,3);pc.fillRect(20,277,320,3);pc.fillRect(20,70,3,210);pc.fillRect(337,70,3,210);
   pc.textAlign='center';
-  const s=p<.25?2.2-p/.25*1.2:1+Math.sin(p*6)*.03;pc.save();pc.translate(180,112);pc.scale(s,s);jpxTxt('7 7 7',0,0,34,'hsl('+Math.floor(t*200)%360+',100%,62%)');pc.restore();
-  jpxTxt('揃い!! JACKPOT!!',180,140,18,'#ffd400');
-  const row=(i,lab,val,c)=>{const show=p>.6+i;if(!show)return;const q=Math.min(1,(p-.6-i)/.8),e=1-Math.pow(1-q,3);pc.textAlign='left';jpxTxt(lab,40,172+i*30,13,'#c8c0ff');pc.textAlign='right';jpxTxt('+'+fmt(Math.floor(val*e))+' G',320,172+i*30,i==2?18:15,c)};
+  // 7 を1つずつ叩きつけ → その後は別々のタイミングで跳ねる
+  for(let k=0;k<3;k++){const q=p-k*.12;if(q<0)continue;const s=q<.2?2.6-q/.2*1.6:1,bob=q>=.2?Math.round(Math.sin(t*7+k*1.4)*5):0;pc.save();pc.translate(130+k*50,112+bob);pc.rotate(q>=.2?Math.sin(t*5+k)*.08:0);pc.scale(s,s);jpxTxt('7',0,0,36,'hsl('+Math.floor(t*220+k*90)%360+',100%,62%)');pc.restore()}
+  // 「揃い!! JACKPOT!!」を一文字ずつ波打たせる
+  {const str='揃い!! JACKPOT!!';pc.font='18px '+FN;let w=0;const ws=[...str].map(c=>{let m=10;try{m=pc.measureText(c).width||10}catch(e){}w+=m;return m});let x=180-w/2;
+   [...str].forEach((c,i)=>{const y=140+Math.round(Math.sin(t*8-i*.5)*3),sc=1+Math.max(0,Math.sin(t*8-i*.5))*.12;pc.save();pc.translate(x+ws[i]/2,y);pc.scale(sc,sc);pc.textAlign='center';jpxTxt(c,0,0,18,i<5?'#fff36a':'hsl('+Math.floor(t*160+i*25)%360+',100%,64%)');pc.restore();x+=ws[i]})}
+  const row=(i,lab,val,c)=>{const show=p>.6+i;if(!show)return;const q0=(p-.6-i)/.8,q=Math.min(1,q0),e=1-Math.pow(1-q,3),pop=q0>=1&&q0<1.35?1+Math.sin((q0-1)/.35*Math.PI)*.35:1,slide=Math.max(0,1-(p-.6-i)*6)*40;
+    pc.textAlign='left';jpxTxt(lab,40-slide,172+i*30,13,'#c8c0ff');pc.save();pc.translate(320,172+i*30);pc.scale(pop,pop);pc.textAlign='right';jpxTxt('+'+fmt(Math.floor(val*e))+' G',0,0,i==2?18:15,c);pc.restore()};
   row(0,'ためた玉(POOL)',P.pool,'#fff');row(1,'ステージボーナス',P.base,'#fff');
   if(p>2.4){pc.fillStyle='#ffd400';pc.fillRect(40,218,280,2)}row(2,'合計',P.tot,'hsl('+Math.floor(t*160)%360+',100%,66%)');
   pc.textAlign='center';if(p>3.2){pc.font='10px '+FN;pc.fillStyle='#c8c0ff';pc.fillText('こぼれた玉は JACKPOT POOL に貯まり、777 でまとめて獲得!',180,268)}
   pc.restore()}
 {const _d=drawP;drawP=function(t){const r=_d.apply(this,arguments);try{jpxDraw(t)}catch(e){JPX.p=null}return r}}
+
+// 押せ!! の文字を一文字ずつの span にして波打たせる(CSS 35-jp.css の .ch)
+{const o=pushPrompt;pushPrompt=function(){const r=o.apply(this,arguments);try{const el=$('pkT');if(el&&PUSH){const t=String(el.textContent||'');el.innerHTML=[...t].map((c,i)=>'<span class="ch" style="--i:'+i+'">'+(c===' '?'&nbsp;':c.replace(/[<>&]/g,''))+'</span>').join('')}}catch(e){}return r}}

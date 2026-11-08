@@ -64,6 +64,7 @@ npm test                            # build + smoke
 | 98-mgfx.js / css/32-minigame.css | ミニゲーム(BONUS STOP/宝箱くじ/コインラッシュ)の描画とパネルの強化。ルールは 85/95 のまま | fx |
 | 90-extra.js | 覚醒/黄金玉/ヒットストップ等 | balance |
 | 98b-active.js / css/33-active.css | アクティブ要素+演出: 戦闘画面タップ攻撃(コンボ/ラッシュ斬り)、お宝ターゲット(宝袋/流れ星をタップで捕獲)、ボスWARNING/FINISH、SUPERリーチ中のチャンスボタン(当否不変)、10ステージ毎の節目演出(テスト: tests/active.js) | feature/fx |
+| 98c-upgroups.js / css/36-upgroups.css | 強化画面のグループ切り替え(通常強化/鍛冶屋/魂の祭壇)。鍛冶屋と魂の祭壇は三本線メニューから移動。操作後の再描画は grpRefresh() | ui/feature |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
 
 新機能は **自分の番号帯の新規ファイル**として追加するのを推奨(衝突回避): fx=`81-89`の空き/`36` `46`、sound=`76-79`、feature=`91-98`、ui=`26-29`、balance=`21-24`。

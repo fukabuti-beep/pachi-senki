@@ -170,6 +170,16 @@ const tick = () => new Promise(r => setImmediate(r));
   let cnt = {}; for (let i = 0; i < 2000; i++) { const k = g.eval('kujiRoll().k'); cnt[k] = (cnt[k] || 0) + 1 }
   ok(cnt.gold > 800 && cnt.gold < 1100 && cnt.wpn > 30 && cnt.wpn < 140, 'くじの確率: ' + JSON.stringify(cnt));
 }
+// (l) 強化画面のグループ(鍛冶屋/魂の祭壇はメニューから移動)/ 押せ!! の文字分割
+{
+  const g = createGame({ seed: 14 }); g.start(); g.advance(1);
+  ok(g.eval("FM.every(m=>m.n!=='鍛冶屋'&&m.n!=='魂の祭壇')") && g.eval('UPG.list.map(x=>x[0]).join()') === '通常強化,鍛冶屋,魂の祭壇', 'グループの移動: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
+  g.eval('grpSet(1)'); ok(g.eval('UPG.g') === 1 && /鍛冶屋/.test(g.eval("$('upx').innerHTML")), '鍛冶屋が強化画面に出ない');
+  g.eval('RES.ms=1e6;fxOpen=false;smithUp(0)'); ok(g.eval('RES.w[0]') === 1 && g.eval('fxOpen') === false, '強化画面から買うとメニューが開く');
+  g.eval('grpSet(2)'); ok(/魂の祭壇/.test(g.eval("$('upx').innerHTML")), '魂の祭壇が強化画面に出ない');
+  g.eval('grpSet(0)'); ok(g.eval('UPG.g') === 0, '通常強化に戻れない');
+  g.eval("PUSH=null;pushPrompt(()=>{},{jp:1,ms:20000})"); ok(/class="ch"/.test(g.eval("$('pkT').innerHTML")) && /押/.test(g.eval("$('pkT').innerHTML")), '押せ!! の文字分割: ' + g.eval("$('pkT').innerHTML"));
+}
 })().then(() => {
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('CONTENT OK');

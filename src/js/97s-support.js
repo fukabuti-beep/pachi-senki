@@ -4,7 +4,7 @@
    ・サポーターコード: 有料の「応援版」に同梱したコードを入力するとパトロン登録(宝石30個・メニューにパトロン証・タイトルの★。判定は簡易ハッシュ)
    ストア版の課金(PachiNative.iap.purchaseTip)の受け口は将来用に残す。?mon=mock で擬似購入を確認できる。
    セーブ: localStorage['pachi2_sup'] = {n, code} */
-const BOOTH_URL='';            // ← BOOTH の商品ページURL(例: 'https://xxxx.booth.pm/items/1234567')。空ならボタンは出さない
+const BOOTH_URL='https://fukabuchi.booth.pm/';   // BOOTH のショップページ(商品ページが決まったら items/xxxx に変えてもよい)。空ならボタンは出さない
 const SUPPORT_URL=BOOTH_URL;   // 旧名(互換)
 const SUP_CODE_HASH=['2c97a8a1'];   // サポーターコードの FNV-1a ハッシュ(コード本体はソースに置かない)
 const TIPS=[['tip_s','缶コーヒー','¥120'],['tip_m','ランチ','¥500'],['tip_l','ディナー','¥1,200']];

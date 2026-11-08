@@ -109,7 +109,7 @@ const tick = () => new Promise(r => setImmediate(r));
 // (h) 応援(97s): 既定(Web・URL未設定)では課金なし / mock で購入→お礼(ゲーム数値は変えない)
 {
   const g = createGame({ seed: 10 }); g.start(); g.advance(1);
-  ok(g.eval('supNative()') === null && g.eval('SUPPORT_URL') === '', '既定で応援の課金が有効になっている');
+  ok(g.eval('supNative()') === null, '既定で応援の課金が有効になっている');
   g.eval('MON.mock=1'); ok(!!g.eval('supNative()'), 'mock で応援が出ない');
   const a0 = g.eval('SB.a()'), g0 = g.eval('SB.g()'); g.eval("supBuy('tip_s')"); g.advance(1); await tick(); g.advance(.1); await tick();
   ok(g.eval('SUP.n') === 1 && JSON.parse(g.store.pachi2_sup).n === 1, '応援の記録');
@@ -122,7 +122,7 @@ const tick = () => new Promise(r => setImmediate(r));
   ok(g2.eval('supCode()') === true && g2.eval('SUP.code') === 1 && JSON.parse(g2.store.pachi2_sup).code === 1, 'サポーターコードで登録できない');
   ok(g2.eval('RES.gem') === gem0 + 30 && /^\d{4}-\d\d-\d\d$/.test(JSON.parse(g2.store.pachi2_sup).at) && g2.eval('SUPTAB.n') === '応援★', 'パトロン特典(宝石30/登録日/タブ)');
   g2.eval("$('supcode').value='PACHI-NVTU-WBWD'"); g2.eval('supCode()'); ok(g2.eval('RES.gem') === gem0 + 30, '宝石が2回もらえる');
-  ok(g2.eval('BOOTH_URL') === '' && g2.eval('SUPPORT_URL') === '', 'URL の既定値');
+  ok(/^https:\/\/fukabuchi\.booth\.pm\//.test(g2.eval('BOOTH_URL')) && g2.eval('SUPPORT_URL') === g2.eval('BOOTH_URL'), 'BOOTH の URL');
 }
 // (i) ランキング(97t): 自己ベスト記録 / 名前の検証 / 既定は通信しない / プロバイダへ送信
 {

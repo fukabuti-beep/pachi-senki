@@ -1,0 +1,13 @@
+# Unity
+PachiSenki/[Ll]ibrary/
+PachiSenki/[Tt]emp/
+PachiSenki/[Oo]bj/
+PachiSenki/[Bb]uild/
+PachiSenki/[Bb]uilds/
+PachiSenki/[Ll]ogs/
+PachiSenki/[Uu]ser[Ss]ettings/
+PachiSenki/*.csproj
+PachiSenki/*.sln
+# コアテスト(dotnet)
+CoreTests/bin/
+CoreTests/obj/

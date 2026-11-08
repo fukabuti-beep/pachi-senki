@@ -32,6 +32,7 @@ jobs:
           mkdir -p _site
           cp dist/pachi-senki.html _site/index.html
           cp -r dist/pwa _site/pwa
+          cp store/privacy.html _site/privacy.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

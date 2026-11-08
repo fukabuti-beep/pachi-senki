@@ -48,8 +48,8 @@ namespace PachiSenki.Web
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
             Screen.orientation = ScreenOrientation.Portrait;   // 縦画面に固定(筐体が縦長)
 #endif
-            // 背景用のカメラ(WebView の外側を黒に)
-            if (Camera.main == null) { var cg = new GameObject("Camera"); cg.tag = "MainCamera"; var c = cg.AddComponent<Camera>(); c.clearFlags = CameraClearFlags.SolidColor; c.backgroundColor = Color.black; DontDestroyOnLoad(cg); }
+            // 背景用のカメラ(WebView の外側=ノッチ/ホームバーの帯をページと同じ色に)
+            if (Camera.main == null) { var cg = new GameObject("Camera"); cg.tag = "MainCamera"; var c = cg.AddComponent<Camera>(); c.clearFlags = CameraClearFlags.SolidColor; c.backgroundColor = new Color32(10, 7, 32, 255); DontDestroyOnLoad(cg); }
 
             wv = new GameObject("WebViewObject").AddComponent<WebViewObject>(); DontDestroyOnLoad(wv.gameObject);
             wv.Init(
@@ -66,10 +66,12 @@ namespace PachiSenki.Web
                     var bak = PlayerPrefs.GetString(BackupKey, "");
                     if (bak.Length > 2) wv.EvaluateJS("try{typeof appRestore==='function'&&appRestore('" + JsStr(bak) + "')}catch(e){}");
                 },
+                transparent: true,   // 読み込み前の白い画面を出さない(ページ側が背景を塗る)
                 zoom: false,
                 wkAllowsLinkPreview: false,
                 wkAllowsBackForwardNavigationGestures: false);
             while (!wv.IsInitialized()) yield return null;
+            wv.SetScrollBounceEnabled(false);   // iOS: 筐体ごとゴムのように動くのを止める
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             wv.bitmapRefreshCycle = 2;   // エディタ/PC は画面をテクスチャに写して表示する(毎フレームは重いので2フレームに1回)
 #endif

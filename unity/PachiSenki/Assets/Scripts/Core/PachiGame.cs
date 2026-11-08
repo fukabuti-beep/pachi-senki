@@ -33,15 +33,27 @@ namespace PachiSenki.Core
         public bool Blocking;                  // Web版 G.roul(大当たり演出中はスロットを止める)
         public int PegCombo; double pegComboT; // cmb / cmbT
         int dry, dryMax; double heat, lastUlt = -99, emitAcc;
-        double eventT = -1; HitEventKind eventKind; double eventBase; bool eventSup; bool pushPause;
-        double miniT = -1; int miniM; double miniBase;
+        // ---- 大当たり後のイベント(View が演出に使えるよう公開) ----
+        public bool EventActive { get; private set; }
+        public HitEventKind EventKind { get; private set; }
+        public double EventT0 { get; private set; }            // 大当たり(カットイン開始)時刻
+        public double PushEnd { get; private set; } = -1;      // 押せ!! が押された(自動含む)時刻。-1=まだ
+        public int EventRouletteM { get; private set; }        // 全画面ルーレットの結果(押した瞬間に決まる)
+        public int EventSupM { get; private set; }             // 超倍率(0=なし)
+        public double MiniStartT { get; private set; } = -1;   // ミニルーレット開始時刻
+        public int MiniM { get; private set; }                 // ミニルーレットの結果(開始時に決まる)
+        public const double CutinDur = .65, PushMax = 2.4, RouletteSpin = 4.6, MiniSpin = 2.2, JpAnim = 2.6;
+        public bool PushActive => EventActive && EventKind != HitEventKind.Mini && PushEnd < 0 && T >= EventT0 + CutinDur;
+        public bool PushPause => PushActive;                    // PUSH 待ちの間だけ RUSH を減らさない(Web版と同じ)
+        double eventBase; bool eventSup; int evStage;           // evStage: 0=未 1=倍率付与済 2=超倍率付与済
+        double miniT = -1; double miniBase;
         double ultT = -1; int ultHero;
 
         // ---- 演出用の通知(View が購読) ----
         public event Action<string, string> OnBanner;          // 文言, 色(#rrggbb)
         public event Action<Spin> OnSpinStart, OnSpinEnd;
         public event Action<bool, int> OnBigHit;              // jp, 連チャン数
-        public event Action<HitEventKind> OnHitEvent;
+        public event Action<HitEventKind> OnHitEvent, OnPushResolved;
         public event Action<int, int> OnRouletteResult;       // 倍率, 超倍率(0=なし)
         public event Action<double> OnJackpot;                // 獲得G
         public event Action<double, bool> OnHurt;             // ダメージ, クリティカル
@@ -240,11 +252,12 @@ namespace PachiSenki.Core
             OnBanner?.Invoke(jp ? "JACKPOT!!" : was ? G.combo + "連チャン!!" : "確変突入!!", jp ? "#ffd400" : "#ff2d7a");
             OnBigHit?.Invoke(jp, G.combo);
             eventBase = Atk() * 40 * (1 + G.combo * .5);
-            // カットイン(.65秒)の後に分岐。777 と 押せ!! は PUSH(放置なら2.4秒で自動)の間 RUSH を減らさない
-            if (jp) { eventKind = HitEventKind.Jackpot; eventT = T + .65 + 2.4 + 2.6; pushPause = true; }
-            else if (Rng.Next() < EvP()) { eventKind = HitEventKind.Roulette; eventSup = Rng.Next() < SupP(); eventT = T + .65 + 2.4 + 4.6; pushPause = true; }
-            else { eventKind = HitEventKind.Mini; eventT = T + .65; }
-            OnHitEvent?.Invoke(eventKind);
+            // カットイン(.65秒)の後に分岐。777 と 押せ!! は PUSH(放置なら2.4秒で自動)の間だけ RUSH を減らさない
+            EventActive = true; EventT0 = T; PushEnd = -1; evStage = 0;
+            if (jp) EventKind = HitEventKind.Jackpot;
+            else if (Rng.Next() < EvP()) { EventKind = HitEventKind.Roulette; eventSup = Rng.Next() < SupP(); }
+            else EventKind = HitEventKind.Mini;
+            OnHitEvent?.Invoke(EventKind);
         }
         int RollRoulette()
         {
@@ -258,35 +271,48 @@ namespace PachiSenki.Core
             Hurt(bas * m, m >= 5); G.gold += Math.Floor(G.stage * 40 * m * Mul());
             if (m >= 10 && G.rush > 0) G.rush = Math.Min(15, G.rush + 3);
         }
+        /// <summary>押せ!! を押す(PUSH 待ちの時だけ有効)</summary>
+        public bool PressPush() { if (!PushActive) return false; ResolvePush(); return true; }
+        void ResolvePush()
+        {
+            PushEnd = T;
+            if (EventKind == HitEventKind.Roulette)
+            {
+                EventRouletteM = RollRoulette(); EventSupM = 0;
+                if (eventSup) { int[] SM = { 100, 100, 100, 100, 100, 100, 300, 300, 300, 777 }; EventSupM = SM[(int)(Rng.Next() * SM.Length)]; }
+            }
+            OnPushResolved?.Invoke(EventKind);
+        }
         void UpdEvent()
         {
-            if (eventT >= 0 && T >= eventT)
+            if (EventActive)
             {
-                eventT = -1;
-                switch (eventKind)
+                if (EventKind == HitEventKind.Mini)
                 {
-                    case HitEventKind.Mini:
-                        Blocking = false; miniBase = eventBase; miniM = RollRoulette(); miniT = T + 2.2; StartSpin(); break;
-                    case HitEventKind.Roulette:
+                    if (T >= EventT0 + CutinDur) { EventActive = false; Blocking = false; miniBase = eventBase; MiniM = RollRoulette(); MiniStartT = T; miniT = T + MiniSpin; StartSpin(); }
+                }
+                else
+                {
+                    if (PushEnd < 0 && T >= EventT0 + CutinDur + PushMax) ResolvePush();
+                    if (PushEnd >= 0 && EventKind == HitEventKind.Roulette)
+                    {
+                        double r = PushEnd + RouletteSpin;
+                        if (evStage == 0 && T >= r) { evStage = 1; RouletteReward(eventBase, EventRouletteM); OnRouletteResult?.Invoke(EventRouletteM, 0); }
+                        if (evStage == 1 && EventSupM > 0 && T >= r + 1.9)
                         {
-                            pushPause = false; int m = RollRoulette(); RouletteReward(eventBase, m); int sup = 0;
-                            if (eventSup)
-                            {
-                                int[] SM = { 100, 100, 100, 100, 100, 100, 300, 300, 300, 777 }; sup = SM[(int)(Rng.Next() * SM.Length)];
-                                Hurt(eventBase * sup, true); G.gold += Math.Floor(G.stage * 40 * sup * Mul() * Bal.supG); G.rush = Math.Min(15, G.rush + 3);
-                                OnBanner?.Invoke("超倍率 x" + sup + "!!", "#ffd400");
-                            }
-                            OnRouletteResult?.Invoke(m, sup);
-                            Blocking = false; StartSpin(); break;
+                            evStage = 2; Hurt(eventBase * EventSupM, true); G.gold += Math.Floor(G.stage * 40 * EventSupM * Mul() * Bal.supG); G.rush = Math.Min(15, G.rush + 3);
+                            OnBanner?.Invoke("超倍率 x" + EventSupM + "!!", "#ffd400"); OnRouletteResult?.Invoke(EventRouletteM, EventSupM);
                         }
-                    case HitEventKind.Jackpot:
-                        {
-                            pushPause = false; G.jp = 7; double g = Math.Floor(G.pool + G.stage * 500 * Mul()); G.gold += g; G.pool = 0;
-                            Hurt(Atk() * 150, true); OnJackpot?.Invoke(g); break;   // Blocking は jp が切れた時に解除
-                        }
+                        if (T >= r + (EventSupM > 0 ? 4.4 : 1.8)) { EventActive = false; Blocking = false; StartSpin(); }
+                    }
+                    else if (PushEnd >= 0 && EventKind == HitEventKind.Jackpot && T >= PushEnd + JpAnim)
+                    {
+                        EventActive = false; G.jp = 7; double g = Math.Floor(G.pool + G.stage * 500 * Mul()); G.gold += g; G.pool = 0;
+                        Hurt(Atk() * 150, true); OnJackpot?.Invoke(g);   // Blocking は jp が切れた時に解除
+                    }
                 }
             }
-            if (miniT >= 0 && T >= miniT) { miniT = -1; RouletteReward(miniBase, miniM); OnRouletteResult?.Invoke(miniM, 0); }
+            if (miniT >= 0 && T >= miniT) { miniT = -1; MiniStartT = -1; RouletteReward(miniBase, MiniM); OnRouletteResult?.Invoke(MiniM, 0); }
         }
 
         // ===== メインループ(99-main) =====
@@ -312,7 +338,7 @@ namespace PachiSenki.Core
             if (G.at > .55 / (G.rush > 0 ? 2 : 1)) { G.at = 0; G.ai = (G.ai + 1) % 3; HeroAtk(G.ai, .8 * (G.rush > 0 ? 2 : 1)); SpAdd(Bal.spHero * Spm()); }
             if (G.sp >= 100 && ultT < 0 && !Blocking && T - lastUlt >= Bal.ultMin) Ult();
             if (ultT >= 0 && T >= ultT) { ultT = -1; Hurt(Atk() * 25 * Cm(), true); }
-            if (G.rush > 0) { if (!pushPause) G.rush -= dt; if (G.rush <= 0) { G.rush = 0; G.combo = 0; OnRushEnd?.Invoke(); } }
+            if (G.rush > 0) { if (!PushPause) G.rush -= dt; if (G.rush <= 0) { G.rush = 0; G.combo = 0; OnRushEnd?.Invoke(); } }
         }
 
         public SaveData ToSave() => SaveData.From(G);

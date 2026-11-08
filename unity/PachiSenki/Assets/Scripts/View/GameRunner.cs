@@ -18,7 +18,7 @@ namespace PachiSenki.View
         readonly List<SpriteRenderer> ballR = new List<SpriteRenderer>();
         SpriteRenderer[] heroR = new SpriteRenderer[3]; SpriteRenderer enemyR, hpBack, hpFill, boardBg, battleBg, atkPocket;
         readonly float[] heroAtkT = { -9, -9, -9 }; float enemyHitT = -9, shakeT;
-        string banner = ""; float bannerT; Color bannerC = Color.yellow;
+        Presentation pres;
         struct Pop { public string s; public float t, x, y; public Color c; public bool big; }
         readonly List<Pop> pops = new List<Pop>();
         float saveT;
@@ -39,7 +39,6 @@ namespace PachiSenki.View
             Application.targetFrameRate = 60;
             Game = new PachiGame();
             if (PlayerPrefs.HasKey(SaveKey)) { try { Game.Load(JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(SaveKey))); } catch { } }
-            Game.OnBanner += (t, c) => { banner = t; bannerT = 1.7f; ColorUtility.TryParseHtmlString(c, out bannerC); };
             Game.OnHeroAttack += i => heroAtkT[i] = Time.time;
             Game.OnHurt += (d, crit) =>
             {
@@ -47,8 +46,9 @@ namespace PachiSenki.View
                 if (pops.Count < 30) pops.Add(new Pop { s = (crit ? "★" : "") + Fmt.N(d), t = Time.time, x = 215 + Random.value * 80, y = BATTLE_Y + 60 + Random.value * 25, c = crit ? new Color(1, .88f, .3f) : Color.white, big = crit });
             };
             Game.OnKill += (boss, g) => { if (pops.Count < 30) pops.Add(new Pop { s = "+" + Fmt.N(g), t = Time.time, x = 150, y = BATTLE_Y + 35, c = new Color(1, .83f, 0), big = true }); };
-            Game.OnJackpot += g => { banner = "JACKPOT +" + Fmt.N(g); bannerT = 3f; bannerC = new Color(1, .83f, 0); };
+            gameObject.AddComponent<Fx>(); gameObject.AddComponent<Audio8>();
             BuildWorld();
+            pres = gameObject.AddComponent<Presentation>(); pres.Init(Game, world, (x, y) => W(x, y));
         }
 
         void BuildWorld()
@@ -98,7 +98,7 @@ namespace PachiSenki.View
         void Update()
         {
             float dt = Time.deltaTime; Game.Tick(dt);
-            if (bannerT > 0) bannerT -= dt; if (shakeT > 0) shakeT -= dt;
+            if (shakeT > 0) shakeT -= dt;
             saveT += dt; if (saveT > 4) { saveT = 0; Save(); }
             FitCamera(); Sync();
             if (Input.GetMouseButtonDown(0))
@@ -198,10 +198,8 @@ namespace PachiSenki.View
                 Txt(new Rect(12 + k * 52, SLOT_Y + 6, 46, 48), d, stReel, d == "7" ? new Color(1, .2f, .3f) : new Color(.2f, .2f, .35f));
             }
             string msg = sp == null ? "START!" : sp.type == 2 && sp.t > 1.9 ? "SUPER REACH!!" : sp.type == 1 && sp.t > 1.9 ? "リーチ!" : "回転中…";
-            Txt(new Rect(176, SLOT_Y + 6, 180, 22), msg, stM, sp != null && sp.type == 2 ? new Color(1, .2f, .5f) : Color.white);
+            Txt(new Rect(176, SLOT_Y + 6, 124, 22), msg, stM, sp != null && sp.type == 2 ? new Color(1, .2f, .5f) : Color.white);
             Txt(new Rect(176, SLOT_Y + 30, 180, 20), "保留 " + new string('◆', G.q) + new string('◇', 4 - G.q) + "   JP " + Fmt.N(G.pool), stS, new Color(.8f, .8f, 1));
-            // バナー
-            if (bannerT > 0) Txt(new Rect(0, BOARD_Y + 40, VW, 60), banner, stL, bannerC);
             // 強化ボタン
             float y = BTN_Y; int col = 0;
             for (int i = 0; i < Upgrades.Count; i++)
@@ -211,6 +209,15 @@ namespace PachiSenki.View
                 if (GUI.Button(new Rect(4 + col * 89, y, 86, 36), $"{u.Name}\nLv{G.lv[i]}  {Fmt.N(c)}", stB)) Game.Buy(i);
                 GUI.enabled = true; if (++col == 4) { col = 0; y += 38; }
             }
+            // 設定(フラッシュ 強/弱/OFF・音 ON/OFF)
+            if (Fx.I != null)
+            {
+                if (GUI.Button(new Rect(300, SLOT_Y + 2, 56, 18), "光:" + new[] { "OFF", "弱", "強" }[Fx.I.FlashLevel], stB)) Fx.I.CycleFlash();
+                if (GUI.Button(new Rect(300, SLOT_Y + 22, 56, 18), "音:" + (Fx.I.Mute ? "OFF" : "ON"), stB)) Fx.I.ToggleMute();
+            }
+            pres?.DrawGUI();
+            GUI.matrix = Matrix4x4.TRS(new Vector3(vOx, vOy, 0), Quaternion.identity, new Vector3(vScale, vScale, 1));
+            Fx.I?.DrawFlashGUI();
         }
     }
 }

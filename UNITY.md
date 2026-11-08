@@ -13,6 +13,10 @@ unity/
     Assets/Scripts/View/      Unity 側(表示・入力・セーブ)
       GameRunner.cs           どのシーンで再生しても自動起動。コアを毎フレーム実行、スプライト描画+文字(IMGUI)、PlayerPrefs にセーブ
       SpriteBank.cs           SpriteData からドット絵の Sprite を生成(Point フィルタ)、円・単色板も生成
+      Fx.cs                   フラッシュ(設定 強/弱/OFF)・揺れ・パーティクル
+      Audio8.cs               8bit の SE/BGM をコードで合成
+      Presentation.cs         予告/リーチ・カットイン・ルーレット・押せ!!・JACKPOT・バナー
+    Assets/Resources/Portraits/  カットイン用の提供イラスト(PNG。Web版 src/img の webp から変換)
       SpriteData.cs           Web版のドット絵データ(自動生成: node tools/export-sprites.js。手で編集しない)
     Packages/manifest.json    使うパッケージ(2D Pixel Perfect / TextMeshPro / UGUI)
   CoreTests/                  Unity なしでコアをテスト(dotnet)
@@ -44,8 +48,8 @@ unity/
 | 1 | コアロジック(00/20/21/23/30/40/50/60/70/87/90/99) | **済**(CoreTests で検証) |
 | 2 | Unity 起動・セーブ・仮表示・強化ボタン | **済**(Unity 6000.0.85f2 で起動を確認) |
 | 3 | ドット絵(10-sprites の mk() 方式をテクスチャ生成)・盤面/戦闘の本描画 | **一部済**: スプライトを自動生成(tools/export-sprites.js → View/SpriteData.cs)、縦長 360x760 を中央表示、釘/玉/役物/英雄(待機・攻撃コマ)/敵(ステージ別・ボス)/HPバーをスプライトで描画。文字はまだ IMGUI |
-| 4 | 演出: カットイン(提供イラスト)・バナー・予告・擬似連/復活・リザルト・ルーレット・777演出・キャラ演出・攻撃モーション | 未 |
-| 5 | 音: 8bit BGM/SE(WebAudio の合成を AudioClip 生成 or OnAudioFilterRead で移植) | 未 |
+| 4 | 演出: カットイン(提供イラスト)・バナー・予告・擬似連/復活・リザルト・ルーレット・777演出・キャラ演出・攻撃モーション | **一部済**: フラッシュ(強/弱/OFF)・揺れ・爆発/コインの雨・予告/リーチ・カットイン(提供イラスト/キメ台詞)・ミニ/全画面ルーレット・押せ!!・超倍率・777叩きつけ・JACKPOTパネル・バナー(虹色/波打ち)。残り: 擬似連/復活/保留変化/リザルト/キャラ演出/攻撃モーション |
+| 5 | 音: 8bit BGM/SE(WebAudio の合成を AudioClip 生成 or OnAudioFilterRead で移植) | **一部済**: AudioClip 生成で SE(キュイン/リーチ/当たり/JACKPOT/コイン/打撃 ほか)と BGM 4曲(通常/RUSH/FEVER/JACKPOT。オリジナルの簡易版)。Web版の曲・SE の完全移植は未 |
 | 6 | メタ: 実績・転生/魂の祭壇・遺物・図鑑・鍛冶屋/魔石宝石・ログインボーナス・ミニゲーム・お宝/タップ攻撃・応援/パトロン・ランキング | 未 |
 | 7 | 配布ビルド(Windows/Mac zip で BOOTH、または WebGL)・設定(フラッシュ強弱/音量)・光過敏配慮 | 未 |
 

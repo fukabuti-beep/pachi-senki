@@ -65,6 +65,24 @@ static class Program
         p.OnSpinStart += s => { }; for (int s = 0; s < 40 * 60; s++) { for (int f = 0; f < 20; f++) p.Tick(.05); maxDry = Math.Max(maxDry, p.DryMax); }
         Ok(maxDry <= Bal.pityEnd, "天井を超えてハマった: " + maxDry);
 
+        // 4b) 押せ!!: PUSH 待ち中に PressPush → 結果が決まり、回転後に報酬。PUSH 中は RUSH が減らない
+        {
+            var e = new PachiGame(new Mulberry32(9)); bool seenRoul = false, pushedOk = false, rewarded = false, rushHeld = true;
+            e.OnRouletteResult += (m, sup) => rewarded = true;
+            for (int s = 0; s < 120 * 60 * 20 && !(seenRoul && rewarded); s++)
+            {
+                e.Tick(.05);
+                if (e.PushActive)
+                {
+                    double r0 = e.G.rush; e.Tick(.05); if (e.PushActive && e.G.rush != r0) rushHeld = false;
+                    if (e.EventKind == HitEventKind.Roulette && !seenRoul) { seenRoul = true; pushedOk = e.PressPush() && e.PushEnd >= 0 && e.EventRouletteM >= 2; rewarded = false; }
+                    else e.PressPush();
+                }
+            }
+            Ok(seenRoul && pushedOk && rewarded, $"押せ!!→ルーレット seen={seenRoul} pushed={pushedOk} rewarded={rewarded}");
+            Ok(rushHeld, "PUSH 待ちの間に RUSH が減った");
+        }
+
         // 5) バランス計測(Web版 tools/sim.js と同じ買い方: 毎秒いちばん安い強化を買う)
         double sumSt = 0; int n = 5;
         for (uint seed = 1; seed <= n; seed++) sumSt += Run(seed, 30, true).G.stage;

@@ -17,7 +17,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
   const audio = { osc: 0, noise: 0, byMinute: {}, spans: [], resumes: 0, waves: 0, pwaves: 0 };
   const rnd = mulberry(seed);
   const noop = () => {};
-  const ctxMethods = ['save', 'restore', 'translate', 'rotate', 'scale', 'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'ellipse', 'fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'fillText', 'strokeText', 'drawImage', 'setLineDash', 'clip', 'rect', 'quadraticCurveTo', 'bezierCurveTo', 'putImageData'];
+  const ctxMethods = ['save', 'restore', 'translate', 'rotate', 'scale', 'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'ellipse', 'fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'fillText', 'strokeText', 'drawImage', 'setLineDash', 'clip', 'rect', 'quadraticCurveTo', 'bezierCurveTo', 'putImageData', 'transform', 'setTransform'];
   const makeCtx = () => {
     const c = { measureText: () => ({ width: 10 }), createLinearGradient: () => ({ addColorStop: noop }), createRadialGradient: () => ({ addColorStop: noop }), getImageData: () => ({ data: [] }) };
     ctxMethods.forEach(m => c[m] = noop); return c;

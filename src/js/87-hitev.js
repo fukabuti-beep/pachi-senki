@@ -51,7 +51,7 @@ function jrDraw(t){const J=HEV.jr;if(!J)return;const p=t-J.t0,D=JRD[J.v],fl=type
   bc.save();bc.globalAlpha=Math.min(1,p*4,(D-p)*5+.3);bc.fillStyle='rgba(8,2,18,.88)';bc.fillRect(0,0,360,150);
   // 虹色の回転光線
   bc.translate(180,J.v==2?72:75);bc.rotate(p*(fl>0?1.8:.4)*(J.v==2?-1:1));for(let i=0;i<16;i++){bc.rotate(TAU/16);bc.fillStyle='hsla('+jrHue(t,i*22.5)+',100%,55%,'+(i%2?.42:.26)+')';bc.beginPath();bc.moveTo(0,0);bc.lineTo(260,-26);bc.lineTo(260,26);bc.closePath();bc.fill()}
-  bc.setTransform(1,0,0,1,0,0);
+  if(bc.setTransform)bc.setTransform(1,0,0,1,0,0);
   // 上下の虹色ライン(ゲーミング枠)
   for(let x=0;x<360;x+=12){bc.fillStyle='hsl('+jrHue(t,x*2)+',100%,58%)';bc.fillRect(x,0,12,4);bc.fillRect(x,146,12,4)}
   bc.textAlign='center';bc.imageSmoothingEnabled=false;

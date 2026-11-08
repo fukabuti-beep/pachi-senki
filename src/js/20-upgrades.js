@@ -5,7 +5,7 @@ const UP=[['攻','英雄強化','ダメージ+25%',15],['速','発射速度','�
 const UPMAX=[Infinity,11,12,Infinity,15,15,8,5,10,10];
 // チューニング用の係数(sim から BAL.xxx=... で上書き可能)
 const BAL={atk0:5,atkg:1.25,mulg:1.2,hp0:1500,hpg:1.32,boss:4,costg:1.63,costgCap:1.45,costk:50,
- hit0:.15,hitStep:.01,rushP:.2,jpP:.04,
+ hit0:.15,hitStep:.01,rushP:.12,jpP:.04,
  spBall:.14,spHero:2.7,spStep:.06,ultMin:9,
  goldBase:45,goldStep:.12,fevBase:60,fevStep:.1,
  pityStart:24,pityEnd:60};

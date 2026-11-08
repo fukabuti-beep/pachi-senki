@@ -1,0 +1,12 @@
+/* 予告/告知バナー(#bn)の文字強化(3層): 本体=太い黒縁+立体の押し出し+発光 / ::before=色の太い本体 / ::after=上半分の白ハイライト(ツートン)。
+   熱い文言(.rb)は本体色が虹色に巡回(色相が滑らかに変わるだけで明暗の点滅なし)。data-t と --c は 88-bannerfx.js が設定 */
+#bn{--c:#ffd400;letter-spacing:3px;padding:0 8px;color:#14021f;-webkit-text-fill-color:#14021f;-webkit-text-stroke:18px #000;paint-order:stroke fill;
+ text-shadow:1px 2px 0 #000,2px 4px 0 #000,3px 6px 0 #000,4px 8px 0 #000,5px 10px 0 #000,0 0 26px var(--c),0 0 46px var(--c)}
+#bn::before,#bn::after{content:attr(data-t);position:absolute;left:0;right:0;top:0;padding:inherit;text-shadow:none;paint-order:stroke fill}
+#bn::before{color:var(--c);-webkit-text-fill-color:currentColor;-webkit-text-stroke:6px currentColor}
+#bn::after{color:#fff;-webkit-text-fill-color:#fff;-webkit-text-stroke:6px #fff;opacity:.92;
+ -webkit-mask-image:linear-gradient(180deg,#000 0,#000 38%,transparent 54%);mask-image:linear-gradient(180deg,#000 0,#000 38%,transparent 54%)}
+#bn.rb{text-shadow:1px 2px 0 #000,2px 4px 0 #000,3px 6px 0 #000,4px 8px 0 #000,5px 10px 0 #000,0 0 22px #ff2dd1,0 0 40px #22e0ff}
+#bn.rb::before{animation:bnrb 1.2s linear infinite}
+@keyframes bnrb{0%{color:#ff2d55}17%{color:#ff9500}33%{color:#ffe600}50%{color:#4cd964}67%{color:#22e0ff}83%{color:#ff2dd1}100%{color:#ff2d55}}
+@media (prefers-reduced-motion:reduce){#bn.rb::before{animation:none}}

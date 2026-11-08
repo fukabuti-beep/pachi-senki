@@ -40,8 +40,8 @@ static class StoreSetup
         // 起動画面の背景はゲームと同じ濃い紫
         PlayerSettings.SplashScreen.backgroundColor = new Color32(10, 7, 32, 255);
         PlayerSettings.statusBarHidden = true;
-        // 文字の Google Font(DotGothic16)を読むためだけにネット権限を付ける(失敗しても等幅フォントで動く)
-        PlayerSettings.Android.forceInternetPermission = true;
+        // 通信しない(フォントも HTML に内蔵)のでネット権限は付けない
+        PlayerSettings.Android.forceInternetPermission = false;
         // iOS: Xcode で「Team」を選ぶだけで署名できるよう自動署名にする(無料の Apple ID でも可)
         PlayerSettings.iOS.appleEnableAutomaticSigning = true;
         // アイコン(Web版 PWA と同じ絵を 1024px に拡大したもの)

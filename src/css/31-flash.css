@@ -1,0 +1,3 @@
+/* フラッシュ: 「動きを減らす」端末では初期設定が OFF(26-dots.js)。ユーザーが設定で 強/弱 を選んだ時は光るようにする
+   (style.css の reduced-motion 指定で #fl のアニメーションまで止まり、設定を変えても一切光らなかった) */
+@media (prefers-reduced-motion:reduce){#fl.on{animation:fl .5s}#fl.on.w{animation:flw .45s}}

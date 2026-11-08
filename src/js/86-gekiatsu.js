@@ -49,19 +49,21 @@ function thickTxt(c,t,x,y,px,fill,o){o=o||{};const d=o.d!=null?o.d:Math.max(2,Ma
   c.fillStyle=o.ex||'#2a0a3a';c.strokeStyle='#000';c.lineWidth=lw;for(let i=d;i>=1;i--){c.strokeText(t,x+i*.5,y+i);c.fillText(t,x+i*.5,y+i)}
   c.strokeText(t,x,y);c.fillStyle=fill;for(let k=-b;k<=b;k++){c.fillText(t,x+k,y);c.fillText(t,x,y+k)}
   if(b){c.save();c.globalAlpha*=.45;c.fillStyle=o.hi||'#fff';c.fillText(t,x,y-b);c.restore();c.fillStyle=fill;c.fillText(t,x,y+b*.5)}}
-function gkTxt(t,x,y,px,c,s){thickTxt(bc,t,x,y,px,c)}
+function gkTxtR(t,x,y,px,c,s){thickTxt(bc,t,x,y,px,c)}
+// RUSHリザルトは従来の描き方(細めの黒縁)に戻す(ユーザー要望)
+function gkTxtR(t,x,y,px,c){bc.font=px+'px '+FN;bc.strokeStyle='#000';bc.lineWidth=Math.max(3,px/5);bc.strokeText(t,x,y);bc.fillStyle=c;bc.fillText(t,x,y)}
 function gkRank(n){return n>=10?['LEGEND!!!',null]:n>=5?['EXCELLENT!!','#ff2d7a']:n>=3?['GREAT!!','#ffd400']:['NICE!','#7ff3ff']}
 function gkDraw(t){const P=GK.pop;
-  if(P){const p=t-P.t0;if(p>.85)GK.pop=null;else{const s=p<.12?2.4-p/.12*1.4:1;bc.save();bc.translate(180,P.big?66:70);bc.scale(s,s);bc.globalAlpha=Math.min(1,(.85-p)*4);bc.textAlign='center';gkTxt(P.t,0,0,P.big?34:26,P.c);bc.restore()}}
+  if(P){const p=t-P.t0;if(p>.85)GK.pop=null;else{const s=p<.12?2.4-p/.12*1.4:1;bc.save();bc.translate(180,P.big?66:70);bc.scale(s,s);bc.globalAlpha=Math.min(1,(.85-p)*4);bc.textAlign='center';gkTxtR(P.t,0,0,P.big?34:26,P.c);bc.restore()}}
   const R=GK.rr;if(!R)return;const p=t-R.t0,a=Math.min(1,p*5,((R.n<2?2.8:3.8)-p)*2.5);if(a<=0)return;
   bc.save();bc.globalAlpha=a;bc.fillStyle='rgba(10,4,30,.84)';bc.fillRect(0,28,360,96);bc.fillStyle='#ffd400';bc.fillRect(0,28,360,2);bc.fillRect(0,122,360,2);
-  bc.textAlign='center';gkTxt('RUSH RESULT',180,44,12,'#ffd400');
+  bc.textAlign='center';gkTxtR('RUSH RESULT',180,44,12,'#ffd400');
   const q=Math.min(1,p/1.2),e=1-Math.pow(1-q,3),gs='+'+fmt(Math.floor(R.g*e))+' G',s=p<.18?1.8-p/.18*.8:1;
-  if(R.n<2){const s2=q>=1?1+Math.max(0,.25-(p-1.2))*1.6:1;bc.save();bc.translate(180,90);bc.scale(s2,s2);gkTxt(gs,0,0,30,q>=1?'#ffd400':'#fff');bc.restore();gkTxt('獲得ゴールド',180,112,10,'#9aa0c8')}
+  if(R.n<2){const s2=q>=1?1+Math.max(0,.25-(p-1.2))*1.6:1;bc.save();bc.translate(180,90);bc.scale(s2,s2);gkTxtR(gs,0,0,30,q>=1?'#ffd400':'#fff');bc.restore();gkTxtR('獲得ゴールド',180,112,10,'#9aa0c8')}
   else{const rk=gkRank(R.n),rc=rk[1]||'hsl('+Math.floor(t*90)%360+',100%,62%)';
-  bc.save();bc.translate(150,82);bc.scale(s,s);gkTxt(R.n+'連チャン',0,0,30,rc);bc.restore();
-  bc.textAlign='left';gkTxt(rk[0],238,80,12,rc);bc.textAlign='center';
-  gkTxt(gs,180,112,22,q>=1?'#fff3a0':'#fff')}
-  if(R.rec&&p>1.2&&Math.floor(p*3)%2==0)gkTxt('NEW RECORD!',300,118,10,'#ff2d7a');
+  bc.save();bc.translate(150,82);bc.scale(s,s);gkTxtR(R.n+'連チャン',0,0,30,rc);bc.restore();
+  bc.textAlign='left';gkTxtR(rk[0],238,80,12,rc);bc.textAlign='center';
+  gkTxtR(gs,180,110,18,q>=1?'#fff3a0':'#fff')}
+  if(R.rec&&p>1.2&&Math.floor(p*3)%2==0)gkTxtR('NEW RECORD!',300,118,10,'#ff2d7a');
   bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{gkDraw(t)}catch(e){GK.pop=null;GK.rr=null}return r}}

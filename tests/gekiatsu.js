@@ -54,5 +54,19 @@ let bad = 0; const ok = (c, m) => { if (!c) { bad++; console.error('FAIL: ' + m)
   ok(g.eval('G.stage') >= 4, '旧セーブのステージが読めていない');
 }
 
+// (d) 保留変化: 隠れた保留は消化時に必ず本来の色(予告レベル)に戻り、途中で1段ずつ上がる
+{
+  const g = createGame({ seed: 9 }); g.start(); g.advance(1);
+  g.eval(`var __yk=[];(function(){const s0=startSpin;startSpin=function(){const q=QL[0],w=sp,r=s0.apply(this,arguments);if(!w&&sp&&q)__yk.push([q.t==null?q.c:q.t,sp.yk]);return r}})()`);
+  let ups = 0;
+  g.eval(`(function(){const o=hryUp;hryUp=function(){__ups=(typeof __ups=='number'?__ups:0)+1;return o.apply(this,arguments)}})()`);
+  g.advance(15 * 60);
+  const yk = g.eval('__yk'); ups = g.eval("typeof __ups=='number'?__ups:0");
+  ok(yk.length > 50 && yk.every(([t, y]) => t === y), '保留変化で予告レベルが変わった: ' + JSON.stringify(yk.filter(([t, y]) => t !== y).slice(0, 5)));
+  ok(ups > 0, '保留変化が発生しない');
+  ok(g.eval('QL.every(q=>q.c<=4&&(q.t==null||q.c<=q.t))'), '保留の色が本来より上がっている');
+  console.log(`保留変化: 15分で ${ups} 回 / 消化 ${yk.length} 個すべて本来の予告レベル`);
+}
+
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('GEKIATSU OK');

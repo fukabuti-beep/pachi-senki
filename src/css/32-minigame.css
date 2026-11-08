@@ -1,0 +1,18 @@
+/* ルーレット盤の中央寄せ: タイトルが盤より広いと canvas が左詰めになり約9px左にずれていた */
+#rl #w{display:block;margin-left:auto;margin-right:auto}
+/* ミニゲーム(BONUS STOP=#mg / 宝箱くじ・コインラッシュ=#fxg)のパネルをルーレットと同じ筐体風に。
+   91-meta.js が JS で注入するCSSより後に効くよう、詳細度を上げている(html body ...) */
+html body #mg .rb,html body #fxg .rb{position:relative;width:auto;max-width:300px;overflow:visible;padding:14px 16px 12px;
+ background:radial-gradient(circle at 50% 30%,#2e1c78,#0b0624 78%);
+ box-shadow:0 0 0 3px #000,0 0 0 6px #ffe56a,0 0 0 9px #a87500,0 0 0 11px #000,0 0 46px 8px rgba(255,45,122,.5);animation:rlin .28s steps(4)}
+html body #mg .rb:before,html body #fxg .rb:before{content:"";position:absolute;left:10px;right:10px;top:-8px;height:4px;
+ background:repeating-linear-gradient(90deg,#fff36a 0 6px,transparent 6px 14px);animation:mgled .5s steps(2) infinite}
+@keyframes mgled{to{background-position:14px 0}}
+html body #mt,html body #fxgt{font-size:22px!important;letter-spacing:3px;color:#fff!important;margin-bottom:6px;
+ text-shadow:0 2px 0 #c40f45,0 4px 0 #6a0020,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
+html body #mt:before,html body #mt:after,html body #fxgt:before,html body #fxgt:after{content:"◆";color:#ffd400;margin:0 8px;font-size:12px;vertical-align:3px}
+html body #mr,html body #fxgr{font-size:30px!important;letter-spacing:2px;color:#ffd400!important;height:auto!important;min-height:40px;
+ text-shadow:0 3px 0 #b85a00,0 5px 0 #4a1a00,3px 3px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
+html body #mg canvas,html body #fxgc{display:block;margin:6px auto!important;box-shadow:0 0 0 2px #000,0 0 0 4px #5a4a9a,0 0 0 6px #000}
+html body #fxgh,html body #mg .rb>div:last-child{font-size:12px!important;color:#c8c0ff;opacity:.9!important}
+@media (prefers-reduced-motion:reduce){html body #mg .rb,html body #fxg .rb,html body #mg .rb:before,html body #fxg .rb:before{animation:none}}

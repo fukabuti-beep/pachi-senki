@@ -123,7 +123,7 @@ for (const mode of ['none', 'broken']) {
 // ===== ここから拡充分(曲/ミックス/新SE) =====
 const KEEP = 'G.hp=G.mx=1e30;G.sp=0;G.q=0;QL.length=0;PR.length=0';
 const SR = 16000;
-const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null'; // ゲーム側の自発イベント(当たり/押せ/ルーレット)を止めて曲状態だけを検証する
+const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null;hryUp=function(q,i,to){q.c=to}'; // 保留変化のSEも測定対象外 // ゲーム側の自発イベント(当たり/押せ/ルーレット)を止めて曲状態だけを検証する
 
 // (g) 曲データの整合: モチーフ32文字/パターン16文字/コード4つ。ステージ帯テーマは別々のキー/テンポ
 {
@@ -251,10 +251,10 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null'; // ゲーム側の�
     console.log(`煽り: ${fs.length}音 ${Math.round(main[0])}→${Math.round(main[main.length - 1])}Hz 間隔 ${gaps[0].toFixed(3)}→${gaps[gaps.length - 1].toFixed(3)}s`);
   }
   // リーチ発展: SUPER は3段(音程上昇)、通常は1段。3列目のティックが鳴る
-  g.eval('G.q=1;QL.push({h:0,c:0});startSpin();sp.type=2;sp.hit=false;sp.stop=[1,1.9,7.5];sp.f=[1,2,3];sp.sc=1');
+  g.eval('G.q=1;QL.push({h:0,c:0});startSpin();sp.type=2;sp.hit=false;sp.pzN=0;sp.rv=0;sp.stop=[1,1.9,7.5];sp.f=[1,2,3];sp.sc=1');
   g.advance(9, .05, () => g.eval(KEEP.replace('G.q=0;', '')));
   ok(g.eval('__c.rs') === 3, `SUPERリーチの発展SEが3段でない: ${g.eval('__c.rs')}`); ok(g.eval('__c.tick') >= 5, `リーチ中のティックが少ない: ${g.eval('__c.tick')}`);
-  g.eval('__c.rs=0;G.q=1;QL.push({h:0,c:0});startSpin();sp.type=1;sp.hit=false;sp.stop=[1,1.9,4.8];sp.f=[1,2,3];sp.sc=1');
+  g.eval('__c.rs=0;G.q=1;QL.push({h:0,c:0});startSpin();sp.type=1;sp.hit=false;sp.pzN=0;sp.rv=0;sp.stop=[1,1.9,4.8];sp.f=[1,2,3];sp.sc=1');
   g.advance(7, .05, () => g.eval(KEEP.replace('G.q=0;', ''))); ok(g.eval('__c.rs') === 1, `通常リーチの発展SEが1段でない: ${g.eval('__c.rs')}`);
   const pit = g.eval('[1,2,3].map(k=>sRise(5+k*3))'); ok(pit[0] < pit[1] && pit[1] < pit[2], '発展段階で音程が上がらない: ' + pit);
   // ボス撃破

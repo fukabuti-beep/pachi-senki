@@ -88,7 +88,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
     clearInterval: id => { const i = timers.findIndex(t => t.id === id); if (i >= 0) timers.splice(i, 1); },
     performance: { now: () => simTime * 1000 },
   };
-  const lsObj = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { if (ls === 'setthrow') throw new Error('QuotaExceededError'); store[k] = String(v); }, removeItem: k => { delete store[k]; } };
+  const lsObj = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { if (ls === 'setthrow') throw new Error('QuotaExceededError'); store[k] = String(v); }, removeItem: k => { delete store[k]; }, key: i => { const ks = Object.keys(store); return i < ks.length ? ks[i] : null; }, get length() { return Object.keys(store).length; } };
   if (ls === 'throw') Object.defineProperty(sandbox, 'localStorage', { get() { throw new Error('SecurityError: localStorage denied'); } });
   else sandbox.localStorage = lsObj;
   sandbox.window = sandbox;

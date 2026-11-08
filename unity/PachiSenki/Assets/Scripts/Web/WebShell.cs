@@ -58,6 +58,10 @@ namespace PachiSenki.Web
                     loaded = true; status = "";
                     // iOS/Mac で Unity.call が無い場合の受け口(Android/Windows はプラグインが用意する)
                     wv.EvaluateJS("if(!window.Unity){window.Unity={call:function(m){if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.unityControl){window.webkit.messageHandlers.unityControl.postMessage(m)}else{window.location='unity:'+m}}}}");
+                    // アプリで動いている印(Web版 97u-app.js が振動とセーブの控えを使う)。控えがあれば書き戻しを頼む(Web 側にセーブが無い時だけ反映)
+                    wv.EvaluateJS("window.PachiApp={v:1,platform:'" + Application.platform + "'};");
+                    var bak = PlayerPrefs.GetString(BackupKey, "");
+                    if (bak.Length > 2) wv.EvaluateJS("try{typeof appRestore==='function'&&appRestore('" + JsStr(bak) + "')}catch(e){}");
                 },
                 zoom: false,
                 wkAllowsLinkPreview: false,
@@ -97,7 +101,23 @@ namespace PachiSenki.Web
         }
 
         // Web版 → Unity へのメッセージ(将来: 広告・課金の受け口 window.PachiNative をここで実装する)
-        void OnJs(string msg) { Debug.Log("[WebShell] JS: " + msg); }
+        const string BackupKey = "pachi_web_backup";
+        float lastVib = -9;
+        void OnJs(string msg)
+        {
+            if (string.IsNullOrEmpty(msg)) return;
+            if (msg.StartsWith("vib:"))
+            {
+                if (Time.unscaledTime - lastVib < .6f) return; lastVib = Time.unscaledTime;
+#if UNITY_IOS || UNITY_ANDROID
+                Handheld.Vibrate();
+#endif
+                return;
+            }
+            if (msg.StartsWith("save:")) { PlayerPrefs.SetString(BackupKey, msg.Substring(5)); PlayerPrefs.Save(); return; }
+            Debug.Log("[WebShell] JS: " + msg);
+        }
+        static string JsStr(string s) => s.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\u2028", "\\u2028").Replace("\u2029", "\\u2029");
 
         void OnGUI()
         {

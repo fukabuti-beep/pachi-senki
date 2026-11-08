@@ -39,12 +39,21 @@ function chUpd(){const s=sp;
 CHR.lastRelic=-1;
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{chUpd()}catch(e){}return r}}
 // 3) カットインのバリエーション(従来=0 / そろい踏み=1 / ドアップ=2)。cb と終了タイミングは従来と同じ(.65秒で cb、1.0秒で終了)
-function cutTxtOld(p,ex,t,y0,col){const tx=Math.round(350-(1-ex)*220+(p>.45?Math.sin(t*60)*1.5:0)),ty=y0+60;
+// 大当たりのカットイン文字は「キャラのキメ台詞」に差し替え(上の小文字で大当たりを示す)。JACKPOT はそのまま
+const CUTL=[['斬り開け!!','燃えろ!!','一刀両断!!'],['魔力解放!!','焼き尽くせ!','禁呪発動!!'],['狙い撃つ!!','逃さない!!','一矢必中!!']],CUTT=['総攻撃!!','全員集合!!','いくぞ!!'];
+function cutLine(){if(cut.dt)return;const t=String(cut.txt);if(/JACKPOT/.test(t)){cut.dt=t;cut.sub='★ 777 ★';return}
+  if(/大当たり/.test(t)){cut.dt=cut.v==1?chPick(CUTT):chPick(CUTL[cut.h]||CUTT);cut.sub='★ 大当たり ★';return}cut.dt=t;cut.sub='★ CHANCE ★'}
+function cutTxtOld(p,ex,t,y0,col){cutLine();const tx=Math.round(350-(1-ex)*220+(p>.45?Math.sin(t*60)*1.5:0)),ty=y0+60;
   bc.font='40px '+FN;bc.textAlign='right';bc.lineJoin='round';bc.lineWidth=9;bc.strokeStyle='#000';
-  bc.strokeText(cut.txt,tx+3,ty+3);bc.fillStyle=col;bc.fillText(cut.txt,tx+3,ty+3);bc.strokeText(cut.txt,tx,ty);bc.fillStyle='#fff';bc.fillText(cut.txt,tx,ty);
-  bc.font='12px '+FN;bc.fillStyle=col;bc.fillText('★ CHANCE ★',tx,y0+24)}
+  const D=cut.dt;bc.strokeText(D,tx+3,ty+3);bc.fillStyle=col;bc.fillText(D,tx+3,ty+3);bc.strokeText(D,tx,ty);bc.fillStyle='#fff';bc.fillText(D,tx,ty);
+  bc.font='13px '+FN;bc.lineWidth=4;bc.strokeText(cut.sub,tx,y0+24);bc.fillStyle=col==='#ff2d7a'?'#ffd400':col;bc.fillText(cut.sub,tx,y0+24)}
 // カットインのキャラ: 等身イラスト(83b-portrait)。生成できない環境では従来のデフォルメ SPR
-function cutChar(i,x,y,sc,fx){const P=typeof PORT==='function'?PORT(i):null;if(P){const w=Math.round(64*sc),h=Math.round(72*sc),X=Math.round(x),Y=Math.round(y),col=cut&&cut.c||'#ffd400',t=T;
+// 提供イラストを「コード描画の胸像と同じ顔位置」に合わせて描く(顔=胸像の(32,31))
+function cutImg(k,x,y,sc,fx,size){const im=typeof PIMGI!=='undefined'?PIMGI[k]:null;if(!im)return false;const f=PIMGF[k],S=size||64*sc*1.75,w=S*(im.width/im.height),h=S,X=Math.round(x+32*sc-f[0]*w),Y=Math.round(y+31*sc-f[1]*h),col=cut&&cut.c||'#ffd400',t=T;
+  if(fx){bc.save();bc.globalAlpha*=.5;for(let k2=0;k2<9;k2++){const ax=X+w*(.1+k2*.1),fh=h*(.3+.2*Math.abs(Math.sin(t*9+k2*1.7))),ay=Y+h*.6;bc.fillStyle=k2%2?col:'#fff';bc.beginPath();bc.moveTo(ax-w*.06,ay);bc.lineTo(ax+Math.sin(t*12+k2)*w*.04,ay-fh);bc.lineTo(ax+w*.06,ay);bc.closePath();bc.fill()}bc.restore();
+    const R=PIMGRim(k,col);if(R){const d=Math.max(2,Math.round(sc*1.2));bc.drawImage(R,X-d,Y,w,h);bc.drawImage(R,X+d,Y-d,w,h)}}
+  const sm=bc.imageSmoothingEnabled;bc.imageSmoothingEnabled=true;bc.drawImage(im,X,Y,w,h);bc.imageSmoothingEnabled=sm;return true}
+function cutChar(i,x,y,sc,fx){if(cutImg('hero'+i,x,y,sc,fx))return;const P=typeof PORT==='function'?PORT(i):null;if(P){const w=Math.round(64*sc),h=Math.round(72*sc),X=Math.round(x),Y=Math.round(y),col=cut&&cut.c||'#ffd400',t=T;
   if(fx){// オーラの炎(キャラの後ろ)
     bc.save();bc.globalAlpha*=.55;for(let k=0;k<9;k++){const ax=X+w*(.1+k*.1),fh=h*(.35+.25*Math.abs(Math.sin(t*9+k*1.7))),ay=Y+h*.55;bc.fillStyle=k%2?col:'#fff';bc.beginPath();bc.moveTo(ax-w*.07,ay);bc.lineTo(ax+Math.sin(t*12+k)*w*.04,ay-fh);bc.lineTo(ax+w*.07,ay);bc.closePath();bc.fill()}bc.restore();
     // リムライト(色付きシルエットを左右にずらして重ねる)
@@ -60,7 +69,9 @@ function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   bc.globalAlpha=.94;bc.fillStyle=g;bc.fillRect(0,y0,360,h);bc.globalAlpha=1;bc.beginPath();bc.rect(0,y0,360,h);bc.clip();
   const e=Math.min(1,p/.22),ex=1-Math.pow(1-e,3);bc.imageSmoothingEnabled=false;
   if(cut.v==1){bc.fillStyle='rgba(255,255,255,.5)';for(let i=0;i<14;i++){const x=360-((t*(520+(i%4)*150)+i*97)%520);bc.fillRect(x,y0+((i*29)%88),60+(i%3)*40,2)}
-    for(let i=0;i<3;i++){const q=Math.max(0,Math.min(1,(p-i*.07)/.2)),qe=1-Math.pow(1-q,3),sc=1.6,x=-110+qe*(110+i*60),y=y0+44-31*sc+Math.sin(t*14+i)*1.5;
+    const TI=typeof PIMGI!=='undefined'&&PIMGI.trio;if(TI){const q=Math.max(0,Math.min(1,p/.22)),qe=1-Math.pow(1-q,3),H=112,W=H*TI.width/TI.height,x=-W+qe*(W-4),y=y0+44-H*.43;
+      for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);bc.imageSmoothingEnabled=true;bc.drawImage(TI,x-k*20,y,W,H)}bc.globalAlpha=1;const R=PIMGRim('trio',col);if(R){bc.drawImage(R,x-2,y,W,H);bc.drawImage(R,x+2,y-2,W,H)}bc.drawImage(TI,x,y,W,H);bc.imageSmoothingEnabled=false}
+    else for(let i=0;i<3;i++){const q=Math.max(0,Math.min(1,(p-i*.07)/.2)),qe=1-Math.pow(1-q,3),sc=1.6,x=-110+qe*(110+i*60),y=y0+44-31*sc+Math.sin(t*14+i)*1.5;
       for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);cutChar(i,x-k*16,y,sc)}bc.globalAlpha=1;cutChar(i,x,y,sc,1)}}
   else if(cut.v==2){bc.fillStyle='rgba(255,255,255,.45)';for(let i=0;i<18;i++){const y=((t*(600+(i%3)*200)+i*53)%(88+60))-30+y0;bc.fillRect(8+i*13,y,2,30+(i%4)*10)}
     const sc=3.6+Math.max(0,.2-p)*3;cutChar(cut.h,-30-(1-ex)*120,y0+44-34*sc,sc,1);bc.fillStyle='rgba(0,0,0,.22)';bc.fillRect(0,y0,360,h)}

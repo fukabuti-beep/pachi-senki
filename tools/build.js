@@ -14,7 +14,11 @@ for (const f of files) {
   try { new vm.Script(fs.readFileSync(path.join(jsDir, f), 'utf8'), { filename: 'src/js/' + f }); }
   catch (e) { bad++; console.error(`SYNTAX ERROR in src/js/${f}: ${e.message}`); }
 }
-const js = files.map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
+// src/img/*.webp|png を data URI にして PIMG に埋め込む(単一HTMLのまま配布するため)。ハーネス(テスト)には入らないので、使う側は typeof PIMG を確認する
+const imgDir = path.join(root, 'src/img');
+const imgs = fs.existsSync(imgDir) ? fs.readdirSync(imgDir).filter(f => /\.(webp|png)$/.test(f)).sort() : [];
+const pimg = 'const PIMG={' + imgs.map(f => JSON.stringify(f.replace(/\.\w+$/, '')) + ':"data:image/' + (f.endsWith('.png') ? 'png' : 'webp') + ';base64,' + fs.readFileSync(path.join(imgDir, f)).toString('base64') + '"').join(',') + '};\n';
+const js = pimg + files.map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
 try { new vm.Script(js, { filename: 'bundle.js' }); }
 catch (e) { bad++; console.error('SYNTAX ERROR in bundle: ' + e.message); }
 if (bad) process.exit(1);

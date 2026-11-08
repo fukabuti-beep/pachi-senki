@@ -154,8 +154,9 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null'; // ゲーム側の�
   g.eval('G.rush=15;G.stage=1;G.jp=0;G.fv=0;' + QUIET); g.advance(3); g.eval(KEEP);
   g.eval('pushPrompt(()=>{},{ms:20000})'); g.advance(1.5); ok(g.eval('BG.s') === 'tn', '押せ!!待ちで緊張曲にならない: ' + g.eval('BG.s'));
   g.eval('pushPress(0)'); g.advance(2); g.eval(KEEP); ok(g.eval('BG.s') === 'r', '押下後にRUSH曲へ戻らない: ' + g.eval('BG.s'));
+  g.eval('sp=null;cut=null;' + KEEP); // 直前の回転が自然に当たって押せ/ルーレットが重なると判定が乱れるので止める
   g.eval('startRoul(1)'); g.advance(1.5); ok(g.eval('BG.s') === 'tn', 'ルーレット回転中に緊張曲にならない: ' + g.eval('BG.s'));
-  g.advance(8); g.eval(KEEP); ok(g.eval('BG.s') !== 'tn', 'ルーレット終了後も緊張曲のまま');
+  for (let i = 0; i < 16; i++) { g.eval('sp=null;' + KEEP); g.advance(.5) } g.eval(KEEP); ok(g.eval('BG.s') !== 'tn', 'ルーレット終了後も緊張曲のまま');
   const sw = g.eval('__sw'); let bgOk = 0;
   for (const e of sw) {
     const up = g.eval(`SRANK['${e.to}']>SRANK['${e.from}']`) || e.from === 'tn';

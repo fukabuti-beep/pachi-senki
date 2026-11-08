@@ -1,0 +1,11 @@
+/* 実機ブラウザ検証で見つけたレイアウト不具合の修正(見た目の仕様は変えない)。 */
+
+/* トースト(#fxt, 91-meta)をメニュー/設定(#fxm/#cfg z-index:10)より前面に。
+   メニュー内の操作結果(「コードが違うみたい」「演出が終わるまで待ってね」「魔石が足りない」「名前を〜にしました」等)が暗幕の下に隠れていた。
+   pointer-events:none のままなので操作は妨げない。#push(12)よりは下。 */
+html body #fxt{z-index:11}
+
+/* 三本線メニューの長いタブ(実績/図鑑など)で「閉じる」が一覧の一番下までスクロールしないと出てこなかった
+   (iPhone 15 で実績タブは約700px下)。ボタン列をパネル下端に sticky で固定する。短いダイアログでは位置は従来どおり。 */
+html body #fxm #fxmbt{position:sticky;bottom:-14px;z-index:2;margin:6px -14px -14px;padding:6px 14px 12px;
+ background:linear-gradient(rgba(11,6,36,0),#0b0624 10px)}

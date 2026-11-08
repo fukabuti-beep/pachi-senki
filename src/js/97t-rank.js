@@ -27,7 +27,7 @@ async function rkFetch(b){const p=rkProvider();RK.board=b;if(!p)return;try{let r
     RK.top[b]=(Array.isArray(rows)?rows:[]).slice(0,20).map(x=>({name:rkName(x&&x.name||'???')||'???',score:Math.floor(+(x&&x.score))||0}));RK.err=''}catch(e){RK.err='取得に失敗しました'}try{fxMenu()}catch(e){}}
 function rkSetName(){try{const el=document.getElementById('rkname');const v=rkName(el?el.value:'');if(!v){fxToast('名前を入力してね(10文字まで)','#aaa');return}RK.name=v;rkSave();fxToast('名前を '+v+' にしました','#7ff3ff');for(const b of RKB)if(RK.best[b[0]])RK.pend[b[0]]=RK.best[b[0]];RK.last=-99}catch(e){}}
 function rkShareText(){return 'パチ戦記 自己ベスト\n'+RKB.map(b=>b[1]+': '+b[2]+fmt(RK.best[b[0]]||0)).join('\n')+'\n#パチ戦記'}
-async function rkShare(){const t=rkShareText();try{if(navigator.share){await navigator.share({text:t});return}}catch(e){}
+async function rkShare(){const t=rkShareText();try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==='AbortError')return}
   try{await navigator.clipboard.writeText(t);fxToast('記録をコピーしました','#7ff3ff')}catch(e){fxToast('共有できませんでした','#aaa')}}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{if(Math.floor(T)!==Math.floor(T-dt))rkCheck();rkUpd()}catch(e){}return r}}
 FM.push({n:'ランキング',r:()=>{rkCheck();const p=rkProvider();

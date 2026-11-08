@@ -24,7 +24,8 @@ bc.globalAlpha=1}
 /* コンボ表示: 数字はドット大文字、ティアで色/大きさ変化、増加時にポップ、残り時間ゲージ */
 let cbLast=0,cbPop=0;
 function drawCmb(t){if(cmb!=cbLast){if(cmb>cbLast)cbPop=1;cbLast=cmb}cbPop=Math.max(0,cbPop-DT*6);if(cmb<3)return;const tier=cmb>=50?3:cmb>=20?2:cmb>=10?1:0,sc=[3,4,4,5][tier]+(cbPop>.5?1:0),c1=['#ffe14d','#ffb03a','#ff6a9a','#fff'][tier],c2=['#ff9a2a','#ff5a1a','#c01060',(Math.floor(t*6)%2?'#ffd400':'#22e0ff')][tier],sx=tier>=2?Math.round((Math.random()-.5)*2):0;
-pxText(bc,cmb,6+sx,30,sc,c1,c2,'l');const w=pxW(cmb,sc);pxText(bc,'HIT',8+w+sx,30+sc*7-7*2,2,'#fff',c2,'l');
-const bw=Math.round(Math.min(1,cmbT/1.6)*(w+30));bc.fillStyle='#000';bc.fillRect(5,30+sc*7+3,w+34,5);bc.fillStyle=c1;bc.fillRect(6,30+sc*7+4,bw,3)}
+let s2=sc;while(s2>2&&pxW(cmb,s2)>96)s2--;   // 桁が増えても戦闘画面の左 1/3 程度に収める(5桁で英雄/ボス名を覆っていた)
+pxText(bc,cmb,6+sx,30,s2,c1,c2,'l');const w=pxW(cmb,s2);pxText(bc,'HIT',8+w+sx,30+s2*7-7*2,2,'#fff',c2,'l');
+const bw=Math.round(Math.min(1,cmbT/1.6)*(w+30));bc.fillStyle='#000';bc.fillRect(5,30+s2*7+3,w+34,5);bc.fillStyle=c1;bc.fillRect(6,30+s2*7+4,bw,3)}
 
 var PXRDY=1;if(typeof buildBg==="function")buildBg();

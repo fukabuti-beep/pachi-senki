@@ -9,3 +9,6 @@ html body #fxt{z-index:11}
    (iPhone 15 で実績タブは約700px下)。ボタン列をパネル下端に sticky で固定する。短いダイアログでは位置は従来どおり。 */
 html body #fxm #fxmbt{position:sticky;bottom:-14px;z-index:2;margin:6px -14px -14px;padding:6px 14px 12px;
  background:linear-gradient(rgba(11,6,36,0),#0b0624 10px)}
+
+/* 押せない(魔石不足など)ボタンを押せない見た目に */
+html body #fxm .fxb:disabled{opacity:.4;filter:grayscale(.8);cursor:default}

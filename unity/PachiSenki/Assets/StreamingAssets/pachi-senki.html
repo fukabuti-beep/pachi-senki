@@ -487,6 +487,9 @@ html body #fxt{z-index:11}
 html body #fxm #fxmbt{position:sticky;bottom:-14px;z-index:2;margin:6px -14px -14px;padding:6px 14px 12px;
  background:linear-gradient(rgba(11,6,36,0),#0b0624 10px)}
 
+/* 押せない(魔石不足など)ボタンを押せない見た目に */
+html body #fxm .fxb:disabled{opacity:.4;filter:grayscale(.8);cursor:default}
+
 /* 37-ios.css */
 /* ===== iOS (WKWebView / Safari / ホーム画面追加) 向けの調整。見た目は変えない ===== */
 /* 横向き時の文字の自動拡大を止める / 長押しのコールアウト(画像保存・リンクメニュー)を出さない */
@@ -2068,8 +2071,9 @@ bc.globalAlpha=1}
 /* コンボ表示: 数字はドット大文字、ティアで色/大きさ変化、増加時にポップ、残り時間ゲージ */
 let cbLast=0,cbPop=0;
 function drawCmb(t){if(cmb!=cbLast){if(cmb>cbLast)cbPop=1;cbLast=cmb}cbPop=Math.max(0,cbPop-DT*6);if(cmb<3)return;const tier=cmb>=50?3:cmb>=20?2:cmb>=10?1:0,sc=[3,4,4,5][tier]+(cbPop>.5?1:0),c1=['#ffe14d','#ffb03a','#ff6a9a','#fff'][tier],c2=['#ff9a2a','#ff5a1a','#c01060',(Math.floor(t*6)%2?'#ffd400':'#22e0ff')][tier],sx=tier>=2?Math.round((Math.random()-.5)*2):0;
-pxText(bc,cmb,6+sx,30,sc,c1,c2,'l');const w=pxW(cmb,sc);pxText(bc,'HIT',8+w+sx,30+sc*7-7*2,2,'#fff',c2,'l');
-const bw=Math.round(Math.min(1,cmbT/1.6)*(w+30));bc.fillStyle='#000';bc.fillRect(5,30+sc*7+3,w+34,5);bc.fillStyle=c1;bc.fillRect(6,30+sc*7+4,bw,3)}
+let s2=sc;while(s2>2&&pxW(cmb,s2)>96)s2--;   // 桁が増えても戦闘画面の左 1/3 程度に収める(5桁で英雄/ボス名を覆っていた)
+pxText(bc,cmb,6+sx,30,s2,c1,c2,'l');const w=pxW(cmb,s2);pxText(bc,'HIT',8+w+sx,30+s2*7-7*2,2,'#fff',c2,'l');
+const bw=Math.round(Math.min(1,cmbT/1.6)*(w+30));bc.fillStyle='#000';bc.fillRect(5,30+s2*7+3,w+34,5);bc.fillStyle=c1;bc.fillRect(6,30+s2*7+4,bw,3)}
 
 var PXRDY=1;if(typeof buildBg==="function")buildBg();
 
@@ -3003,7 +3007,7 @@ function kujiDraw(n){n=n===10?10:1;const c=KJC*n;if(typeof RES==='undefined')ret
   fxShow('<div class="fxh">'+(rare?'大当たり!!':'魔石くじ')+'</div>'+chest+'<div class="fxl">'+rs.map(r=>'<div class="'+(r.rare?'ok':'')+'"><span>'+(r.rare?'★ ':'')+r.s+'</span></div>').join('')+'</div>',
     [['もう一度('+n+'回)',()=>kujiDraw(n)],['閉じる',null,'g']]);if(rare)banner('くじ大当たり!!','#ffd400')}
 FM.push({n:'くじ',r:()=>'<div class="fxh">魔石くじ</div><div class="fxs">魔石で宝箱を開けるくじ。ゲーム内の魔石だけで遊べます(お金は使いません)。</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">魔石 '+fmt(typeof RES!=='undefined'?RES.ms:0)+'</span></div>'+
-  '<button class="fxb" onclick="kujiDraw(1)">1回 魔石'+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)">10連 魔石'+KJC*10+'</button>'+
+  (()=>{const ms=typeof RES!=='undefined'?RES.ms:0,d=c=>ms<c?' disabled':'';return '<button class="fxb" onclick="kujiDraw(1)"'+d(KJC)+'>1回 魔石'+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)"'+d(KJC*10)+'>10連 魔石'+KJC*10+'</button>'})()+
   '<div class="fxl" style="margin-top:10px">'+KUJI.map(k=>'<div><span>'+k[2]+'</span><span>'+Math.round(k[0]*100)+'%</span></div>').join('')+'</div>'});
 
 /* ---------- app: アプリ化(PWA)まわり ----------

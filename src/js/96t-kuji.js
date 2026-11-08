@@ -20,5 +20,5 @@ function kujiDraw(n){n=n===10?10:1;const c=KJC*n;if(typeof RES==='undefined')ret
   fxShow('<div class="fxh">'+(rare?'大当たり!!':'魔石くじ')+'</div>'+chest+'<div class="fxl">'+rs.map(r=>'<div class="'+(r.rare?'ok':'')+'"><span>'+(r.rare?'★ ':'')+r.s+'</span></div>').join('')+'</div>',
     [['もう一度('+n+'回)',()=>kujiDraw(n)],['閉じる',null,'g']]);if(rare)banner('くじ大当たり!!','#ffd400')}
 FM.push({n:'くじ',r:()=>'<div class="fxh">魔石くじ</div><div class="fxs">魔石で宝箱を開けるくじ。ゲーム内の魔石だけで遊べます(お金は使いません)。</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">魔石 '+fmt(typeof RES!=='undefined'?RES.ms:0)+'</span></div>'+
-  '<button class="fxb" onclick="kujiDraw(1)">1回 魔石'+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)">10連 魔石'+KJC*10+'</button>'+
+  (()=>{const ms=typeof RES!=='undefined'?RES.ms:0,d=c=>ms<c?' disabled':'';return '<button class="fxb" onclick="kujiDraw(1)"'+d(KJC)+'>1回 魔石'+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)"'+d(KJC*10)+'>10連 魔石'+KJC*10+'</button>'})()+
   '<div class="fxl" style="margin-top:10px">'+KUJI.map(k=>'<div><span>'+k[2]+'</span><span>'+Math.round(k[0]*100)+'%</span></div>').join('')+'</div>'});

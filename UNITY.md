@@ -20,6 +20,15 @@ unity/
 - テスト(Unity 不要): `dotnet run --project unity/CoreTests`(.NET 8 SDK)。乱数がWeb版と一致すること、15分×3シードで例外/NaN/リークなし、決定的、セーブ互換、天井、30分の到達ステージ(現状 平均 37.8 = Web版本体と同等)を確認。
 - Unity: Unity Hub で `unity/PachiSenki` を開く(推奨 Unity 6 LTS)→ 空のシーンのまま再生 → 仮表示で盤面・玉・スロット・戦闘・強化が動く。
 
+## 自分のPCへの導入(Windows / Mac)
+1. https://unity.com/download から **Unity Hub** をダウンロードしてインストール。
+2. Unity Hub を起動 → Unity ID でサインイン(無ければ作成)→ 設定(歯車)→ ライセンス → 「追加」→ **Personal(無料)ライセンス**を取得。
+3. 「インストール」→「エディターをインストール」→ **Unity 6(6000.0.x LTS)** を選ぶ。モジュールは後からでも追加できる(BOOTH で配るなら Windows Build Support / Mac Build Support、ブラウザ版なら WebGL Build Support)。
+4. プロジェクトを手元に用意: 既存のフォルダなら `git pull`、無ければ GitHub の Code → Download ZIP で展開。
+5. Unity Hub →「プロジェクト」→「追加」→「ディスクから追加」→ `pachi-senki/unity/PachiSenki` を選ぶ(バージョンを聞かれたら入れた Unity 6 を選ぶ)。初回は読み込みに数分かかる。
+6. 開いたら上の再生ボタン(▶)を押す → ゲームが自動で起動(盤面・玉・スロット・戦闘・強化ボタンの仮表示)。Game タブの解像度は 1080x1920 などの縦長にすると見やすい。
+7. 下の Console に赤いエラーが出たら、その文面を開発チャットに貼る。
+
 ## 移植の進み具合(JS → C#)
 | 段階 | 内容 | 状態 |
 |---|---|---|

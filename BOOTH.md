@@ -26,7 +26,7 @@ SUPPORT_CODE=PACHI-XXXX-XXXX python3 tools/booth.py 1.0.0
 ```
 node -e "let h=0x811c9dc5;for(const c of process.argv[1].toUpperCase())h=Math.imul(h^c.charCodeAt(0),0x01000193)>>>0;console.log(h.toString(16))" PACHI-XXXX-XXXX
 ```
-- ブラウザゲームなので判定は簡易(見た目のお礼だけにしている理由)。
+- ブラウザゲームなので判定は簡易。特典はお礼の宝石30個(1回だけ)とパトロン証・★。
 
 ## 4. 注意
 - パチンコ風の表現を含むので、BOOTH のガイドライン(年齢制限・表現)を確認。実際のお金を賭ける/換金する要素は無い旨を説明文にも書くと安心。

@@ -118,7 +118,10 @@ const tick = () => new Promise(r => setImmediate(r));
   // サポーターコード: 正しいコードで登録 / 違うコードは不可 / 大文字小文字・空白は無視
   const g2 = createGame({ seed: 10 }); g2.start(); g2.advance(1);
   g2.eval("$('supcode').value='pachi-xxxx-yyyy'"); ok(g2.eval('supCode()') === false && g2.eval('SUP.code') === 0, '違うコードで登録できた');
-  g2.eval("$('supcode').value=' pachi-nvtu-wbwd '"); ok(g2.eval('supCode()') === true && g2.eval('SUP.code') === 1 && JSON.parse(g2.store.pachi2_sup).code === 1, 'サポーターコードで登録できない');
+  g2.eval("$('supcode').value=' pachi-nvtu-wbwd '"); const gem0 = g2.eval('RES.gem');
+  ok(g2.eval('supCode()') === true && g2.eval('SUP.code') === 1 && JSON.parse(g2.store.pachi2_sup).code === 1, 'サポーターコードで登録できない');
+  ok(g2.eval('RES.gem') === gem0 + 30 && /^\d{4}-\d\d-\d\d$/.test(JSON.parse(g2.store.pachi2_sup).at) && g2.eval('SUPTAB.n') === '応援★', 'パトロン特典(宝石30/登録日/タブ)');
+  g2.eval("$('supcode').value='PACHI-NVTU-WBWD'"); g2.eval('supCode()'); ok(g2.eval('RES.gem') === gem0 + 30, '宝石が2回もらえる');
   ok(g2.eval('BOOTH_URL') === '' && g2.eval('SUPPORT_URL') === '', 'URL の既定値');
 }
 // (i) ランキング(97t): 自己ベスト記録 / 名前の検証 / 既定は通信しない / プロバイダへ送信

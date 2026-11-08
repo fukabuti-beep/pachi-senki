@@ -101,11 +101,6 @@ namespace PachiSenki.View
             if (shakeT > 0) shakeT -= dt;
             saveT += dt; if (saveT > 4) { saveT = 0; Save(); }
             FitCamera(); Sync();
-            if (Input.GetMouseButtonDown(0))
-            {
-                var v = ScreenToVirtual(Input.mousePosition);
-                if (v.y >= BOARD_Y && v.y < BOARD_Y + 400 && v.x >= 0 && v.x <= VW) Game.TapBoard(v.x);
-            }
         }
 
         // 縦長 360x760 を画面の中央に(横長なら左右に黒帯、縦長すぎるなら上下に黒帯)
@@ -164,8 +159,8 @@ namespace PachiSenki.View
             stS = new GUIStyle(GUI.skin.label) { fontSize = 12 }; stS.normal.textColor = Color.white;
             stM = new GUIStyle(stS) { fontSize = 16 }; stL = new GUIStyle(stS) { fontSize = 30, alignment = TextAnchor.MiddleCenter };
             stB = new GUIStyle(GUI.skin.button) { fontSize = 11 };
-            stR = stR; stC = new GUIStyle(stS) { alignment = TextAnchor.MiddleCenter };
-            stCB = new GUIStyle(stM) { alignment = TextAnchor.MiddleCenter }; stReel = stReel;
+            stR = new GUIStyle(stS) { alignment = TextAnchor.UpperRight }; stC = new GUIStyle(stS) { alignment = TextAnchor.MiddleCenter };
+            stCB = new GUIStyle(stM) { alignment = TextAnchor.MiddleCenter }; stReel = new GUIStyle(stS) { fontSize = 34, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         }
         void Txt(Rect r, string s, GUIStyle st, Color c)
         {
@@ -176,6 +171,18 @@ namespace PachiSenki.View
 
         void OnGUI()
         {
+            // 入力は IMGUI のイベントで受ける(旧Input/新Input System どちらの設定でも動く。スマホのタッチもここに来る)
+            var ev = Event.current;
+            if (ev != null)
+            {
+                GUI.matrix = Matrix4x4.identity;
+                if (ev.type == EventType.MouseDown)
+                {
+                    var v = new Vector2((ev.mousePosition.x - vOx) / vScale, (ev.mousePosition.y - vOy) / vScale);
+                    if (v.y >= BOARD_Y && v.y < BOARD_Y + 400 && v.x >= 0 && v.x <= VW) Game.TapBoard(v.x);
+                }
+                else if (ev.type == EventType.KeyDown && ev.keyCode == KeyCode.Space) Game.PressPush();
+            }
             Styles(); var G = Game.G;
             GUI.matrix = Matrix4x4.TRS(new Vector3(vOx, vOy, 0), Quaternion.identity, new Vector3(vScale, vScale, 1));
             Txt(new Rect(8, 4, 200, 22), "STAGE " + G.stage + (Game.IsBoss ? " BOSS" : ""), stM, new Color(1, .85f, .3f));

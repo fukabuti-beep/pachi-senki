@@ -118,7 +118,6 @@ namespace PachiSenki.View
                 float p = Mathf.Clamp01((float)((T - game.MiniStartT) / PachiGame.MiniSpin)), e = 1 - Mathf.Pow(1 - p, 3);
                 miniWheel.transform.rotation = Quaternion.Euler(0, 0, miniTarget * e);
             }
-            if (Input.GetKeyDown(KeyCode.Space)) game.PressPush();
         }
 
         void Styles()

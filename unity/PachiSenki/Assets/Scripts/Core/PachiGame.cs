@@ -12,11 +12,22 @@ namespace PachiSenki.Core
 
     public enum HitEventKind { Mini, Roulette, Jackpot }
 
+    /// <summary>保留1個(Web版 QL の要素)。Shown=表示中の色(保留変化で本来の Yk へ上がる)</summary>
+    public sealed class HoldItem { public bool Hit; public int Yk, Shown; }
+
+    /// <summary>RUSH 1回分の成績(Web版 86-gekiatsu のリザルト)</summary>
+    public sealed class RushResult { public int Chain, Kills, Score; public bool Jackpot; public double Gold; public string Grade; }
+
     /// <summary>スロットの1回転(Web版 sp)</summary>
     public sealed class Spin
     {
         public double t, speed; public int[] faces; public int type; // type 0=はずれ 1=リーチ 2=SUPERリーチ
         public bool hit, jp; public int yk; public double[] stop;
+        // 擬似連(NEXT×2〜4): PzN 回、1サイクル 1.15秒。サイクル中は t を進めない
+        public int PzN, PzI; public double PzT;
+        // 復活: Rv 0=なし 1=予定 2=ハズレ目で停止中 3=済。RvFake=ハズレ目
+        public int Rv, RvFake; public double RvT;
+        public const double PzCycle = 1.15, RvWait = 1.0, RvSpin = 1.7;
     }
 
     public sealed class PachiGame
@@ -28,7 +39,8 @@ namespace PachiSenki.Core
         public readonly List<Ball> Balls = new List<Ball>();
         public readonly List<Peg> Pegs = new List<Peg>();
         public readonly List<Shot> Shots = new List<Shot>();
-        public readonly List<(bool hit, int yk)> Queue = new List<(bool, int)>();   // 保留(QL)
+        public readonly List<HoldItem> Queue = new List<HoldItem>();   // 保留(QL)
+        double lastHoldUp = -9; RushResult rs; double rsGold0;
         public Spin CurrentSpin;
         public bool Blocking;                  // Web版 G.roul(大当たり演出中はスロットを止める)
         public int PegCombo; double pegComboT; // cmb / cmbT
@@ -61,7 +73,11 @@ namespace PachiSenki.Core
         public event Action<int> OnUlt;                       // 英雄
         public event Action OnFever, OnAwaken, OnGolden, OnRushEnd;
         public event Action<int> OnHeroAttack;
-        public event Action OnBossDefeatedMiniGame;           // Web版ではここでミニゲーム(Unity版は後の段階で移植)
+        public event Action OnBossDefeatedMiniGame;
+        public event Action<int, int> OnHoldChange;            // 保留の位置, 新しい色
+        public event Action<int> OnPseudo;                     // 擬似連 ×k
+        public event Action OnReviveFake, OnRevive;            // 復活: ハズレ目で停止 / 復活!!
+        public event Action<RushResult> OnRushResult;           // Web版ではここでミニゲーム(Unity版は後の段階で移植)
 
         public PachiGame(IRng rng = null) { Rng = rng ?? new SysRng(); BuildBoard(); Spawn(); }
 
@@ -126,6 +142,7 @@ namespace PachiSenki.Core
             if (rare) OnBanner?.Invoke("RARE DROP!!", "#ffd400");
             G.gold += g; OnKill?.Invoke(boss, g);
             if (boss) OnBossDefeatedMiniGame?.Invoke();
+            if (rs != null) rs.Kills++;
             G.stage++; Spawn();
         }
         void HeroAtk(int i, double m) { Shots.Add(new Shot { hero = i, t = 0, dmg = Atk() * m * Cm(), crit = Rng.Next() < CritP() }); OnHeroAttack?.Invoke(i); }
@@ -147,7 +164,13 @@ namespace PachiSenki.Core
         void OnChucker(int g)
         {
             PegHit(6, g);
-            if (G.q < 4) { G.q++; bool h = HitRoll(); Queue.Add((h, HeatYk(h))); }
+            if (G.q < 4)
+            {
+                G.q++; bool h = HitRoll(); int yk = HeatYk(h);
+                var it = new HoldItem { Hit = h, Yk = yk, Shown = yk };
+                if (yk >= 1 && Rng.Next() < .5) it.Shown = Rng.Next() < .6 ? 0 : Math.Max(0, yk - 2);   // 保留変化: 低い色で入る
+                Queue.Add(it);
+            }
             StartSpin();
         }
         /// <summary>プレイヤーが盤面をタップ(x: 0〜360)</summary>
@@ -224,17 +247,39 @@ namespace PachiSenki.Core
         void StartSpin()
         {
             if (CurrentSpin != null || G.q <= 0 || Blocking) return;
-            G.q--; var q0 = Queue.Count > 0 ? Queue[0] : (false, 0); if (Queue.Count > 0) Queue.RemoveAt(0);
-            bool rush = G.rush > 0, hit = q0.Item1, jp = false; int type; int[] f;
+            if (Queue.Count > 0 && Queue[0].Shown < Queue[0].Yk) { Queue[0].Shown = Queue[0].Yk; lastHoldUp = T; OnHoldChange?.Invoke(0, Queue[0].Yk); }
+            G.q--; var q0 = Queue.Count > 0 ? Queue[0] : new HoldItem(); if (Queue.Count > 0) Queue.RemoveAt(0);
+            bool rush = G.rush > 0, hit = q0.Hit, jp = false; int type; int[] f;
             if (hit) { jp = Rng.Next() < Bal.jpP; int d = jp ? 7 : Dg(); if (!jp && d == 7) d = 3; f = new[] { d, d, d }; type = jp ? 2 : (Rng.Next() < .6 ? 2 : 1); }
             else if (Rng.Next() < .3) { int d = Dg(), e = Dg(); while (e == d) e = Dg(); f = new[] { d, d, e }; type = Rng.Next() < .25 ? 2 : 1; }
             else { f = new[] { Dg(), Dg(), Dg() }; if (f[0] == f[1]) f[1] = (f[1] + 1) % 10; type = 0; }
-            CurrentSpin = new Spin { t = 0, faces = f, type = type, hit = hit, jp = jp, yk = q0.Item2, stop = new[] { 1, 1.9, type == 2 ? 7.5 : type == 1 ? 4.8 : 2.8 }, speed = rush ? 2.2 : 1 };
+            CurrentSpin = new Spin { t = 0, faces = f, type = type, hit = hit, jp = jp, yk = q0.Yk, stop = new[] { 1, 1.9, type == 2 ? 7.5 : type == 1 ? 4.8 : 2.8 }, speed = rush ? 2.2 : 1 };
+            if (!rush)   // 擬似連/復活は通常時だけ(RUSH中はテンポ優先)
+            {
+                var sp = CurrentSpin; double[] w = sp.hit ? new[] { .42, .3, .18, .1 } : sp.type > 0 ? new[] { .72, .2, .07, .01 } : sp.yk > 0 ? new[] { .82, .14, .04, 0 } : new[] { .95, .045, .005, 0 };
+                double r = Rng.Next(); int k = 0; while (k < 3 && r >= w[k]) { r -= w[k]; k++; } sp.PzN = k;
+                if (sp.hit && !sp.jp && sp.type > 0 && Rng.Next() < .25) sp.Rv = 1;
+            }
             OnSpinStart?.Invoke(CurrentSpin);
         }
         void UpdSpin(double dt)
         {
             var s = CurrentSpin; if (s == null) return;
+            if (s.PzN > 0 && s.PzI < s.PzN)
+            {
+                double before = s.PzT; s.PzT += dt;
+                if (before < .8 && s.PzT >= .8) OnPseudo?.Invoke(s.PzI + 2);
+                if (s.PzT >= Spin.PzCycle) { s.PzI++; s.PzT = 0; }
+                return;
+            }
+            if (s.Rv == 1 && s.t + dt * s.speed >= s.stop[2]) { s.Rv = 2; s.RvT = 0; s.RvFake = (s.faces[2] + 1 + (int)(Rng.Next() * 8)) % 10; OnReviveFake?.Invoke(); }
+            if (s.Rv == 2)
+            {
+                double before = s.RvT; s.RvT += dt;
+                if (before < Spin.RvWait && s.RvT >= Spin.RvWait) OnRevive?.Invoke();
+                if (s.RvT < Spin.RvSpin) return;
+                s.Rv = 3; s.t = s.stop[2];
+            }
             s.t += dt * s.speed;
             if (s.t >= s.stop[2])
             {
@@ -248,6 +293,7 @@ namespace PachiSenki.Core
         void BigHit(bool jp)
         {
             bool was = G.rush > 0; Blocking = true; G.combo++;
+            if (rs == null) { rs = new RushResult(); rsGold0 = G.gold; } rs.Chain++; if (jp) rs.Jackpot = true;
             G.rush = Math.Min(15, G.rush + (jp ? 12 : 9) + RushExt());
             OnBanner?.Invoke(jp ? "JACKPOT!!" : was ? G.combo + "連チャン!!" : "確変突入!!", jp ? "#ffd400" : "#ff2d7a");
             OnBigHit?.Invoke(jp, G.combo);
@@ -339,7 +385,19 @@ namespace PachiSenki.Core
             if (G.sp >= 100 && ultT < 0 && !Blocking && T - lastUlt >= Bal.ultMin) Ult();
             if (ultT >= 0 && T >= ultT) { ultT = -1; Hurt(Atk() * 25 * Cm(), true); }
             if (G.rush > 0) { if (!PushPause) G.rush -= dt; if (G.rush <= 0) { G.rush = 0; G.combo = 0; OnRushEnd?.Invoke(); } }
+            if (rs != null && G.rush <= 0 && !Blocking && !EventActive && G.jp <= 0)
+            {
+                rs.Gold = Math.Max(0, G.gold - rsGold0); rs.Score = RushScore(rs.Chain, rs.Kills, rs.Jackpot); rs.Grade = RushGrade(rs.Score);
+                var r = rs; rs = null; OnRushResult?.Invoke(r);
+            }
+            // 保留変化: 待機中の保留がときどき1段ずつ上がる(1.2秒あける)
+            if (T - lastHoldUp >= 1.2)
+                for (int i = 1; i < Queue.Count; i++) if (Queue[i].Shown < Queue[i].Yk) { if (Rng.Next() < dt * .35) { Queue[i].Shown++; lastHoldUp = T; OnHoldChange?.Invoke(i, Queue[i].Shown); } break; }
         }
+
+        /// <summary>RUSH スコア(Web版と同じ): 連チャン×12 + 撃破×3 + JACKPOT 20</summary>
+        public static int RushScore(int chain, int kills, bool jp) => chain * 12 + kills * 3 + (jp ? 20 : 0);
+        public static string RushGrade(int sc) => sc >= 85 ? "S+" : sc >= 66 ? "S" : sc >= 52 ? "A+" : sc >= 40 ? "A" : sc >= 30 ? "B+" : sc >= 22 ? "B" : sc >= 15 ? "C+" : "C";
 
         public SaveData ToSave() => SaveData.From(G);
         public void Load(SaveData s) { if (s == null) return; s.ApplyTo(G); Spawn(); }

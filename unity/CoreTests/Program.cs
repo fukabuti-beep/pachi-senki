@@ -83,6 +83,20 @@ static class Program
             Ok(rushHeld, "PUSH 待ちの間に RUSH が減った");
         }
 
+        // 4c) 擬似連/復活/保留変化/RUSHリザルト: 当否は変わらない(回転開始時の当たり数 = 大当たり数)、各演出が起きる
+        {
+            var e = new PachiGame(new Mulberry32(21)); int startHits = 0, big = 0, pz = 0, rv = 0, hold = 0, res = 0; string grade = "";
+            e.OnSpinStart += sp => { if (sp.hit) startHits++; }; e.OnBigHit += (j, n) => big++; e.OnPseudo += k => pz++; e.OnRevive += () => rv++;
+            e.OnHoldChange += (i, c) => hold++; e.OnRushResult += r => { res++; grade = r.Grade; };
+            for (int s = 0; s < 40 * 60 * 20; s++) { e.Tick(.05); if (e.PushActive) e.PressPush(); }
+            int pend = e.CurrentSpin != null && e.CurrentSpin.hit ? 1 : 0;
+            Ok(big == startHits - pend, $"当否と大当たり数が不一致 start={startHits} big={big}");
+            Ok(pz > 0 && rv > 0 && hold > 0 && res > 0, $"演出が起きない pz={pz} rv={rv} hold={hold} res={res}");
+            Ok(new[] { "C", "C+", "B", "B+", "A", "A+", "S", "S+" }.Contains(grade), "ランク: " + grade);
+            Ok(PachiGame.RushGrade(PachiGame.RushScore(6, 14, true)) == "S+" && PachiGame.RushGrade(PachiGame.RushScore(1, 0, false)) == "C", "ランク計算");
+            Console.WriteLine($"40分: 擬似連 {pz} 復活 {rv} 保留変化 {hold} リザルト {res}");
+        }
+
         // 5) バランス計測(Web版 tools/sim.js と同じ買い方: 毎秒いちばん安い強化を買う)
         double sumSt = 0; int n = 5;
         for (uint seed = 1; seed <= n; seed++) sumSt += Run(seed, 30, true).G.stage;

@@ -115,6 +115,11 @@ const tick = () => new Promise(r => setImmediate(r));
   ok(g.eval('SUP.n') === 1 && JSON.parse(g.store.pachi2_sup).n === 1, '応援の記録');
   ok(g.eval('SB.a()') === a0 && g.eval('SB.g()') === g0, '応援でゲームが有利になった');
   ok(/★/.test(g.eval('MQP.n[0]')), 'サポーターの★');
+  // サポーターコード: 正しいコードで登録 / 違うコードは不可 / 大文字小文字・空白は無視
+  const g2 = createGame({ seed: 10 }); g2.start(); g2.advance(1);
+  g2.eval("$('supcode').value='pachi-xxxx-yyyy'"); ok(g2.eval('supCode()') === false && g2.eval('SUP.code') === 0, '違うコードで登録できた');
+  g2.eval("$('supcode').value=' pachi-nvtu-wbwd '"); ok(g2.eval('supCode()') === true && g2.eval('SUP.code') === 1 && JSON.parse(g2.store.pachi2_sup).code === 1, 'サポーターコードで登録できない');
+  ok(g2.eval('BOOTH_URL') === '' && g2.eval('SUPPORT_URL') === '', 'URL の既定値');
 }
 // (i) ランキング(97t): 自己ベスト記録 / 名前の検証 / 既定は通信しない / プロバイダへ送信
 {

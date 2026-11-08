@@ -19,7 +19,7 @@
 ネイティブ側が `window.PachiNative.rank = { submit(board, score, name): Promise<boolean>, top(board): Promise<{name, score}[]> }` を注入すると、それを使います(`RANK_API` より優先)。ボード名: `stage` `chain` `score` `hits`。
 
 ## 2. 開発者を応援する
-ゲームが有利になる要素は付けません(お礼の演出・タイトルの★のみ)。
-- **Web版**: `src/js/97s-support.js` の `SUPPORT_URL` に応援ページ(Ko-fi / pixivFANBOX / BOOTH など)のURLを設定すると、メニュー「応援」にリンクボタンが出ます。未設定なら「準備中」の表示だけ。
-- **ストア版**: `window.PachiNative.iap.purchaseTip(id): Promise<boolean>` と `tipPrice(id): string` を実装すると、「缶コーヒー/ランチ/ディナー」の応援(消耗型の課金アイテム `tip_s` `tip_m` `tip_l`)が出ます。ストアの規約上、Web版の外部決済リンクとストア版の課金は混在させないこと(ストア版では `SUPPORT_URL` を空にする)。
-- 動作確認: URL に `?mon=mock` を付けると擬似プロバイダで流れを確認できます(実際の課金は発生しません)。
+BOOTH 配布向けに作り直した。手順は BOOTH.md。
+- Web/配布版: `src/js/97s-support.js` の `BOOTH_URL` に商品ページURLを設定 → 「応援」タブに BOOTH へのボタン(BOOST の案内付き)。
+- 応援版に同梱する「サポーターコード」をゲームで入力すると ★サポーター(見た目のお礼のみ)。
+- ストア版の課金(`PachiNative.iap.purchaseTip`)の受け口は将来用に残してある。

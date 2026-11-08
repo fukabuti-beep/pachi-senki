@@ -1,25 +1,37 @@
-/* ---------- 開発者を応援する(feature / 収益化) ----------
-   方針(MONETIZE.md): Web版で勝手に課金UIは出さない。応援はゲームを有利にしない(見た目のお礼だけ)。
-   ・ストア版: window.PachiNative.iap に purchaseTip(id):Promise<bool> / tipPrice(id):string があれば「応援(チップ)」3種を表示。
-   ・Web版: SUPPORT_URL(応援ページ: Ko-fi/FANBOX 等)を設定した時だけ外部リンクのボタンを表示。未設定なら「準備中」。
-   ・?mon=mock(97-monet の擬似プロバイダ)では実課金なしで流れを確認できる。
-   お礼: THANK YOU!! 演出 + 紙吹雪 + キャラが喜ぶ + 筐体タイトルに★(サポーター)。セーブ: localStorage['pachi2_sup'] = {n} */
-const SUPPORT_URL='';   // ← 応援ページのURLをここに設定(例: 'https://ko-fi.com/xxxx')。空なら Web版では出さない
+/* ---------- 開発者を応援する(BOOTH 配布向け) (feature / 収益化) ----------
+   配布: BOOTH で無料配布。応援の方法は2つ(どちらもゲームは有利にならない。お礼の演出とタイトルの★だけ)。
+   ・BOOST: BOOTH の無料商品はダウンロード時に「BOOST(任意の上乗せ)」で応援できる → 商品ページへのボタンを表示(BOOTH_URL)
+   ・サポーターコード: 有料の「応援版」に同梱したコードを入力すると ★サポーター になる(判定は簡易ハッシュ。見た目のお礼だけ)
+   ストア版の課金(PachiNative.iap.purchaseTip)の受け口は将来用に残す。?mon=mock で擬似購入を確認できる。
+   セーブ: localStorage['pachi2_sup'] = {n, code} */
+const BOOTH_URL='';            // ← BOOTH の商品ページURL(例: 'https://xxxx.booth.pm/items/1234567')。空ならボタンは出さない
+const SUPPORT_URL=BOOTH_URL;   // 旧名(互換)
+const SUP_CODE_HASH=['2c97a8a1'];   // サポーターコードの FNV-1a ハッシュ(コード本体はソースに置かない)
 const TIPS=[['tip_s','缶コーヒー','¥120'],['tip_m','ランチ','¥500'],['tip_l','ディナー','¥1,200']];
-let SUP={n:0,busy:0};
-try{const j=JSON.parse(localStorage.getItem('pachi2_sup')||'null');if(j)SUP.n=Math.max(0,Math.floor(+j.n)||0)}catch(e){}
-function supSave(){try{localStorage.setItem('pachi2_sup',JSON.stringify({n:SUP.n}))}catch(e){}}
+let SUP={n:0,code:0,busy:0};
+try{const j=JSON.parse(localStorage.getItem('pachi2_sup')||'null');if(j){SUP.n=Math.max(0,Math.floor(+j.n)||0);SUP.code=j.code?1:0}}catch(e){}
+function supSave(){try{localStorage.setItem('pachi2_sup',JSON.stringify({n:SUP.n,code:SUP.code}))}catch(e){}}
+const supFan=()=>SUP.n>0||SUP.code>0;
 function supNative(){try{const n=typeof monNative==='function'?monNative():null;if(n&&n.iap&&typeof n.iap.purchaseTip==='function')return n.iap;if(n&&MON&&MON.mock)return SUP_MOCK}catch(e){}return null}
 const SUP_MOCK={purchaseTip:()=>new Promise(r=>setTimeout(()=>r(true),500)),tipPrice:id=>({tip_s:'¥120',tip_m:'¥500',tip_l:'¥1,200'}[id]||'')+'(テスト)'};
-function supMark(){try{if(typeof MQP!=='undefined'&&MQP.n&&SUP.n>0&&!/★/.test(MQP.n[0]))MQP.n[0]='★ CR パチ戦記 ★'}catch(e){}}
+function supMark(){try{if(typeof MQP!=='undefined'&&MQP.n&&supFan()&&!/★/.test(MQP.n[0]))MQP.n[0]='★ CR パチ戦記 ★'}catch(e){}}
 supMark();
-function supThanks(){SUP.n++;supSave();supMark();banner('THANK YOU!!','#ffd400');try{kyuin(6,'#ffd400');jara()}catch(e){}
+function supCelebrate(msg){supMark();banner('THANK YOU!!','#ffd400');try{kyuin(6,'#ffd400');jara()}catch(e){}
   try{if(typeof CF!=='undefined')for(let i=0;i<70&&CF.length<80;i++)CF.push({x:Math.random()*360,y:-10-Math.random()*60,vx:(Math.random()-.5)*40,vy:40+Math.random()*60,r:Math.random()*6,h:Math.floor(Math.random()*360),t0:T})}catch(e){}
   try{chJumpAll(2);for(let i=0;i<3;i++)setTimeout(()=>chSay(i,['ありがとう!','うれしい!','感謝!!'][i],2.2),i*200)}catch(e){}
-  fxToast('応援ありがとうございます!','#ffd400')}
+  fxToast(msg||'応援ありがとうございます!','#ffd400')}
+function supThanks(){SUP.n++;supSave();supCelebrate()}
 async function supBuy(id){const n=supNative();if(!n||SUP.busy)return;SUP.busy=1;try{const ok=await n.purchaseTip(id);if(ok){fxClose&&fxClose();supThanks()}else fxToast('購入は完了しませんでした','#aaa')}catch(e){fxToast('購入に失敗しました','#aaa')}SUP.busy=0}
-FM.push({n:'応援',r:()=>{const n=supNative();let body;
-  if(n)body='<div class="fxl">'+TIPS.map(t=>{let pr='';try{pr=n.tipPrice?n.tipPrice(t[0]):t[2]}catch(e){pr=t[2]}return '<div class="ok"><span>'+t[1]+'で応援<br><small>開発者にごちそうする</small></span><span><button class="fxb" style="margin:0;padding:4px 10px" onclick="supBuy(\''+t[0]+'\')">'+(pr||t[2])+'</button></span></div>'}).join('')+'</div>';
-  else if(SUPPORT_URL)body='<a class="fxb" style="display:inline-block;text-decoration:none" href="'+SUPPORT_URL.replace(/"/g,'')+'" target="_blank" rel="noopener">応援ページを開く</a><div class="fxs" style="margin-top:6px">外部サイト(ブラウザ)が開きます</div>';
-  else body='<div class="fxs">応援の受付は準備中です。遊んでくれるだけで十分うれしいです!</div>';
-  return '<div class="fxh">開発者を応援</div><div class="fxs">応援してもゲームが有利になることはありません(お礼の演出とタイトルの★だけ)。</div>'+(SUP.n?'<div class="fxn" style="font-size:18px">★ サポーター ×'+SUP.n+' ★</div>':'')+body}});
+function supHash(s){let h=0x811c9dc5;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,0x01000193)>>>0}return h.toString(16)}
+function supNorm(s){return String(s||'').toUpperCase().replace(/[\s　]/g,'').replace(/[ー－―]/g,'-')}
+function supCode(){try{const el=document.getElementById('supcode');const c=supNorm(el?el.value:'');if(!c){fxToast('コードを入力してね','#aaa');return false}
+  if(SUP_CODE_HASH.includes(supHash(c))){const first=!SUP.code;SUP.code=1;supSave();try{fxClose()}catch(e){}supCelebrate(first?'サポーター登録ありがとうございます!':'サポーター登録済みです');return true}
+  fxToast('コードが違うみたい','#ff8a8a');return false}catch(e){return false}}
+FM.push({n:'応援',r:()=>{const n=supNative();let h='<div class="fxh">開発者を応援</div><div class="fxs">このゲームは BOOTH で無料配布しています。気に入ったら応援してもらえるとうれしいです!(応援してもゲームが有利になることはありません。お礼の演出とタイトルの★だけ)</div>';
+  if(supFan())h+='<div class="fxn" style="font-size:18px">★ サポーター'+(SUP.n>1?' ×'+SUP.n:'')+' ★</div>';
+  h+='<div class="fxl"><div class="ok"><span>BOOST で応援<br><small>BOOTH の商品ページで、ダウンロード時に好きな金額を上乗せできます</small></span></div></div>';
+  if(BOOTH_URL)h+='<a class="fxb" style="display:inline-block;text-decoration:none" href="'+BOOTH_URL.replace(/"/g,'')+'" target="_blank" rel="noopener">BOOTH のページを開く</a><div class="fxs" style="margin-top:4px">ブラウザで BOOTH が開きます</div>';
+  h+='<div class="fxl" style="margin-top:10px"><div class="ok"><span>サポーターコード<br><small>応援版に入っているコードを入力すると ★サポーター に</small></span></div></div>'+
+    '<input id="supcode" maxlength="20" placeholder="PACHI-XXXX-XXXX" autocapitalize="characters" style="font:inherit;font-size:14px;width:62%;padding:4px;background:#0b0624;color:#fff;border:2px solid #6a5ad0;text-transform:uppercase"> <button class="fxb" style="margin:0;padding:4px 10px" onclick="supCode()">登録</button>';
+  if(n)h+='<div class="fxl" style="margin-top:10px">'+TIPS.map(t=>{let pr='';try{pr=n.tipPrice?n.tipPrice(t[0]):t[2]}catch(e){pr=t[2]}return '<div class="ok"><span>'+t[1]+'で応援<br><small>アプリ内課金</small></span><span><button class="fxb" style="margin:0;padding:4px 10px" onclick="supBuy(\''+t[0]+'\')">'+(pr||t[2])+'</button></span></div>'}).join('')+'</div>';
+  return h}});

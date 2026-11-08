@@ -9,7 +9,9 @@ static class InputHandlerFix
     {
         EditorApplication.delayCall += () =>
         {
-            var ps = Unsupported.GetSerializedAssetInterfaceSingleton("PlayerSettings");
+            UnityEngine.Object ps = null;
+            try { ps = Unsupported.GetSerializedAssetInterfaceSingleton("PlayerSettings"); } catch (System.Exception) { }
+            if (ps == null) { var all = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset"); if (all != null && all.Length > 0) ps = all[0]; }   // 予備の取得方法
             if (ps == null) return;
             var so = new SerializedObject(ps); var p = so.FindProperty("activeInputHandler");
             if (p == null) { UnityEngine.Debug.LogWarning("[パチ戦記] 入力設定が見つかりません。編集 > プロジェクト設定 > プレイヤー > アクティブな入力処理 を「入力マネージャー(旧)」にしてください"); return; }

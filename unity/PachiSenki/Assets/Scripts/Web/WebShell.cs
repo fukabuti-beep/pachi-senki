@@ -44,9 +44,13 @@ namespace PachiSenki.Web
 
         IEnumerator Start()
         {
-            Application.targetFrameRate = 60; Screen.sleepTimeout = SleepTimeout.NeverSleep;   // 放置ゲームなので画面を消さない
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;   // 放置ゲームなので画面を消さない
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
             Screen.orientation = ScreenOrientation.Portrait;   // 縦画面に固定(筐体が縦長)
+            // スマホの WebView は Unity の描画とは別に OS が表示する(Unity は裏で黒を塗るだけ)。発熱・電池を抑えるため Unity 側は 30fps
+            Application.targetFrameRate = 30;
+#else
+            Application.targetFrameRate = 60;   // エディタ/PC は WebView の画面を Unity のテクスチャで表示するので 60fps
 #endif
             // 背景用のカメラ(WebView の外側=ノッチ/ホームバーの帯をページと同じ色に)
             if (Camera.main == null) { var cg = new GameObject("Camera"); cg.tag = "MainCamera"; var c = cg.AddComponent<Camera>(); c.clearFlags = CameraClearFlags.SolidColor; c.backgroundColor = new Color32(10, 7, 32, 255); DontDestroyOnLoad(cg); }
@@ -58,9 +62,14 @@ namespace PachiSenki.Web
                 httpErr: m => Debug.LogWarning("[WebShell] http " + m),
                 ld: m =>
                 {
-                    loaded = true; status = "";
-                    // iOS/Mac で Unity.call が無い場合の受け口(Android/Windows はプラグインが用意する)
+                    loaded = true; status = ""; wv.SetVisibility(true);
+                    // Unity.call はプラグインがページ先頭で用意する(iOS/Mac: messageHandlers.unityControl、Windows: chrome.webview、Android: JavascriptInterface)。無い時だけの予備
                     wv.EvaluateJS("if(!window.Unity){window.Unity={call:function(m){if(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.unityControl){window.webkit.messageHandlers.unityControl.postMessage(m)}else{window.location='unity:'+m}}}}");
+#if !UNITY_ANDROID
+                    // Android 以外では WebViewObject.CallFromJS が受け取った文字列を URL デコードする(UnEscapeURL: %xx と + を空白に変換)。
+                    // セーブの控え(JSON)の "1e+21" や % が壊れるので、送る前に encodeURIComponent しておく(デコードで元に戻る)。
+                    wv.EvaluateJS("(function(){var u=window.Unity;if(!u||u.__pe)return;var c=u.call;u.call=function(m){return c.call(u,encodeURIComponent(String(m)))};u.__pe=1})()");
+#endif
                     // アプリで動いている印(Web版 97u-app.js が振動とセーブの控えを使う)。控えがあれば書き戻しを頼む(Web 側にセーブが無い時だけ反映)
                     wv.EvaluateJS("window.PachiApp={v:1,platform:'" + Application.platform + "'};");
                     var bak = PlayerPrefs.GetString(BackupKey, "");
@@ -75,7 +84,9 @@ namespace PachiSenki.Web
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
             wv.bitmapRefreshCycle = 2;   // エディタ/PC は画面をテクスチャに写して表示する(毎フレームは重いので2フレームに1回)
 #endif
-            FitMargins(); wv.SetVisibility(true);
+            FitMargins();
+            // 読み込み完了(ld)で表示する(読み込み前の白い画面を見せない)。ld が来ない環境に備えて 5 秒後にも表示
+            StartCoroutine(ShowLater(5f));
 
             // StreamingAssets → キャッシュへコピーしてから file:// で開く(Android は jar の中にあるため)
             string src = Path.Combine(Application.streamingAssetsPath, Html), dst = Path.Combine(Application.temporaryCachePath, Html);
@@ -90,11 +101,20 @@ namespace PachiSenki.Web
             wv.LoadURL("file://" + dst.Replace("\\", "/").Replace(" ", "%20"));
         }
 
+        IEnumerator ShowLater(float sec) { yield return new WaitForSecondsRealtime(sec); if (wv != null) wv.SetVisibility(true); }
+
         // ノッチ等を避けて画面いっぱいに置く(回転・ウィンドウサイズ変更にも追従)
         void FitMargins()
         {
             if (wv == null) return; var sa = Screen.safeArea; lastSafe = sa; lastW = Screen.width; lastH = Screen.height;
-            wv.SetMargins((int)sa.xMin, (int)(Screen.height - sa.yMax), (int)(Screen.width - sa.xMax), (int)sa.yMin);
+            int l = (int)sa.xMin, t = (int)(Screen.height - sa.yMax), r = (int)(Screen.width - sa.xMax), b = (int)sa.yMin;
+#if UNITY_IOS && !UNITY_EDITOR
+            // iOS: 絶対指定だとプラグインが「Unity の画素 / 画面の nativeScale」で換算するため、Unity の描画解像度を下げる設定
+            // (解像度スケーリング)だとずれる。割合指定(relative)なら Screen.width/height 比で換算されるので解像度に依存しない
+            wv.SetMargins(l, t, r, b, true);
+#else
+            wv.SetMargins(l, t, r, b);
+#endif
         }
         void Update()
         {

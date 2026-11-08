@@ -30,7 +30,7 @@ namespace PachiSenki.View
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            if (Disabled || FindObjectOfType<GameRunner>() != null) return;
+            if (Disabled || FindFirstObjectByType<GameRunner>() != null) return;
             var go = new GameObject("PachiSenki"); DontDestroyOnLoad(go); go.AddComponent<GameRunner>();
         }
 

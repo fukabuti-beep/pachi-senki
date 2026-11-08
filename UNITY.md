@@ -6,8 +6,8 @@ Web版(src/ の単一HTML)を正として、Unity 版を段階的に作る。
 - HTML は `node tools/build.js` が `Assets/StreamingAssets/pachi-senki.html` に自動で書き出す(Web版を変えたらビルドしてコミット)。
 - WebView は unity-webview(`Packages/net.gree.unity-webview`、埋め込みパッケージ、zlib ライセンス)。iOS/Android はネイティブの WebView、Windows エディタは WebView2(Windows 10/11 標準)で表示。
 - エディタのメニュー「パチ戦記」で「Web版で起動(完全版)」/「Unity版で起動(作り直し中)」を切り替え(EditorPrefs `pachi_mode`)。ビルドしたアプリは常に Web版。
-- Web版 → Unity: `Unity.call('vib:big|jp|boss')` で Handheld.Vibrate、`Unity.call('save:{json}')` でセーブの控えを PlayerPrefs[`pachi_web_backup`] に保存。読み込み時に `window.PachiApp` を注入し、控えがあれば `appRestore()` に渡す(Web 側にセーブが無い時だけ書き戻して再読込)。Web 側は src/js/97u-app.js。
-- ストア用のプレイヤー設定(アプリ名 パチ戦記 / ID com.fukabuchi.pachisenki / 縦画面固定 / アイコン Assets/Branding/icon.png / 起動画面の背景色)は `Assets/Scripts/Editor/StoreSetup.cs` が Unity 起動時に自動で当てる(ProjectSettings.asset は作り手の PC で書き換わるため Git では触らない)。Android の戻るボタンはアプリを終了せずホームへ。
+- Web版 → Unity: `Unity.call('vib:big|jp|boss')` で Handheld.Vibrate、`Unity.call('save:{json}')` でセーブの控えを PlayerPrefs[`pachi_web_backup`] に保存。読み込み時に `window.PachiApp` を注入し、控えがあれば `appRestore()` に渡す(Web 側にセーブが無い時だけ書き戻して再読込)。Web 側は src/js/97u-app.js。Android 以外は WebViewObject.CallFromJS が URL デコードするため、WebShell が読み込み時に Unity.call を encodeURIComponent で包む(JSON の + や % が壊れないように)。
+- ストア用のプレイヤー設定(アプリ名 パチ戦記 / ID com.fukabuchi.pachisenki / 縦画面固定 / アイコン Assets/Branding/icon.png / 起動画面の背景色 / iOS 自動署名 / ビルド用の空シーン Assets/Scenes/Main.unity を作って Scenes In Build に登録)は `Assets/Scripts/Editor/StoreSetup.cs` が Unity 起動時に自動で当てる(ProjectSettings.asset は作り手の PC で書き換わるため Git では触らない)。Android の戻るボタンはアプリを終了せずホームへ。
 - 広告/課金は Web版の `window.PachiNative`(97-monet)を WebShell.OnJs 経由で実装する予定(SDK を入れる時。それまで PachiNative は注入しない=広告 UI は出ない)。**ゲームロジックは UnityEngine に依存しない純粋な C#** にして、Unity なしでもテストできるようにしている。
 
 ## 構成
@@ -49,6 +49,24 @@ unity/
 3. このリポジトリの `unity/PachiSenki/Assets/Scripts` フォルダを、作ったプロジェクトの `Assets` フォルダの中へまるごとコピー。
 4. Unity Hub からそのプロジェクトを開き直し、再生(▶)。
 - 以後、私がスクリプトを更新したら、同じく `Assets/Scripts` を上書きコピーすれば反映される。
+
+## iPhone 実機で試す手順(Mac + Xcode、無料の Apple ID)
+用意するもの: Mac(Xcode が動く最近の macOS)、iPhone と USB ケーブル、Apple ID(無料でよい)。
+1. **Mac の準備**: App Store で **Xcode** を入れて一度起動(追加部品のインストールを許可)。Xcode → 設定(Settings)→ Accounts →「+」→ Apple ID でサインイン。
+2. **Unity に iOS 用の部品を足す**: Mac に Unity Hub と Unity 6(6000.0.85f2)を入れ、「インストール」→ 歯車 →「モジュールを加える」→ **iOS Build Support** にチェック。
+   (Windows の Unity に iOS Build Support を入れて Xcode 用フォルダを作り、それを Mac にコピーしてもよい。以下は Mac だけで行う場合)
+3. **プロジェクトを開く**: Unity Hub で `unity/PachiSenki` を開く。初回は自動で「ストア用の設定」(アプリ名・ID・縦画面・アイコン・ビルド用シーン `Assets/Scenes/Main.unity`)が当たる。念のためメニュー「パチ戦記 > ストア用の設定を適用」を押してもよい。
+4. **iOS に切り替え**: ファイル → ビルドプロファイル(Build Profiles)→ **iOS** を選んで「プラットフォームを切り替え(Switch Platform)」。数分かかる。
+5. **書き出し**: 同じ画面で「Scene List」に `Assets/Scenes/Main` があるのを確認 →「ビルド(Build)」→ 保存先に新しいフォルダ(例 `ios-build`)を作って選ぶ。Xcode 用のフォルダができる。
+6. **Xcode で開く**: できたフォルダの `Unity-iPhone.xcodeproj` をダブルクリック。左の一覧で一番上の **Unity-iPhone** → TARGETS の **Unity-iPhone** →「Signing & Capabilities」タブ:
+   - 「Automatically manage signing」にチェック、**Team** に自分の名前(Personal Team)を選ぶ。
+   - 「Bundle Identifier」で赤いエラーが出たら、末尾を自分だけの名前に変える(例 `com.fukabuchi.pachisenki.test1`)。
+7. **iPhone をつなぐ**: USB でつなぎ、iPhone に「このコンピュータを信頼」と出たら「信頼」。iPhone の 設定 → プライバシーとセキュリティ → **デベロッパモード** を ON(再起動あり。項目が無い時は一度 Xcode につないでから見る)。
+8. **転送**: Xcode 上部の実行先で自分の iPhone を選び、▶(Run)を押す。初回は数分かかる。
+9. **初回だけ**: iPhone に「信頼されていないデベロッパ」と出たら、設定 → 一般 → **VPN とデバイス管理** → 自分の Apple ID →「信頼」。もう一度アプリのアイコンをタップ。
+- 無料の Apple ID で入れたアプリは **7日で起動できなくなる**(もう一度 Xcode から ▶ で入れ直せば OK。セーブは残る)。同時に入れられるのは 3 本まで。
+- **音が出ない時**: iPhone 左側の消音スイッチ(または消音モード)を確認。この版は消音モードでは鳴らない(他のアプリの音楽も止めない設定)。最初に「スタート」をタップした後から鳴る。
+- うまくいかない時は、Xcode 下部の赤いエラー文、または Unity の Console の文面を開発チャットに貼る。
 
 ## 移植の進み具合(JS → C#)
 | 段階 | 内容 | 状態 |

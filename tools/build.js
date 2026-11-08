@@ -28,7 +28,12 @@ const cssDir = path.join(root, 'src/css');
 const css = read('src/style.css') + (fs.existsSync(cssDir) ? fs.readdirSync(cssDir).filter(f => f.endsWith('.css')).sort().map(f => '\n/* ' + f + ' */\n' + fs.readFileSync(path.join(cssDir, f), 'utf8')).join('') : '');
 const ICON = n => fs.readFileSync(path.join(root, 'src/pwa', n));
 const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
-const base = read('src/index.html').replace('/*@CSS*/', () => css).replace('/*@JS*/', () => js);
+// ドット文字フォント(DotGothic16, SIL OFL 1.1, src/font/OFL.txt)を内蔵: 使う文字だけに絞った woff2 を data URI で埋め込み、Google Fonts の読み込みをやめる
+const fontFile = path.join(root, 'src/font/DotGothic16-subset.woff2');
+const fontCss = fs.existsSync(fontFile) ? "/* DotGothic16 (c) The DotGothic16 Project Authors, SIL Open Font License 1.1 */\n@font-face{font-family:'DotGothic16';src:url(data:font/woff2;base64," + fs.readFileSync(fontFile).toString('base64') + ") format('woff2');font-display:swap}\n" : '';
+let page = read('src/index.html');
+if (fontCss) page = page.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>\s*/g, '');
+const base = page.replace('/*@CSS*/', () => fontCss + css).replace('/*@JS*/', () => js);
 // 単一HTML版: アイコンはdata URI(外部ファイル不要)。manifest/SWなし(file:// や埋め込み表示でも動く)
 const single = base.replace('<!--@PWA-->', () => '<link rel="apple-touch-icon" href="data:image/png;base64,' + ICON('apple-touch-icon.png').toString('base64') + '">');
 const out = path.join(root, process.env.OUT || 'dist/pachi-senki.html');

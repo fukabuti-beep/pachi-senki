@@ -1,0 +1,11 @@
+/* SUPERリーチ中のチャンスボタン(98b-active.js が生成・位置決め) */
+#gkcb{position:fixed;z-index:7;width:92px;height:56px;display:none;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+ background:radial-gradient(circle at 40% 35%,#ff7a7a,#f0223c 45%,#8a0018 100%);border-radius:50%/42%;
+ box-shadow:0 0 0 3px #000,0 0 0 5px #ffd400,0 0 0 7px #000,0 6px 0 4px #520010,0 0 22px 6px rgba(255,45,122,.7);
+ color:#fff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#gkcb b{font-size:11px;letter-spacing:2px;font-weight:normal;color:#ffd400}
+#gkcb i{font-style:normal;font-size:22px;letter-spacing:2px;line-height:1}
+#gkcb.on{animation:gkcb .5s steps(2) infinite}
+#gkcb:active{transform:translateY(4px);box-shadow:0 0 0 3px #000,0 0 0 5px #ffd400,0 0 0 7px #000,0 2px 0 4px #520010}
+@keyframes gkcb{50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){#gkcb.on{animation:none}}

@@ -11,7 +11,9 @@ unity/
       State.cs                乱数(mulberry32)・状態G・セーブ(Web版と同じ {v,gold,stage,lv})
       PachiGame.cs            本体: 盤面/玉の物理・抽選と天井・スロット・大当たり/RUSH・ルーレット/超倍率/JACKPOT・戦闘・必殺技・FEVER・黄金玉・覚醒
     Assets/Scripts/View/      Unity 側(表示・入力・セーブ)
-      GameRunner.cs           どのシーンで再生しても自動起動。コアを毎フレーム実行、仮表示(IMGUI)、PlayerPrefs にセーブ
+      GameRunner.cs           どのシーンで再生しても自動起動。コアを毎フレーム実行、スプライト描画+文字(IMGUI)、PlayerPrefs にセーブ
+      SpriteBank.cs           SpriteData からドット絵の Sprite を生成(Point フィルタ)、円・単色板も生成
+      SpriteData.cs           Web版のドット絵データ(自動生成: node tools/export-sprites.js。手で編集しない)
     Packages/manifest.json    使うパッケージ(2D Pixel Perfect / TextMeshPro / UGUI)
   CoreTests/                  Unity なしでコアをテスト(dotnet)
 ```
@@ -40,8 +42,8 @@ unity/
 | 段階 | 内容 | 状態 |
 |---|---|---|
 | 1 | コアロジック(00/20/21/23/30/40/50/60/70/87/90/99) | **済**(CoreTests で検証) |
-| 2 | Unity 起動・セーブ・仮表示・強化ボタン | **済**(エディタでの実行は未確認) |
-| 3 | ドット絵(10-sprites の mk() 方式をテクスチャ生成)・盤面/戦闘の本描画(Pixel Perfect Camera 360x550 基準) | 未 |
+| 2 | Unity 起動・セーブ・仮表示・強化ボタン | **済**(Unity 6000.0.85f2 で起動を確認) |
+| 3 | ドット絵(10-sprites の mk() 方式をテクスチャ生成)・盤面/戦闘の本描画 | **一部済**: スプライトを自動生成(tools/export-sprites.js → View/SpriteData.cs)、縦長 360x760 を中央表示、釘/玉/役物/英雄(待機・攻撃コマ)/敵(ステージ別・ボス)/HPバーをスプライトで描画。文字はまだ IMGUI |
 | 4 | 演出: カットイン(提供イラスト)・バナー・予告・擬似連/復活・リザルト・ルーレット・777演出・キャラ演出・攻撃モーション | 未 |
 | 5 | 音: 8bit BGM/SE(WebAudio の合成を AudioClip 生成 or OnAudioFilterRead で移植) | 未 |
 | 6 | メタ: 実績・転生/魂の祭壇・遺物・図鑑・鍛冶屋/魔石宝石・ログインボーナス・ミニゲーム・お宝/タップ攻撃・応援/パトロン・ランキング | 未 |

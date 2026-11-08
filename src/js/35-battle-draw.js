@@ -1,7 +1,7 @@
 /* ---------- battle: rendering (drawB) ----------
    構成: 背景(36) → 状態オーバーレイ(36) → 英雄 → 敵 → スキルFX(80) → 弾 → 被弾/撃破(82) → 粒子 → [カメラ終了] → ビネット/枠/チップ(36) → HP/数字(81)/カットイン */
 let eLag=1,hFl=-9,hFlD=.09,pHit=0;const hx=i=>6+i*46,FLT=['m1','m2','m5','m7','m8'],HCOL=['#ff7a45','#6fe3ff','#9bff6b'];
-function drawHeroes(t){for(let i=0;i<3;i++){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.14?'s':'w'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2)),n='h'+i+fr;
+function drawHeroes(t){for(let i=0;i<3;i++){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.14?'s':'w'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2))+(typeof heroDY==='function'?heroDY(i,t):0),n='h'+i+fr;
 bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(i)+10,114,44,4);bc.fillRect(hx(i)+14,112,36,2);
 if(G.aw>0){const r=34+Math.sin(t*9+i)*3;bc.fillStyle='rgba(181,123,255,.28)';bc.beginPath();bc.arc(x+32,y+38,r,0,TAU);bc.fill();bc.fillStyle='rgba(255,225,77,.22)';bc.beginPath();bc.arc(x+32,y+38,r*.7,0,TAU);bc.fill();for(let k=0;k<5;k++){bc.fillStyle=k%2?'#ffe14d':'#e0c8ff';bc.fillRect(Math.round(x+10+k*11+Math.sin(t*4+k)*3),Math.round(y+62-((t*40+k*17)%64)),3,3)}}
 if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,64,64)}bc.globalAlpha=1;

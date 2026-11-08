@@ -114,7 +114,7 @@ for (const mode of ['none', 'broken']) {
 // (f) 各SEが個別に鳴る(フックが効いている)
 {
   const g = createGame({ seed: 4 }); g.start(); g.advance(3);
-  const cases = { 'kill': 'G.stage=1;spawn();kill()', 'hurt crit': 'hurt(5,"#fff",0,1)', 'bigHit': 'bigHit(false)', 'jackpot': 'jackpot()', 'pkHit': 'pkHit(2)', 'cutin': 'cutin(0,"x","#fff",()=>{})', 'banner激アツ': 'banner("激アツ!!","#f00")', 'reach': 'showMsg("リーチ!")' };
+  const cases = { 'kill': 'G.stage=1;spawn();kill()', 'hurt crit': 'hurt(5,"#fff",0,1)', 'bigHit': 'bigHit(false)', 'jackpot': 'jackpot()', 'pkHit': 'sCT=-9;pkHit(2)', 'cutin': 'cutin(0,"x","#fff",()=>{})', 'banner激アツ': 'banner("激アツ!!","#f00")', 'reach': 'showMsg("リーチ!")' };
   for (const [k, c] of Object.entries(cases)) { g.advance(1); const o = g.audio.osc; g.eval(c); ok(g.audio.osc > o, `SE "${k}" が鳴らない`); }
   // 既存beepの置き換え: bigHit 中の beep(1400) は抑止され、新SE(多数のoscillator)に置き換わっている
   console.log('SEフック: OK');

@@ -16,7 +16,7 @@ function actTap(e){if(!run)return;const [x,y]=e&&e.clientX!=null?actXY(e):[260,8
   if(ACT.tg&&!ACT.tg.got&&Math.hypot(x-ACT.tg.x,y-ACT.tg.y)<26){actCatch();return}
   if(T-ACT.lt<.07)return;ACT.lt=T;
   ACT.tc=T-ACT.tt<1.2?ACT.tc+1:1;ACT.tt=T;
-  const cr=Math.random()<.1+Math.min(.15,ACT.tc*.005),d=atk()*(.45+Math.min(.5,ACT.tc*.01));
+  const cr=Math.random()<.1+Math.min(.15,ACT.tc*.005),d=atk()*(.45+Math.min(.5,ACT.tc*.01))*UPX.tap();
   hurt(d,'#9ff',0,cr);spAdd(.6);
   if(ACT.sp.length<16)ACT.sp.push({x:Math.max(200,Math.min(330,x)),y:Math.max(40,Math.min(120,y)),t0:T,c:cr?'#ffe14d':'#9ff'});
   actSnd(cr?1500:900+Math.min(600,ACT.tc*12),.04,'square',.025);
@@ -30,12 +30,12 @@ function actSpawnTg(){const k=TGK[gkPick([.6,.4])],l2r=Math.random()<.5;ACT.tg={
   actSnd(1760,.08,'p25',.03);actSnd(2093,.1,'p25',.03)}
 function actCatch(){const g=ACT.tg;g.got=T;const r=Math.random();let msg;
   if(g.k.s=='tstar'&&r<.35&&G.rush<=0&&!(G.fv>0)){G.fv=8;msg='FEVER!!';banner('FEVER TIME!!','#22e0ff');try{fan()}catch(e){}}
-  else if(r<.6){const v=Math.floor(G.stage*60*g.k.w*mul()*(.8+Math.random()*.6));G.gold+=v;msg='+'+fmt(v)+' G'}
+  else if(r<.6){const v=Math.floor(G.stage*60*g.k.w*mul()*(.8+Math.random()*.6)*UPX.trsGain());G.gold+=v;msg='+'+fmt(v)+' G'}
   else{spAdd(35);msg='SP +35'}
   g.msg=msg;kyuin(3,'#ffd400');burst(Math.max(20,Math.min(340,g.x)),g.y,24,'#ffd400');
   try{if(sOK()){const t=sNow();[1047,1319,1568,2093].forEach((f,i)=>tone(f,t+i*.06,.1,'square',.03))}}catch(e){}}
 function actTgUpd(dt){
-  if(!ACT.tg){if(run&&!G.roul&&T>ACT.next){actSpawnTg();ACT.next=T+30+Math.random()*20}return}
+  if(!ACT.tg){if(run&&!G.roul&&T>ACT.next){actSpawnTg();ACT.next=T+(30+Math.random()*20)/UPX.trsRate()}return}
   const g=ACT.tg;if(g.got){if(T-g.got>1.2)ACT.tg=null;return}
   g.x+=g.vx*dt;g.y+=Math.sin((T-g.t0)*3+g.ph)*.4;if(g.x<-30||g.x>390){ACT.tg=null;showMsg(g.k.n+'は逃げた…','#9aa0c8')}}
 

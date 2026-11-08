@@ -37,5 +37,17 @@ for (const hit of [1, 0]) {
   g.eval('G.q=0;QL.length=0'); g.advance(6);
   ok(g.eval('__bh') === hit, `bigHit 回数が当否と一致しない hit=${hit} bh=${g.eval('__bh')}`);
 }
+// キャラクター演出(84-charfx): カットイン3種とも cb が1回呼ばれて終わる / ジャンプ量が有限 / 吹き出しの上限
+{
+  const g = createGame({ seed: 8 }); g.start(); g.advance(1);
+  for (const v of [0, 1, 2]) {
+    g.eval(`var __cb=0;cutin(1,'大当たり!!','#ff2d7a',()=>{__cb++});cut.v=${v}`); g.advance(1.3);
+    ok(g.eval('__cb') === 1 && g.eval('!cut'), 'カットイン v' + v + ' の終了/cb: ' + g.eval('__cb'));
+  }
+  g.eval("chJumpAll(2);for(let i=0;i<10;i++)chSayAll('win')"); g.advance(.5);
+  ok([0, 1, 2].every(i => Number.isFinite(g.eval('heroDY(' + i + ',T)'))) && g.eval('heroDY(0,T)') <= 0, 'heroDY');
+  ok(g.eval('CHR.sb.length') <= 4, '吹き出しの上限: ' + g.eval('CHR.sb.length'));
+  g.advance(3); ok(g.eval('CHR.sb.length') === 0 && g.eval('CHR.j.every(j=>!j)'), '吹き出し/ジャンプが残る');
+}
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('ACTIVE OK');

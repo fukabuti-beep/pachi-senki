@@ -9,7 +9,7 @@ const HEV={force:null,mq:[],mr:null,jr:null};
 function hitBase(){return atk()*40*(1+G.combo*.5)}
 function hitEvent(jp){const f=HEV.force,base=hitBase();
   if(f?f==='jp':jp){pushPrompt(()=>jpRush(),{jp:1,ms:2400});return}
-  if(f?f==='roul':Math.random()<BAL.evP){pushPrompt(()=>{startRoul(base);if(RL)RL.sup=Math.random()<BAL.supP},{ms:2400});return}
+  if(f?f==='roul':Math.random()<UPX.evP()){pushPrompt(()=>{startRoul(base);if(RL)RL.sup=Math.random()<UPX.supP()},{ms:2400});return}
   miniRoul(base);G.roul=0;startSpin()}
 
 /* --- ミニルーレット(非ブロッキング) --- */

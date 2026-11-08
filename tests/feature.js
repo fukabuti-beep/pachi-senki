@@ -16,7 +16,7 @@ const noErr = (g, name) => ok(g.eval('FERR') === 0, name + ': feature hook threw
   ok(g.eval('X.best') >= 1, 'old save: best initialised from stage');
   ok(g.eval('X.souls') === 0 && g.eval('X.pres') === 0, 'old save: meta defaults');
   noErr(g, 'old save');
-  ok(JSON.parse(g.store.pachi2).lv.length === 10, 'pachi2 still {gold,stage,lv}');
+  ok(JSON.parse(g.store.pachi2).lv.length >= 10, 'pachi2 still {gold,stage,lv}'); // 追加強化(23-upgrades2)で末尾に増える。先頭10個の意味は不変
   ok(Object.keys(JSON.parse(g.store.pachi2)).sort().join() === 'gold,lv,stage,v', 'pachi2 format: {v,gold,stage,lv}');
 }
 // 1b) v:2 のセーブはそのまま(補正されない)

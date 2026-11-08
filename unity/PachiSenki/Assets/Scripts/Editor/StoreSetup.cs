@@ -1,0 +1,57 @@
+// ストア版(iOS/Android)向けのプレイヤー設定を、Unity を開いた時に自動で当てる(エディタ専用)。
+// ProjectSettings.asset を Git で直接書き換えると作り手の PC 側の変更とぶつかるため、コードで設定する方式にしている。
+// 手動で当て直す: メニュー「パチ戦記 > ストア用の設定を適用」。値を変えたら Version を上げる。
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEngine;
+
+static class StoreSetup
+{
+    const int Version = 1;
+    const string Key = "pachi_store_setup";
+    const string Bundle = "com.fukabuchi.pachisenki";
+
+    [InitializeOnLoadMethod]
+    static void Auto()
+    {
+        EditorApplication.delayCall += () => { if (EditorPrefs.GetInt(Key, 0) < Version) Apply(false); };
+    }
+
+    [MenuItem("パチ戦記/ストア用の設定を適用", false, 20)]
+    static void Manual() => Apply(true);
+
+    static void Apply(bool verbose)
+    {
+        PlayerSettings.companyName = "fukabuchi";
+        PlayerSettings.productName = "パチ戦記";
+        PlayerSettings.bundleVersion = "1.0.0";
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, Bundle);
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, Bundle);
+        // 縦画面に固定(Web版の筐体は縦長)
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+        PlayerSettings.allowedAutorotateToPortrait = true;
+        PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+        PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+        PlayerSettings.allowedAutorotateToLandscapeRight = false;
+        // 起動画面の背景はゲームと同じ濃い紫
+        PlayerSettings.SplashScreen.backgroundColor = new Color32(10, 7, 32, 255);
+        PlayerSettings.statusBarHidden = true;
+        // 文字の Google Font(DotGothic16)を読むためだけにネット権限を付ける(失敗しても等幅フォントで動く)
+        PlayerSettings.Android.forceInternetPermission = true;
+        // アイコン(Web版 PWA と同じ絵を 1024px に拡大したもの)
+        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Branding/icon.png");
+        if (icon != null)
+        {
+            var imp = AssetImporter.GetAtPath("Assets/Branding/icon.png") as TextureImporter;
+            if (imp != null && (imp.filterMode != FilterMode.Point || imp.textureCompression != TextureImporterCompression.Uncompressed || imp.npotScale != TextureImporterNPOTScale.None))
+            {
+                imp.filterMode = FilterMode.Point; imp.textureCompression = TextureImporterCompression.Uncompressed; imp.npotScale = TextureImporterNPOTScale.None; imp.mipmapEnabled = false; imp.SaveAndReimport();
+            }
+            PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+        }
+        AssetDatabase.SaveAssets();
+        EditorPrefs.SetInt(Key, Version);
+        Debug.Log("[パチ戦記] ストア用の設定を適用しました(アプリ名/ID " + Bundle + "/縦画面/アイコン)");
+        if (verbose) EditorUtility.DisplayDialog("パチ戦記", "ストア用の設定を適用しました。\nアプリ名: パチ戦記\nID: " + Bundle + "\n縦画面固定・アイコン設定済み", "OK");
+    }
+}

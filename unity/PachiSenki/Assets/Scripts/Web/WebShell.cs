@@ -45,6 +45,9 @@ namespace PachiSenki.Web
         IEnumerator Start()
         {
             Application.targetFrameRate = 60; Screen.sleepTimeout = SleepTimeout.NeverSleep;   // 放置ゲームなので画面を消さない
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
+            Screen.orientation = ScreenOrientation.Portrait;   // 縦画面に固定(筐体が縦長)
+#endif
             // 背景用のカメラ(WebView の外側を黒に)
             if (Camera.main == null) { var cg = new GameObject("Camera"); cg.tag = "MainCamera"; var c = cg.AddComponent<Camera>(); c.clearFlags = CameraClearFlags.SolidColor; c.backgroundColor = Color.black; DontDestroyOnLoad(cg); }
 
@@ -91,7 +94,15 @@ namespace PachiSenki.Web
             if (wv == null) return; var sa = Screen.safeArea; lastSafe = sa; lastW = Screen.width; lastH = Screen.height;
             wv.SetMargins((int)sa.xMin, (int)(Screen.height - sa.yMax), (int)(Screen.width - sa.xMax), (int)sa.yMin);
         }
-        void Update() { if (wv != null && (Screen.safeArea != lastSafe || Screen.width != lastW || Screen.height != lastH)) FitMargins(); }
+        void Update()
+        {
+            if (wv != null && (Screen.safeArea != lastSafe || Screen.width != lastW || Screen.height != lastH)) FitMargins();
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // 戻るボタン: アプリを終了せずホームへ(放置ゲームなので誤タップで消えないように)
+            bool back = false; try { back = Input.GetKeyDown(KeyCode.Escape); } catch (System.InvalidOperationException) { }
+            if (back) { try { using (var up = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) using (var act = up.GetStatic<AndroidJavaObject>("currentActivity")) act.Call<bool>("moveTaskToBack", true); } catch (System.Exception) { } }
+#endif
+        }
 
         // バックグラウンドに回ったら音を止める(AC は Web版の AudioContext)
         void OnApplicationPause(bool p)

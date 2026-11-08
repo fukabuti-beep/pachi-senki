@@ -7,6 +7,7 @@ Web版(src/ の単一HTML)を正として、Unity 版を段階的に作る。
 - WebView は unity-webview(`Packages/net.gree.unity-webview`、埋め込みパッケージ、zlib ライセンス)。iOS/Android はネイティブの WebView、Windows エディタは WebView2(Windows 10/11 標準)で表示。
 - エディタのメニュー「パチ戦記」で「Web版で起動(完全版)」/「Unity版で起動(作り直し中)」を切り替え(EditorPrefs `pachi_mode`)。ビルドしたアプリは常に Web版。
 - Web版 → Unity: `Unity.call('vib:big|jp|boss')` で Handheld.Vibrate、`Unity.call('save:{json}')` でセーブの控えを PlayerPrefs[`pachi_web_backup`] に保存。読み込み時に `window.PachiApp` を注入し、控えがあれば `appRestore()` に渡す(Web 側にセーブが無い時だけ書き戻して再読込)。Web 側は src/js/97u-app.js。
+- ストア用のプレイヤー設定(アプリ名 パチ戦記 / ID com.fukabuchi.pachisenki / 縦画面固定 / アイコン Assets/Branding/icon.png / 起動画面の背景色)は `Assets/Scripts/Editor/StoreSetup.cs` が Unity 起動時に自動で当てる(ProjectSettings.asset は作り手の PC で書き換わるため Git では触らない)。Android の戻るボタンはアプリを終了せずホームへ。
 - 広告/課金は Web版の `window.PachiNative`(97-monet)を WebShell.OnJs 経由で実装する予定(SDK を入れる時。それまで PachiNative は注入しない=広告 UI は出ない)。**ゲームロジックは UnityEngine に依存しない純粋な C#** にして、Unity なしでもテストできるようにしている。
 
 ## 構成

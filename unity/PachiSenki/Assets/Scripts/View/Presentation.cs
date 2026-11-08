@@ -6,7 +6,7 @@ using PachiSenki.Core;
 
 namespace PachiSenki.View
 {
-    public sealed class Presentation : MonoBehaviour
+    public sealed partial class Presentation : MonoBehaviour
     {
         PachiGame game; System.Func<float, float, Vector3> W;
         const float BATTLE_Y = 28, BOARD_Y = 238;
@@ -42,6 +42,7 @@ namespace PachiSenki.View
             miniWheel = NewSr(world, "MiniWheel", wheel, 6); miniWheel.transform.localScale = new Vector3(.2f, .2f, 1); miniWheel.transform.position = W(112, BATTLE_Y + 29);
             bigBack.gameObject.SetActive(false); bigWheel.gameObject.SetActive(false); miniWheel.gameObject.SetActive(false);
 
+            InitGk(g);
             g.OnBanner += (t, c) => { bnText = t; bnCol = C(c); bnT0 = Time.time; bnHot = t.Contains("激アツ") || t.Contains("JACKPOT") || t.Contains("確定") || t.Contains("超倍率"); Audio8.I?.Play("banner", .6f); };
             g.OnBigHit += (jp, n) =>
             {
@@ -224,6 +225,7 @@ namespace PachiSenki.View
                 if (jt > 3.2f) Outline(new Rect(20, BOARD_Y + 250, 320, 20), "こぼれた玉は JACKPOT POOL に貯まり、777 でまとめて獲得!", St(sSmall, 10, TextAnchor.MiddleCenter), new Color(.8f, .75f, 1), 1);
                 GUI.color = oc;
             }
+            DrawGk(now);
             // バナー(登場で拡大→少し揺れて消える。熱い文言は虹色)
             float bp = now - bnT0;
             if (bp >= 0 && bp < 1.7f)

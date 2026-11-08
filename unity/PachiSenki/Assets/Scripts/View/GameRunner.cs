@@ -201,13 +201,29 @@ namespace PachiSenki.View
             var sp = Game.CurrentSpin;
             for (int k = 0; k < 3; k++)
             {
-                string d = sp == null ? "7" : sp.t >= sp.stop[k] ? sp.faces[k].ToString() : ((int)(now * 20 + k * 3) % 10).ToString();
+                int ov = pres != null ? pres.ReelOverride(sp, k, now, out _) : -1;
+                string d = ov >= 0 ? ov.ToString() : sp == null ? "7" : sp.t >= sp.stop[k] ? sp.faces[k].ToString() : ((int)(now * 20 + k * 3) % 10).ToString();
                 GUI.color = new Color(.95f, .92f, .85f); GUI.DrawTexture(new Rect(12 + k * 52, SLOT_Y + 6, 46, 48), white); GUI.color = Color.white;
                 Txt(new Rect(12 + k * 52, SLOT_Y + 6, 46, 48), d, stReel, d == "7" ? new Color(1, .2f, .3f) : new Color(.2f, .2f, .35f));
             }
             string msg = sp == null ? "START!" : sp.type == 2 && sp.t > 1.9 ? "SUPER REACH!!" : sp.type == 1 && sp.t > 1.9 ? "リーチ!" : "回転中…";
             Txt(new Rect(176, SLOT_Y + 6, 124, 22), msg, stM, sp != null && sp.type == 2 ? new Color(1, .2f, .5f) : Color.white);
-            Txt(new Rect(176, SLOT_Y + 30, 180, 20), "保留 " + new string('◆', G.q) + new string('◇', 4 - G.q) + "   JP " + Fmt.N(G.pool), stS, new Color(.8f, .8f, 1));
+            // 保留(色つきの玉。白/青/緑/赤/金。保留変化で色が上がる)
+            Txt(new Rect(176, SLOT_Y + 30, 40, 20), "保留", stS, new Color(.8f, .8f, 1));
+            for (int k = 0; k < 4; k++)
+            {
+                float hx = 206 + k * 14, hy = SLOT_Y + 41;
+                GUI.color = new Color(.1f, .1f, .2f); GUI.DrawTexture(new Rect(hx - 5, hy - 5, 10, 10), white);
+                if (k < Game.Queue.Count)
+                {
+                    int sh = Mathf.Clamp(Game.Queue[k].Shown, 0, 4); var hc = Presentation.HoldCol[sh];
+                    if (sh >= 3) hc = Color.Lerp(hc, Color.white, Mathf.Abs(Mathf.Sin(now * 8)) * .4f);
+                    GUI.color = hc; GUI.DrawTexture(new Rect(hx - 4, hy - 4, 8, 8), white);
+                }
+                GUI.color = Color.white;
+            }
+            pres?.DrawHoldFx(206, SLOT_Y + 41, 14, now);
+            Txt(new Rect(264, SLOT_Y + 46, 96, 16), "JP " + Fmt.N(G.pool), stS, new Color(.8f, .8f, 1));
             // 強化ボタン
             float y = BTN_Y; int col = 0;
             for (int i = 0; i < Upgrades.Count; i++)

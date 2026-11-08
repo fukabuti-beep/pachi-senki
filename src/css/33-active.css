@@ -9,3 +9,6 @@
 #gkcb:active{transform:translateY(4px);box-shadow:0 0 0 3px #000,0 0 0 5px #ffd400,0 0 0 7px #000,0 2px 0 4px #520010}
 @keyframes gkcb{50%{transform:scale(1.08)}}
 @media (prefers-reduced-motion:reduce){#gkcb.on{animation:none}}
+/* メニューのタブが増えたので4列×2段に折り返す(縦書き状態に詰まるのを防ぐ) */
+html body #fxm .fxt{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px!important;flex-wrap:wrap}
+html body #fxm .fxt button{min-width:0!important;width:auto!important;padding:6px 2px!important;font-size:13px!important;white-space:nowrap;writing-mode:horizontal-tb;line-height:1.2}

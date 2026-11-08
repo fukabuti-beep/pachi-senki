@@ -86,5 +86,23 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
     g.advance(1); ok(g.eval(`AMV.m[${i}]===null||AMV.m[${i}].k!=='${k}'||T-AMV.m[${i}].t0<AMD['${k}']`), 'モーションが終わらない ' + k);
   }
 }
+// (g) リソース(96s-smith): 魔石の入手 / 宝石(JACKPOT) / 武器強化と限界突破 / 武器の倍率 / 護符 / 保存
+{
+  const g = createGame({ seed: 9 }); g.start(); g.advance(1);
+  const m0 = g.eval('RES.ms'); g.eval('G.stage=1;spawn();G.hp=1;kill()'); ok(g.eval('RES.ms') > m0, '魔石が増えない');
+  g.eval('G.stage=5;spawn();G.hp=1;kill()'); ok(g.eval('RES.ms') >= m0 + 1 + 12, 'ボスの魔石: ' + g.eval('RES.ms'));
+  const g0 = g.eval('RES.gem'); g.eval('jackpot()'); ok(g.eval('RES.gem') === g0 + 5, 'JACKPOT の宝石');
+  g.eval('RES.ms=1e9;RES.gem=0;for(let i=0;i<12;i++)smithUp(0)');
+  ok(g.eval('RES.w[0]') === 10, '限界突破に宝石が要らない/強化できない: ' + g.eval('RES.w[0]'));
+  g.eval('RES.gem=2;smithUp(0)'); ok(g.eval('RES.w[0]') === 11 && g.eval('RES.gem') === 0, '限界突破');
+  g.eval('PR.length=0;heroAtk(0,1)'); const d1 = g.eval('PR[PR.length-1].d'); g.eval('RES.w[0]=0;PR.length=0;heroAtk(0,1)'); const d0 = g.eval('PR[PR.length-1].d');
+  ok(d1 / d0 > 2 && d1 / d0 < 2.6, '武器の倍率: ' + d1 / d0);
+  const a0 = g.eval('SB.a()'); g.eval("RES.gem=3;smithBuff('a')"); ok(Math.abs(g.eval('SB.a()') / a0 - 2) < 1e-9 && g.eval('RES.ba') === 180, '闘気の護符');
+  g.advance(260); ok(g.eval('RES.ba') === 0, '護符が切れない: ' + g.eval('RES.ba')); // ヒットストップ中はゲーム時間が遅れるので余裕を見る
+  g.eval('resSave()'); const sv = JSON.parse(g.store.pachi2_res); ok(sv.w[0] === 0 && sv.ms > 0, 'リソースの保存');
+  const g2 = createGame({ seed: 9, storage: { pachi2_res: '{bad' } }); ok(g2.eval('RES.ms') === 0 && g2.eval('RES.w.join()') === '0,0,0', '壊れたリソースセーブ');
+  const g3 = createGame({ seed: 9, storage: { pachi2_res: JSON.stringify({ ms: -5, gem: 'x', w: [3, 1e9, null], bg: 99999 }) } });
+  ok(g3.eval('RES.ms') === 0 && g3.eval('RES.gem') === 0 && g3.eval('RES.w.join()') === '3,999,0' && g3.eval('RES.bg') === 3600, '不正なリソースセーブ: ' + g3.eval('JSON.stringify(RES)'));
+}
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('CONTENT OK');

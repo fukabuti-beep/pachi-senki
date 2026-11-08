@@ -49,6 +49,7 @@ npm test                            # build + smoke
 | 89-horyu.js | 保留変化: 熱い保留の一部を低い色で表示→待機中に1段ずつ/消化直前に本来の色へ。消化時は必ず元の予告レベル | fx/feature |
 | 94b-soul.js | 魂の祭壇: 魂を使って永続強化(開始ステージ/初期G/自動強化/遺物ドロップ率/魂の器)。使っても X.souls(ボーナス)は減らない。`localStorage['pachi2_soul']`。presDo をラップ | feature |
 | 96b-zukan.js | モンスター図鑑: 敵14種の撃破数と★(★1つでダメージ+1%)。`localStorage['pachi2_zukan']`。kill と SB.a をラップ | feature |
+| 96s-smith.js | リソース: 魔石(撃破で入手)・宝石(JACKPOT/高ランク/図鑑★/お宝)と鍛冶屋(武器強化=キャラ別通常攻撃+12%/Lv・10Lv毎に宝石で限界突破、宝石の護符=3分間 G/ダメージ x2)。`localStorage['pachi2_res']`、転生で残る。戦闘画面右下に所持数 | feature |
 | 96r-relic.js | 遺物コレクション: ボス撃破でドロップ(初回確定/以降35%)、10種×Lv5、`localStorage['pachi2_relic']`、転生で残る。SB.a/SB.g・spAdd・bigHit をラップ(テスト: tests/content.js) | feature |
 | 98-mgfx.js / css/32-minigame.css | ミニゲーム(BONUS STOP/宝箱くじ/コインラッシュ)の描画とパネルの強化。ルールは 85/95 のまま | fx |
 | 90-extra.js | 覚醒/黄金玉/ヒットストップ等 | balance |

@@ -64,7 +64,7 @@ function actCbUpd(){const s=sp;if(s&&s.type==2&&!s.pzN&&s.t>2.2&&s.t<s.stop[2]-1
 /* --- 描画 --- */
 function actDraw(t){
   for(let i=ACT.sp.length-1;i>=0;i--){const s=ACT.sp[i],p=t-s.t0;if(p>.25){ACT.sp.splice(i,1);continue}const r=6+p*80;bc.globalAlpha=1-p*4;bc.strokeStyle=s.c;bc.lineWidth=3;bc.beginPath();bc.moveTo(s.x-r,s.y-r*.4);bc.lineTo(s.x+r,s.y+r*.4);bc.stroke();bc.beginPath();bc.moveTo(s.x-r*.4,s.y+r);bc.lineTo(s.x+r*.4,s.y-r);bc.stroke();bc.globalAlpha=1}
-  if(ACT.tc>=5&&t-ACT.tt<1.2){bc.textAlign='right';const s=t-ACT.tt<.08?1.3:1;bc.save();bc.translate(352,140);bc.scale(s,s);thickTxt(bc,ACT.tc+' TAP',0,0,14,ACT.tc>=30?'hsl('+Math.floor(t*200)%360+',100%,64%)':'#9ff');bc.restore()}
+  if(ACT.tc>=5&&t-ACT.tt<1.2){bc.textAlign='right';const s=t-ACT.tt<.08?1.3:1;bc.save();bc.translate(352,118);bc.scale(s,s);thickTxt(bc,ACT.tc+' TAP',0,0,14,ACT.tc>=30?'hsl('+Math.floor(t*200)%360+',100%,64%)':'#9ff');bc.restore()}
   const g=ACT.tg;if(g){bc.imageSmoothingEnabled=false;
     if(!g.got){if(g.k.s=='tstar'){for(let k=1;k<6;k++){bc.globalAlpha=.5-k*.08;bc.fillStyle='#fff2a0';bc.fillRect(g.x-Math.sign(g.vx)*k*7-2,g.y+12,4,4)}bc.globalAlpha=1}
       const b=Math.round(Math.sin(t*8)*2);bc.drawImage(SPR[g.k.s],Math.round(g.x-14),Math.round(g.y-14+b),28,28);

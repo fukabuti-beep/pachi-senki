@@ -1,0 +1,17 @@
+/* ===== iOS (WKWebView / Safari / ホーム画面追加) 向けの調整。見た目は変えない ===== */
+/* 横向き時の文字の自動拡大を止める / 長押しのコールアウト(画像保存・リンクメニュー)を出さない */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body,canvas,img,button{-webkit-touch-callout:none}
+img,canvas{-webkit-user-drag:none}
+/* 文字入力欄(プレイヤー名/サポーターコード)は選択・入力できるようにする(* の user-select:none を打ち消す) */
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+input[type=range]{-webkit-user-select:none;user-select:none}
+/* 全画面の重ね表示: ノッチ/ホームバーを避ける。100vh は iOS Safari ではツールバー分はみ出すので dvh を優先 */
+#cfg{padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px))}
+.cfgb{max-height:calc(100vh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+@supports (height:100dvh){
+ .cfgb{max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+ html body #fxm .rb,html body #fxg .rb{max-height:min(86dvh,calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)))}
+}
+/* 内側のスクロール領域だけはスクロール可、端で筐体ごと揺れないように */
+.cfgb,html body #fxm .rb,html body #fxg .rb{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}

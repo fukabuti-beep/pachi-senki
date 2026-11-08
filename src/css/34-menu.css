@@ -1,0 +1,45 @@
+/* 三本線メニュー(#fxm)を筐体デザインに刷新: 金ベゼル+リベット+LED電飾、ドット調の立体タブ/ボタン、液晶風の数値、パネル化した一覧。
+   91-meta.js が JS で注入する CSS より後に効くよう詳細度を上げている(html body #fxm ...)。構造/クラス名は変更しない。 */
+html body #fxm{background:radial-gradient(ellipse at 50% 40%,rgba(40,16,90,.78),rgba(5,3,20,.92) 70%)}
+html body #fxm .rb{position:relative;max-width:350px;padding:20px 14px 14px;text-align:center;
+ background:radial-gradient(circle at 50% 0,#3a2490,#160a44 55%,#0b0624);
+ box-shadow:0 0 0 3px #000,0 0 0 6px #ffe56a,0 0 0 9px #a87500,0 0 0 11px #000,0 0 40px 6px rgba(255,45,122,.45),inset 0 0 0 2px #2a1a6a;
+ scrollbar-width:thin;scrollbar-color:#ffd400 #160a44;animation:rlin .22s steps(3)}
+html body #fxm .rb::before{content:"";position:sticky;display:block;top:-20px;margin:-20px -14px 10px;height:8px;z-index:2;
+ background:#0b0624 repeating-linear-gradient(90deg,#fff36a 0 5px,#3a2a70 5px 9px,#ff2d7a 9px 14px,#3a2a70 14px 18px);animation:mnled .45s steps(2) infinite;border-bottom:2px solid #000}
+@keyframes mnled{to{background-position:18px 0}}
+html body #fxm .rb::after{content:"";position:absolute;inset:6px;pointer-events:none;
+ background:radial-gradient(circle at 0 0,#ffe56a 0 2px,transparent 3px),radial-gradient(circle at 100% 0,#ffe56a 0 2px,transparent 3px),
+  radial-gradient(circle at 0 100%,#ffe56a 0 2px,transparent 3px),radial-gradient(circle at 100% 100%,#ffe56a 0 2px,transparent 3px);opacity:.9}
+/* タブ */
+html body #fxm .fxt{margin:2px 0 12px!important;padding:6px;background:#0b0624;box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px #2a1a6a}
+html body #fxm .fxt button{position:relative;background:linear-gradient(#3a2a8a,#22145a)!important;color:#c8c0ff!important;border:0!important;
+ box-shadow:inset 2px 2px 0 #6a5ad0,inset -2px -2px 0 #120838,0 0 0 2px #000,0 3px 0 2px #000!important;font-size:12px!important;padding:7px 2px!important;letter-spacing:1px}
+html body #fxm .fxt button.on{background:linear-gradient(#ffe56a,#e0a800)!important;color:#2a1000!important;transform:translateY(2px);
+ box-shadow:inset 2px 2px 0 #fff6b0,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 1px 0 2px #000,0 0 12px rgba(255,212,0,.6)!important;text-shadow:none}
+html body #fxm .fxt button:active{transform:translateY(2px)}
+/* 見出し・本文 */
+html body #fxm .fxh{font-size:22px;color:#ffd400;letter-spacing:2px;margin:2px 0 8px;padding-bottom:8px;
+ text-shadow:0 2px 0 #b85a00,0 4px 0 #4a1a00,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;
+ background:linear-gradient(90deg,transparent,#ffd400 20%,#ffd400 80%,transparent) bottom/100% 2px no-repeat}
+html body #fxm .fxs{color:#c8c0ff;opacity:.95}
+html body #fxm .fxp{color:#fff}
+/* 液晶風の数値 */
+html body #fxm .fxn{display:inline-block;margin:8px 0 10px;padding:6px 14px;background:#0a1a10;color:#9bff6b;font-variant-numeric:tabular-nums;
+ box-shadow:inset 0 0 0 2px #000,inset 0 0 12px rgba(155,255,107,.25),0 0 0 2px #3a4a3a,0 0 0 4px #000;text-shadow:0 0 8px rgba(155,255,107,.8),2px 2px 0 #000}
+/* 一覧(各行をパネルに) */
+html body #fxm .fxl{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+html body #fxm .fxl>div{align-items:center;padding:7px 8px!important;border:0!important;background:linear-gradient(90deg,#1e1258,#140a3c);
+ box-shadow:inset 0 0 0 1px #3a2a8a,0 2px 0 #000}
+html body #fxm .fxl>div>span:first-child::before{content:"◆";color:#ffd400;margin-right:6px;font-size:10px;vertical-align:1px}
+html body #fxm .fxl>div.no>span:first-child::before{color:#5a4a9a}
+html body #fxm .fxl>div.ok{color:#ffe9a0}
+html body #fxm .fxl small{color:#a8a0e0;font-size:11px}
+/* ボタン */
+html body #fxm .fxb{position:relative;background:linear-gradient(#ff5a8a,#d0105a)!important;color:#fff;border:0!important;letter-spacing:1px;
+ box-shadow:inset 2px 2px 0 #ffb0c8,inset -2px -2px 0 #7a0030,0 0 0 2px #000,0 4px 0 2px #000!important;text-shadow:2px 2px 0 #6a0028}
+html body #fxm .fxb:active{transform:translateY(3px);box-shadow:inset 2px 2px 0 #ffb0c8,inset -2px -2px 0 #7a0030,0 0 0 2px #000,0 1px 0 2px #000!important}
+html body #fxm .fxb.g{background:linear-gradient(#3a2a8a,#22145a)!important;box-shadow:inset 2px 2px 0 #6a5ad0,inset -2px -2px 0 #120838,0 0 0 2px #000,0 4px 0 2px #000!important;text-shadow:2px 2px 0 #000}
+html body #fxm .fxb.d{background:linear-gradient(#5a5a70,#3a3a4a)!important;box-shadow:inset 2px 2px 0 #8a8aa0,inset -2px -2px 0 #22222e,0 0 0 2px #000,0 4px 0 2px #000!important;opacity:.75;text-shadow:none}
+html body #fxm #fxmbt{margin-top:6px}
+@media (prefers-reduced-motion:reduce){html body #fxm .rb,html body #fxm .rb::before{animation:none}}

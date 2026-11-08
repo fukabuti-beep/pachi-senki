@@ -38,6 +38,6 @@ function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;
 FU.push(dt=>soulAutoTick(dt));
 // メニュー: 魂の祭壇 + 転生タブの補足
 FM.push({n:'魂の祭壇',r:()=>'<div class="fxh">魂の祭壇</div><div class="fxs">魂を使って永続強化。使っても魂のボーナス(ダメージ x'+SB.a().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+')は減らない。</div><div class="fxn" style="font-size:22px">使える魂 '+soulFree()+' / '+X.souls+'</div><div class="fxl">'+
-  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l?'ok':'no')+'"><span>'+s.n+' Lv'+l+'/'+s.max+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
+  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+'/'+s.max+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
   (soulLv('auto')?'<button class="fxb" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+
   '<div class="fxs" style="margin-top:6px">今 STAGE '+G.stage+' で転生 → 魂 +'+soulGain(G.stage)+(soulLv('soul')?'(+器 '+soulBonusGain(soulGain(G.stage))+')':'')+(soulNext(G.stage)?' / 次の魂は STAGE '+soulNext(G.stage):'')+'</div>'});

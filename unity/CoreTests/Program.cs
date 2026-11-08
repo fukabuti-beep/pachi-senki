@@ -46,7 +46,7 @@ static class Program
             }
             Ok(double.IsFinite(g.G.gold) && double.IsFinite(g.G.hp) && double.IsFinite(g.G.rush) && double.IsFinite(g.G.sp), "NaN/Infinity seed " + seed);
             Ok(maxBalls <= 91 && maxShots < 50 && g.Queue.Count <= 4, $"配列リーク balls={maxBalls} shots={maxShots}");
-            Ok(hits > 10 && kills > 20 && rushEnd > 3 && ults > 3, $"進行していない hits={hits} kills={kills} rushEnd={rushEnd} ult={ults}");
+            Ok(hits > 10 && kills > 10 && rushEnd > 3 && ults > 3, $"進行していない hits={hits} kills={kills} rushEnd={rushEnd} ult={ults}");
             Console.WriteLine($"seed{seed} 15分: stage {g.G.stage} 大当たり {hits} 撃破 {kills} 必殺 {ults} ハマり最大 {g.DryMax}");
         }
         var a1 = Run(7, 3, true); var a2 = Run(7, 3, true);

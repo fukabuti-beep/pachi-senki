@@ -281,7 +281,7 @@ namespace PachiSenki.Core
                         }
                     case HitEventKind.Jackpot:
                         {
-                            pushPause = false; G.jp = 5; double g = Math.Floor(G.pool + G.stage * 500 * Mul()); G.gold += g; G.pool = 0;
+                            pushPause = false; G.jp = 7; double g = Math.Floor(G.pool + G.stage * 500 * Mul()); G.gold += g; G.pool = 0;
                             Hurt(Atk() * 150, true); OnJackpot?.Invoke(g); break;   // Blocking は jp が切れた時に解除
                         }
                 }

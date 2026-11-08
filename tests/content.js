@@ -148,6 +148,28 @@ const tick = () => new Promise(r => setImmediate(r));
   g.eval("__d='2026-12-01';DLY.last='2026-11-30';DLY.streak=3"); ok(g.eval('dailyClaim().streak') === 4, '月またぎの連続');
   ok(JSON.parse(g.store.pachi2_daily).last === '2026-12-01', 'ログインボーナスの保存');
 }
+// (k) ログインボーナスの「受け取る!」で閉じる / JACKPOT パネル / デイリーミッション / 魔石くじ
+{
+  const g = createGame({ seed: 13 }); g.start(); g.advance(1);
+  g.eval("dailyShow({day:1,streak:1,ms:10,gem:1})"); ok(g.eval('fxOpen') === true, 'ログボが開かない');
+  g.eval('fxBtn(0)'); ok(g.eval('fxOpen') === false, 'ログボの受け取るで閉じない');
+  const gold0 = g.eval('G.gold'); g.eval('G.pool=5000;G.roul=1;jackpot()');
+  ok(g.eval('!!JPX.p') && g.eval('G.jp') >= 6.9 && g.eval('JPX.p.pool') === 5000 && g.eval('JPX.coins.length') > 0, 'JACKPOT パネル');
+  ok(g.eval('JPX.p.tot') === Math.floor(g.eval('G.gold') - gold0) && g.eval('JPX.p.tot') >= 5000, 'JACKPOT 合計: ' + g.eval('JPX.p.tot'));
+  g.advance(10); ok(g.eval('!JPX.p') && g.eval('JPX.coins.length') === 0, 'JACKPOT 演出が残る');
+  // ミッション
+  g.eval("MS={d:msToday(),ids:[0,1,2],lv:[0,0,0],p:[0,0,0],c:[0,0,0],b:0,s0:G.stage};msSave()");
+  for (let i = 0; i < 5; i++) g.eval('msAdd("hit")'); ok(g.eval('MS.p[0]') === 5, 'ミッション進捗');
+  const gem0 = g.eval('RES.gem'); g.eval('msClaim(0)'); ok(g.eval('MS.c[0]') === 1 && g.eval('RES.gem') === gem0 + 2, 'ミッション報酬');
+  g.eval('msClaim(1)'); ok(g.eval('MS.c[1]') === 0, '未達成で受け取れた');
+  g.eval('MS.p[1]=99;MS.p[2]=999;msClaim(1);msClaim(2)'); ok(g.eval('MS.b') === 1 && g.eval('RES.gem') === gem0 + 2 + 2 + 2 + 5, '全達成ボーナス: ' + (g.eval('RES.gem') - gem0));
+  g.eval("MS.d='2000-01-01'"); g.eval('msCheckDay()'); ok(g.eval('MS.d') !== '2000-01-01' && g.eval('MS.c.join()') === '0,0,0' && new Set(g.eval('MS.ids')).size === 3, '日付で入れ替わらない');
+  // くじ
+  g.eval('RES.ms=1000;G.gold=0'); g.eval('kujiDraw(10)'); ok(g.eval('RES.ms') >= 0 && g.eval('RES.ms') % 200 === 0 && g.eval('fxOpen') === true, '10連');
+  g.eval('fxClose();RES.ms=50'); g.eval('kujiDraw(1)'); ok(g.eval('RES.ms') === 50, '魔石不足で引けた');
+  let cnt = {}; for (let i = 0; i < 2000; i++) { const k = g.eval('kujiRoll().k'); cnt[k] = (cnt[k] || 0) + 1 }
+  ok(cnt.gold > 800 && cnt.gold < 1100 && cnt.wpn > 30 && cnt.wpn < 140, 'くじの確率: ' + JSON.stringify(cnt));
+}
 })().then(() => {
 if (bad) { console.error(bad + ' failure(s)'); process.exit(1) }
 console.log('CONTENT OK');

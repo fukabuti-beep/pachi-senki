@@ -1,3 +1,4 @@
+// パチ戦記による改変: Input System パッケージが無くても動くよう ENABLE_INPUT_SYSTEM の条件に UNITYWEBVIEW_USE_INPUT_SYSTEM を追加
 /*
  * Copyright (C) 2011 Keijiro Takahashi
  * Copyright (C) 2012 GREE, Inc.
@@ -28,7 +29,7 @@ using System.Runtime.InteropServices;
 using UnityEngine.Networking;
 #endif
 #if UNITY_EDITOR || UNITY_STANDALONE
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 #endif
@@ -478,7 +479,7 @@ namespace Gree.UnityWebView
         // this file: without the Input System path a standalone player configured for the
         // new input system gets no keyboard input at all, on any platform.
 #if UNITY_EDITOR || UNITY_STANDALONE
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM
         void OnEnable()
         {
             if (Keyboard.current != null)
@@ -1921,7 +1922,7 @@ namespace Gree.UnityWebView
             if (bg != null) {
                 bg.transform.SetAsLastSibling();
             }
-#if !ENABLE_INPUT_SYSTEM
+#if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
             if (hasFocus) {
                 inputString += Input.inputString;
             }
@@ -2104,7 +2105,7 @@ namespace Gree.UnityWebView
         struct SpecialKey
         {
             public ushort vk;
-#if !ENABLE_INPUT_SYSTEM
+#if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
             public KeyCode key;
             public SpecialKey(KeyCode k, ushort v) { key = k; vk = v; }
 #else
@@ -2113,7 +2114,7 @@ namespace Gree.UnityWebView
 #endif
         }
 
-#if !ENABLE_INPUT_SYSTEM
+#if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
         static readonly SpecialKey[] specialKeys = {
             // The keypad's Enter is sent as a plain VK_RETURN. Windows would mark it
             // extended, but nothing here reads the two apart.
@@ -2158,7 +2159,7 @@ namespace Gree.UnityWebView
         // would otherwise swallow its release and leave Chromium holding the key.
         void SendSpecialKeys(bool focused)
         {
-#if !ENABLE_INPUT_SYSTEM
+#if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
             foreach (var entry in specialKeys)
             {
                 if (focused && Input.GetKeyDown(entry.key))
@@ -2202,7 +2203,7 @@ namespace Gree.UnityWebView
             {
                 bg.transform.SetAsLastSibling();
             }
-#if !ENABLE_INPUT_SYSTEM
+#if !(ENABLE_INPUT_SYSTEM && UNITYWEBVIEW_USE_INPUT_SYSTEM)
             if (hasFocus)
             {
                 inputString += Input.inputString;

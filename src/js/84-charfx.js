@@ -44,7 +44,15 @@ function cutTxtOld(p,ex,t,y0,col){const tx=Math.round(350-(1-ex)*220+(p>.45?Math
   bc.strokeText(cut.txt,tx+3,ty+3);bc.fillStyle=col;bc.fillText(cut.txt,tx+3,ty+3);bc.strokeText(cut.txt,tx,ty);bc.fillStyle='#fff';bc.fillText(cut.txt,tx,ty);
   bc.font='12px '+FN;bc.fillStyle=col;bc.fillText('★ CHANCE ★',tx,y0+24)}
 // カットインのキャラ: 等身イラスト(83b-portrait)。生成できない環境では従来のデフォルメ SPR
-function cutChar(i,x,y,sc){const P=typeof PORT==='function'?PORT(i):null;if(P){bc.drawImage(P,Math.round(x),Math.round(y),Math.round(64*sc),Math.round(72*sc));return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(64*sc),Math.round(64*sc))}
+function cutChar(i,x,y,sc,fx){const P=typeof PORT==='function'?PORT(i):null;if(P){const w=Math.round(64*sc),h=Math.round(72*sc),X=Math.round(x),Y=Math.round(y),col=cut&&cut.c||'#ffd400',t=T;
+  if(fx){// オーラの炎(キャラの後ろ)
+    bc.save();bc.globalAlpha*=.55;for(let k=0;k<9;k++){const ax=X+w*(.1+k*.1),fh=h*(.35+.25*Math.abs(Math.sin(t*9+k*1.7))),ay=Y+h*.55;bc.fillStyle=k%2?col:'#fff';bc.beginPath();bc.moveTo(ax-w*.07,ay);bc.lineTo(ax+Math.sin(t*12+k)*w*.04,ay-fh);bc.lineTo(ax+w*.07,ay);bc.closePath();bc.fill()}bc.restore();
+    // リムライト(色付きシルエットを左右にずらして重ねる)
+    const R=typeof PORTRim==='function'?PORTRim(i,col):null;if(R){const d=Math.max(2,Math.round(sc*1.2));bc.drawImage(R,X-d,Y,w,h);bc.drawImage(R,X+d,Y-d,w,h)}}
+  bc.drawImage(P,X,Y,w,h);
+  if(fx){// 目の光(フレア)
+    const p=cut?t-cut.t0:1,a=p>.22&&p<.62?Math.sin((p-.22)/.4*Math.PI):0;if(a>0){bc.save();bc.globalAlpha*=a;bc.fillStyle='#fff';for(const ex of [27,37]){const fx2=X+ex*sc,fy=Y+31.5*sc,L=sc*9;bc.fillRect(Math.round(fx2-L),Math.round(fy),Math.round(L*2),Math.max(1,Math.round(sc*.6)));bc.fillRect(Math.round(fx2),Math.round(fy-L*.5),Math.max(1,Math.round(sc*.6)),Math.round(L))}bc.restore()}}
+  return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(64*sc),Math.round(64*sc))}
 function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   if(p>.65&&!cut.f){cut.f=1;cut.cb()}
   const open=Math.min(1,p/.1),close=p>D-.12?Math.max(0,(D-p)/.12):1,h=Math.round(88*open*close),y0=76-(h>>1),col=cut.c;
@@ -53,13 +61,13 @@ function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   const e=Math.min(1,p/.22),ex=1-Math.pow(1-e,3);bc.imageSmoothingEnabled=false;
   if(cut.v==1){bc.fillStyle='rgba(255,255,255,.5)';for(let i=0;i<14;i++){const x=360-((t*(520+(i%4)*150)+i*97)%520);bc.fillRect(x,y0+((i*29)%88),60+(i%3)*40,2)}
     for(let i=0;i<3;i++){const q=Math.max(0,Math.min(1,(p-i*.07)/.2)),qe=1-Math.pow(1-q,3),sc=1.6,x=-110+qe*(110+i*60),y=y0+44-31*sc+Math.sin(t*14+i)*1.5;
-      for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);cutChar(i,x-k*16,y,sc)}bc.globalAlpha=1;cutChar(i,x,y,sc)}}
+      for(let k=2;k>=1;k--){bc.globalAlpha=.2*(1-qe);cutChar(i,x-k*16,y,sc)}bc.globalAlpha=1;cutChar(i,x,y,sc,1)}}
   else if(cut.v==2){bc.fillStyle='rgba(255,255,255,.45)';for(let i=0;i<18;i++){const y=((t*(600+(i%3)*200)+i*53)%(88+60))-30+y0;bc.fillRect(8+i*13,y,2,30+(i%4)*10)}
-    const sc=3.6+Math.max(0,.2-p)*3;cutChar(cut.h,-30-(1-ex)*120,y0+44-34*sc,sc);bc.fillStyle='rgba(0,0,0,.22)';bc.fillRect(0,y0,360,h)}
+    const sc=3.6+Math.max(0,.2-p)*3;cutChar(cut.h,-30-(1-ex)*120,y0+44-34*sc,sc,1);bc.fillStyle='rgba(0,0,0,.22)';bc.fillRect(0,y0,360,h)}
   else{bc.fillStyle='rgba(255,255,255,.07)';for(let yy=0;yy<150;yy+=8)for(let xx=((yy/8)%2)*4;xx<360;xx+=8)bc.fillRect(xx,yy,2,2);
     bc.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<14;i++){const x=360-((t*(500+(i%4)*160)+i*97)%520);bc.fillRect(x,y0+((i*29)%88),70+(i%3)*40,2)}
     const sc=2.3,x=8-(1-ex)*190,y=y0+44-31*sc+(p>.22?Math.sin(t*14):0);
-    for(let k=3;k>=1;k--){bc.globalAlpha=.18*(4-k)*(1-ex*.7);cutChar(cut.h,x-k*14*(1-ex),y,sc)}bc.globalAlpha=1;cutChar(cut.h,x,y,sc)}
+    for(let k=3;k>=1;k--){bc.globalAlpha=.18*(4-k)*(1-ex*.7);cutChar(cut.h,x-k*14*(1-ex),y,sc)}bc.globalAlpha=1;cutChar(cut.h,x,y,sc,1)}
   cutTxtOld(p,ex,t,y0,col);bc.restore();
   bc.fillStyle=col;bc.fillRect(0,y0-3,360,3);bc.fillRect(0,y0+h,360,3);
   bc.fillStyle='#fff';for(let i=0;i<24;i++)if((i+Math.floor(t*14))%2==0){bc.fillRect(i*15+4,y0-3,5,3);bc.fillRect(i*15+4,y0+h,5,3)}

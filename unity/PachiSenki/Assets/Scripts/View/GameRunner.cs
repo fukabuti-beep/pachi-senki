@@ -24,10 +24,13 @@ namespace PachiSenki.View
         float saveT;
         GUIStyle stS, stM, stL, stB, stR, stC, stCB, stReel; Texture2D white;
 
+        /// <summary>Web版(WebShell)で起動している時は true。Unity版(作り直し中)は起動しない</summary>
+        public static bool Disabled;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            if (FindObjectOfType<GameRunner>() != null) return;
+            if (Disabled || FindObjectOfType<GameRunner>() != null) return;
             var go = new GameObject("PachiSenki"); DontDestroyOnLoad(go); go.AddComponent<GameRunner>();
         }
 

@@ -1,0 +1,10 @@
+{
+  "name": "PachiSenki.Web",
+  "rootNamespace": "PachiSenki.Web",
+  "references": ["PachiSenki.View", "unity-webview"],
+  "includePlatforms": ["Android", "Editor", "iOS", "macOSStandalone", "WindowsStandalone32", "WindowsStandalone64"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

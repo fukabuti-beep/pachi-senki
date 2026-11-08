@@ -35,6 +35,12 @@ const out = path.join(root, process.env.OUT || 'dist/pachi-senki.html');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, single);
 console.log(`built ${path.relative(root, out)}  (${files.length} js files, ${(single.length / 1024).toFixed(1)} KB)`);
+// Unity 版(Web版をアプリ内の WebView で動かす)にも同じ単一HTMLを置く。Unity 側は StreamingAssets から読み込む
+if (!process.env.OUT && fs.existsSync(path.join(root, 'unity/PachiSenki/Assets'))) {
+  const ua = path.join(root, 'unity/PachiSenki/Assets/StreamingAssets/pachi-senki.html');
+  fs.mkdirSync(path.dirname(ua), { recursive: true }); fs.writeFileSync(ua, single);
+  console.log('built ' + path.relative(root, ua) + '  (Unity 版の WebView 用)');
+}
 // PWA版(dist/pwa/): index.html + manifest + sw.js + icons。静的ホスティング(GitHub Pages/Netlify等)に置けばホーム画面に追加→オフライン起動できる。
 if (!process.env.OUT) {
   const dir = path.join(root, 'dist/pwa'), ver = hash(base);

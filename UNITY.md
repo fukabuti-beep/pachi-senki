@@ -1,6 +1,12 @@
 # Unity 版への移行
 
-Web版(src/ の単一HTML)を正として、Unity 版を段階的に作る。**ゲームロジックは UnityEngine に依存しない純粋な C#** にして、Unity なしでもテストできるようにしている。
+Web版(src/ の単一HTML)を正として、Unity 版を段階的に作る。
+
+**方針(作り手の選択: 両方)**: まず Web版をそのまま Unity アプリの WebView で動かして**完全一致**させ(`Assets/Scripts/Web/WebShell.cs`)、Unity で作り直した方が良くなる部分だけを少しずつ置き換える。
+- HTML は `node tools/build.js` が `Assets/StreamingAssets/pachi-senki.html` に自動で書き出す(Web版を変えたらビルドしてコミット)。
+- WebView は unity-webview(`Packages/net.gree.unity-webview`、埋め込みパッケージ、zlib ライセンス)。iOS/Android はネイティブの WebView、Windows エディタは WebView2(Windows 10/11 標準)で表示。
+- エディタのメニュー「パチ戦記」で「Web版で起動(完全版)」/「Unity版で起動(作り直し中)」を切り替え(EditorPrefs `pachi_mode`)。ビルドしたアプリは常に Web版。
+- 広告/課金は Web版の `window.PachiNative`(97-monet)を WebShell.OnJs 経由で実装する予定。**ゲームロジックは UnityEngine に依存しない純粋な C#** にして、Unity なしでもテストできるようにしている。
 
 ## 構成
 ```

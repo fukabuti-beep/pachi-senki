@@ -35,6 +35,7 @@ npm test                            # build + smoke
 | 20-upgrades.js | 強化項目 `UP`, コスト/ステータス式 (`atk` `mul` `rate` `hitP` `critP`), `buy` | balance |
 | 23-upgrades2.js / 29b-upicons.js | 強化項目の追加(添字10〜13: タップ攻撃/お宝運/ルーレット招待/超倍率)と `UPX.*`。追加分のセーブ読込はここ(00-core は先頭10個のみ) | balance |
 | 25-ui.js | `refresh`(HUD/強化ボタン更新), `flash` `shake` `showMsg` | ui |
+| 29c-menugrp.js / css/39-menugrp.css / css/39-hudtext.css | 三本線メニューのグループ分け: FM のタブを上段=大分類(遊ぶ/集める/育てる/その他)・下段=中のタブの2段に。タブ名の先頭一致で振り分け(`FMGRP`)、知らないタブ(後から FM.push したもの)は「その他」へ自動。最後に開いたタブとグループごとの最後のタブを `localStorage['pachi2_menu']` に。91-meta の fxMenu 先頭に1行フック(`fmgMenu()`、失敗時は従来表示)。39-hudtext は HUD の小さい文字(STAGE/SP/保留/JACKPOT札)を枠の寸法そのままで拡大・高コントラスト化(テスト: tests/menugrp.js) | ui |
 | 30-battle.js | 戦闘ロジック(`spawn` `hurt` `kill` `heroAtk` `cutin` `ult`) | balance |
 | 35-battle-draw.js | 戦闘画面の描画 `drawB` | fx |
 | 40-pachinko.js | 盤面の釘配置・玉の物理・入賞処理 | balance |

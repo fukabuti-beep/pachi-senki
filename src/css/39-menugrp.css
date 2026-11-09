@@ -1,0 +1,24 @@
+/* 三本線メニューのグループ分け(ui, 29c-menugrp.js)。上段=大分類(遊ぶ/集める/育てる/その他)、下段=その中のタブ。
+   34-menu.css / 33-active.css の .fxt(立体タブ)をそのまま使い、2段がつながった「筐体の切替スイッチ」に見せる。 */
+html body #fxm .mgW{margin:2px 0 12px}
+/* 上段: 大分類。色付きLED+件数 */
+html body #fxm .fxt.mgG{grid-template-columns:repeat(4,1fr);margin:0!important;padding:6px 6px 8px;box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px #2a1a6a}
+html body #fxm .fxt.mgG button{font-size:14px!important;letter-spacing:1px!important;padding:6px 2px 6px 10px!important;color:#fff!important}
+html body #fxm .fxt.mgG button::before{content:"";position:absolute;left:6px;top:50%;width:6px;height:6px;margin-top:-3px;background:var(--mgc,#ffd400);
+ box-shadow:0 0 0 1px #000,0 0 6px var(--mgc,#ffd400)}
+html body #fxm .fxt.mgG button small{position:absolute;right:3px;top:2px;font-size:10px;line-height:10px;color:#c8c0ff;letter-spacing:0}
+html body #fxm .fxt.mgG button.on{color:#2a1000!important}
+html body #fxm .fxt.mgG button.on small{color:#6a3a00}
+html body #fxm .fxt.mgG button.on::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-6px;border:6px solid transparent;border-top-color:#e0a800;border-bottom:0}
+/* 下段: 選んだ大分類のタブ。上辺に大分類の色のライン */
+html body #fxm .fxt.mgT{margin:0!important;padding:8px 6px 6px;background:#100838;
+ box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px #2a1a6a,inset 0 4px 0 0 var(--mgc,#ffd400)}
+html body #fxm .fxt.mgT.mgN1{grid-template-columns:1fr}
+html body #fxm .fxt.mgT.mgN2{grid-template-columns:repeat(2,1fr)}
+html body #fxm .fxt.mgT.mgN3{grid-template-columns:repeat(3,1fr)}
+html body #fxm .fxt.mgT.mgN4{grid-template-columns:repeat(4,1fr)}
+html body #fxm .fxt.mgT button{font-size:13px!important}
+@media (max-width:379px){html body #fxm .fxt.mgG button{font-size:13px!important;padding-left:9px!important}html body #fxm .fxt.mgT button{font-size:12px!important}}
+/* 下段の選択中タブは大分類の色(上段の金と区別) */
+html body #fxm .fxt.mgT button.on{background:var(--mgc,#ffd400)!important;color:#140a30!important;
+ box-shadow:inset 2px 2px 0 rgba(255,255,255,.6),inset -2px -2px 0 rgba(0,0,0,.35),0 0 0 2px #000,0 1px 0 2px #000,0 0 12px var(--mgc,#ffd400)!important}

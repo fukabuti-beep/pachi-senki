@@ -64,7 +64,7 @@ const fxQ=[];let fxQt=0;
 function fxToast(t,c){if(fxQ.length<6)fxQ.push([t,c||'#ffd400'])}
 FU.push(dt=>{fxQt-=dt;if(fxQt<=0&&fxQ.length){const q=fxQ.shift();fxQt=2.7;$('fxts').textContent=q[0];$('fxts').style.color=q[1];fxT.className='';void fxT.offsetWidth;fxT.className='on'}});
 /* メニュー: 各機能が FM.push({n:'名前',r:()=>html}) でタブを追加 */
-function fxMenu(){if(!FM.length)return;fxTab=Math.min(fxTab,FM.length-1);
+function fxMenu(){if(!FM.length)return;if(typeof fmgMenu==='function'&&fmgMenu())return;/* 29c: グループ分け表示 */fxTab=Math.min(fxTab,FM.length-1);
   const tabs='<div class="fxt">'+FM.map((m,i)=>'<button class="'+(i==fxTab?'on':'')+'" onclick="fxTab='+i+';fxMenu()">'+m.n+'</button>').join('')+'</div>';
   fxShow(tabs+FM[fxTab].r(),[['閉じる',null,'g']])}
 fxMB.onclick=()=>{if(fxOpen)fxClose();else fxMenu()};

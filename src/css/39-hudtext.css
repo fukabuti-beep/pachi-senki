@@ -1,0 +1,13 @@
+/* HUD の小さすぎた文字(ui)。筐体の枠(#hud 28px / SPゲージ 10px / #q・#pl 14px)の寸法は変えず、
+   文字を大きく・明るく・黒縁で読みやすくする。 */
+/* STAGE: 10px の薄い灰色 → 12px・明るい藤色・黒縁 */
+.plate small{font-size:12px;line-height:12px;color:#d6d9ff;letter-spacing:1px;text-shadow:1px 1px 0 #000,0 0 4px rgba(120,130,255,.6)}
+/* SP: ゲージ(10px)に重なる 9px の白字 → 黒い札に 11px のシアン文字。札はゲージの上に 2px はみ出すだけ */
+#spw i{top:-2px;right:2px;height:12px;padding:0 3px;font-size:11px;line-height:12px;color:#7ff3ff;letter-spacing:1px;
+ background:#000;box-shadow:0 0 0 1px #0b8aa0;text-shadow:none;z-index:1}
+/* 保留: 10px の青紫 → 12px・明るく・黒縁 */
+#q .hl{font-size:12px;line-height:12px;color:#c8ccff;letter-spacing:1px;text-shadow:1px 1px 0 #000}
+/* JACKPOT 札: 9px → 10px */
+#pl:before{font-size:10px;line-height:11px;letter-spacing:1px}
+/* 連チャン/コンボ表示の空欄の点線を少し見えるように */
+#cb:empty:before{color:#4a42a0}

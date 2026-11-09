@@ -20,8 +20,8 @@ const TG=[
 {id:'tap',intro:1,el:'hd',who:2,d:5,tx:'ハンドルや盤面をタップすると玉を追加できるよ(放置でもOK)'},
 {id:'up',intro:1,el:'ubt',who:1,d:8,tx:'ゴールドがたまったら「強化」! 攻撃力や当たりやすさを上げられるわ',c:()=>G.gold>=tutMinCost()||TUT.age>50,done:tutSheet},
 {id:'rush',intro:1,el:'bw',who:0,d:5,tx:'大当たりで RUSH に突入! 約10秒、攻撃も玉も増える大チャンスだ!',c:()=>X.st.hit>=1},
-{id:'sp',el:'spw',who:1,d:5,tx:'SPゲージが満タンになると、必殺技が自動で出るわ',c:()=>G.sp>=60},
-{id:'boss',el:'bw',who:0,d:5,tx:'ボスだ! 倒すとミニゲームや遺物(お宝)が出ることがあるぞ',c:()=>isBoss()},
+{id:'sp',basic:1,el:'spw',who:1,d:5,tx:'SPゲージが満タンになると、必殺技が自動で出るわ',c:()=>G.sp>=60},
+{id:'boss',basic:1,el:'bw',who:0,d:5,tx:'ボスだ! 倒すとミニゲームや遺物(お宝)が出ることがあるぞ',c:()=>isBoss()},
 {id:'menu',el:'fxmb',who:2,d:6,tx:'☰ メニューには ミッション・図鑑・遺物・仲間 などがあるよ',c:()=>X.best>=6},
 {id:'exp',el:'fxmb',who:2,d:6,tx:'☰ の「遠征」で仲間を送り出すと、時間がたってからお宝を持ち帰るよ',c:()=>X.best>=10},
 {id:'smith',el:'ubt',who:0,d:6,tx:'強化画面の「鍛冶屋」で、魔石を使って武器を鍛えられるぞ',c:()=>X.best>=15},
@@ -29,7 +29,7 @@ const TG=[
 {id:'altar',el:'ubt',who:1,d:7,tx:'魂は強化画面の「魂の祭壇」で、開始ステージなどの永続強化に使えるわ',c:()=>X.pres>=1}];
 const TUT={cur:null,el:null,ring:null,age:0,gap:1.5,hold:0};
 /* 旧セーブ: 序盤ガイドを出さない + 今の時点で条件を満たしている新機能ガイドも既読 */
-if(TS.old&&TS_NEW){TG.forEach(g=>{try{if(g.intro||(g.c&&g.c()))TS.g[g.id]=1}catch(e){}});tsSave()}
+if(TS.old&&TS_NEW){TG.forEach(g=>{try{if(g.intro||g.basic||(g.c&&g.c()))TS.g[g.id]=1}catch(e){}});tsSave()}
 const tutDisp=id=>{try{const e=$(id);return !!(e&&e.style&&e.style.display==='flex')}catch(e){return false}};
 function tutBusy(){try{
   if(!run)return true;if(typeof fxOpen!=='undefined'&&fxOpen)return true;

@@ -73,11 +73,11 @@ function styBusy(){try{
 '#sty .sbT{font-size:14px;line-height:1.45;color:#fff;text-shadow:1px 1px 0 #000;min-height:20px;word-break:break-all}#sty.nar .sbT{color:#ffe9a0;font-size:14px}'+
 '#sty .sbX{position:absolute;right:4px;top:3px;font:inherit;font-size:10px;color:#cfd3ff;background:#1b1348;border:2px solid #4a3aa8;padding:1px 6px;line-height:14px}'+
 '#sty .sbP{position:absolute;right:8px;bottom:4px;font-size:10px;color:#ffd400;opacity:.85}'+
-'#sty .sbH{position:absolute;left:10px;top:-14px;font-size:10px;color:#ffd400;background:#000;padding:0 6px;letter-spacing:1px;line-height:14px}'+
+'#sty .sbH{position:absolute;right:10px;top:-14px;font-size:10px;color:#ffd400;background:#000;padding:0 6px;letter-spacing:1px;line-height:14px}'+
 '@keyframes styIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}'+
 '@media (prefers-reduced-motion:reduce){#sty .sb{animation:none}}'+
 '.styL{text-align:left;font-size:12px;line-height:1.5}.styL .r{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 2px;border-bottom:1px dotted #4a3aa8}'+
-'.styL .r b{color:#ffd400;font-weight:normal}.styL .r.no{opacity:.5}.styL .r button{font:inherit;font-size:11px;background:#1b1348;color:#fff;border:2px solid #4a3aa8;padding:3px 8px}'+
+'.styL .styR b{color:#ffd400;font-weight:normal}.styL .styR.no{opacity:.5}.styL .styR button{font:inherit;font-size:11px;background:#1b1348;color:#fff;border:2px solid #4a3aa8;padding:3px 8px}'+
 '.styL .tx{padding:4px 6px 8px;background:#0b0a24;border-bottom:1px dotted #4a3aa8}.styL .tx p{margin:3px 0}.styL .tx i{font-style:normal;margin-right:4px}';
 (document.head||document.body).appendChild(s)}catch(e){}})();
 function styEl(){if(STY.el)return STY.el;const e=document.createElement('div');e.id='sty';
@@ -137,7 +137,7 @@ function styReplay(id){const sc=scnOf(id);if(!sc||!TS.s[id])return;try{fxClose()
 function styMenu(){const n=SCN.filter(s=>TS.s[s.id]).length;
   const who=w=>w===9?'<i style="color:#ffe9a0">――</i>':w===8?'<i style="color:#ff6a8a">敵</i>':'<i style="color:'+STH[w].c+'">'+STH[w].n+'</i>';
   return '<div class="fxh">物語 '+n+'/'+SCN.length+'</div><div class="fxs">剣士ホムラ・魔法使いシズク・弓使いコハクの3人が、世界の運を吸い込む虚無の王ニヒラを目指す旅。見た場面をここで読み返せます。</div><div class="styL">'+
-  SCN.map(s=>{const ok=!!TS.s[s.id];if(!ok)return '<div class="r no"><span>??? <small>('+s.h+')</small></span></div>';
-    const op=STY.view===s.id;return '<div class="r"><span><b>'+s.t+'</b> <small style="opacity:.7">'+s.h+'</small></span><span><button type="button" onclick="styView(\''+s.id+'\')">'+(op?'とじる':'読む')+'</button> <button type="button" onclick="styReplay(\''+s.id+'\')">再生</button></span></div>'+
+  SCN.map(s=>{const ok=!!TS.s[s.id];if(!ok)return '<div class="styR no"><span>??? <small>('+s.h+')</small></span></div>';
+    const op=STY.view===s.id;return '<div class="styR"><span><b>'+s.t+'</b> <small style="opacity:.7">'+s.h+'</small></span><span><button type="button" onclick="styView(\''+s.id+'\')">'+(op?'とじる':'読む')+'</button> <button type="button" onclick="styReplay(\''+s.id+'\')">再生</button></span></div>'+
       (op?'<div class="tx">'+s.L.map(l=>'<p>'+(l[0]===8?'<i style="color:#ff6a8a">'+(s.en||STA(s.ei))+'</i>':who(l[0]))+l[1]+'</p>').join('')+'</div>':'')}).join('')+'</div>'}
 FM.push({n:'物語',r:styMenu});

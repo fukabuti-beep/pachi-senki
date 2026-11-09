@@ -68,14 +68,14 @@ const ptMark=a=>a===2?'<b class="pta2">◎</b>':a===1?'<b class="pta1">○</b>':
 /* 帰還モーダルに差し込む: 仲間のお土産と Lv アップ */
 function ptHtml(r){if(!r||!r.pt||!r.pt.length)return '';
   return '<div class="ptgift">'+r.pt.map((p,k)=>{const m=ptM(p.id);return '<div class="ptg" style="--d:'+(k*.25)+'s">'+ptImg(p.id,'ptim ptjump')+
-    '<div><span style="color:'+m.c+'">'+m.n+'</span> Lv'+p.lv+(p.up?' <b class="ptup">Lv UP!</b>':'')+'<br><small>経験 +'+p.xp+'</small>'+
+    '<div><span style="color:'+m.c+'">'+m.n+'</span> Lv'+p.lv+(p.up?' <b class="ptup">Lv UP!</b>':'')+'<br><small>'+resIcon('exp')+'経験値 +'+p.xp+'</small>'+
     (p.gift?'<br><span class="ptgv">お土産: '+(p.gift.k==='gem'?'<b style="color:#7ff3ff">宝石 +'+p.gift.v+'</b>':'<b style="color:#c8a0ff">魔石 +'+fmt(p.gift.v)+'</b>')+'</span>':'')+'</div></div>'}).join('')+
     '</div>'+(r.pm>1?'<div class="fxs">遠征隊ボーナス 報酬 x'+r.pm.toFixed(2)+'</div>':'')}
 /* 遠征タブの編成パネル */
 function ptMenu(){const av=PTM.filter(ptOn),busy=EXP.d>=0,ids=busy?PTY.go:PTY.sel;
   let h='<div class="ptbox"><div class="ptttl">遠征隊の編成 <small>'+ids.length+'/'+PTMAX+'人</small></div>';
   if(!av.length)return h+'<div class="fxs">STAGE '+PTM[0].st+' で仲間が加入すると 連れて行ける</div></div>';
-  h+='<div class="fxs">'+(busy?'遠征中の仲間は 帰還まで編成を変えられない':'仲間を選んで出発すると 相性で報酬と大成功率が上がる')+'</div><div class="ptrow">';
+  h+='<div class="fxs">'+(busy?'遠征中の仲間は 帰還まで編成を変えられない':'仲間を連れて行くと 相性で報酬と大成功率がアップ')+'</div><div class="ptrow">';
   h+=PTM.map(m=>{if(!ptOn(m))return '<div class="ptc no"><i class="ptim ptnim"></i><span>???</span><small>STAGE '+m.st+'</small></div>';
     const on=ids.indexOf(m.id)>=0,lv=PTY.lv[m.id],need=ptNeed(lv),pc=lv>=PTLV?100:Math.round(100*PTY.xp[m.id]/need);
     return '<button type="button" class="ptc'+(on?' on':'')+(busy?' lk':'')+'" onclick="ptToggle(\''+m.id+'\')">'+ptImg(m.id)+'<span>'+m.n+'</span><small>Lv'+lv+(lv>=PTLV?' MAX':'')+'</small><i class="ptxp"><i style="width:'+pc+'%"></i></i>'+(on?'<em>'+(busy?'遠征中':'同行')+'</em>':'')+'</button>'}).join('');

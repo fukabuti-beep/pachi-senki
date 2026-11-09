@@ -10,7 +10,7 @@
 const BTK=[
  {id:'gold',n:'黄金タイム',d:'ゴールド x2',c:'#ffd400'},
  {id:'ms',n:'魔石フィーバー',d:'魔石 x3',c:'#c8a0ff'},
- {id:'atk',n:'討伐タイム',d:'ダメージ x2',c:'#ff5a5a'}];
+ {id:'atk',n:'討伐タイム',d:'攻撃 x2',c:'#ff5a5a'}];
 const BT={left:240,cur:null,pre:0,n:0,dur:40,sv:0};
 try{const j=JSON.parse(localStorage.getItem('pachi2_bt')||'null');if(j&&typeof j=='object'){const l=+j.left,k=Math.floor(+j.k),r=+j.rem,n=Math.floor(+j.n);
   if(Number.isFinite(l)&&l>=0)BT.left=Math.min(l,600);if(Number.isFinite(n)&&n>0)BT.n=Math.min(n,1e9);
@@ -44,7 +44,7 @@ function btDraw(t){const C=BT.cur;if(!C)return;const K=BTK[C.k],p=Math.max(0,C.r
   bc.textAlign='center';if(typeof thickTxt==='function')thickTxt(bc,K.n+' '+Math.ceil(C.rem)+'s',x+w/2,y+12,10,K.c);bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{btDraw(t)}catch(e){}return r}}
 function btMenu(){const C=BT.cur,g=btGolden();
-  return '<div class="fxh">ボーナスタイム</div><div class="fxs">遊んでいると数分ごとに40秒間のボーナスタイムが来る。<br>毎日 12時台・20〜21時台はゴールデンタイム(発生2倍)。</div>'+
+  return '<div class="fxh">ボーナスタイム</div><div class="fxs">遊んでいると 数分ごとに 40秒のボーナスタイム<br>毎日 12時台・20〜21時台は ゴールデンタイム(発生 x2)</div>'+
    (C?'<div class="fxn" style="font-size:20px;color:'+BTK[C.k].c+'">'+BTK[C.k].n+' 残り'+Math.ceil(C.rem)+'秒</div>':'<div class="fxn" style="font-size:20px">次まで 約'+Math.max(1,Math.ceil(BT.left/60))+'分</div>')+
    (g?'<div class="fxp btgold">ただいま ゴールデンタイム!!</div>':'')+
    '<div class="fxl">'+BTK.map((K,i)=>'<div class="ok"><span style="color:'+K.c+'">'+K.n+'</span><span>'+K.d+'</span></div>').join('')+

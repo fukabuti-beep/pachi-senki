@@ -42,5 +42,5 @@ function altNavHtml(){
    row(resIcon('ms'),'鍛冶屋','魔石・宝石で 武器と護符<br>'+resAmt('ms',fmt(ms))+' '+resAmt('gem',fmt(gem)),gi('鍛冶屋'))+
    row(resIcon('soul'),'魂の祭壇','転生して魂を集め、ずっと強化<br>'+resAmt('soul',fmt(X.souls))+(can?' <span class="altok">転生できる!</span>':' STAGE '+PRES_MIN+' から転生'),gi('魂の祭壇'))+'</div>'}
 /* 転生の確認で「やめる」→ 元の画面(祭壇)に戻る(以前はメニューを開き直していた)。転生したら祭壇を描き直す */
-{const o=presAsk;presAsk=function(){const r=o.apply(this,arguments);try{if(typeof FB!=='undefined'&&FB[1]&&FB[1][0]==='やめる')FB[1][1]=null}catch(e){}return r}}
+{const o=presAsk;presAsk=function(){const r=o.apply(this,arguments);try{if(typeof FB!=='undefined'&&FB[1]&&FB[1][0]==='やめる')FB[1][1]=()=>{fxClose();try{grpRefresh()}catch(e){}}}catch(e){}return r}}
 {const o=presDo;presDo=function(){const r=o.apply(this,arguments);try{grpRefresh()}catch(e){}return r}}

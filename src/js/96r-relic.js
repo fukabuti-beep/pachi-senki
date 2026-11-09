@@ -43,5 +43,5 @@ function relicDraw(t){const S=RDR.show;if(!S)return;const p=t-S.t0,a=Math.min(1,
   thickTxt(bc,'遺物 '+relicCount()+'/'+RLD.length,135,120,10,'#9aa0c8');bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{relicDraw(t)}catch(e){RDR.show=null}return r}}
 // メニュー
-FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すとドロップ(初回確定・以降'+Math.round((typeof relicDropP==='function'?relicDropP():.35)*100)+'%)。同じ遺物は Lv アップ(最大'+RLMAX+')。転生しても残る。</div><div class="fxl">'+
+FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すと手に入る(初回は必ず・以降 '+Math.round((typeof relicDropP==='function'?relicDropP():.35)*100)+'%)<br>同じ遺物で Lv アップ(最大 '+RLMAX+')。転生しても残る</div><div class="fxl">'+
   RLD.map(r=>{const lv=RLV[r.id]||0;return '<div class="'+(lv?'ok':'no')+'"><span>'+(lv?'<b style="color:'+r.c+'">['+r.ch+']</b> '+r.n:'??? ')+'</span><span>'+(lv?r.d+' Lv'+lv+(lv>=RLMAX?' MAX':''):'未発見')+'</span></div>'}).join('')+'</div>'});

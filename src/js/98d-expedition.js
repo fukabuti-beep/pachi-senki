@@ -40,9 +40,9 @@ function expClaim(){if(!expDone())return null;const i=EXP.d,D=EXD[i];
   expBadge();return r}
 function expCollect(){const r=expClaim();if(!r){if(fxOpen)fxMenu();return}const D=EXD[r.i];
   fxShow('<div class="fxh">遠征隊が帰還!</div><div class="fxs">'+D.n+' から戻ってきた</div>'+(r.big?'<div class="fxh exbig">大成功!! 報酬2倍</div>':'')+
-   '<div class="fxl"><div class="ok"><span>魔石</span><span style="color:#c8a0ff">+'+fmt(r.ms)+'</span></div>'+
-   (r.gem?'<div class="ok"><span>宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
-   (r.relic?'<div class="ok"><span>遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
+   '<div class="fxl"><div class="ok"><span class="nob">'+resIcon('ms')+'魔石</span><span style="color:#c8a0ff">+'+fmt(r.ms)+'</span></div>'+
+   (r.gem?'<div class="ok"><span class="nob">'+resIcon('gem')+'宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
+   (r.relic?'<div class="ok"><span class="nob">'+resIcon('relic')+'遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
    '</div>'+(typeof ptHtml==='function'?ptHtml(r):'')+'<div class="fxs" style="margin-top:6px">遠征 累計 '+EXP.n+'回(大成功 '+EXP.big+'回)</div>',[['もう一度 出発!',()=>{expGo(r.i);fxMenu()}],['閉じる',null,'g']]);
   try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();seExp(r.big?'big':'back');if(r.big){shake();flash('#ffd400')}}catch(e){}}
 /* メニューボタンの「!」 */
@@ -53,14 +53,14 @@ FU.push(dt=>{expTk+=dt;if(expTk<1)return;expTk=0;
   if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');seExp('ret');}
   if(fxOpen&&EXP.d>=0){const e=$('exrem');if(e){const l=expLeft();if(l<=0)fxMenu();else{e.textContent=expFmt(l);const b=$('exbar');if(b)b.style.width=Math.round(100*(1-l/EXD[EXP.d].sec))+'%'}}}});
 try{if(document.addEventListener)document.addEventListener('visibilitychange',()=>{if(!document.hidden){EXP.ntf=0;expTk=1}})}catch(e){}
-function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">遠征隊は アプリを閉じていても時間で帰ってくる。<br>英雄は戦い続けるので放置の損は無し。転生しても残る。</div>';
+function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">送り出すと 時間で帰ってくる(アプリを閉じていてもOK)<br>英雄はそのまま戦うので損なし。転生しても残る</div>';
   if(EXP.d>=0){const D=EXD[EXP.d],l=expLeft();
-    h+='<div class="exbox"><div class="fxp" style="color:'+D.c+'">'+D.n+'</div>'+(l>0?'<div class="fxn" id="exrem">'+expFmt(l)+'</div><div class="exgauge"><i id="exbar" style="width:'+Math.round(100*(1-l/D.sec))+'%"></i></div><div class="fxs">報酬は受け取る時の最高到達ステージで決まる</div><div><button class="fxb g" onclick="expCancel()">呼び戻す(報酬なし)</button></div>':
+    h+='<div class="exbox"><div class="fxp" style="color:'+D.c+'">'+D.n+'</div>'+(l>0?'<div class="fxn" id="exrem">'+expFmt(l)+'</div><div class="exgauge"><i id="exbar" style="width:'+Math.round(100*(1-l/D.sec))+'%"></i></div><div class="fxs">報酬は 受け取る時の最高 STAGE で決まる</div><div><button class="fxb g" onclick="expCancel()">呼び戻す(報酬なし)</button></div>':
      '<div class="fxn">帰還!!</div><div><button class="fxb exgo" onclick="expCollect()">受け取る!</button></div>')+'</div>'}
   if(typeof ptMenu==='function')h+=ptMenu();/* 98g: 遠征隊の編成 */
-  h+='<div class="fxl exl">'+EXD.map((D,i)=>{const op=expOpen(i),busy=EXP.d>=0;return '<div class="'+(op?'ok':'no')+'"><span>'+(op?D.n:'??? ')+'<br><small>'+(op?Math.round(D.sec/3600*10)/10+'時間 / 魔石 '+fmt(expMs(i))+(D.gp>=1?' 宝石 '+D.g[0]+'〜'+D.g[1]:' 宝石 '+Math.round(D.gp*100)+'%')+(D.rp?' 遺物 '+Math.round(D.rp*100)+'%'+(D.lo?'(未発見優先)':''):'')+(typeof ptAffTag==='function'?ptAffTag(i):''):'最高 STAGE '+D.st+' で解放')+'</small></span><span>'+
+  h+='<div class="fxl exl">'+EXD.map((D,i)=>{const op=expOpen(i),busy=EXP.d>=0;return '<div class="'+(op?'ok':'no')+'"><span>'+(op?D.n:'??? ')+'<br><small>'+(op?Math.round(D.sec/3600*10)/10+'時間 / '+resIcon('ms')+fmt(expMs(i))+(D.gp>=1?' '+resIcon('gem')+D.g[0]+'〜'+D.g[1]:' '+resIcon('gem')+Math.round(D.gp*100)+'%')+(D.rp?' '+resIcon('relic')+Math.round(D.rp*100)+'%'+(D.lo?'(未発見優先)':''):'')+(typeof ptAffTag==='function'?ptAffTag(i):''):'最高 STAGE '+D.st+' で解放')+'</small></span><span>'+
     (op?'<button class="fxb'+(busy?' d':'')+'" style="margin:0;padding:4px 8px" onclick="expGo('+i+')">出発</button>':'')+'</span></div>'}).join('')+'</div>'+
-   '<div class="fxs" style="margin-top:6px">15%で大成功(報酬2倍。仲間の相性で上がる)。累計 '+EXP.n+'回 / 大成功 '+EXP.big+'回</div>';return h}
+   '<div class="fxs" style="margin-top:6px">15% で大成功(報酬 x2。仲間の相性でアップ)<br>累計 '+EXP.n+'回 / 大成功 '+EXP.big+'回</div>';return h}
 FM.push({n:'遠征',r:expMenu});
 if(typeof AC_!=='undefined'){AC_.push(['ex1','はじめての遠征','遠征から帰還',1,()=>EXP.n>=1,[()=>EXP.n,1]]);AC_.push(['ex20','遠征の達人','遠征20回',3,()=>EXP.n>=20,[()=>EXP.n,20]])}
 expBadge();

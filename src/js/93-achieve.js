@@ -34,4 +34,4 @@ FU.push(dt=>{
   if(cmb>X.st.cmb)X.st.cmb=cmb;if(G.combo>X.st.rc)X.st.rc=G.combo;
   if(RL&&RL.ph==1&&RL.m==50&&!RL.cnt){RL.cnt=1;X.st.r50++}
   achT-=dt;if(achT<=0){achT=.5;achCheck()}});
-FM.push({n:'実績',r:()=>{const d=AC_.filter(a=>X.ach[a[0]]).length;return '<div class="fxh">実績 '+d+'/'+AC_.length+'</div><div class="fxl">'+AC_.map(a=>{const e=!!X.ach[a[0]],p=a[5];return '<div class="'+(e?'ok':'no')+'"><span class="nob">'+(e?'★ ':'◆ ')+a[1]+'<br><small>'+a[2]+(e?'':' ('+Math.min(p[0](),p[1])+'/'+p[1]+')')+'</small></span><span>G'+fmt(achReward(a[3]))+'</span></div>'}).join('')+'</div>'}});
+FM.push({n:'実績',r:()=>{const d=AC_.filter(a=>X.ach[a[0]]).length;return '<div class="fxh">実績 '+d+'/'+AC_.length+'</div><div class="fxl">'+AC_.map(a=>{const e=!!X.ach[a[0]],p=a[5];return '<div class="'+(e?'ok':'no')+'"><span class="nob">'+(e?'★ ':'◆ ')+a[1]+'<br><small>'+a[2]+(e?'':' ('+Math.min(p[0](),p[1])+'/'+p[1]+')')+'</small></span><span>'+resAmt('gold',fmt(achReward(a[3])))+'</span></div>'}).join('')+'</div>'}});

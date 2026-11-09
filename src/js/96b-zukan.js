@@ -15,5 +15,5 @@ const zkBonus=()=>.01*zkStars();
     if(s1>s0){fxToast('図鑑 '+ZKN[key]+' '+'★'.repeat(s1)+'  ダメージ+1%','#ffd400');try{if(sOK()){const t=sNow();[1047,1319,1568].forEach((f,i)=>tone(f,t+i*.07,.1,'square',.03))}}catch(e){}zkSave()}
     else if(ZKD>=10){ZKD=0;zkSave()}}}catch(e){}return r}}
 addEventListener('pagehide',()=>{try{zkSave()}catch(e){}});
-FM.push({n:'図鑑',r:()=>{const found=ZKK.filter(k=>ZK[k]).length;return '<div class="fxh">モンスター図鑑 '+found+'/'+ZKK.length+'</div><div class="fxs">倒した数で★が増える(雑魚 10/100/1000体・ボス 1/10/50体)。★1つでダメージ+1%(今 +'+Math.round(zkBonus()*100)+'%)。転生しても残る。</div><div class="fxl">'+
+FM.push({n:'図鑑',r:()=>{const found=ZKK.filter(k=>ZK[k]).length;return '<div class="fxh">モンスター図鑑 '+found+'/'+ZKK.length+'</div><div class="fxs">倒した数で★が増える(雑魚 10/100/1000体・ボス 1/10/50体)<br>★1つで 攻撃 +1%(今 +'+Math.round(zkBonus()*100)+'%)。転生しても残る</div><div class="fxl">'+
   ZKK.map(k=>{const n=ZK[k]||0,s=zkStar(k),th=ZKT[k[0]],nx=s<3?th[s]:0;return '<div class="'+(n?'ok':'no')+'"><span>'+(n?ZKN[k]:'???')+(k[0]=='b'?' <small>BOSS</small>':'')+'</span><span>'+(n?'<b style="color:#ffd400">'+'★'.repeat(s)+'</b>'+'☆'.repeat(3-s)+' '+fmt(n)+'体'+(nx?' (次 '+fmt(nx)+')':''):'未発見')+'</span></div>'}).join('')+'</div>'}});

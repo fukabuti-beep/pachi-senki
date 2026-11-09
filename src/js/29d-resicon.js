@@ -14,7 +14,7 @@ const M={
 gold:['....kkkk....','..kkyyyykk..','.kywwyyyyyk.','.kwyyYYYyYk.','kywyYyyyYyYk','kywyYyyyyyYk','kyyyYyyYYyYk','kyyyYyyyYyYk','.kyyyYYYyYk.','.kYyyyyyYYk.','..kkYYYYkk..','....kkkk....'],
 ms:['.....kk.....','....kllk....','...klwvVk...','..klwvvVVk..','.klwvvvVVVk.','.klvvvvVVVk.','.kvvvvvVVVk.','.kvvvvVVVVk.','..kvvvVVVk..','...kvvVVk...','....kvVk....','.....kk.....'],
 gem:['............','...kkkkkk...','..kwwcccCk..','.kwccwccCCk.','kwcccwcccCCk','kkkkkkkkkkkk','.kcwcccccCk.','..kcwcccCk..','...kcwcCk...','....kcCk....','.....kk.....','............'],
-soul:['......k.....','.....klk....','.....klvk...','....klvvk...','...klwvvVk..','..klwwvvVVk.','.klwwvvvvVk.','.klwkvvkvVk.','.klvvvvvVVk.','..kvvvvVVk..','...kVVVVk...','....kkkk....'],
+soul:['......k.....','.....kwk....','.....kwlk...','....kwllk...','...kwwllvk..','..kwwwllvvk.','.kwwlllllvk.','.kwlkllklvk.','.kwllllllvk.','..kllllvvk..','...kvvvvk...','....kkkk....'],
 relic:['....kkkk....','...kO..Ok...','....kOOk....','..kkkkkkkk..','.koooooooOk.','kowoorroooOk','kooorwrrooOk','kooorrrrooOk','koooorroooOk','.koooooooOk.','..kOOOOOOk..','...kkkkkk...'],
 exp:mir(['.....k','....kg','....kw','kkkkkw','.kgggg','..kggg','...kgg','...kgg','..kggg','..kgkk','.kk...','......'])};
 const AL={g:'gold',G:'gold','ゴールド':'gold','魔石':'ms','宝石':'gem','魂':'soul','遺物':'relic','経験値':'exp',xp:'exp'};

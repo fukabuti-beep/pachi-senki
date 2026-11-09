@@ -723,6 +723,59 @@ html body #fxm .exl .fxb{white-space:nowrap}
    (押さなくても当否は変わらない演出ボタン)。:has 非対応の古いブラウザでは従来どおり。 */
 body:has(#app.upo) #gkcb{display:none!important}
 
+/* 41-altar.css */
+/* 魂の祭壇(転生を統合、98i-altar)と メニュー「育成」タブ。筐体デザイン(金ベゼル/液晶/立体ボタン)に合わせる */
+#upx .alt .fxh{margin-bottom:4px}
+.altflow{display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 8px}
+.altflow span{flex:1;max-width:150px;font-size:12px;line-height:1.35;padding:4px 2px;white-space:nowrap;color:#a8a0e0;background:#140a3c;box-shadow:inset 0 0 0 2px #3a2a8a,0 2px 0 #000}
+.altflow span.on{color:#fff;box-shadow:inset 0 0 0 2px #c8b8ff,0 2px 0 #000,0 0 8px rgba(200,184,255,.5)}
+.altflow b{color:#ffd400;font-size:16px;font-weight:400}
+.altflow i,.altt i{display:inline-block;font-style:normal;width:16px;height:16px;line-height:16px;margin-right:4px;background:#ffd400;color:#2a1000;box-shadow:0 0 0 2px #000;font-size:12px;text-align:center}
+.altsoul{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 6px;padding:6px 10px;background:#0a0a1e;box-shadow:inset 0 0 0 2px #000,0 0 0 2px #4a3a8a,0 0 0 4px #000}
+.altsoul span{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.altsoul small{font-size:11px;color:#a8a0e0}
+.altsoul b{font-size:26px;font-weight:400;color:#e6dcff;text-shadow:0 0 8px rgba(200,184,255,.8),2px 2px 0 #000}
+.altsoul b.fr{color:#9bff6b;text-shadow:0 0 8px rgba(155,255,107,.7),2px 2px 0 #000}
+.altsoul .altfx{font-size:13px;color:#ffd400;line-height:1.35;align-items:flex-start;padding-left:8px;border-left:2px dotted #4a3a8a;text-shadow:2px 2px 0 #000}
+.altc{margin:8px 0 2px;padding:8px 8px 10px;background:linear-gradient(#1e1258,#110838);box-shadow:inset 0 0 0 2px #6a5ad0,0 0 0 2px #000,0 3px 0 2px #000;text-align:center}
+.altt{font-size:15px;color:#ffe9a0;text-align:left;margin-bottom:4px;text-shadow:2px 2px 0 #000}
+.altgain{display:flex;flex-direction:column;align-items:center;gap:2px;margin:4px 0}
+.altgain small{font-size:12px;color:#c8c0ff}
+.altgain .altn{font-size:28px;font-weight:400;line-height:1.1;text-shadow:0 0 10px rgba(200,184,255,.8),2px 2px 0 #000}
+.altgain b.altn{font-size:20px;color:#ffb0c8}
+.altgain .altn .ri{width:26px;height:26px;vertical-align:-4px}
+#upx .altgo{font-size:16px;padding:8px 26px}
+.altkeep{margin-top:8px;font-size:12px;line-height:1.6;color:#c8c0ff;text-align:left}
+.altkeep .rs,.altkeep .kp{display:inline-block;font-size:11px;padding:0 4px;margin-right:4px;box-shadow:0 0 0 1px #000;color:#2a1000}
+.altkeep .rs{background:#ffb0c8}.altkeep .kp{background:#7dffa6}
+.altlv{font-style:normal;font-size:11px;color:#9ad8ff}
+#upx .alt .fxl .fxb{margin:0;padding:5px 9px;min-width:54px}
+.altmx{font-weight:400;color:#ffd400}
+/* メニュー「育成」 */
+html body #fxm .fxl>div.altnav{align-items:center}
+html body #fxm .fxl>div.altnav b{font-weight:400;font-size:15px;color:#ffe9a0}
+html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
+.altok{color:#7dffa6}
+
+/* 41-resicon.css */
+/* リソースのドット絵アイコン(29d-resicon の resIcon/resAmt)。背景画像は 29d が <style id="resicon"> で入れる */
+.ri{display:inline-block;width:1.1em;height:1.1em;min-width:12px;min-height:12px;background:no-repeat center/contain;vertical-align:-.2em;margin-right:.2em;image-rendering:pixelated;flex:none;font-style:normal;filter:drop-shadow(1px 1px 0 #000)}
+.ri.big{width:36px;height:36px;margin:0}
+.ra{white-space:nowrap;display:inline-block}
+.ra-gold{color:#ffd400}.ra-ms{color:#d2b0ff}.ra-gem{color:#7ff3ff}.ra-soul{color:#d8ccff}.ra-relic{color:#ffb060}.ra-exp{color:#8dff7a}
+.fxb .ri{margin-right:.15em}
+/* HUD のゴールド: CSS の丸 → ドットの金貨 */
+#hud .coin.ri{width:16px;height:16px;min-width:16px;border:0;border-radius:0;box-shadow:none;background-color:transparent;margin:0 2px 0 0}
+/* 強化シートの価格: 「G 1,234」→ 金貨アイコン + 数字 */
+#up em::before{content:"";display:inline-block;width:13px;height:13px;margin-right:4px;vertical-align:-1px;background:no-repeat center/contain;image-rendering:pixelated;filter:drop-shadow(1px 1px 0 #000)}
+#up button.mx em::before{display:none}
+/* 説明文を読みやすく(強化ボタンの説明・メニュー/強化シートの小さい文字) */
+#up span{font-size:12px;opacity:1;color:#d8d0ff}
+#up span .lv{color:#9ad8ff}
+html body #fxm .fxs,#upx .fxs{font-size:13px}
+html body #fxm .fxl small,#upx .fxl small{font-size:12px;color:#c0b8f0}
+html body #fxm .fxl,#upx .fxl{font-size:13px}
+
 </style></head><body>
 <div id="sa"></div>
 <div id="rot" aria-hidden="true">縦向きで遊ぶと大きく見やすくなります</div>
@@ -739,7 +792,7 @@ body:has(#app.upo) #gkcb{display:none!important}
 <button id="mu" class="bv sq" type="button" aria-label="BGM"><canvas id="mui" width="10" height="10"></canvas></button>
 <button id="hd" type="button" aria-label="ハンドル(タップで玉を発射)"><canvas id="hdc" width="28" height="28"></canvas></button>
 </div>
-<div id="sheet"><div class="sh"><b>UPGRADE</b><small id="shn"></small><button id="shx" class="bv" type="button">閉じる</button></div><div id="up"></div><div class="hint">盤面orハンドルをタップで玉を追加 / SP MAXで必殺技が自動発動</div></div>
+<div id="sheet"><div class="sh"><b>UPGRADE</b><small id="shn"></small><button id="shx" class="bv" type="button">閉じる</button></div><div id="up"></div><div class="hint">盤面かハンドルをタップで玉を追加 / SP が MAX で必殺技</div></div>
 </div></div></div>
 <div id="rl"><div class="rb"><div id="rt">ROULETTE CHANCE</div><canvas id="w" width="240" height="240"></canvas><div id="rr"></div></div></div>
 <div id="push"><div class="sun"></div><div id="pkT">押せ!!</div><div id="pkB"><canvas id="pkC0" width="55" height="55"></canvas><canvas id="pkC1" width="55" height="55"></canvas><i>PUSH</i></div><div class="pkbar"><b></b></div><div class="pksub">TAP!</div></div>
@@ -748,10 +801,10 @@ body:has(#app.upo) #gkcb{display:none!important}
 <div class="row"><span>BGM</span><input type="range" id="cfgBgm" min="0" max="100" step="5" value="70"><b id="cfgBgmV">70</b></div>
 <div class="row"><span>SE</span><input type="range" id="cfgSe" min="0" max="100" step="5" value="70"><b id="cfgSeV">70</b></div>
 <div class="row"><span>フラッシュ</span><div class="seg"><button id="cfgF2" class="bv" type="button">強</button><button id="cfgF1" class="bv" type="button">弱</button><button id="cfgF0" class="bv" type="button">OFF</button></div></div>
-<div class="note">強=演出どおり / 弱=薄く・間引き / OFF=出さない。点滅が苦手な方は弱かOFFをおすすめします。</div>
+<div class="note">強: 演出どおり / 弱: 薄く・少なめ / OFF: 光らない<br>点滅が苦手な方は 弱 か OFF がおすすめ</div>
 <div class="row"><span>ミュート</span><button id="cfgMute" class="bv tg" type="button">OFF</button></div>
 <div class="row"><span>常時点灯</span><button id="cfgWake" class="bv tg" type="button">ON</button></div>
-<div class="note">放置中に画面が暗くならないようにします(電池を使います)。</div>
+<div class="note">放置中も画面を暗くしない(電池を使います)</div>
 <div class="row"><span>アプリ化</span><button id="cfgInst" class="bv tg" type="button">追加方法</button></div>
 <div class="note" id="cfgInstNote" style="display:none"></div>
 <div class="row"><span>データ</span><button id="cfgRst" class="bv bad" type="button">リセット</button></div>
@@ -889,7 +942,7 @@ function enSpr(st){st=st||G.stage;return st%5==0?'b'+((st/5-1)%4):'m'+((st-1+3*M
 
 /* ---------- upgrades: data + stat formulas + buy ---------- */
 // UP: [記号,名前,説明,基本コスト,解放ステージ]  ※並び(=G.lv[]の添字)は既存セーブ互換のため変更しない
-const UP=[['攻','英雄強化','ダメージ+25%',15],['速','発射速度','玉+0.5/秒 MAX11',20],['当','当たり確率','大当たり率+2.5% MAX12',30],['金','ゴールド','獲得+20%',25],['会','会心率','CRIT+3% MAX15',22],['運','ルーレット運','高倍率UP MAX15',40],['溜','SPチャージ','ゲージ+6% MAX8',35,3],['延','RUSH延長','継続+0.5秒 MAX5',50,8],['黄','黄金玉率','黄金玉+12% MAX10',60,12],['祭','FEVER率','発生率+10% MAX10',80,16]];
+const UP=[['攻','英雄強化','攻撃 +25%',15],['速','発射速度','玉 +0.5/秒 MAX11',20],['当','当たり確率','大当たり +2.5% MAX12',30],['金','ゴールド','ゴールド +20%',25],['会','会心率','会心 +3% MAX15',22],['運','ルーレット運','高倍率 +20% MAX15',40],['溜','SPチャージ','SP +6% MAX8',35,3],['延','RUSH延長','RUSH +0.5秒 MAX5',50,8],['黄','黄金玉率','黄金玉 +12% MAX10',60,12],['祭','FEVER率','FEVER +10% MAX10',80,16]];
 // 最大Lv(Infinity=無制限)。特別感を保つため「演出の発生頻度」系は必ず上限を持つ。攻/金だけが無限に伸びる。
 const UPMAX=[Infinity,11,12,Infinity,15,15,8,5,10,10];
 // チューニング用の係数(sim から BAL.xxx=... で上書き可能)
@@ -943,7 +996,7 @@ const ultReady=()=>T-LU>=BAL.ultMin;
    10 タップ攻撃 / 11 お宝運 / 12 ルーレット招待 / 13 超倍率 / 14 会心ダメージ(STAGE 25 解放、無制限)。効果は 98b-active / 87-hitev から UPX.* で参照する。
    15 ボス特効(STAGE 30、無制限: ボス戦のダメージ x1.15/Lv = 20-upgrades の bossD) / 16 魂の収穫(STAGE 40、MAX10: 転生で得る魂 +6%/Lv = 94-prestige の soulGain)。
    中盤以降「攻/金/撃 しか買う物が無い」を解消するための2つ(第2弾 balance)。 */
-UP.push(['撃','タップ攻撃','タップ威力+30%',45,5],['宝','お宝運','出現/報酬UP MAX10',70,10],['招','ルーレット招待','押せ!!発生+2% MAX10',90,15],['超','超倍率','化ける率+3% MAX10',120,20],['極','会心ダメージ','会心の威力+8%',1500,25],['討','ボス特効','ボスへのダメージ+15%',6000,30],['収','魂の収穫','転生の魂+6% MAX10',40000,40]);
+UP.push(['撃','タップ攻撃','タップ +30%',45,5],['宝','お宝運','お宝 出現+10% 報酬+20% MAX10',70,10],['招','ルーレット招待','押せ!! +2% MAX10',90,15],['超','超倍率','超倍率 +3% MAX10',120,20],['極','会心ダメージ','会心ダメージ +8%',1500,25],['討','ボス特効','ボスへ攻撃 +15%',6000,30],['収','魂の収穫','転生の魂 +6% MAX10',40000,40]);
 UPMAX.push(Infinity,10,10,10,Infinity,Infinity,10);
 while(G.lv.length<UP.length)G.lv.push(1);
 try{const s=JSON.parse(localStorage.getItem('pachi2')||'null');if(s&&Array.isArray(s.lv))for(let i=10;i<UP.length;i++){const v=Math.floor(+s.lv[i]);if(Number.isFinite(v)&&v>=1)G.lv[i]=Math.min(v,1e6)}}catch(e){}
@@ -973,7 +1026,7 @@ function refresh(){let n=0,nx=-1,nr=-1;const cs=[],rs=[];
 UP.forEach((u,i)=>{const c=cost(i),ok=G.gold>=c,vis=G.stage>=(u[4]||0),mx=c===Infinity,r=mx?1:Math.min(1,G.gold/c);cs[i]=[c,ok,vis,mx];rs[i]=r;if(vis&&!ok&&!mx&&r>nr){nr=r;nx=i}});
 /* nx = 次に買える強化(いちばん近い未達)。強調表示 */
 UP.forEach((u,i)=>{const c=cs[i],b=$('u'+i),cl=(c[1]?'ok':'')+(c[3]?' mx':'')+(i===nx?' nx':''),d=c[2]?'':'none';
-uiSet('l'+i,G.lv[i]+(c[3]||UPMAX[i]===Infinity?'':'/'+UPMAX[i]));uiSet('c'+i,c[3]?'MAX':'G '+fmtC(c[0]));
+uiSet('l'+i,G.lv[i]+(c[3]||UPMAX[i]===Infinity?'':'/'+UPMAX[i]));uiSet('c'+i,c[3]?'MAX':fmtC(c[0]));   /* ゴールドのアイコンは 29d-resicon が em::before に付ける */
 if(b._cl!==cl){b._cl=cl;b.className=cl.trim()}
 const pv=c[1]||c[3]?'1':''+Math.floor(rs[i]*20)/20;if(b._p!==pv){b._p=pv;if(b.style.setProperty)b.style.setProperty('--pf',pv)}
 if(b._d!==d){b._d=d;b.style.display=d}if(c[1]&&c[2])n++});
@@ -1219,7 +1272,7 @@ upIcons2();
 const FMGRP=[
   {n:'遊ぶ',  c:'#ff7ab0',t:['遊戯','くじ','遠征','イベント']},
   {n:'集める',c:'#7ff3ff',t:['実績','図鑑','遺物','仲間']},
-  {n:'育てる',c:'#8dff7a',t:['転生','鍛冶屋','魂の祭壇']},
+  {n:'育てる',c:'#8dff7a',t:['育成','転生','鍛冶屋','魂の祭壇']},   // 転生は強化シートの魂の祭壇へ統合(98i)。ここには案内の「育成」タブだけ
   {n:'ミッション',c:'#ffa04a',t:['ミッション']},   // 毎日やるものなので独立(作り手の希望)。中のタブが1つのグループは下段を出さない
   {n:'その他',c:'#ffd400',t:['ランキング','応援']}];
 const FMG_OTHER=FMGRP.length-1,FMG_KEY='pachi2_menu';
@@ -1253,6 +1306,46 @@ function fmgMenu(){try{
     '<button type="button" class="'+(i===fxTab?'on':'')+'" data-n="'+String(FM[i].n).replace(/"/g,'&quot;')+'" onclick="fmgTab('+i+')">'+FM[i].n+(typeof fmgMark==='function'?fmgMark(FM[i].n,0):'')+'</button>').join('')+'</div>';
   fxShow('<div class="mgW">'+gs+ts+'</div>'+FM[fxTab].r(),[['閉じる',null,'g']]);
   return true}catch(e){if(typeof FERR!=='undefined')FERR++;try{console.error('[menu]',e)}catch(_){}return false}}
+
+/* ---------- ui: リソースのドット絵アイコン ----------
+   12x12 ドットのオリジナル絵(文字マップ。左右対称のものは 26-dots/10-sprites と同じく左半分を鏡像)。画像ファイルは作らない。
+   公開:
+     resIcon(kind[,cls])     → HTML 文字列 '<i class="ri ri-gold"></i>'(CSS の背景に SVG を埋め込み。知らない kind は '')
+     resAmt(kind,text[,cls]) → アイコン + 文字(色つき)'<span class="ra ra-gem"><i class="ri ri-gem"></i>27</span>'
+     resIconCanvas(ctx,kind,x,y[,size]) → Canvas に描く(size=表示px、既定12)。描けたら true
+     RESK                    → 使える kind の一覧
+   kind: 'gold'(ゴールド) 'ms'(魔石) 'gem'(宝石) 'soul'(魂) 'relic'(遺物) 'exp'(経験値)。'g'/'G'/'魔石'/'宝石'/'魂'/'遺物' も可。
+   CSS(大きさ・行揃え)は css/41-resicon.css。背景画像のルールだけはドットの定義から作ってここで <style> に入れる。 */
+const RESICON=(()=>{
+const PAL={k:'#1a0f2e',w:'#ffffff',y:'#ffd400',Y:'#c47f00',o:'#ffa03a',O:'#b0560a',r:'#ff3355',v:'#a066ff',V:'#5a2ca8',l:'#e6dcff',c:'#27e3ff',C:'#0d86a8',g:'#43e060',G:'#168a35',p:'#ffc8f0'};
+const mir=rows=>rows.map(r=>r+[...r].reverse().join(''));   // 左半分(6列)→12列
+const M={
+gold:['....kkkk....','..kkyyyykk..','.kywwyyyyyk.','.kwyyYYYyYk.','kywyYyyyYyYk','kywyYyyyyyYk','kyyyYyyYYyYk','kyyyYyyyYyYk','.kyyyYYYyYk.','.kYyyyyyYYk.','..kkYYYYkk..','....kkkk....'],
+ms:['.....kk.....','....kllk....','...klwvVk...','..klwvvVVk..','.klwvvvVVVk.','.klvvvvVVVk.','.kvvvvvVVVk.','.kvvvvVVVVk.','..kvvvVVVk..','...kvvVVk...','....kvVk....','.....kk.....'],
+gem:['............','...kkkkkk...','..kwwcccCk..','.kwccwccCCk.','kwcccwcccCCk','kkkkkkkkkkkk','.kcwcccccCk.','..kcwcccCk..','...kcwcCk...','....kcCk....','.....kk.....','............'],
+soul:['......k.....','.....kwk....','.....kwlk...','....kwllk...','...kwwllvk..','..kwwwllvvk.','.kwwlllllvk.','.kwlkllklvk.','.kwllllllvk.','..kllllvvk..','...kvvvvk...','....kkkk....'],
+relic:['....kkkk....','...kO..Ok...','....kOOk....','..kkkkkkkk..','.koooooooOk.','kowoorroooOk','kooorwrrooOk','kooorrrrooOk','koooorroooOk','.koooooooOk.','..kOOOOOOk..','...kkkkkk...'],
+exp:mir(['.....k','....kg','....kw','kkkkkw','.kgggg','..kggg','...kgg','...kgg','..kggg','..kgkk','.kk...','......'])};
+const AL={g:'gold',G:'gold','ゴールド':'gold','魔石':'ms','宝石':'gem','魂':'soul','遺物':'relic','経験値':'exp',xp:'exp'};
+const kindOf=k=>{k=String(k||'');return M[k]?k:(AL[k]||'')};
+/* SVG: 色ごとに 1 本の path(横に続く同じ色はまとめる) */
+function svg(rows){const by={};rows.forEach((r,y)=>{let x=0;while(x<r.length){const ch=r[x];if(ch==='.'||!PAL[ch]){x++;continue}let e=x;while(e<r.length&&r[e]===ch)e++;(by[ch]=by[ch]||[]).push('M'+x+' '+y+'h'+(e-x)+'v1h-'+(e-x)+'z');x=e}});
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" shape-rendering="crispEdges">'+Object.keys(by).map(c=>'<path fill="'+PAL[c]+'" d="'+by[c].join('')+'"/>').join('')+'</svg>'}
+const URI={};for(const k in M)URI[k]='data:image/svg+xml,'+encodeURIComponent(svg(M[k]));
+try{const s=document.createElement('style');s.id='resicon';s.textContent=Object.keys(URI).map(k=>'.ri-'+k+'{background-image:url("'+URI[k]+'")}').join('')+'#up em::before{background-image:url("'+URI.gold+'")}';(document.head||document.body).appendChild(s)}catch(e){}
+/* HUD の金貨(index.html の .coin)をドット絵に */
+try{const c=document.querySelector&&document.querySelector('#hud .coin');if(c&&c.classList){c.classList.add('ri');c.classList.add('ri-gold')}}catch(e){}
+/* Canvas 用: 12x12 の小さなキャンバスを1回だけ作って使い回す */
+const CV={};
+function cv(k){if(CV[k]!==undefined)return CV[k];let c=null;try{c=document.createElement('canvas');c.width=12;c.height=12;const x=c.getContext('2d');if(!x)throw 0;
+  M[k].forEach((r,y)=>{for(let i=0;i<r.length;i++){const col=PAL[r[i]];if(col&&r[i]!=='.'){x.fillStyle=col;x.fillRect(i,y,1,1)}}})}catch(e){c=null}return CV[k]=c}
+return {M,PAL,URI,kindOf,cv}})();
+const RESK=Object.keys(RESICON.M);
+function resIcon(kind,cls){const k=RESICON.kindOf(kind);return k?'<i class="ri ri-'+k+(cls?' '+cls:'')+'" aria-hidden="true"></i>':''}
+function resAmt(kind,text,cls){const k=RESICON.kindOf(kind);return '<span class="ra ra-'+(k||'x')+(cls?' '+cls:'')+'">'+resIcon(k)+(text==null?'':text)+'</span>'}
+function resIconCanvas(ctx,kind,x,y,size){const k=RESICON.kindOf(kind);if(!k||!ctx)return false;const s=size||12,c=RESICON.cv(k);
+  try{if(c){const sm=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;ctx.drawImage(c,Math.round(x),Math.round(y),s,s);ctx.imageSmoothingEnabled=sm;return true}
+    const r=RESICON.M[k],q=s/12;for(let j=0;j<12;j++)for(let i=0;i<12;i++){const col=RESICON.PAL[r[j][i]];if(col&&r[j][i]!=='.'){ctx.fillStyle=col;ctx.fillRect(x+i*q,y+j*q,q,q)}}return true}catch(e){return false}}
 
 /* ---------- battle: logic (spawn/hurt/kill/ult) ---------- */
 const isBoss=()=>G.stage%5==0;
@@ -3158,7 +3251,7 @@ function dailyClaim(){const td=dailyToday();if(DLY.last===td)return null;DLY.str
   const day=(DLY.streak-1)%7+1,ms=20*day+G.stage,gem=day==7?5:1;
   try{if(typeof RES!=='undefined'){RES.ms+=ms;RES.gem+=gem;resSave()}}catch(e){}return {day,streak:DLY.streak,ms,gem}}
 function dailyShow(r){const cal=Array.from({length:7},(_,i)=>'<span style="display:inline-block;width:34px;margin:2px;padding:4px 0;font-size:11px;'+(i+1<r.day?'background:#3a2a8a;color:#c8c0ff':i+1==r.day?'background:#ffd400;color:#2a1000':'background:#140a3c;color:#5a4a9a')+';box-shadow:0 0 0 2px #000">'+(i+1)+'日'+(i==6?'<br>宝5':'')+'</span>').join('');
-  try{fxShow('<div class="fxh">ログインボーナス</div><div class="fxs">連続 '+r.streak+' 日目</div><div style="margin:8px 0">'+cal+'</div><div class="fxn" style="font-size:18px">魔石 +'+fmt(r.ms)+' / 宝石 +'+r.gem+'</div><div class="fxs">毎日遊ぶと報酬アップ。7日目は宝石5個!</div>',[['受け取る!',()=>{try{fxClose()}catch(e){}try{kyuin(4,'#ffd400');jara()}catch(e){}}]])}catch(e){}}
+  try{fxShow('<div class="fxh">ログインボーナス</div><div class="fxs">連続 '+r.streak+' 日目</div><div style="margin:8px 0">'+cal+'</div><div class="fxn" style="font-size:18px">'+resAmt('ms','+'+fmt(r.ms))+' '+resAmt('gem','+'+r.gem)+'</div><div class="fxs">毎日遊ぶと報酬アップ。7日目は宝石 5個!</div>',[['受け取る!',()=>{try{fxClose()}catch(e){}try{kyuin(4,'#ffd400');jara()}catch(e){}}]])}catch(e){}}
 let DLYT=0;
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{if(!DLY.shown&&run){DLYT+=dt;if(DLYT>2.5&&!(typeof fxOpen!=='undefined'&&fxOpen)&&!cut&&!G.roul){DLY.shown=1;const c=dailyClaim();if(c)dailyShow(c)}}}catch(e){DLY.shown=1}return r}}
 
@@ -3198,7 +3291,7 @@ FU.push(dt=>{
   if(cmb>X.st.cmb)X.st.cmb=cmb;if(G.combo>X.st.rc)X.st.rc=G.combo;
   if(RL&&RL.ph==1&&RL.m==50&&!RL.cnt){RL.cnt=1;X.st.r50++}
   achT-=dt;if(achT<=0){achT=.5;achCheck()}});
-FM.push({n:'実績',r:()=>{const d=AC_.filter(a=>X.ach[a[0]]).length;return '<div class="fxh">実績 '+d+'/'+AC_.length+'</div><div class="fxl">'+AC_.map(a=>{const e=!!X.ach[a[0]],p=a[5];return '<div class="'+(e?'ok':'no')+'"><span class="nob">'+(e?'★ ':'◆ ')+a[1]+'<br><small>'+a[2]+(e?'':' ('+Math.min(p[0](),p[1])+'/'+p[1]+')')+'</small></span><span>G'+fmt(achReward(a[3]))+'</span></div>'}).join('')+'</div>'}});
+FM.push({n:'実績',r:()=>{const d=AC_.filter(a=>X.ach[a[0]]).length;return '<div class="fxh">実績 '+d+'/'+AC_.length+'</div><div class="fxl">'+AC_.map(a=>{const e=!!X.ach[a[0]],p=a[5];return '<div class="'+(e?'ok':'no')+'"><span class="nob">'+(e?'★ ':'◆ ')+a[1]+'<br><small>'+a[2]+(e?'':' ('+Math.min(p[0](),p[1])+'/'+p[1]+')')+'</small></span><span>'+resAmt('gold',fmt(achReward(a[3])))+'</span></div>'}).join('')+'</div>'}});
 
 /* ---------- デイリーミッション (feature) ----------
    毎日3つのお題(日付から決まる)。達成で 宝石2 + 魔石、3つ全部で ボーナス宝石5。メニュー「ミッション」で受け取り。
@@ -3229,9 +3322,9 @@ if(typeof actTap==='function'){const o=actTap;actTap=function(e){const c0=typeof
 if(typeof actCatch==='function'){const o=actCatch;actCatch=function(){const r=o.apply(this,arguments);msAdd('trs');return r}}
 let MSRR=null,MSMG=false;   // ミニゲームは種類ごとに開始経路が違うので、表示中フラグの立ち上がりで数える
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{const mg=!!MG||(typeof MG2!=='undefined'&&!!MG2);if(mg&&!MSMG)msAdd('mini');MSMG=mg;const R=typeof GK!=='undefined'?GK.rr:null;if(R&&R!==MSRR){MSRR=R;if(R.n>=3)msAdd('chain');if(['A','A+','S','S+'].includes(R.gr))msAdd('rank')}}catch(e){}return r}}
-FM.push({n:'ミッション',r:()=>{msCheckDay();const done=MS.c.filter(v=>v).length;return '<div class="fxh">デイリーミッション '+done+'/3</div><div class="fxs">毎日3つ。達成で 宝石2+魔石、全部達成で ボーナス宝石5!(日付が変わると入れ替わる)</div><div class="fxl">'+
+FM.push({n:'ミッション',r:()=>{msCheckDay();const done=MS.c.filter(v=>v).length;return '<div class="fxh">デイリーミッション '+done+'/3</div><div class="fxs">毎日3つ(日付が変わると入れ替わる)<br>1つ達成: '+resIcon('gem')+'2 + '+resIcon('ms')+(50+G.stage*2)+' / 全部達成: '+resIcon('gem')+'5</div><div class="fxl">'+
   MS.ids.map((id,j)=>{const m=MSD[id],g=msGoal(j),p=Math.min(MS.p[j],g),ok=p>=g;return '<div class="'+(ok||MS.c[j]?'ok':'')+'"><span>'+m.n+' '+g+m.u+'<br><small>'+p+' / '+g+'</small><span style="display:block;height:5px;margin-top:3px;background:#0b0624;box-shadow:0 0 0 1px #000"><span style="display:block;height:100%;width:'+Math.round(p/g*100)+'%;background:'+(ok?'#7ff3ff':'#ffd400')+'"></span></span></span><span>'+(MS.c[j]?'受取済':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 10px" onclick="msClaim('+j+')">受け取る</button>')+'</span></div>'}).join('')+'</div>'+
-  '<div class="fxs" style="margin-top:6px">'+(MS.b?'全達成ボーナス 受取済!':'全達成ボーナス: 宝石5')+'</div>'}});
+  '<div class="fxs" style="margin-top:6px">'+(MS.b?'全達成ボーナス 受取済!':'全達成ボーナス: '+resIcon('gem')+'5')+'</div>'}});
 
 /* ---------- feature 94: 転生(プレステージ) ----------
    PRES_MIN ステージ以上でリセットして「魂」を得る。魂は永続: 与ダメージ +10%/個、ゴールド獲得 +5%/個。
@@ -3253,8 +3346,8 @@ const soulGain=(s,b)=>{if(!(s>=PRES_MIN))return 0;const r=Math.min(s,b==null?PRE
 try{upCapSet(X.pres)}catch(e){}
 /* 転生画面の説明: 記録更新の分は満額 / 記録までは35% / 次の転生で強化の上限 +1 */
 function presInfo(s){const gn=soulGain(s),rec=PREC>=PRES_MIN?PREC:0,over=rec&&s>rec,ce=upCapExt(X.pres),cn=upCapExt(X.pres+1);
-  return '<div class="fxs" style="margin-top:6px">'+(rec?'最高記録 STAGE '+rec+' を超えた分は魂が満額、記録までの分は '+Math.round(BAL.soulRep*100)+'%。'+(over?'<br><span style="color:#7dffa6">記録更新中! +'+(s-rec)+' STAGE</span>':'<br><span style="color:#ffb0c8">記録まであと '+(rec-s)+' STAGE(超えると魂が大きく増える)</span>'):'初めての転生は魂が満額。次からは最高記録を超えた分が満額になる。')+
-    (lvE(16)>1?'<br>魂の収穫 x'+soulHarv().toFixed(2):'')+(cn>ce?'<br>転生すると 当たり確率/ルーレット運/お宝運/招待/超倍率 の上限 +1(今 +'+ce+')':'')+'</div>'}
+  return '<div class="fxs presi" style="margin-top:6px">'+(rec?'最高記録 STAGE '+rec+' を超えた分は魂 100%(記録までは '+Math.round(BAL.soulRep*100)+'%)'+(over?'<br><span style="color:#7dffa6">記録更新中! +'+(s-rec)+' STAGE</span>':'<br><span style="color:#ffb0c8">記録まであと '+(rec-s)+' STAGE(超えると魂が大きく増える)</span>'):'はじめての転生は魂 100%。次からは最高記録を超えた分が 100%')+
+    (lvE(16)>1?'<br>魂の収穫 x'+soulHarv().toFixed(2):'')+(cn>ce?'<br>転生すると 当たり確率・ルーレット運・お宝運・招待・超倍率 の MAX +1(今 +'+ce+')':'')+'</div>'}
 /* 演出中(スロット/ルーレット/ミニゲーム/カットイン/押せ!!)かどうか。
    以前はこれが真だと転生を断っていたが、放置中はスロットがほぼ常に回っているので事実上転生できなかった。
    今は「転生する!」を押したら presAbort() で進行中の演出を安全に打ち切ってから即転生する(確認画面で注意書きを出すだけ)。 */
@@ -3279,7 +3372,7 @@ function presAbort(){PGEN++;const tr=f=>{try{f()}catch(e){}};
 function presAsk(){
   const gn0=soulGain(G.stage);if(gn0<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
   const gn=presGainShow(G.stage),sa=presSbaShow();   // 表示は 魂の器(94b)込み・再出発の勢い(94b)抜き(QA: 実際の獲得と表示がずれていた)
-  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
+  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE 1 からやり直して 魂をもらう。<br><span style="color:#ffb0c8">最初から</span> STAGE・ゴールド・強化<br><span style="color:#7dffa6">残る</span> 魂・実績・最高記録・仲間'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>攻撃 x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
 function presDo(){
   const gn=soulGain(G.stage);if(gn<1){fxClose();return 0}
   presAbort();
@@ -3401,7 +3494,7 @@ FU.push(dt=>{
   if(m.ty=='chest'){for(let i=0;i<3;i++){const op=m.s,x=15+i*75,y=12+(m.s&&i==m.pk?-3:0)+Math.sin(m.t*4+i)*(m.s?0:2);c.globalAlpha=m.s&&i!=m.pk?.45:1;c.drawImage(SPR[op?'fchest2':'fchest'],x,y,60,60);if(op){c.fillStyle='#ffd400';c.font='16px '+FN;c.textAlign='center';c.fillText('x'+m.ch[i],x+30,84)}}c.globalAlpha=1}
   else{for(let i=m.co.length-1;i>=0;i--){const k=m.co[i];k.y+=k.v;if(k.y>90)m.co.splice(i,1);else c.drawImage(SPR.fcoin,k.x,k.y,24,24)}
     c.fillStyle='#000';c.fillRect(10,80,220,6);c.fillStyle='#ffd400';c.fillRect(10,80,220*Math.min(1,m.t/5),6)}});
-FM.push({n:'遊戯',r:()=>'<div class="fxh">ミニゲーム</div><div class="fxs">ボスを倒すと発生。進行で種類が増える。<br>放置でも自動で決着。</div><div class="fxl">'+MGT.map(m=>'<div class="'+(G.stage>=m[2]?'ok':'no')+'"><span>'+m[1]+'</span><span>'+(G.stage>=m[2]?'解放済':'STAGE '+m[2]+'〜')+'</span></div>').join('')+'</div><div class="fxs" style="margin-top:6px">累計 '+X.st.mg+'回 / 大成功 '+X.st.mgp+'回</div>'});
+FM.push({n:'遊戯',r:()=>'<div class="fxh">ミニゲーム</div><div class="fxs">ボスを倒すと始まる。進むと種類が増える<br>放置していても自動で決着</div><div class="fxl">'+MGT.map(m=>'<div class="'+(G.stage>=m[2]?'ok':'no')+'"><span>'+m[1]+'</span><span>'+(G.stage>=m[2]?'解放済':'STAGE '+m[2]+'〜')+'</span></div>').join('')+'</div><div class="fxs" style="margin-top:6px">累計 '+X.st.mg+'回 / 大成功 '+X.st.mgp+'回</div>'});
 
 /* ---------- feature 96: 仲間(サポートユニット) ----------
    最高到達ステージ X.best で解放(転生しても残る)。英雄3人とは別枠で、一定間隔に自動で援護攻撃する。
@@ -3421,7 +3514,7 @@ FU.push(dt=>{
   for(const a of ALY){if(!alyOn(a))continue;if(cut||RL)continue;a.t+=dt;if(a.t>=a.ev){a.t=0;a.h=T;a.go();if(AC)beep(900,.05,'triangle',.03)}}
   if(X.best>alyAnn){for(const a of ALY)if(a.st>alyAnn&&a.st<=X.best){fxToast('仲間加入! '+a.n+'  '+a.d,a.col);banner('仲間 '+a.n,a.col);fan()}alyAnn=X.best}});
 if(typeof drawB==='function'){const o=drawB;drawB=function(t){o.apply(this,arguments);let k=0;for(const a of ALY){if(!alyOn(a))continue;const d=t-a.h,hop=d>=0&&d<.25?Math.sin(d/.25*Math.PI)*10:0;bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(8+k*30,144,24,4);bc.drawImage(SPR[a.sp],8+k*30,120-hop+Math.sin(t*5+k)*1.5,24,24);k++}}}
-FM.push({n:'仲間',r:()=>'<div class="fxh">仲間</div><div class="fxs">最高到達 STAGE '+X.best+'(転生しても残る)</div><div class="fxl">'+ALY.map(a=>'<div class="'+(alyOn(a)?'ok':'no')+'"><span>'+(alyOn(a)?a.n:'???')+'<br><small>'+(alyOn(a)?a.d:'STAGE '+a.st+' で加入')+'</small></span><span>'+(alyOn(a)?'加入済':'STAGE '+a.st)+'</span></div>').join('')+'</div>'});
+FM.push({n:'仲間',r:()=>'<div class="fxh">仲間</div><div class="fxs">最高 STAGE で仲間が加わる(今 STAGE '+X.best+'・転生しても残る)</div><div class="fxl">'+ALY.map(a=>'<div class="'+(alyOn(a)?'ok':'no')+'"><span>'+(alyOn(a)?a.n:'???')+'<br><small>'+(alyOn(a)?a.d:'STAGE '+a.st+' で加入')+'</small></span><span>'+(alyOn(a)?'加入済':'STAGE '+a.st)+'</span></div>').join('')+'</div>'});
 
 /* ---------- モンスター図鑑 (feature) ----------
    敵14種(雑魚10/ボス4)の撃破数を記録。撃破数が節目に届くと★(最大3)。★1つにつき与ダメージ+1%(永続・転生で残る)。
@@ -3440,7 +3533,7 @@ const zkBonus=()=>.01*zkStars();
     if(s1>s0){fxToast('図鑑 '+ZKN[key]+' '+'★'.repeat(s1)+'  ダメージ+1%','#ffd400');try{if(sOK()){const t=sNow();[1047,1319,1568].forEach((f,i)=>tone(f,t+i*.07,.1,'square',.03))}}catch(e){}zkSave()}
     else if(ZKD>=10){ZKD=0;zkSave()}}}catch(e){}return r}}
 addEventListener('pagehide',()=>{try{zkSave()}catch(e){}});
-FM.push({n:'図鑑',r:()=>{const found=ZKK.filter(k=>ZK[k]).length;return '<div class="fxh">モンスター図鑑 '+found+'/'+ZKK.length+'</div><div class="fxs">倒した数で★が増える(雑魚 10/100/1000体・ボス 1/10/50体)。★1つでダメージ+1%(今 +'+Math.round(zkBonus()*100)+'%)。転生しても残る。</div><div class="fxl">'+
+FM.push({n:'図鑑',r:()=>{const found=ZKK.filter(k=>ZK[k]).length;return '<div class="fxh">モンスター図鑑 '+found+'/'+ZKK.length+'</div><div class="fxs">倒した数で★が増える(雑魚 10/100/1000体・ボス 1/10/50体)<br>★1つで 攻撃 +1%(今 +'+Math.round(zkBonus()*100)+'%)。転生しても残る</div><div class="fxl">'+
   ZKK.map(k=>{const n=ZK[k]||0,s=zkStar(k),th=ZKT[k[0]],nx=s<3?th[s]:0;return '<div class="'+(n?'ok':'no')+'"><span>'+(n?ZKN[k]:'???')+(k[0]=='b'?' <small>BOSS</small>':'')+'</span><span>'+(n?'<b style="color:#ffd400">'+'★'.repeat(s)+'</b>'+'☆'.repeat(3-s)+' '+fmt(n)+'体'+(nx?' (次 '+fmt(nx)+')':''):'未発見')+'</span></div>'}).join('')+'</div>'}});
 
 /* ---------- 遺物コレクション (feature) ----------
@@ -3488,7 +3581,7 @@ function relicDraw(t){const S=RDR.show;if(!S)return;const p=t-S.t0,a=Math.min(1,
   thickTxt(bc,'遺物 '+relicCount()+'/'+RLD.length,135,120,10,'#9aa0c8');bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{relicDraw(t)}catch(e){RDR.show=null}return r}}
 // メニュー
-FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すとドロップ(初回確定・以降'+Math.round((typeof relicDropP==='function'?relicDropP():.35)*100)+'%)。同じ遺物は Lv アップ(最大'+RLMAX+')。転生しても残る。</div><div class="fxl">'+
+FM.push({n:'遺物',r:()=>'<div class="fxh">遺物 '+relicCount()+'/'+RLD.length+'</div><div class="fxs">ボスを倒すと手に入る(初回は必ず・以降 '+Math.round((typeof relicDropP==='function'?relicDropP():.35)*100)+'%)<br>同じ遺物で Lv アップ(最大 '+RLMAX+')。転生しても残る</div><div class="fxl">'+
   RLD.map(r=>{const lv=RLV[r.id]||0;return '<div class="'+(lv?'ok':'no')+'"><span>'+(lv?'<b style="color:'+r.c+'">['+r.ch+']</b> '+r.n:'??? ')+'</span><span>'+(lv?r.d+' Lv'+lv+(lv>=RLMAX?' MAX':''):'未発見')+'</span></div>'}).join('')+'</div>'});
 
 /* ---------- リソース: 魔石・宝石 と 鍛冶屋 (feature) ----------
@@ -3527,14 +3620,16 @@ addEventListener('pagehide',()=>{try{resSave()}catch(e){}});
 function smithUp(i){const l=RES.w[i],c=wCost(l),g=wGem(l);if(RES.ms<c||RES.gem<g){fxToast(RES.ms<c?'魔石が足りない(あと '+fmt(c-RES.ms)+')':'限界突破に宝石 '+g+' 個が必要','#aaa');return}
   RES.ms-=c;RES.gem-=g;RES.w[i]=l+1;resSave();fxToast(WPN[i][0]+' Lv'+(l+1)+(g?' 限界突破!!':'')+'  攻撃 x'+wMul(i).toFixed(2),g?'#7ff3ff':'#ffd400');try{kyuin(g?5:2,g?'#7ff3ff':'#ffd400');if(typeof chJump==='function')chJump(i,g?2:0)}catch(e){}try{grpRefresh()}catch(e){}}
 function smithBuff(k){if(RES.gem<3){fxToast('宝石が3個必要','#aaa');return}RES.gem-=3;if(k=='g')RES.bg+=180;else RES.ba+=180;resSave();banner(k=='g'?'金運の護符!! G x2':'闘気の護符!! ダメージ x2',k=='g'?'#ffd400':'#ff5a5a');try{kyuin(5,'#ffd400')}catch(e){}try{grpRefresh()}catch(e){}}
+const RI=k=>typeof resIcon==='function'?resIcon(k):(k==='ms'?'魔石':k==='gem'?'宝石':'');   // 29d のアイコン
 const resT=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
-FM.push({n:'鍛冶屋',r:()=>'<div class="fxh">鍛冶屋</div><div class="fxs">魔石は敵を倒すと、宝石は JACKPOT・高ランク・図鑑★・お宝で手に入る。武器と素材は転生しても残る。</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">魔石 '+fmt(RES.ms)+'</span>  <span style="color:#7ff3ff">宝石 '+RES.gem+'</span></div><div class="fxl">'+
-  WPN.map((w,i)=>{const l=RES.w[i],c=wCost(l),g=wGem(l),ok=RES.ms>=c&&RES.gem>=g;return '<div class="ok"><span>'+w[1]+'の'+w[0]+' Lv'+l+'<br><small>攻撃 x'+wMul(i).toFixed(2)+(g?' / 次は限界突破':'')+'</small></span><span><button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithUp('+i+')">魔石'+fmt(c)+(g?' 宝石'+g:'')+'</button></span></div>'}).join('')+
-  '<div class="ok"><span>金運の護符<br><small>3分間 ゴールド x2'+(RES.bg>0?' (残り '+resT(RES.bg)+')':'')+'</small></span><span><button class="fxb'+(RES.gem>=3?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithBuff(\'g\')">宝石3</button></span></div>'+
-  '<div class="ok"><span>闘気の護符<br><small>3分間 ダメージ x2'+(RES.ba>0?' (残り '+resT(RES.ba)+')':'')+'</small></span><span><button class="fxb'+(RES.gem>=3?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithBuff(\'a\')">宝石3</button></span></div></div>'});
+FM.push({n:'鍛冶屋',r:()=>'<div class="fxh">鍛冶屋</div><div class="fxs">'+RI('ms')+'魔石: 敵を倒すと手に入る<br>'+RI('gem')+'宝石: JACKPOT・高ランク・図鑑★・お宝で手に入る<br>武器も素材も 転生しても残る</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">'+RI('ms')+fmt(RES.ms)+'</span>  <span style="color:#7ff3ff">'+RI('gem')+RES.gem+'</span></div><div class="fxl">'+
+  WPN.map((w,i)=>{const l=RES.w[i],c=wCost(l),g=wGem(l),ok=RES.ms>=c&&RES.gem>=g;return '<div class="ok"><span>'+w[1]+'の'+w[0]+' Lv'+l+'<br><small>通常攻撃 x'+wMul(i).toFixed(2)+'(1Lvで +12%)'+(g?' 次は限界突破':'')+'</small></span><span><button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithUp('+i+')">'+RI('ms')+fmt(c)+(g?' '+RI('gem')+g:'')+'</button></span></div>'}).join('')+
+  '<div class="ok"><span>金運の護符<br><small>3分間 ゴールド x2'+(RES.bg>0?' (残り '+resT(RES.bg)+')':'')+'</small></span><span><button class="fxb'+(RES.gem>=3?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithBuff(\'g\')">'+RI('gem')+'3</button></span></div>'+
+  '<div class="ok"><span>闘気の護符<br><small>3分間 攻撃 x2'+(RES.ba>0?' (残り '+resT(RES.ba)+')':'')+'</small></span><span><button class="fxb'+(RES.gem>=3?'':' d')+'" style="margin:0;padding:4px 8px" onclick="smithBuff(\'a\')">'+RI('gem')+'3</button></span></div></div>'});
 // 戦闘画面右下: 所持数 / 護符の残り / 入手ポップ
-function resDraw(t){bc.save();bc.textAlign='right';bc.font='10px '+FN;let x=354;const ch=(s,c)=>{bc.fillStyle='#000';bc.fillText(s,x+1,147);bc.fillStyle=c;bc.fillText(s,x,146);x-=s.length*7+10};
-  ch('宝'+RES.gem,'#7ff3ff');ch('魔'+fmt(RES.ms),'#c8a0ff');if(RES.ba>0)ch('闘'+resT(RES.ba),'#ff7a7a');if(RES.bg>0)ch('金'+resT(RES.bg),'#ffd400');
+function resDraw(t){bc.save();bc.textAlign='right';bc.font='10px '+FN;let x=354;const ch=(s,c,ic)=>{bc.fillStyle='#000';bc.fillText(s,x+1,147);bc.fillStyle=c;bc.fillText(s,x,146);const w=bc.measureText?bc.measureText(s).width||s.length*6:s.length*6;
+    if(ic&&typeof resIconCanvas==='function'&&resIconCanvas(bc,ic,x-w-11,137,10)){x-=w+19}else x-=s.length*7+10};   // 29d のドット絵アイコン(無ければ従来の文字)
+  if(typeof resIconCanvas==='function'){ch(''+RES.gem,'#7ff3ff','gem');ch(fmt(RES.ms),'#c8a0ff','ms')}else{ch('宝'+RES.gem,'#7ff3ff');ch('魔'+fmt(RES.ms),'#c8a0ff')}if(RES.ba>0)ch('闘'+resT(RES.ba),'#ff7a7a');if(RES.bg>0)ch('金'+resT(RES.bg),'#ffd400');
   RES.pop.forEach((p,k)=>{const q=t-p.t0;bc.globalAlpha=Math.max(0,1-q/1.6);bc.textAlign='right';if(typeof thickTxt==='function')thickTxt(bc,p.s,352,130-q*14-k*12,11,p.c);bc.globalAlpha=1});bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{resDraw(t)}catch(e){RES.pop.length=0}return r}}
 
@@ -3559,9 +3654,9 @@ function kujiDraw(n){n=n===10?10:1;const c=KJC*n;if(typeof RES==='undefined')ret
   const chest='<div style="margin:4px auto 6px;width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#fff6b0 0,#ffd400 30%,transparent 68%);'+(rare?'animation:pkhue 1s linear infinite;':'')+'">'+(img?'<img src="'+img+'" style="width:64px;height:64px;image-rendering:pixelated" alt="">':'')+'</div>';
   fxShow('<div class="fxh">'+(rare?'大当たり!!':'魔石くじ')+'</div>'+chest+'<div class="fxl">'+rs.map(r=>'<div class="'+(r.rare?'ok':'')+'"><span>'+(r.rare?'★ ':'')+r.s+'</span></div>').join('')+'</div>',
     [['もう一度('+n+'回)',()=>kujiDraw(n)],['閉じる',null,'g']]);if(rare)banner('くじ大当たり!!','#ffd400')}
-FM.push({n:'くじ',r:()=>'<div class="fxh">魔石くじ</div><div class="fxs">魔石で宝箱を開けるくじ。ゲーム内の魔石だけで遊べます(お金は使いません)。</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">魔石 '+fmt(typeof RES!=='undefined'?RES.ms:0)+'</span></div>'+
-  (()=>{const ms=typeof RES!=='undefined'?RES.ms:0,d=c=>ms<c?' disabled':'';return '<button class="fxb" onclick="kujiDraw(1)"'+d(KJC)+'>1回 魔石'+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)"'+d(KJC*10)+'>10連 魔石'+KJC*10+'</button>'})()+
-  '<div class="fxl" style="margin-top:10px">'+KUJI.map(k=>'<div><span>'+k[2]+'</span><span>'+Math.round(k[0]*100)+'%</span></div>').join('')+'</div>'});
+FM.push({n:'くじ',r:()=>'<div class="fxh">魔石くじ</div><div class="fxs">魔石で宝箱を開けるくじ<br>ゲーム内の魔石だけで遊べます(お金は使いません)</div><div class="fxn" style="font-size:20px"><span style="color:#c8a0ff">'+resIcon('ms')+fmt(typeof RES!=='undefined'?RES.ms:0)+'</span></div>'+
+  (()=>{const ms=typeof RES!=='undefined'?RES.ms:0,d=c=>ms<c?' disabled':'';return '<button class="fxb" onclick="kujiDraw(1)"'+d(KJC)+'>1回 '+resIcon('ms')+KJC+'</button> <button class="fxb" onclick="kujiDraw(10)"'+d(KJC*10)+'>10連 '+resIcon('ms')+KJC*10+'</button>'})()+
+  '<div class="fxl" style="margin-top:10px">'+KUJI.map(k=>'<div><span class="nob">'+resIcon({gold:'gold',ms:'ms',gem1:'gem',gem3:'gem'}[k[1]])+k[2]+'</span><span>'+Math.round(k[0]*100)+'%</span></div>').join('')+'</div>'});
 
 /* ---------- app: アプリ化(PWA)まわり ----------
    常時点灯(Wake Lock) / ホーム画面に追加の案内(iOS: 共有→ホーム画面に追加, Android: インストールプロンプト) / standalone 判定。
@@ -4039,9 +4134,9 @@ function expClaim(){if(!expDone())return null;const i=EXP.d,D=EXD[i];
   expBadge();return r}
 function expCollect(){const r=expClaim();if(!r){if(fxOpen)fxMenu();return}const D=EXD[r.i];
   fxShow('<div class="fxh">遠征隊が帰還!</div><div class="fxs">'+D.n+' から戻ってきた</div>'+(r.big?'<div class="fxh exbig">大成功!! 報酬2倍</div>':'')+
-   '<div class="fxl"><div class="ok"><span>魔石</span><span style="color:#c8a0ff">+'+fmt(r.ms)+'</span></div>'+
-   (r.gem?'<div class="ok"><span>宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
-   (r.relic?'<div class="ok"><span>遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
+   '<div class="fxl"><div class="ok"><span class="nob">'+resIcon('ms')+'魔石</span><span style="color:#c8a0ff">+'+fmt(r.ms)+'</span></div>'+
+   (r.gem?'<div class="ok"><span class="nob">'+resIcon('gem')+'宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
+   (r.relic?'<div class="ok"><span class="nob">'+resIcon('relic')+'遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
    '</div>'+(typeof ptHtml==='function'?ptHtml(r):'')+'<div class="fxs" style="margin-top:6px">遠征 累計 '+EXP.n+'回(大成功 '+EXP.big+'回)</div>',[['もう一度 出発!',()=>{expGo(r.i);fxMenu()}],['閉じる',null,'g']]);
   try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();seExp(r.big?'big':'back');if(r.big){shake();flash('#ffd400')}}catch(e){}}
 /* メニューボタンの「!」 */
@@ -4052,14 +4147,14 @@ FU.push(dt=>{expTk+=dt;if(expTk<1)return;expTk=0;
   if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');seExp('ret');}
   if(fxOpen&&EXP.d>=0){const e=$('exrem');if(e){const l=expLeft();if(l<=0)fxMenu();else{e.textContent=expFmt(l);const b=$('exbar');if(b)b.style.width=Math.round(100*(1-l/EXD[EXP.d].sec))+'%'}}}});
 try{if(document.addEventListener)document.addEventListener('visibilitychange',()=>{if(!document.hidden){EXP.ntf=0;expTk=1}})}catch(e){}
-function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">遠征隊は アプリを閉じていても時間で帰ってくる。<br>英雄は戦い続けるので放置の損は無し。転生しても残る。</div>';
+function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">送り出すと 時間で帰ってくる(アプリを閉じていてもOK)<br>英雄はそのまま戦うので損なし。転生しても残る</div>';
   if(EXP.d>=0){const D=EXD[EXP.d],l=expLeft();
-    h+='<div class="exbox"><div class="fxp" style="color:'+D.c+'">'+D.n+'</div>'+(l>0?'<div class="fxn" id="exrem">'+expFmt(l)+'</div><div class="exgauge"><i id="exbar" style="width:'+Math.round(100*(1-l/D.sec))+'%"></i></div><div class="fxs">報酬は受け取る時の最高到達ステージで決まる</div><div><button class="fxb g" onclick="expCancel()">呼び戻す(報酬なし)</button></div>':
+    h+='<div class="exbox"><div class="fxp" style="color:'+D.c+'">'+D.n+'</div>'+(l>0?'<div class="fxn" id="exrem">'+expFmt(l)+'</div><div class="exgauge"><i id="exbar" style="width:'+Math.round(100*(1-l/D.sec))+'%"></i></div><div class="fxs">報酬は 受け取る時の最高 STAGE で決まる</div><div><button class="fxb g" onclick="expCancel()">呼び戻す(報酬なし)</button></div>':
      '<div class="fxn">帰還!!</div><div><button class="fxb exgo" onclick="expCollect()">受け取る!</button></div>')+'</div>'}
   if(typeof ptMenu==='function')h+=ptMenu();/* 98g: 遠征隊の編成 */
-  h+='<div class="fxl exl">'+EXD.map((D,i)=>{const op=expOpen(i),busy=EXP.d>=0;return '<div class="'+(op?'ok':'no')+'"><span>'+(op?D.n:'??? ')+'<br><small>'+(op?Math.round(D.sec/3600*10)/10+'時間 / 魔石 '+fmt(expMs(i))+(D.gp>=1?' 宝石 '+D.g[0]+'〜'+D.g[1]:' 宝石 '+Math.round(D.gp*100)+'%')+(D.rp?' 遺物 '+Math.round(D.rp*100)+'%'+(D.lo?'(未発見優先)':''):'')+(typeof ptAffTag==='function'?ptAffTag(i):''):'最高 STAGE '+D.st+' で解放')+'</small></span><span>'+
+  h+='<div class="fxl exl">'+EXD.map((D,i)=>{const op=expOpen(i),busy=EXP.d>=0;return '<div class="'+(op?'ok':'no')+'"><span>'+(op?D.n:'??? ')+'<br><small>'+(op?Math.round(D.sec/3600*10)/10+'時間 / '+resIcon('ms')+fmt(expMs(i))+(D.gp>=1?' '+resIcon('gem')+D.g[0]+'〜'+D.g[1]:' '+resIcon('gem')+Math.round(D.gp*100)+'%')+(D.rp?' '+resIcon('relic')+Math.round(D.rp*100)+'%'+(D.lo?'(未発見優先)':''):'')+(typeof ptAffTag==='function'?ptAffTag(i):''):'最高 STAGE '+D.st+' で解放')+'</small></span><span>'+
     (op?'<button class="fxb'+(busy?' d':'')+'" style="margin:0;padding:4px 8px" onclick="expGo('+i+')">出発</button>':'')+'</span></div>'}).join('')+'</div>'+
-   '<div class="fxs" style="margin-top:6px">15%で大成功(報酬2倍。仲間の相性で上がる)。累計 '+EXP.n+'回 / 大成功 '+EXP.big+'回</div>';return h}
+   '<div class="fxs" style="margin-top:6px">15% で大成功(報酬 x2。仲間の相性でアップ)<br>累計 '+EXP.n+'回 / 大成功 '+EXP.big+'回</div>';return h}
 FM.push({n:'遠征',r:expMenu});
 if(typeof AC_!=='undefined'){AC_.push(['ex1','はじめての遠征','遠征から帰還',1,()=>EXP.n>=1,[()=>EXP.n,1]]);AC_.push(['ex20','遠征の達人','遠征20回',3,()=>EXP.n>=20,[()=>EXP.n,20]])}
 expBadge();
@@ -4076,7 +4171,7 @@ expBadge();
 const BTK=[
  {id:'gold',n:'黄金タイム',d:'ゴールド x2',c:'#ffd400'},
  {id:'ms',n:'魔石フィーバー',d:'魔石 x3',c:'#c8a0ff'},
- {id:'atk',n:'討伐タイム',d:'ダメージ x2',c:'#ff5a5a'}];
+ {id:'atk',n:'討伐タイム',d:'攻撃 x2',c:'#ff5a5a'}];
 const BT={left:240,cur:null,pre:0,n:0,dur:40,sv:0};
 try{const j=JSON.parse(localStorage.getItem('pachi2_bt')||'null');if(j&&typeof j=='object'){const l=+j.left,k=Math.floor(+j.k),r=+j.rem,n=Math.floor(+j.n);
   if(Number.isFinite(l)&&l>=0)BT.left=Math.min(l,600);if(Number.isFinite(n)&&n>0)BT.n=Math.min(n,1e9);
@@ -4110,7 +4205,7 @@ function btDraw(t){const C=BT.cur;if(!C)return;const K=BTK[C.k],p=Math.max(0,C.r
   bc.textAlign='center';if(typeof thickTxt==='function')thickTxt(bc,K.n+' '+Math.ceil(C.rem)+'s',x+w/2,y+12,10,K.c);bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{btDraw(t)}catch(e){}return r}}
 function btMenu(){const C=BT.cur,g=btGolden();
-  return '<div class="fxh">ボーナスタイム</div><div class="fxs">遊んでいると数分ごとに40秒間のボーナスタイムが来る。<br>毎日 12時台・20〜21時台はゴールデンタイム(発生2倍)。</div>'+
+  return '<div class="fxh">ボーナスタイム</div><div class="fxs">遊んでいると 数分ごとに 40秒のボーナスタイム<br>毎日 12時台・20〜21時台は ゴールデンタイム(発生 x2)</div>'+
    (C?'<div class="fxn" style="font-size:20px;color:'+BTK[C.k].c+'">'+BTK[C.k].n+' 残り'+Math.ceil(C.rem)+'秒</div>':'<div class="fxn" style="font-size:20px">次まで 約'+Math.max(1,Math.ceil(BT.left/60))+'分</div>')+
    (g?'<div class="fxp btgold">ただいま ゴールデンタイム!!</div>':'')+
    '<div class="fxl">'+BTK.map((K,i)=>'<div class="ok"><span style="color:'+K.c+'">'+K.n+'</span><span>'+K.d+'</span></div>').join('')+
@@ -4253,14 +4348,14 @@ const ptMark=a=>a===2?'<b class="pta2">◎</b>':a===1?'<b class="pta1">○</b>':
 /* 帰還モーダルに差し込む: 仲間のお土産と Lv アップ */
 function ptHtml(r){if(!r||!r.pt||!r.pt.length)return '';
   return '<div class="ptgift">'+r.pt.map((p,k)=>{const m=ptM(p.id);return '<div class="ptg" style="--d:'+(k*.25)+'s">'+ptImg(p.id,'ptim ptjump')+
-    '<div><span style="color:'+m.c+'">'+m.n+'</span> Lv'+p.lv+(p.up?' <b class="ptup">Lv UP!</b>':'')+'<br><small>経験 +'+p.xp+'</small>'+
+    '<div><span style="color:'+m.c+'">'+m.n+'</span> Lv'+p.lv+(p.up?' <b class="ptup">Lv UP!</b>':'')+'<br><small>'+resIcon('exp')+'経験値 +'+p.xp+'</small>'+
     (p.gift?'<br><span class="ptgv">お土産: '+(p.gift.k==='gem'?'<b style="color:#7ff3ff">宝石 +'+p.gift.v+'</b>':'<b style="color:#c8a0ff">魔石 +'+fmt(p.gift.v)+'</b>')+'</span>':'')+'</div></div>'}).join('')+
     '</div>'+(r.pm>1?'<div class="fxs">遠征隊ボーナス 報酬 x'+r.pm.toFixed(2)+'</div>':'')}
 /* 遠征タブの編成パネル */
 function ptMenu(){const av=PTM.filter(ptOn),busy=EXP.d>=0,ids=busy?PTY.go:PTY.sel;
   let h='<div class="ptbox"><div class="ptttl">遠征隊の編成 <small>'+ids.length+'/'+PTMAX+'人</small></div>';
   if(!av.length)return h+'<div class="fxs">STAGE '+PTM[0].st+' で仲間が加入すると 連れて行ける</div></div>';
-  h+='<div class="fxs">'+(busy?'遠征中の仲間は 帰還まで編成を変えられない':'仲間を選んで出発すると 相性で報酬と大成功率が上がる')+'</div><div class="ptrow">';
+  h+='<div class="fxs">'+(busy?'遠征中の仲間は 帰還まで編成を変えられない':'仲間を連れて行くと 相性で報酬と大成功率がアップ')+'</div><div class="ptrow">';
   h+=PTM.map(m=>{if(!ptOn(m))return '<div class="ptc no"><i class="ptim ptnim"></i><span>???</span><small>STAGE '+m.st+'</small></div>';
     const on=ids.indexOf(m.id)>=0,lv=PTY.lv[m.id],need=ptNeed(lv),pc=lv>=PTLV?100:Math.round(100*PTY.xp[m.id]/need);
     return '<button type="button" class="ptc'+(on?' on':'')+(busy?' lk':'')+'" onclick="ptToggle(\''+m.id+'\')">'+ptImg(m.id)+'<span>'+m.n+'</span><small>Lv'+lv+(lv>=PTLV?' MAX':'')+'</small><i class="ptxp"><i style="width:'+pc+'%"></i></i>'+(on?'<em>'+(busy?'遠征中':'同行')+'</em>':'')+'</button>'}).join('');
@@ -4470,6 +4565,53 @@ function arRageSnd(){try{if(sOK()){const t=sNow();tone(110,t,.5,'sawtooth',.05,5
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{bc.imageSmoothingEnabled=false;arBoomDraw(t);arTxtFx(t);arClearTxt(t);arTitleDraw(t)}catch(e){AR.title=null;AR.boom=null}return r}}
 /* 戦闘以外のUI向け: 現在のエリア名(他ファイルから使える) */
 function arName(st){st=st||G.stage;const L=arLap(st);return 'AREA '+(arIdx(st)+1)+' '+AREAS[arArea(st)].n+(L?' '+['','II','III','IV','V'][Math.min(4,L)]:'')}
+
+/* ---------- ui: 魂の祭壇に転生をまとめる ----------
+   強化シート(98c)の「魂の祭壇」を「① 転生で魂を集める → ② 魂で永続強化」の1画面にする。
+   ・転生の操作/説明(94-prestige の presAsk/presInfo/presGainShow/soulGain)はそのまま呼ぶだけ。ロジックは触らない。
+   ・三本線メニューの「転生」タブは外し、代わりに「育てる」グループに「育成」タブ(強化/鍛冶屋/魂の祭壇へ案内)を置く。
+   ・94b の祭壇の中身(SOULD/soulBuy/soulAutoToggle)も呼ぶだけ。説明文だけここで短く言い換える。
+   読み込み順: 98c(UPG.list を作る)より後。 */
+const ALTD={start:l=>'STAGE +5 から再出発(今 STAGE '+(1+5*l)+')',gold:()=>'ゴールドを持って再出発',auto:()=>'一番安い強化を自動で買う',
+  relic:()=>{let p=35;try{p=Math.round(relicDropP()*100)}catch(e){}return '遺物ドロップ +5%(今 '+p+'%)'},soul:l=>'転生の魂 +10%(今 +'+10*l+'%)'};
+function altarHtml(){
+  const s=G.stage,can=soulGain(s)>=1,gn=presGainShow(s),nx=(()=>{try{return soulNext(s)}catch(e){return 0}})(),free=soulFree();
+  let h='<div class="alt"><div class="fxh">魂の祭壇</div>'+
+   '<div class="altflow"><span class="'+(can?'on':'')+'"><i>1</i>転生で魂を集める</span><b>&gt;</b><span class="'+(free>0?'on':'')+'"><i>2</i>魂でずっと強化</span></div>'+
+   '<div class="altsoul">'+resIcon('soul','big')+'<span><small>魂</small><b>'+fmt(X.souls)+'</b></span><span><small>使える</small><b class="fr">'+fmt(free)+'</b></span>'+
+   '<span class="altfx"><small>魂ボーナス</small>攻撃 x'+presSbaShow().toFixed(1)+'<br>ゴールド x'+SB.g().toFixed(2)+'</span></div>';
+  /* ① 転生 */
+  h+='<div class="altc"><div class="altt"><i>1</i>転生で魂を集める</div>'+
+   (can?'<div class="altgain"><small>いま STAGE '+s+' で転生すると</small>'+resAmt('soul','+'+fmt(gn),'altn')+'</div>'+presInfo(s)
+       :'<div class="altgain"><small>転生は STAGE '+PRES_MIN+' から</small><b class="altn">あと '+(PRES_MIN-s)+' STAGE</b></div>')+
+   (can&&nx?'<div class="fxs">STAGE '+nx+' まで進むと魂が増える</div>':'')+
+   '<button type="button" class="fxb altgo'+(can?'':' d')+'" onclick="presAsk()">転生する</button>'+
+   '<div class="altkeep"><span class="rs">最初から</span> STAGE・ゴールド・強化<br><span class="kp">残る</span> 魂・実績・最高記録・仲間・魔石・宝石・遺物</div></div>';
+  /* ② 永続強化 */
+  h+='<div class="altc"><div class="altt"><i>2</i>魂で永続強化</div><div class="fxs">魂を使っても 魂ボーナスは減らない</div><div class="fxl">'+
+   SOULD.map(d=>{const l=soulLv(d.k),mx=l>=d.max,c=mx?0:d.c(l),ok=!mx&&free>=c;
+     return '<div class="'+(l||ok?'ok':'no')+'"><span>'+d.n+' <em class="altlv">Lv'+l+'/'+d.max+'</em><br><small>'+(ALTD[d.k]?ALTD[d.k](l):d.d)+'</small></span><span>'+
+       (mx?'<b class="altmx">MAX</b>':'<button type="button" class="fxb'+(ok?'':' d')+'" onclick="soulBuy(\''+d.k+'\')">'+resIcon('soul')+c+'</button>')+'</span></div>'}).join('')+'</div>'+
+   (soulLv('auto')?'<button type="button" class="fxb g" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+'</div></div>';
+  return h}
+(function(){
+  try{const e=UPG.list.find(x=>x[0]==='魂の祭壇');if(e)e[1]=altarHtml;else UPG.list.push(['魂の祭壇',altarHtml])}catch(e){}
+  /* メニューの「転生」タブを外す(祭壇に統合)→「育てる」には案内タブを置く */
+  const i=FM.findIndex(m=>m.n==='転生');if(i>=0)FM.splice(i,1);
+  FM.push({n:'育成',r:altNavHtml})})();
+/* 強化シートを開いて、指定のグループ(0=通常強化 1=鍛冶屋 2=魂の祭壇)を表示 */
+function altOpen(g){try{if(typeof fxClose==='function')fxClose()}catch(e){}try{so=true;sheet(true)}catch(e){}try{grpSet(g)}catch(e){}}
+function altNavHtml(){
+  const can=soulGain(G.stage)>=1,ms=typeof RES!=='undefined'?RES.ms:0,gem=typeof RES!=='undefined'?RES.gem:0;
+  const gi=n=>{try{return Math.max(0,UPG.list.findIndex(x=>x[0]===n))}catch(e){return 0}};
+  const row=(ic,name,desc,g,tag)=>'<div class="ok altnav"><span class="nob">'+ic+'<b>'+name+'</b>'+(tag||'')+'<br><small>'+desc+'</small></span><span><button type="button" class="fxb" onclick="altOpen('+g+')">開く</button></span></div>';
+  return '<div class="fxh">育成</div><div class="fxs">下の「強化」ボタンの画面で育てる</div><div class="fxl">'+
+   row(resIcon('gold'),'通常強化','ゴールドで 攻撃・大当たり などを強化<br>'+resAmt('gold',fmt(G.gold)),0)+
+   row(resIcon('ms'),'鍛冶屋','魔石・宝石で 武器と護符<br>'+resAmt('ms',fmt(ms))+' '+resAmt('gem',fmt(gem)),gi('鍛冶屋'))+
+   row(resIcon('soul'),'魂の祭壇','転生して魂を集め、ずっと強化<br>'+resAmt('soul',fmt(X.souls))+(can?' <span class="altok">転生できる!</span>':' STAGE '+PRES_MIN+' から転生'),gi('魂の祭壇'))+'</div>'}
+/* 転生の確認で「やめる」→ 元の画面(祭壇)に戻る(以前はメニューを開き直していた)。転生したら祭壇を描き直す */
+{const o=presAsk;presAsk=function(){const r=o.apply(this,arguments);try{if(typeof FB!=='undefined'&&FB[1]&&FB[1][0]==='やめる')FB[1][1]=()=>{fxClose();try{grpRefresh()}catch(e){}}}catch(e){}return r}}
+{const o=presDo;presDo=function(){const r=o.apply(this,arguments);try{grpRefresh()}catch(e){}return r}}
 
 /* ---------- loop ---------- */
 let run=false,T=0,last=0,eacc=0,ui=0,sv=0;

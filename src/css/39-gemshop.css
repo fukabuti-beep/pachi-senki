@@ -25,7 +25,7 @@ html body #fxm .fxl.gsl>div.gss{display:block;background:none!important;padding:
 html body #fxm .fxl.gsl>div.gss::before{content:none!important}
 /* 見た目: カードのグリッド */
 html body #fxm .fxl.gsl>div.gsc{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px 0!important;background:none!important;box-shadow:none!important}
-html body #fxm .gsk{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:64px;padding:6px 2px;font-size:12px;color:#fff;
+html body #fxm .gsk{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;padding:4px 2px;font-size:12px;color:#fff;
  background:linear-gradient(#2a1a6a,#140a3c);border:0;box-shadow:inset 2px 2px 0 #4a3aa8,inset -2px -2px 0 #0a0620,0 0 0 2px #000}
 html body #fxm .gsk small{font-size:10px;color:#a8a0e0}
 html body #fxm .gsk.own small{color:#8dff7a}

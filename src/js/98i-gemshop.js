@@ -101,7 +101,7 @@ try{if(window.addEventListener)window.addEventListener('pagehide',()=>{try{gsSav
 function gsDraw(){const ti=GS.sel.title>=0?GSC.title.L[GS.sel.title]:null,bs=GSB.filter(b=>GS.bf[b.k]>0);if(!ti&&!bs.length)return;
   bc.save();bc.font='10px '+FN;
   if(bs.length){bc.textAlign='right';let x=354;bs.forEach(b=>{const s=(b.k==='ms'?'魔x2 ':'運 ')+resT(GS.bf[b.k]);bc.fillStyle='#000';bc.fillText(s,x+1,135);bc.fillStyle=b.col;bc.fillText(s,x,134);x-=s.length*7+8})}
-  if(ti){const s='『'+ti[0]+'』',w=s.length*10+6;bc.textAlign='left';bc.fillStyle='rgba(8,4,24,.7)';bc.fillRect(3,3,w,13);bc.fillStyle='#000';bc.fillText(s,7,14);bc.fillStyle=GS.sel.title>=5?'#ffd400':'#7ff3ff';bc.fillText(s,6,13)}
+  if(ti){const s='『'+ti[0]+'』',w=s.length*10+6;bc.textAlign='left';bc.fillStyle='rgba(8,4,24,.7)';bc.fillRect(3,136,w,13);bc.fillStyle='#000';bc.fillText(s,7,147);bc.fillStyle=GS.sel.title>=5?'#ffd400':'#7ff3ff';bc.fillText(s,6,146)}
   bc.restore()}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{gsDraw()}catch(e){}return r}}
 /* ---- メニュー ---- */
@@ -128,7 +128,7 @@ function gsMenu(){const g=gsGem();let h='<div class="fxh">宝石ショップ</di
     h+='<div class="gss">自動強化ターボ</div>'+gsRow('<b style="color:#8dff7a">自動強化ターボ</b>','魂の祭壇の自動強化を 2秒→0.5秒ごとに'+(au?'':'(先に祭壇で自動強化が必要)'),GS.own.turbo?gsBtn('ターボ: '+(GS.tb?'ON':'OFF'),1,'gsTurboToggle()'):gsBtn(gsPrice(20),g>=20&&au,'gsBuyTurbo()'),GS.own.turbo?'on':'');
     h+='</div>'}
   else{
-    for(const k in GSC){const C=GSC[k];h+='<div class="gss">'+C.n+(k==='title'?'(戦闘画面の左上に出る。もう一度押すと外す)':'')+'</div><div class="gsc">'+C.L.map((it,i)=>{const own=GS.own[k].indexOf(i)>=0,sel=GS.sel[k]===i;
+    for(const k in GSC){const C=GSC[k];h+='<div class="gss">'+C.n+(k==='title'?'(戦闘画面の左下に出る。もう一度押すと外す)':'')+'</div><div class="gsc">'+C.L.map((it,i)=>{const own=GS.own[k].indexOf(i)>=0,sel=GS.sel[k]===i;
       return '<button type="button" class="gsk'+(sel?' on':'')+(own?' own':'')+(!own&&g<it[1]?' d':'')+'" onclick="gsBuyC(\''+k+'\','+i+')">'+gsSw(k,i)+'<span>'+it[0]+'</span><small>'+(sel?'使用中':own?'持っている':gsPrice(it[1]))+'</small></button>'}).join('')+'</div>'}
     h+='</div><div class="fxs gsh">見た目は性能に影響しない。買ったものはいつでも付け替えできる。</div>'}
   return h+'<div class="fxs gsh">宝石の入手: JACKPOT / RUSHの高ランク / 図鑑★ / お宝 / ミッション / ログボ / 遠征 / 魔石くじ。使った宝石 累計 '+fmt(GS.spent)+'</div>'}

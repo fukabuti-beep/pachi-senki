@@ -5,9 +5,9 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
 // (a) 旧セーブ(lv 10個)でも読める・追加分はLv1。新セーブ(14〜15個)は追加分も復元。壊れた値は1
 {
   const g = createGame({ seed: 1, storage: sv({ lv: [3, 2, 2, 2, 1, 1, 1, 1, 1, 1] }) });
-  ok(g.eval('G.lv.length') === 15 && g.eval('G.lv[0]') === 3 && g.eval('G.lv.slice(10).every(v=>v===1)'), '旧セーブ: ' + g.eval('JSON.stringify(G.lv)'));
+  ok(g.eval('G.lv.length') === g.eval('UP.length') && g.eval('UP.length') >= 17 && g.eval('G.lv[0]') === 3 && g.eval('G.lv.slice(10).every(v=>v===1)'), '旧セーブ: ' + g.eval('JSON.stringify(G.lv)'));
   const g2 = createGame({ seed: 1, storage: sv({ lv: [3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 4, 3, 2, 5] }) });
-  ok(g2.eval('JSON.stringify(G.lv.slice(10))') === '[4,3,2,5,1]', '新セーブの追加分が復元されない: ' + g2.eval('JSON.stringify(G.lv)'));
+  ok(g2.eval('JSON.stringify(G.lv.slice(10))') === '[4,3,2,5,1,1,1]', '新セーブの追加分が復元されない: ' + g2.eval('JSON.stringify(G.lv)'));
   const g3 = createGame({ seed: 1, storage: sv({ lv: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 'x', -3, null, 1e99] }) });
   ok(g3.eval('G.lv.slice(10).every(v=>Number.isFinite(v)&&v>=1)'), '壊れた追加分: ' + g3.eval('JSON.stringify(G.lv)'));
 }
@@ -20,7 +20,7 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
   ok(g.eval('UPX.evP()') > e0 && g.eval('UPX.supP()') > s0 && g.eval('UPX.tap()') > t0 && g.eval('UPX.trsRate()') > 1, '追加強化の効果が無い');
   g.eval('G.gold=1e15;for(let i=0;i<30;i++){buy(12);buy(13)}');
   ok(g.eval('G.lv[12]') === 10 && g.eval('UPX.evP()') <= g.eval('BAL.evP') + .25 + 1e-9, 'MAX/上限: ' + g.eval('G.lv[12]'));
-  g.advance(5); const s = JSON.parse(g.store.pachi2 || '{}'); ok(Array.isArray(s.lv) && s.lv.length === 15, 'セーブに追加分が無い: ' + g.store.pachi2);
+  g.advance(5); const s = JSON.parse(g.store.pachi2 || '{}'); ok(Array.isArray(s.lv) && s.lv.length === g.eval('UP.length'), 'セーブに追加分が無い: ' + g.store.pachi2);
   // 会心ダメージ(添字14, STAGE25 解放・無制限): 会心の一撃だけが強くなる
   const c0 = g.eval('UPX.critD()'); g.eval('for(let i=0;i<5;i++)buy(14)');
   ok(g.eval('G.lv[14]') === 6 && Math.abs(g.eval('UPX.critD()') - (c0 + .4)) < 1e-9, '会心ダメージ: ' + g.eval('G.lv[14]') + ' ' + g.eval('UPX.critD()'));

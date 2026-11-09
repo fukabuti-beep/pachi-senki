@@ -29,8 +29,14 @@ const soulBonusGain=gn=>Math.floor(gn*.1*soulLv('soul'));
 {const o=presDo;presDo=function(){const best=Math.max(X.best,G.stage),gn=o.apply(this,arguments);try{if(gn>0){const b=soulBonusGain(gn);if(b>0){X.souls+=b;saveX()}
     const st=Math.min(1+5*soulLv('start'),Math.max(1,Math.floor(best/2)));if(st>1){G.stage=st;spawn()}
     const gl=soulLv('gold');if(gl>0)G.gold=Math.floor(2000*gl*gl*Math.pow(1.4,Math.max(0,st-1)/5));
+    // 開始ステージが高いと強化 Lv1 のままでは敵が硬すぎて止まる(sim/QA で STAGE51 から4分進まない例)。
+    // 再出発から STAGE+15 まで(最長3分)は「再出発の勢い」で攻撃力を補い、1体を約20発で倒せるようにする(下の SB.a ラップ)
+    if(st>1)SOUL_RUN={until:T+180,stage:st+15};
     if(st>1||gl>0){try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}refresh()}
     if(b>0||st>1)setTimeout(()=>{try{fxToast((b>0?'魂の器 +'+b+' ':'')+(st>1?'STAGE '+st+' から再出発!':''),'#c8b8ff')}catch(e){}},900)}}catch(e){}return gn}}
+// 再出発の勢い: 開始ステージで飛ばした分の攻撃力不足を一時的に補う(勢いが切れる/STAGE+15 を越えたら通常どおり)
+let SOUL_RUN=null;
+{const oa=SB.a;SB.a=()=>{const base=oa();try{if(SOUL_RUN&&T<SOUL_RUN.until&&G.stage<=SOUL_RUN.stage){const per=Math.max(1,atk()*base);return base*Math.max(1,G.mx/(per*20))}if(SOUL_RUN&&(T>=SOUL_RUN.until||G.stage>SOUL_RUN.stage))SOUL_RUN=null}catch(e){}return base}}
 // 自動強化
 let SOULT=0;
 function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;if(SOULT<2)return;SOULT=0;let bi=-1,bc2=Infinity;

@@ -106,7 +106,8 @@ namespace PachiSenki.Core
         public int LvE(int i) => Math.Min(G.lv[i], Upgrades.All[i].Max);
         public double Cost(int i) { var u = Upgrades.All[i]; if (G.lv[i] >= u.Max) return double.PositiveInfinity; return Math.Floor(u.BaseCost * Bal.costk * Math.Pow(u.Max == Upgrades.Inf ? Bal.costg : Bal.costgCap, G.lv[i] - 1)); }
         public static double HpOf(int s) => Math.Floor(Bal.hp0 * Math.Pow(Bal.hpg, s - 1) * (s % 5 == 0 ? Bal.boss : 1));
-        public double Atk() => Bal.atk0 * Math.Pow(Bal.atkg, G.lv[0] - 1) * (G.aw > 0 ? 2 : 1) * (G.fv > 0 ? 1.5 : 1);
+        public double BossD() => G.stage % 5 == 0 ? Math.Pow(Bal.bossg, G.lv[15] - 1) : 1;   // ボス特効(Web版 bossD)
+        public double Atk() => Bal.atk0 * Math.Pow(Bal.atkg, G.lv[0] - 1) * (G.aw > 0 ? 2 : 1) * (G.fv > 0 ? 1.5 : 1) * BossD();
         public double Mul() => Math.Pow(Bal.mulg, G.lv[3] - 1);
         public double CritP() => Math.Min(.5, .1 + .03 * (LvE(4) - 1));
         public double Rate() => 2 + .5 * (LvE(1) - 1);

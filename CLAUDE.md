@@ -33,7 +33,7 @@ npm test                            # build + smoke
 | 00-core.js | `$`, canvas, 定数, `fmt`, 状態 `G`, セーブ読込 | 共有(変更は最小限) |
 | 10-sprites.js | ドット絵スプライト定義 `mk()`/`SPR` | fx |
 | 20-upgrades.js | 強化項目 `UP`, コスト/ステータス式 (`atk` `mul` `rate` `hitP` `critP`), `buy` | balance |
-| 23-upgrades2.js / 29b-upicons.js | 強化項目の追加(添字10〜14: タップ攻撃/お宝運/ルーレット招待/超倍率/会心ダメージ)と `UPX.*`(会心ダメージ `UPX.critD` は 30 の hurt が参照)。追加分のセーブ読込はここ(00-core は先頭10個のみ) | balance |
+| 23-upgrades2.js / 29b-upicons.js | 強化項目の追加(添字10〜16: タップ攻撃/お宝運/ルーレット招待/超倍率/会心ダメージ/ボス特効(STAGE30, x1.15/Lv=20 の `bossD`)/魂の収穫(STAGE40, 魂+6%/Lv MAX10=`soulHarv`))と `UPX.*`(会心ダメージ `UPX.critD` は 30 の hurt が参照)。追加分のセーブ読込はここ(00-core は先頭10個のみ、旧セーブの不足分は Lv1)。上限の解放 `upCapSet(X.pres)`: 転生1回ごとに 当/運/宝/招/超 の MAX+1(最大+5、UPMAX をその場で書き換え。黄金玉/FEVER/SP/RUSH延長は伸ばさない)。94-prestige が起動時/転生時に呼ぶ(テスト: tests/balance2.js) | balance |
 | 25-ui.js | `refresh`(HUD/強化ボタン更新), `flash` `shake` `showMsg` | ui |
 | 29c-menugrp.js / css/39-menugrp.css / css/39-hudtext.css | 三本線メニューのグループ分け: FM のタブを上段=大分類(遊ぶ/集める/育てる/その他)・下段=中のタブの2段に。タブ名の先頭一致で振り分け(`FMGRP`)、知らないタブ(後から FM.push したもの)は「その他」へ自動。最後に開いたタブとグループごとの最後のタブを `localStorage['pachi2_menu']` に。91-meta の fxMenu 先頭に1行フック(`fmgMenu()`、失敗時は従来表示)。39-hudtext は HUD の小さい文字(STAGE/SP/保留/JACKPOT札)を枠の寸法そのままで拡大・高コントラスト化(テスト: tests/menugrp.js) | ui |
 | 30-battle.js | 戦闘ロジック(`spawn` `hurt` `kill` `heroAtk` `cutin` `ult`) | balance |
@@ -57,8 +57,8 @@ npm test                            # build + smoke
 | 89-horyu.js | 保留変化: 熱い保留の一部を低い色で表示→待機中に1段ずつ/消化直前に本来の色へ。消化時は必ず元の予告レベル | fx/feature |
 | 89c-layer.js / css/39-layer.css | 演出の交通整理(見せ方の順番/位置だけ、当否・報酬は不変): バナー(#bn)は全画面パネル/強化シート中は戦闘画面の下寄りへ小さめに(.bup)、熱いバナー直後1秒の普通のバナーは待たせる(待ち行列≤2)。ミニゲームは JACKPOT/押せ!!/全画面ルーレット中なら終わってから開始。カットイン/JACKPOT中はボーナス帯(98e)を引っ込め、数え中のRUSHリザルトは隠す(数え終わりなら下げる)、NEXT はリザルトより上。ミニルーレットは左上角へ移しコンボ/敵名を右へ(`lyNameX()` を 35 の敵名に1行フック)。コンボは吹き出しの上に。ピーク(JACKPOT合計/リザルト確定・ランク/超倍率)に局所の衝撃リング+短いヒットストップ、超倍率はルーレット背後に金の光の筋。ラップの一部は最初の update で入れる(後のファイルより外側)。比較画像 store/design/5,6(テスト: tests/layer.js) | fx |
 | 93b-mission.js | デイリーミッション(日付で3つ、達成で宝石2+魔石、全達成で宝石5)。`localStorage['pachi2_mission']` | feature |
-| 94-prestige.js / css/38-busyfix.css | 転生(魂)。「転生する!」は演出中でも即転生: `presAbort()` が進行中の演出(回転/カットイン/押せ!!/ルーレット/JACKPOT/ミニゲーム/RUSHリザルト等)を打ち切る。後から走る setTimeout は `presLater(fn,ms)`(転生の世代 `PGEN` が変わっていたら何もしない)で予約すること。38-busyfix.css は押せ!!(#push)をメニュー/設定の下に(テスト: tests/prestige.js) | feature |
-| 94b-soul.js | 魂の祭壇: 魂を使って永続強化(開始ステージ/初期G/自動強化/遺物ドロップ率/魂の器)。使っても X.souls(ボーナス)は減らない。`localStorage['pachi2_soul']`。presDo をラップ | feature |
+| 94-prestige.js / css/38-busyfix.css | 転生(魂)。魂 `soulGain(s)` = F(s)-(1-`BAL.soulRep`)xF(min(s,PREC)) x魂の収穫、F(s)=5x(s/30)^2.5: 最高記録を超えた分は満額・記録までは50%(`PREC`=周回開始時の最高記録、`localStorage['pachi2_prec']`。旧セーブは「転生済みで記録より手前なら X.best、他は0」で推定して保存)。転生画面の説明は `presInfo(s)`。転生で X.gps/fgb/fgt もリセット。「転生する!」は演出中でも即転生: `presAbort()` が進行中の演出(回転/カットイン/押せ!!/ルーレット/JACKPOT/ミニゲーム/RUSHリザルト等)を打ち切る。後から走る setTimeout は `presLater(fn,ms)`(転生の世代 `PGEN` が変わっていたら何もしない)で予約すること。38-busyfix.css は押せ!!(#push)をメニュー/設定の下に(テスト: tests/prestige.js) | feature |
+| 94b-soul.js | 魂の祭壇: 魂を使って永続強化(開始ステージ/初期G/自動強化/遺物ドロップ率/魂の器)。開始ステージで再出発した直後は「再出発の勢い」(`SOUL_RUN`: STAGE+15 まで最長3分、1体≒20発になるよう SB.a を補正)で止まらない(テスト: tests/soulrun.js)。使っても X.souls(ボーナス)は減らない。`localStorage['pachi2_soul']`。presDo をラップ | feature |
 | 96b-zukan.js | モンスター図鑑: 敵14種の撃破数と★(★1つでダメージ+1%)。`localStorage['pachi2_zukan']`。kill と SB.a をラップ | feature |
 | 96s-smith.js | リソース: 魔石(撃破で入手)・宝石(JACKPOT/高ランク/図鑑★/お宝)と鍛冶屋(武器強化=キャラ別通常攻撃+12%/Lv・10Lv毎に宝石で限界突破、宝石の護符=3分間 G/ダメージ x2)。`localStorage['pachi2_res']`、転生で残る。戦闘画面右下に所持数 | feature |
 | 96t-kuji.js | 魔石くじ(魔石100/10連1000、確率はメニューに明記。ゲーム内通貨のみ) | feature |
@@ -105,11 +105,12 @@ npm test                            # build + smoke
 3. 見た目/音は実機確認できないので、「何をどう変えたか」と「確認できていないこと」を**正直に**報告する。
 4. 既存のテストが足りなければ `tests/` に追加してよい(`tools/harness.js` のDOM/Audio/Canvasスタブと仮想時計を使う)。
 
-## 既知の課題(2026-11 balance 再計測。`node tools/sim.js`、転生込みは `--pres=auto --meta=1`。ボーナスタイム(98e)等は未計測)
-- 放置+自動購入で 30分 stage 約42、2時間 約70〜80(転生なし)。転生(auto)込みだと 2.5時間で最高 約140〜160。
-- 黄金玉/FEVER/必殺/RUSH は上限あり(対応済み): 黄金玉 約1.5回/分、FEVER稼働 約10%、必殺 14秒に1回(SP が余り気味で ultMin に張り付く)、RUSH稼働 約45%(連チャン込みの1回 平均約22秒、単発は 9秒+延長)。
-- 転生: 魂 = 5x(stage/30)^2.5。STAGE50 付近で転生を繰り返す方が魂/分は多い(押し進める場合の約1.8倍。旧式は約2.3倍)。完全には解消していない。
-- 上限付き強化は 30分でほぼ全て MAX。以降は 攻/金/撃/極(会心ダメージ, STAGE25 解放)の無限強化のみ。中盤以降の選択肢をもう少し増やす余地あり。
+## 既知の課題(2026-11 balance 第2弾で再計測。`node tools/sim.js`、転生込みは `--pres=auto|recN --meta=1`、並列は `--seed0=K`。ボーナスタイム(98e)・遠征(98d)・ハイ&ロー(98f)込み、遠征隊(98g)は未計測)
+- 放置+自動購入で 30分 stage 約42、2時間 約93(転生なし)。転生(auto)込みだと 2時間で最高 約140〜150、2.5時間で 約175〜185。
+- 黄金玉/FEVER/必殺/RUSH は上限あり: FEVER稼働 約10%、RUSH稼働 約43%。必殺は SP を絞って通常時の間隔 中央値 約16〜22秒(10〜90%: 14〜37秒。終盤は仲間の魔導士の SP+10 もあり 14〜20秒に寄る)。
+- 転生: 記録超えは満額・記録までは50%。sim 120分の魂/分: STAGE50 周回 3.4 / 記録+10 で転生 11〜19 / auto(240秒止まったら転生)3.5(第1弾の式+X.gps修正: STAGE50 周回 5.0 / 記録+10 25 / auto 0.4〜1.0)。
+- 開始ステージ(魂の祭壇)が高いと転生直後に強化 Lv1 のまま止まることがある(sim rec10 で STAGE51 から4分進まない例が1回)。祭壇側で開始ステージに見合う初期ゴールドを出す等の余地。
+- 上限付き強化は 30分でほぼ MAX(魂の収穫もすぐ MAX)。以降は 攻/金/撃/極/討 の無限強化 + 転生で上限が伸びる5種。「迷う」幅はまだ小さい。
 - `kyuin()` のフラッシュ・ルーレットの `DOUBLE UP`・黄金玉などは実機での体感未確認。
 
 ## Git運用

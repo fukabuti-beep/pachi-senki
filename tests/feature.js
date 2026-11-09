@@ -114,8 +114,9 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   g.eval('FB[1][1]()'); // やめる → メニューに戻るだけ
   ok(g.eval('X.souls') === 0 && g.eval('G.stage') === 40, 'cancel does not prestige');
   const dmgBefore = g.eval('SB.a()');
+  const gn0 = g.eval('soulGain(40)'); // 転生後は PREC=記録 になり soulGain が変わる(第2弾)ので先に見る
   const gn = g.eval('presDo()');
-  ok(gn === g.eval('soulGain(40)') && gn > 0, 'prestige returns soul gain ' + gn);
+  ok(gn === gn0 && gn > 0, 'prestige returns soul gain ' + gn);
   ok(g.eval('G.stage') === 1 && g.eval('G.gold') < 5000 && g.eval('G.lv.every(v=>v===1)'), 'prestige resets stage/gold/lv');
   ok(g.eval('X.souls') === gn && g.eval('X.pres') === 1 && g.eval('X.best') >= 40, 'souls/pres/best kept');
   ok(g.eval('SB.a()') > dmgBefore && g.eval('SB.g()') > 1, 'soul bonus active');

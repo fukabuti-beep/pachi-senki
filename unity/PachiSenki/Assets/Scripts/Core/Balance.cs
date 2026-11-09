@@ -8,10 +8,11 @@ namespace PachiSenki.Core
     {
         public static double atk0 = 5, atkg = 1.25, mulg = 1.2, hp0 = 1500, hpg = 1.32, boss = 4, costg = 1.63, costgCap = 1.45, costk = 50;
         public static double hit0 = .15, hitStep = .025, rushP = .10, jpP = .04;
-        public static double spBall = .14, spHero = 1.9, spStep = .06, ultMin = 14, ultK = 35;
+        public static double spBall = .07, spHero = 1.0, spStep = .06, ultMin = 14, ultK = 42;
         public static double goldBase = 45, goldStep = .12, fevBase = 60, fevStep = .1;
         public static int pityStart = 24, pityEnd = 60;
         public static double evP = .15, supP = .3, supG = .25;
+        public static double bossg = 1.15, soulRep = .5;   // ボス特効(添字15) / 転生の魂: 記録までの分の割合(Web版 94-prestige)
     }
 
     public sealed class UpgradeDef
@@ -41,6 +42,8 @@ namespace PachiSenki.Core
             new UpgradeDef("招","ルーレット招待","押せ!!発生+2% MAX10",90,15,10),
             new UpgradeDef("超","超倍率","化ける率+3% MAX10",120,20,10),
             new UpgradeDef("極","会心ダメージ","会心の威力+8%",1500,25,Inf),
+            new UpgradeDef("討","ボス特効","ボスへのダメージ+15%",6000,30,Inf),
+            new UpgradeDef("収","魂の収穫","転生の魂+6% MAX10",40000,40,10),   // 転生は Core 未移植のため効果は Web版のみ
         };
         public static int Count => All.Length;
     }

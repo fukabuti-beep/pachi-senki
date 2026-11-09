@@ -58,7 +58,11 @@ static class Program
         var back = new PachiGame(new Mulberry32(1)); back.Load(JsonSerializer.Deserialize<SaveData>(json, new JsonSerializerOptions { IncludeFields = true }));
         Ok(back.G.stage == gs.G.stage && back.G.lv.SequenceEqual(gs.G.lv), "セーブの読み戻し");
         var broken = new PachiGame(); broken.Load(new SaveData { gold = double.NaN, stage = -5, lv = new[] { 3, 0, -1, 2, 1, 1, 1, 1, 1, 1 } });
-        Ok(broken.G.gold == 0 && broken.G.stage == 1 && broken.G.lv[0] == 3 && broken.G.lv[1] == 1 && broken.G.lv.Length == 15 && broken.G.lv[14] == 1, "壊れたセーブ/旧セーブの丸め");
+        Ok(broken.G.gold == 0 && broken.G.stage == 1 && broken.G.lv[0] == 3 && broken.G.lv[1] == 1 && broken.G.lv.Length == 17 && broken.G.lv[14] == 1 && broken.G.lv[16] == 1, "壊れたセーブ/旧セーブの丸め");
+
+        // 3b) ボス特効(添字15): ボス戦だけ x1.15/Lv、通常の敵は変わらない
+        { var bg = new PachiGame(new Mulberry32(1)); bg.G.stage = 4; double a4 = bg.Atk(); bg.G.lv[15] = 3; double b4 = bg.Atk(); bg.G.stage = 5; double b5 = bg.Atk(); bg.G.lv[15] = 1; double a5 = bg.Atk();
+          Ok(a4 == b4 && Math.Abs(b5 / a5 - 1.15 * 1.15) < 1e-9, $"ボス特効 {a4} {b4} {a5} {b5}"); }
 
         // 4) 天井: 通常時 pityEnd 回はずれたら次は必ず当たる
         var p = new PachiGame(new Mulberry32(5)); int maxDry = 0;

@@ -28,3 +28,6 @@ function appRestore(s){try{if(localStorage.getItem('pachi2'))return false;const 
  if(n&&typeof location!=='undefined')location.reload();return n>0}catch(e){return false}}
 try{setInterval(()=>{appRow();appBackup()},1000*5);setTimeout(appRow,500);
  if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('visibilitychange',()=>{if(document.hidden)appBackup()})}catch(e){}
+/* 設定の「データ リセット」(28-settings の cfgYes): アプリ側の控えも空にする(しないと再読込後に appRestore が古いセーブを書き戻してしまう)。
+   リセット処理(再読込)より先に走るよう、捕捉フェーズで受ける */
+try{if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{try{if(e&&e.target&&e.target.id==='cfgYes'){UAPP.bak='';appSend('save:{}')}}catch(x){}},true)}catch(e){}

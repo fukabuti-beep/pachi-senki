@@ -509,6 +509,21 @@ input[type=range]{-webkit-user-select:none;user-select:none}
 /* 内側のスクロール領域だけはスクロール可、端で筐体ごと揺れないように */
 .cfgb,html body #fxm .rb,html body #fxg .rb{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
+/* 38-busyfix.css */
+/* 「演出中だから操作できない」系の修正(見た目の仕様は変えない)。
+   押せ!!(#push)は z-index:12 でメニュー/設定(#fxm/#cfg 10)やトースト(#fxt 11)より前面にあったため、
+   メニューや設定を開いている最中に大当たりが来ると、押せ!!が画面を覆ってメニューのボタンを押すと「押せ!!」が押されてしまっていた
+   (転生の確認ダイアログも同様)。プレイヤーが自分で開いた画面を優先し、押せ!!はその下(放置で自動で押されるので詰まらない)。
+   バナー(#bn 7)/フラッシュ(#fl 8)/戦闘画面より前面なのは従来どおり。 */
+html body #push{z-index:9}
+
+/* ミニゲーム(BONUS STOP=#mg / 宝箱くじ・コインラッシュ=#fxg)の暗幕が画面全体のタップを奪っていたため、
+   出ている約7〜8秒のあいだ ☰メニュー/強化/設定/BGM/ハンドルが押せなかった(押すとミニゲームの操作になる)。
+   操作はパネル(.rb)のタップで受け、暗幕の外側は下の筐体へ通す。どれも放置で自動決着するので従来どおり詰まらない。
+   95-minigames が #mg に inline で pointer-events:auto を付けるので !important で上書き。 */
+html body #mg,html body #fxg{pointer-events:none!important}
+html body #mg .rb,html body #fxg .rb{pointer-events:auto}
+
 /* 38-expedition.css */
 /* 遠征(98d)/ボーナスタイム(98e)のメニュー部品。34-menu.css の筐体デザイン(金ベゼル/液晶)に合わせる */
 html body #fxm .exbox{margin:6px 0 10px;padding:10px 8px;background:linear-gradient(#1e1258,#120838);
@@ -1054,7 +1069,7 @@ function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
 function pushPress(auto){const P0=PUSH;if(!P0||P0.done)return;P0.done=1;P0.tm.forEach(clearTimeout);
  const el=$('push');el.className+=' hit';$('pkT').textContent='GO!!';
  flash('#fff');shake();kyuin(P0.small?5:9,'#ffd400');
- setTimeout(()=>{el.className='';PUSH=null;P0.cb()},P0.small?420:700)}
+ setTimeout(()=>{if(PUSH!==P0)return;el.className='';PUSH=null;P0.cb()},P0.small?420:700)}
 $('push').onpointerdown=()=>pushPress(0);
 
 /* 追加強化(23-upgrades2)のアイコン。26-dots の UX.ICNC に足して ic10〜ic13 に描く */
@@ -1073,7 +1088,7 @@ const F=[],PT=[],PR=[],FX=[],HA=[-9,-9,-9];let cmb=0,cmbT=0,cut=null,DT=.016;
 const cm=()=>1+Math.min(cmb,50)*.03;
 function burst(x,y,n,c){for(let i=0;i<n;i++){const a=Math.random()*TAU,s=1+Math.random()*4;PT.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,l:1,c})}}
 function hurt(x,col,big,crit){if(crit)x*=3;F.push({x:215+Math.random()*80,y:60+Math.random()*25,t:0,s:(crit?'★':'')+fmt(x),c:crit?'#ffe14d':col||'#fff',b:big||crit});G.hit=crit?1.4:.8;if(crit){burst(262,80,8,'#ffe14d');zoom();HS=.07}G.hp-=x;if(G.hp<=0)kill()}
-function kill(){const rr=Math.random()<.12,g=Math.floor(G.mx*.35*mul()*(isBoss()?2:1)*(rr?5:1));if(rr){banner('RARE DROP!!','#ffd400');kyuin(5,'#ffd400')}G.gold+=g;for(let i=0;i<30;i++)PT.push({x:262,y:90,vx:(Math.random()-.5)*7,vy:-2-Math.random()*4,l:1.4,c:'#ffd400'});F.push({x:150,y:35,t:0,s:'+'+fmt(g),c:'#ffd400',b:1});beep(880,.15,'square',.05);if(isBoss()){setTimeout(mini,1200);fan()}G.stage++;if([3,5,8].includes(G.stage))banner('NEW 強化解放!','#22e0ff');spawn()}
+function kill(){const rr=Math.random()<.12,g=Math.floor(G.mx*.35*mul()*(isBoss()?2:1)*(rr?5:1));if(rr){banner('RARE DROP!!','#ffd400');kyuin(5,'#ffd400')}G.gold+=g;for(let i=0;i<30;i++)PT.push({x:262,y:90,vx:(Math.random()-.5)*7,vy:-2-Math.random()*4,l:1.4,c:'#ffd400'});F.push({x:150,y:35,t:0,s:'+'+fmt(g),c:'#ffd400',b:1});beep(880,.15,'square',.05);if(isBoss()){presLater(mini,1200);fan()}G.stage++;if([3,5,8].includes(G.stage))banner('NEW 強化解放!','#22e0ff');spawn()}
 function heroAtk(i,m){HA[i]=T;PR.push({i,t:0,d:atk()*m*cm(),cr:Math.random()<critP()})}
 function cutin(h,txt,c,cb){cut={t0:T,h,txt,c,cb,f:0};flash('#fff');beep(300,.3,'sawtooth',.06)}
 function ult(){LU=T;const h=Math.floor(Math.random()*3);G.sp=0;cutin(h,['烈火斬','雷撃陣','千矢雨'][h],'#22e0ff',()=>{FX.push({k:h,t0:T});burst(262,80,50,'#22e0ff');shake();hurt(atk()*25*cm(),'#22e0ff',1,1);beep(220,.4,'sawtooth',.08)})}
@@ -2829,14 +2844,33 @@ const SB={a:()=>1+.1*X.souls,g:()=>1+.05*X.souls};
 if(typeof hurt==='function'){const o=hurt;hurt=function(x){const a=[].slice.call(arguments);a[0]=x*SB.a();return o.apply(this,a)}}
 /* 獲得できる魂: stage<PRES_MIN なら0。stage30=5, 60=14, 100=31, 150=58 */
 const soulGain=s=>s<PRES_MIN?0:Math.floor(Math.pow(s/10,1.5));
-/* 演出中(スロット/ルーレット/ミニゲーム/カットイン)は転生させない */
-const presBusy=()=>!!(sp||RL||G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2));
+/* 演出中(スロット/ルーレット/ミニゲーム/カットイン/押せ!!)かどうか。
+   以前はこれが真だと転生を断っていたが、放置中はスロットがほぼ常に回っているので事実上転生できなかった。
+   今は「転生する!」を押したら presAbort() で進行中の演出を安全に打ち切ってから即転生する(確認画面で注意書きを出すだけ)。 */
+const presBusy=()=>!!(sp||RL||G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2)||(typeof PUSH!=='undefined'&&PUSH)||(typeof HL!=='undefined'&&HL));
+/* 転生の世代。setTimeout で後から走る演出(ボス撃破→ミニゲーム、ラッシュ斬り、節目演出など)は presLater で予約し、
+   その間に転生したら何もしない(新しい周回に古い報酬/ミニゲームが混ざらないように) */
+let PGEN=0;
+function presLater(fn,ms){const g=PGEN;return setTimeout(()=>{if(g===PGEN)fn()},ms)}
+/* 進行中の演出をすべて止める(当否/報酬は捨てる。転生で G/STAGE はどのみちリセットされる)。各ファイルの状態は存在する時だけ触る */
+function presAbort(){PGEN++;const tr=f=>{try{f()}catch(e){}};
+  tr(()=>{if(PUSH){(PUSH.tm||[]).forEach(clearTimeout);PUSH=null}const e=$('push');if(e)e.className=''});
+  sp=null;cut=null;RL=null;G.roul=0;G.jp=0;
+  tr(()=>{$('rl').style.display='none'});
+  tr(()=>{MG=null;$('mg').style.display='none'});
+  tr(()=>{if(typeof MG2!=='undefined'&&MG2)mg2End()});
+  tr(()=>{if(typeof HL!=='undefined'&&HL){HL=null;const e=$('fxg');if(e)e.style.display='none'}}); // ハイ&ロー(98f、#fxg を使う)
+  tr(()=>{if(typeof HEV!=='undefined'){HEV.mr=null;HEV.jr=null;HEV.mq.length=0}});
+  tr(()=>{if(typeof JPX!=='undefined'){JPX.p=null;JPX.coins.length=0}});
+  tr(()=>{if(typeof GK!=='undefined'){GK.rs=null;GK.rr=null;GK.pop=null}});
+  tr(()=>{if(typeof ACT!=='undefined'){ACT.cb=null;ACT.warn=null;ACT.fin=null;ACT.mile=null;if(typeof cbHide==='function')cbHide()}});
+  tr(()=>{RS=null;HS=0})}
 function presAsk(){
   const gn=soulGain(G.stage);if(gn<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
-  if(presBusy()){fxToast('演出が終わるまで待ってね','#aaa');return}
-  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。</div><div class="fxn">魂 +'+gn+'</div><div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+SB.a().toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
+  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div><div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+SB.a().toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
 function presDo(){
-  const gn=soulGain(G.stage);if(gn<1||presBusy()){fxClose();return 0}
+  const gn=soulGain(G.stage);if(gn<1){fxClose();return 0}
+  presAbort();
   X.best=Math.max(X.best,G.stage);X.souls+=gn;X.pres++;
   G.gold=0;G.stage=1;G.lv=G.lv.map(()=>1);G.rush=0;G.combo=0;G.pool=0;G.sp=0;G.q=0;G.at=0;G.fv=0;G.aw=0;G.hit=0;QL.length=0;balls.length=0;PR.length=0;cmb=0;cmbT=0;
   fg=0;spawn();refresh();
@@ -3307,6 +3341,9 @@ function appRestore(s){try{if(localStorage.getItem('pachi2'))return false;const 
  if(n&&typeof location!=='undefined')location.reload();return n>0}catch(e){return false}}
 try{setInterval(()=>{appRow();appBackup()},1000*5);setTimeout(appRow,500);
  if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('visibilitychange',()=>{if(document.hidden)appBackup()})}catch(e){}
+/* 設定の「データ リセット」(28-settings の cfgYes): アプリ側の控えも空にする(しないと再読込後に appRestore が古いセーブを書き戻してしまう)。
+   リセット処理(再読込)より先に走るよう、捕捉フェーズで受ける */
+try{if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('click',e=>{try{if(e&&e.target&&e.target.id==='cfgYes'){UAPP.bak='';appSend('save:{}')}}catch(x){}},true)}catch(e){}
 
 /* ---------- feature: iPhone(WKWebView / Safari / ホーム画面追加)でアプリっぽく動かすための調整 ----------
    見た目・演出・バランスは変えない。CSS は css/37-ios.css。
@@ -3449,7 +3486,7 @@ function actTap(e){if(!run)return;const [x,y]=e&&e.clientX!=null?actXY(e):[260,8
   if(ACT.sp.length<16)ACT.sp.push({x:Math.max(200,Math.min(330,x)),y:Math.max(40,Math.min(120,y)),t0:T,c:cr?'#ffe14d':'#9ff'});
   actSnd(cr?1500:900+Math.min(600,ACT.tc*12),.04,'square',.025);
   if(ACT.tc%30==0){actRush()}}
-function actRush(){banner('ラッシュ斬り!!','#22e0ff');kyuin(4,'#22e0ff');shake();for(let i=0;i<6;i++)setTimeout(()=>{try{hurt(atk()*1.5,'#22e0ff',1,i==5);burst(262,80,10,'#22e0ff')}catch(e){}},i*90)}
+function actRush(){banner('ラッシュ斬り!!','#22e0ff');kyuin(4,'#22e0ff');shake();for(let i=0;i<6;i++)presLater(()=>{try{hurt(atk()*1.5,'#22e0ff',1,i==5);burst(262,80,10,'#22e0ff')}catch(e){}},i*90)}
 {const b=$('b');if(b&&b.addEventListener){b.addEventListener('pointerdown',actTap);if(b.style)b.style.touchAction='manipulation'}}
 
 /* --- 2) お宝ターゲット --- */
@@ -3473,7 +3510,7 @@ function actTgUpd(dt){
   if(run&&G.stage>s0&&s0%10==0)actMile(s0)}catch(e){}return r}}
 /* --- 5) 10ステージごとの節目: 「STAGE n 突破!!」+ 紙吹雪 --- */
 const CF=[];
-function actMile(n){ACT.mile={t0:T+1.4,n};setTimeout(()=>{try{banner('STAGE '+n+' 突破!!','#ffd400');kyuin(6,'#ffd400');try{jara()}catch(e){}
+function actMile(n){ACT.mile={t0:T+1.4,n};presLater(()=>{try{banner('STAGE '+n+' 突破!!','#ffd400');kyuin(6,'#ffd400');try{jara()}catch(e){}
   for(let i=0;i<60&&CF.length<80;i++)CF.push({x:Math.random()*360,y:-10-Math.random()*60,vx:(Math.random()-.5)*40,vy:40+Math.random()*60,r:Math.random()*6,h:Math.floor(Math.random()*360),t0:T})}catch(e){}},1400)}
 
 /* --- 4) SUPERリーチ中のチャンスボタン --- */
@@ -3711,7 +3748,7 @@ G.at+=dt;if(G.at>.55/(G.rush>0?2:1)){G.at=0;G.ai=(G.ai+1)%3;heroAtk(G.ai,.8*(G.r
 if(G.sp>=100&&!cut&&!G.roul&&ultReady())ult();
 if(G.rush>0){if(!PUSH)G.rush-=dt;if(G.rush<=0){G.rush=0;G.combo=0;showMsg('RUSH終了','#aaa')}}
 ui+=dt;if(ui>.1){ui=0;refresh()}sv+=dt;if(sv>4){sv=0;try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}}featUpdate(dt)}
-function loop(ts){const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run)update(HS>0?dt*.12:dt);drawP(T);drawB(T);drawMq(T);requestAnimationFrame(loop)}
+function loop(ts){requestAnimationFrame(loop);const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run)update(HS>0?dt*.12:dt);drawP(T);drawB(T);drawMq(T)}
 spawn();refresh();requestAnimationFrame(loop);
 $('go').onclick=()=>{try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}$('ov').style.display='none';run=true;featStart();beep(660,.1);bgm()};
 

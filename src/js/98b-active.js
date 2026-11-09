@@ -21,7 +21,7 @@ function actTap(e){if(!run)return;const [x,y]=e&&e.clientX!=null?actXY(e):[260,8
   if(ACT.sp.length<16)ACT.sp.push({x:Math.max(200,Math.min(330,x)),y:Math.max(40,Math.min(120,y)),t0:T,c:cr?'#ffe14d':'#9ff'});
   actSnd(cr?1500:900+Math.min(600,ACT.tc*12),.04,'square',.025);
   if(ACT.tc%30==0){actRush()}}
-function actRush(){banner('ラッシュ斬り!!','#22e0ff');kyuin(4,'#22e0ff');shake();for(let i=0;i<6;i++)setTimeout(()=>{try{hurt(atk()*1.5,'#22e0ff',1,i==5);burst(262,80,10,'#22e0ff')}catch(e){}},i*90)}
+function actRush(){banner('ラッシュ斬り!!','#22e0ff');kyuin(4,'#22e0ff');shake();for(let i=0;i<6;i++)presLater(()=>{try{hurt(atk()*1.5,'#22e0ff',1,i==5);burst(262,80,10,'#22e0ff')}catch(e){}},i*90)}
 {const b=$('b');if(b&&b.addEventListener){b.addEventListener('pointerdown',actTap);if(b.style)b.style.touchAction='manipulation'}}
 
 /* --- 2) お宝ターゲット --- */
@@ -45,7 +45,7 @@ function actTgUpd(dt){
   if(run&&G.stage>s0&&s0%10==0)actMile(s0)}catch(e){}return r}}
 /* --- 5) 10ステージごとの節目: 「STAGE n 突破!!」+ 紙吹雪 --- */
 const CF=[];
-function actMile(n){ACT.mile={t0:T+1.4,n};setTimeout(()=>{try{banner('STAGE '+n+' 突破!!','#ffd400');kyuin(6,'#ffd400');try{jara()}catch(e){}
+function actMile(n){ACT.mile={t0:T+1.4,n};presLater(()=>{try{banner('STAGE '+n+' 突破!!','#ffd400');kyuin(6,'#ffd400');try{jara()}catch(e){}
   for(let i=0;i<60&&CF.length<80;i++)CF.push({x:Math.random()*360,y:-10-Math.random()*60,vx:(Math.random()-.5)*40,vy:40+Math.random()*60,r:Math.random()*6,h:Math.floor(Math.random()*360),t0:T})}catch(e){}},1400)}
 
 /* --- 4) SUPERリーチ中のチャンスボタン --- */

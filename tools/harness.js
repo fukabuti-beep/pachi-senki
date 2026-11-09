@@ -109,7 +109,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
   const game = {
     ctx, audio, els, store, stats,
     // ブラウザイベントの発火(visibilitychange / resize など)。hidden は document.hidden に反映
-    fire(type, { hidden } = {}) { if (hidden != null) document.hidden = hidden; for (const f of (docEv[type] || []).concat(winEv[type] || [])) f({ type, target: document }); },
+    fire(type, { hidden, target } = {}) { if (hidden != null) document.hidden = hidden; for (const f of (docEv[type] || []).concat(winEv[type] || [])) f({ type, target: target || document }); },
     setSize(w, h) { sandbox.innerWidth = w; sandbox.innerHeight = h; },
     get time() { return simTime; },
     eval: code => vm.runInContext(code, ctx, { filename: 'probe.js' }),

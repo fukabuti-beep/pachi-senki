@@ -22,6 +22,14 @@ let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.error('FAIL: ' 
     ok(g.eval(`appRestore('{"pachi2":"{\\\\"gold\\\\":9}","other":"x"}')`) === true, 'restore: writes');
     ok(g.eval('localStorage.getItem("pachi2")') === '{"gold":9}' && g.eval('localStorage.getItem("other")') === null, 'restore: only pachi2 keys');
     g.eval('localStorage.removeItem("pachi2")'); ok(g.eval(`appRestore('not json')`) === false, 'restore: corrupt ignored'); }
+  // 4) データリセット: アプリ側の控えも空にする(cfgYes のクリックを捕捉)
+  { const g = createGame({ seed: 4 }); g.eval(`window.__m=[];window.Unity={call:m=>window.__m.push(m)};window.PachiApp={v:1}`); g.start();
+    g.eval(`document.getElementById('cfgYes')`);
+    g.eval(`window.__m.length=0`);
+    // harness の fire は target=document で呼ぶので、捕捉ハンドラを直接たたく代わりに cfgYes を target にした擬似イベントを登録済みハンドラへ流す
+    ok(g.eval(`(function(){try{UAPP.bak='x';const e={target:{id:'cfgYes'}};document.__test=e;return true}catch(x){return false}})()`), 'reset: setup');
+    g.fire('click'); ok(!g.eval('window.__m.includes("save:{}")'), 'reset: other clicks ignored');
+    g.fire('click', { target: { id: 'cfgYes' } }); ok(g.eval('window.__m.includes("save:{}")'), 'reset: backup cleared'); }
   if (fails) { console.error(fails + ' app failure(s)'); process.exit(1); }
   console.log('APP OK');
 })();

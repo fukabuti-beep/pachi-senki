@@ -38,6 +38,9 @@ function presDo(){
   X.best=Math.max(X.best,G.stage);X.souls+=gn;X.pres++;
   G.gold=0;G.stage=1;G.lv=G.lv.map(()=>1);G.rush=0;G.combo=0;G.pool=0;G.sp=0;G.q=0;G.at=0;G.fv=0;G.aw=0;G.hit=0;QL.length=0;balls.length=0;PR.length=0;cmb=0;cmbT=0;
   fg=0;spawn();refresh();
+  /* 収入の平均(91 の X.gps)は前の周回の稼ぎなので測り直す。残すと直後の実績報酬(achReward)やオフライン収入が
+     前の周回の収入基準になり、リセットしたゴールドが一気に戻っていた(QA: STAGE 31 の転生直後に 8.9億G) */
+  X.gps=0;fgb=0;fgt=0;
   try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}
   saveX();fxClose();banner('転生!! 魂 +'+gn,'#c8b8ff');kyuin(6,'#c8b8ff');fan();shake();achCheck();return gn}
 FM.push({n:'転生',r:()=>{const gn=soulGain(G.stage),can=gn>=1;return '<div class="fxh">転生</div><div class="fxp">STAGE '+PRES_MIN+' 以上でリセットし、永続ボーナス「魂」を得る。</div><div class="fxs">所持 魂 '+X.souls+'(転生 '+X.pres+'回)<br>ダメージ x'+SB.a().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+'</div><div class="fxs" style="margin-top:6px">今の STAGE '+G.stage+' → 獲得予定 魂 +'+gn+'</div><button class="fxb'+(can?'':' d')+'" onclick="presAsk()">転生する</button>'}});

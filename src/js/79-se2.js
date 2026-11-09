@@ -55,7 +55,7 @@ function seReachStage(k,sup){
     sBig(()=>{
       tone(mf(b),t,.1,'p25',.05);tone(mf(b+4),t+.06,.1,'p25',.05);tone(mf(b+7),t+.12,.1,'p25',.05);tone(mf(b+12),t+.18,.3+.05*k,'p25',.055);
       tone(mf(b-12),t,.4,'triangle',.06);
-      tone(65+8*k,t,.14,'sine',.17,38);tone(65+8*k,t+.2,.14,'sine',.17,38);
+      {const hv=sup&&k<3?.11:.15;tone(65+8*k,t,.14,'sine',hv,38);tone(65+8*k,t+.2,.14,'sine',hv,38)}
       if(sup){tone(mf(b+19),t+.24,.3,'sawtooth',.02,mf(b+24));noise(t+.18,.03,.3,'h')}
     });sDuck(.2,.6);
   }catch(e){}

@@ -25,13 +25,13 @@ const btOn=id=>!!(BT.cur&&BTK[BT.cur.k].id===id);
 if(typeof resMs==='function'){const o=resMs;resMs=function(n){return o.call(this,btOn('ms')?n*3:n)}}
 const btBusy=()=>!!(G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2)||(typeof HL!=='undefined'&&HL));
 function btStart(k){if(k==null)k=Math.floor(Math.random()*BTK.length);const K=BTK[k];BT.cur={k,rem:BT.dur,t0:T};BT.pre=0;BT.n++;btSave();
-  try{banner(K.n+'!! '+K.d,K.c);kyuin(7,K.c);fan();if(sOK()){const t=sNow();[523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>tone(f,t+.75+i*.09,.12,'square',.035))}}catch(e){}
+  try{banner(K.n+'!! '+K.d,K.c);kyuin(7,K.c);fan();seBt('start',k)}catch(e){}
   fxToast(K.n+' 開始! '+BT.dur+'秒間 '+K.d,K.c)}
-function btEnd(){const K=BTK[BT.cur.k];BT.cur=null;BT.left=btGap();btSave();showMsg(K.n+' 終了','#aaa')}
+function btEnd(){const K=BTK[BT.cur.k];BT.cur=null;BT.left=btGap();btSave();showMsg(K.n+' 終了','#aaa');seBt('end')}
 function btUpd(dt){if(!run)return;
   if(BT.cur){if(BT.cur.t0<0)BT.cur.t0=T;BT.cur.rem-=dt;if(BT.cur.rem<=0)btEnd()}
   else{BT.left-=dt;
-    if(BT.left<=5&&!BT.pre){BT.pre=1;showMsg('まもなく ボーナスタイム!','#ffd400');try{if(sOK()){const t=sNow();for(let i=0;i<3;i++)tone(1319,t+i*.3,.1,'p25',.03,1760)}}catch(e){}}
+    if(BT.left<=5&&!BT.pre){BT.pre=1;showMsg('まもなく ボーナスタイム!','#ffd400');seBt('pre');}
     if(BT.left<=0){if(btBusy())BT.left=0;else btStart()}}
   BT.sv+=dt;if(BT.sv>5){BT.sv=0;btSave()}}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{btUpd(dt)}catch(e){BT.cur=null;BT.left=btGap()}return r}}

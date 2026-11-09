@@ -10,22 +10,39 @@ function sLad(i){const sc=SND.min?[0,3,5,7,10]:[0,2,4,7,9],b=60+((SND.pc+6)%12)-
 const sBig=f=>{sPri++;try{f()}finally{sPri--}};
 function sFlash(c){try{if(typeof flash==='function')flash(c)}catch(e){}}
 
-/* キュイン: n段の上昇スイープ。段ごとに(ノコギリ+1オクターブ上の矩形+微ディチューン)を重ね、最後は余韻とキラキラ */
+/* キュイン: n段の上昇スイープ。段ごとに(ノコギリ+1オクターブ上の矩形+微ディチューン)を重ね、最後は余韻とキラキラ
+   耳の疲れ対策(音だけ。フラッシュは従来どおり): キュインごとに専用バス(sKB)を通し、
+   ・鳴っている途中に次のキュインが来たら前のを30msで消して差し替える(重ねて濁らせない)。ただし大きい(段数の多い)キュインの途中に来た小さいキュインは鳴らさない
+   ・直近8秒のキュイン回数 c に応じて小さめに: 音量 x max(.6, 1-.08*(c-1))。7段以上(大当たり級)は常にフル音量 */
+let sKB=null,sKH=[];
+function sKyBus(n,t0,dur){
+  const g=sGr();if(!g)return null;
+  const now=AC.currentTime;sKH=sKH.filter(x=>x>now-8);const c=sKH.length;sKH.push(now);
+  const old=sKB&&sKB.ac===AC&&sKB.end>now?sKB:null;
+  if(old&&old.n>n&&n<7)return 0; // 大きいキュインの途中: 小さい方は鳴らさない
+  if(old){try{old.bus.gain.cancelScheduledValues(now);old.bus.gain.setValueAtTime(old.v,now);old.bus.gain.linearRampToValueAtTime(0,now+.03);const b=old.bus;setTimeout(()=>{try{b.disconnect()}catch(e){}},500)}catch(e){}}
+  const v=n>=7?1:Math.max(.6,1-.08*Math.max(0,c-1)),bus=AC.createGain();
+  bus.gain.setValueAtTime(v,now);bus.connect(g.se);
+  sKB={ac:AC,bus,n,v,end:t0+dur};
+  setTimeout(()=>{try{if(sKB&&sKB.bus===bus)sKB=null;bus.disconnect()}catch(e){}},(dur+1.5)*1000);
+  return sKB;
+}
 function kyuin(n,c){
   n=Math.max(1,n|0);
   if(sOK())try{
-    const t0=sNow(),st=n>6?2:3;
+    const t0=sNow(),st=n>6?2:3,B=sKyBus(n,t0,n*.105+.45);
+    if(B!==0){const tk=(f,t,d,ty,v,f2)=>B?sTb(B.bus,f,t,d,ty,v,f2):tone(f,t,d,ty,v,f2);
     sBig(()=>{
       for(let i=0;i<n;i++){
         const f=900*Math.pow(2,i*st/12),t=t0+i*.105,last=i===n-1;
-        tone(f,t,.1,'sawtooth',.05,f*1.9);
-        tone(f*2,t,.1,'p25',.018,f*3.6);
-        tone(f*1.007,t+.012,.1,'sawtooth',.02,f*1.9*1.007);
-        if(i===0&&n>=4)tone(140,t,.14,'sine',.13,45);
-        if(last){tone(f*1.9,t+.1,.32,'sine',.03);noise(t+.02,.025,.2,'h')}
+        tk(f,t,.1,'sawtooth',.05,f*1.9);
+        tk(f*2,t,.1,'p25',.018,f*3.6);
+        tk(f*1.007,t+.012,.1,'sawtooth',.02,f*1.9*1.007);
+        if(i===0&&n>=4)tk(140,t,.14,'sine',.13,45);
+        if(last){tk(f*1.9,t+.1,.32,'sine',.03);noise(t+.02,.025,.2,'h')}
       }
     });
-    if(n>=3)sDuck(.25,n*.105+.2);
+    if(n>=3)sDuck(.25,n*.105+.2);}
   }catch(e){}
   // 画面フラッシュは約3Hzに間引く(光過敏性への配慮)。AC有無に依存しない
   for(let i=0;i<n;i++)if(i%3===0||i===n-1)setTimeout(()=>sFlash(((i/3)|0)%2?c:'#fff'),i*105);
@@ -89,7 +106,7 @@ function seReach(sup){
   if(!sOK())return;
   try{const t=sNow();
     sBig(()=>{
-      tone(70,t,.16,'sine',.18,40);tone(70,t+.22,.16,'sine',.18,40);
+      tone(70,t,.16,'sine',.15,40);tone(70,t+.22,.16,'sine',.15,40);
       tone(300,t+.1,.6,'sawtooth',.03,900);
       if(sup){for(let i=0;i<6;i++)tone(i%2?740:1046,t+.45+i*.14,.14,'square',.035);tone(55,t+.4,1,'sawtooth',.06,45)}
     });sDuck(.25,1)}catch(e){}

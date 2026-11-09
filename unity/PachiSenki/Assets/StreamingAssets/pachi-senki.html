@@ -1760,22 +1760,39 @@ function sLad(i){const sc=SND.min?[0,3,5,7,10]:[0,2,4,7,9],b=60+((SND.pc+6)%12)-
 const sBig=f=>{sPri++;try{f()}finally{sPri--}};
 function sFlash(c){try{if(typeof flash==='function')flash(c)}catch(e){}}
 
-/* キュイン: n段の上昇スイープ。段ごとに(ノコギリ+1オクターブ上の矩形+微ディチューン)を重ね、最後は余韻とキラキラ */
+/* キュイン: n段の上昇スイープ。段ごとに(ノコギリ+1オクターブ上の矩形+微ディチューン)を重ね、最後は余韻とキラキラ
+   耳の疲れ対策(音だけ。フラッシュは従来どおり): キュインごとに専用バス(sKB)を通し、
+   ・鳴っている途中に次のキュインが来たら前のを30msで消して差し替える(重ねて濁らせない)。ただし大きい(段数の多い)キュインの途中に来た小さいキュインは鳴らさない
+   ・直近8秒のキュイン回数 c に応じて小さめに: 音量 x max(.6, 1-.08*(c-1))。7段以上(大当たり級)は常にフル音量 */
+let sKB=null,sKH=[];
+function sKyBus(n,t0,dur){
+  const g=sGr();if(!g)return null;
+  const now=AC.currentTime;sKH=sKH.filter(x=>x>now-8);const c=sKH.length;sKH.push(now);
+  const old=sKB&&sKB.ac===AC&&sKB.end>now?sKB:null;
+  if(old&&old.n>n&&n<7)return 0; // 大きいキュインの途中: 小さい方は鳴らさない
+  if(old){try{old.bus.gain.cancelScheduledValues(now);old.bus.gain.setValueAtTime(old.v,now);old.bus.gain.linearRampToValueAtTime(0,now+.03);const b=old.bus;setTimeout(()=>{try{b.disconnect()}catch(e){}},500)}catch(e){}}
+  const v=n>=7?1:Math.max(.6,1-.08*Math.max(0,c-1)),bus=AC.createGain();
+  bus.gain.setValueAtTime(v,now);bus.connect(g.se);
+  sKB={ac:AC,bus,n,v,end:t0+dur};
+  setTimeout(()=>{try{if(sKB&&sKB.bus===bus)sKB=null;bus.disconnect()}catch(e){}},(dur+1.5)*1000);
+  return sKB;
+}
 function kyuin(n,c){
   n=Math.max(1,n|0);
   if(sOK())try{
-    const t0=sNow(),st=n>6?2:3;
+    const t0=sNow(),st=n>6?2:3,B=sKyBus(n,t0,n*.105+.45);
+    if(B!==0){const tk=(f,t,d,ty,v,f2)=>B?sTb(B.bus,f,t,d,ty,v,f2):tone(f,t,d,ty,v,f2);
     sBig(()=>{
       for(let i=0;i<n;i++){
         const f=900*Math.pow(2,i*st/12),t=t0+i*.105,last=i===n-1;
-        tone(f,t,.1,'sawtooth',.05,f*1.9);
-        tone(f*2,t,.1,'p25',.018,f*3.6);
-        tone(f*1.007,t+.012,.1,'sawtooth',.02,f*1.9*1.007);
-        if(i===0&&n>=4)tone(140,t,.14,'sine',.13,45);
-        if(last){tone(f*1.9,t+.1,.32,'sine',.03);noise(t+.02,.025,.2,'h')}
+        tk(f,t,.1,'sawtooth',.05,f*1.9);
+        tk(f*2,t,.1,'p25',.018,f*3.6);
+        tk(f*1.007,t+.012,.1,'sawtooth',.02,f*1.9*1.007);
+        if(i===0&&n>=4)tk(140,t,.14,'sine',.13,45);
+        if(last){tk(f*1.9,t+.1,.32,'sine',.03);noise(t+.02,.025,.2,'h')}
       }
     });
-    if(n>=3)sDuck(.25,n*.105+.2);
+    if(n>=3)sDuck(.25,n*.105+.2);}
   }catch(e){}
   // 画面フラッシュは約3Hzに間引く(光過敏性への配慮)。AC有無に依存しない
   for(let i=0;i<n;i++)if(i%3===0||i===n-1)setTimeout(()=>sFlash(((i/3)|0)%2?c:'#fff'),i*105);
@@ -1839,7 +1856,7 @@ function seReach(sup){
   if(!sOK())return;
   try{const t=sNow();
     sBig(()=>{
-      tone(70,t,.16,'sine',.18,40);tone(70,t+.22,.16,'sine',.18,40);
+      tone(70,t,.16,'sine',.15,40);tone(70,t+.22,.16,'sine',.15,40);
       tone(300,t+.1,.6,'sawtooth',.03,900);
       if(sup){for(let i=0;i<6;i++)tone(i%2?740:1046,t+.45+i*.14,.14,'square',.035);tone(55,t+.4,1,'sawtooth',.06,45)}
     });sDuck(.25,1)}catch(e){}
@@ -2050,7 +2067,7 @@ function seReachStage(k,sup){
     sBig(()=>{
       tone(mf(b),t,.1,'p25',.05);tone(mf(b+4),t+.06,.1,'p25',.05);tone(mf(b+7),t+.12,.1,'p25',.05);tone(mf(b+12),t+.18,.3+.05*k,'p25',.055);
       tone(mf(b-12),t,.4,'triangle',.06);
-      tone(65+8*k,t,.14,'sine',.17,38);tone(65+8*k,t+.2,.14,'sine',.17,38);
+      {const hv=sup&&k<3?.11:.15;tone(65+8*k,t,.14,'sine',hv,38);tone(65+8*k,t+.2,.14,'sine',hv,38)}
       if(sup){tone(mf(b+19),t+.24,.3,'sawtooth',.02,mf(b+24));noise(t+.18,.03,.3,'h')}
     });sDuck(.2,.6);
   }catch(e){}
@@ -2179,6 +2196,121 @@ Object.assign(SONGS,{
     bw:'sawtooth',aw:'p12',pd:'triangle',hr:[0,1],vol:{ld:.05,ar:.02,bs:.06,k:.23,sn:.1,h:.022,pd:.01}}
 });
 for(const k of ['n2','n3','n4','b2'])bgPrep(SONGS[k]);
+
+/* ---------- ボーナスタイムBGM + 遠征/ボーナスタイム/ハイ&ローのSE (sound担当) ----------
+   [BGM] ボーナスタイム(98e: 黄金タイム/魔石フィーバー/討伐タイム、40秒)の間だけ、今のステージ帯の通常曲をアレンジして流す。
+     アレンジ = テンポ x1.15(上限168) / 全音上に転調 / 4つ打ち+裏拍オープンハット / ベースはオクターブ跳躍 / リードは最初から+3度下ハモリ。
+     種類別: 黄金=明るいパルス25-50%のリード+小節末のコイン「チャリン」 / 魔石=細いパルス12.5%のリード+ディレイで響く下降キラキラ
+             討伐=ノコギリのベース+重いキック+小節頭のパワーコード。残り5秒は拍ごとに時計の「チッ」。
+     優先順位: JACKPOT > 緊張(押せ!!/ルーレット) > RUSH > FEVER > ボーナスタイム > ボス > 通常。
+       (bgmState を包み、ボス/通常のときだけボーナス曲に置き換える。SRANK=1.5 なので RUSH/FEVER が来れば即そちらへ、終われば小節頭でボーナス曲へ戻る。
+        ボーナス終了で BT.cur が消えると元の通常/ボス曲へ小節頭でクロスフェード)
+   [SE] seExp(go|ret|back|big) / seBt(pre|start|end,k) / seHl(start|flip|win|lose|cash|perfect,w)。各ファイルから1行で呼ぶ。
+   すべて AC 無し/ミュート時は何もしない。音程は BGM のキー(fanRoot/sLad/sRise)から作る。 */
+const BT_RANK=1.5;
+function btKind(){try{if(typeof BT!=='undefined'&&BT&&BT.cur&&typeof BTK!=='undefined')return BTK[BT.cur.k].id}catch(e){}return ''}
+/* ボーナスタイム用アレンジ曲を作る(ステージ帯 x 種類ごとにキャッシュ) */
+function btSong(kind,band){
+  const id='bt'+kind+'_'+band;if(SONGS[id])return id;
+  const B=SONGS[band]||SONGS.n,atk=kind==='atk',ms=kind==='ms';
+  const I=Object.assign({},B,{
+    bpm:Math.min(168,Math.round(B.bpm*1.15)),pc:(B.pc+2)%12,sw:(B.sw||0)*.4,tr:.9,ls:[0,0],hr:[1,1],
+    lw:ms?['p12','p25']:atk?['p50','p25']:['p25','p50'],hw:ms?'p12':'triangle',aw:ms?'p12':'p25',
+    ar:['0.2.4.5.4.2.5.4.','0245024502450245'],
+    bs:['r.o.r.o.r.o.r.f.','r.orr.orr.orr.of'],bw:atk?'sawtooth':B.bw,
+    dk:atk?['k..kk...k..kk...','k..kk...k..kk.kk']:['k...k...k...k...','k...k...k...k.kk'],
+    dh:['x.X.x.X.x.X.x.X.','xxX.xxX.xxX.xxXx'],ds:B.ds,pd:'triangle',
+    vol:Object.assign({},B.vol,{pd:(B.vol&&B.vol.pd)||.013,k:((B.vol&&B.vol.k)||.2)*(atk?1.1:1)})});
+  delete I.cs;bgPrep(I);
+  const W=Object.assign({},I,{cs:btStep,inner:I,kind});
+  SONGS[id]=W;SRANK[id]=BT_RANK;return id;
+}
+function btStep(S,st,t,sd){
+  bgStep(S.inner,st,t,sd);
+  const bar=(st>>4)&15,k=st&15,r=S.lt+24;
+  if(S.kind==='gold'&&(bar&1)&&(k===12||k===14)){const f=mf(r+(k===12?7:12));sVo(f,t,.05,'square',.014,{dest:'bg'});sVo(f*1.5,t+.03,.12,'triangle',.012,{dest:'bg'})}
+  else if(S.kind==='ms'&&(bar&1)&&k>=8&&k%2===0){const f=mf(r+(S.minor?[12,10,7,3]:[12,9,7,4])[(k-8)>>1]);sVo(f,t,.09,'sine',.012,{dest:'ld'})}
+  else if(S.kind==='atk'&&k===0&&(bar&1)===0){const b=S.lt-12;sVo(mf(b),t,sd*3,'sawtooth',.02,{dest:'bg'});sVo(mf(b+7),t,sd*3,'sawtooth',.016,{dest:'bg'})}
+  try{if(BT.cur&&BT.cur.rem<5.2&&k%4===0)sVo(k===0?3136:2637,t,.025,'p12',.018,{dest:'bg'})}catch(e){}
+}
+/* bgmState を包む: ボス/通常の時だけボーナス曲に(RUSH/FEVER/JACKPOT/緊張はそのまま) */
+{const o=bgmState;bgmState=function(){const s=o.apply(this,arguments);try{const kd=btKind();if(kd&&s!=='tn'&&(SRANK[s]||0)<BT_RANK)return btSong(kd,bgBand())}catch(e){}return s}}
+
+/* --- 遠征 --- go=出発(ラッパのファンファーレ) ret=帰ってきた通知(控えめなチャイム) back=受け取り(袋ドサッ+コイン) big=大成功(さらに駆け上がり) */
+function seExp(kind){
+  if(!sOK())return;
+  try{const t=sNow(),r=fanRoot();
+    sBig(()=>{
+      if(kind==='go'){
+        for(let i=0;i<4;i++)noise(t+i*.045,.03+.01*i,.04,'h'); // 小太鼓のロール
+        [[7,0,.08],[7,.1,.08],[7,.2,.08],[12,.3,.32]].forEach(([s,o,d])=>{tone(mf(r+s),t+.18+o,d,'p25',.05);tone(mf(r+s-12),t+.18+o,d,'triangle',.04)});
+        tone(mf(r+16),t+.48,.3,'p12',.025);tone(110,t+.48,.2,'sine',.12,50);
+      }else if(kind==='ret'){
+        [[16,0],[12,.18],[19,.36]].forEach(([s,o])=>{tone(mf(r+s),t+o,.4,'sine',.04);tone(mf(r+s+12),t+o,.12,'p12',.012)});
+      }else{ // back / big
+        tone(90,t+.9,.25,'sine',.16,40);noise(t+.9,.05,.12,'w');
+        for(let i=0;i<5;i++)tone(mf(sLad(5+i*2)),t+.95+i*.06,.12,'p25',.045);
+        if(kind==='big'){
+          tone(300,t+1.3,.5,'sawtooth',.03,1800);
+          [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+1.6+i*.06,.13,'p25',.05);tone(mf(r+s),t+1.6+i*.06,.13,'triangle',.04)});
+          [0,4,7,12].forEach(s=>tone(mf(r+s+12),t+2.05,.7,'square',.026));
+        }
+      }
+    });
+    if(kind==='back'||kind==='big'){seJaraStream(t+1,kind==='big'?1.8:.9,kind==='big'?20:14);sDuck(.3,kind==='big'?2.6:1.5)}
+    else if(kind==='go')sDuck(.2,.8);
+  }catch(e){}
+}
+
+/* --- ボーナスタイム --- pre=5秒前の予告(ピロピロ+小さなライザー) start=種類別ジングル(kyuin(7)+fan の後に鳴る) end=終了の下降音 */
+function seBt(kind,k){
+  if(!sOK())return;
+  try{const t=sNow(),r=fanRoot();
+    sBig(()=>{
+      if(kind==='pre'){sePipo(3,r+24,t);tone(400,t,.9,'p12',.018,1600)}
+      else if(kind==='start'){
+        const id=(typeof BTK!=='undefined'&&BTK[k])?BTK[k].id:'gold',t1=t+.75;
+        if(id==='gold'){ // 黄金: コインが跳ねる長調の駆け上がり
+          [0,4,7,12,16,19,24,28].forEach((s,i)=>{tone(mf(r+s),t1+i*.07,.12,'p25',.045);if(i%2)tone(mf(r+s+12)*1.003,t1+i*.07+.02,.08,'square',.015)});
+          tone(mf(r+24),t1+.6,.6,'sine',.03);
+        }else if(id==='ms'){ // 魔石: 細いパルスの下降→上昇、鈴のような余韻
+          [24,19,16,12,16,19,24,31].forEach((s,i)=>{tone(mf(r+s),t1+i*.08,.18,'p12',.04);tone(mf(r+s)*2,t1+i*.08,.06,'sine',.015)});
+          tone(mf(r+12),t1,.9,'triangle',.035);noise(t1+.6,.02,.4,'m');
+        }else{ // 討伐: パワーコードのスタブ x3 + 突撃ラッパ
+          [0,.16,.32].forEach((o,i)=>{tone(mf(r-12),t1+o,.13,'sawtooth',.045);tone(mf(r-5),t1+o,.13,'sawtooth',.035);tone(80,t1+o,.12,'sine',.15,40);noise(t1+o,.05,.06,'w')});
+          [[7,.5,.1],[7,.62,.1],[12,.74,.4]].forEach(([s,o,d])=>tone(mf(r+s),t1+o,d,'p25',.05));
+        }
+      }else if(kind==='end'){[12,7,4,0].forEach((s,i)=>tone(mf(r+s),t+i*.11,.22,'triangle',.04));tone(mf(r+19),t+.44,.3,'p12',.015)}
+    });
+    if(kind==='start')sDuck(.3,1.6);
+  }catch(e){}
+}
+
+/* --- ハイ&ロー --- start=カードを切る音 flip=めくる前のドラムロール(0.9秒) win=当たり(w=勝ち数で音程が上がる) lose=ブブー cash=受け取り perfect=3連勝 */
+function seHl(kind,w){
+  if(!sOK())return;
+  try{const t=sNow(),r=fanRoot();w=w|0;
+    sBig(()=>{
+      if(kind==='start'){for(let i=0;i<7;i++){noise(t+i*.035,.035,.025,'h');tone(1800-i*90,t+i*.035,.02,'p12',.015)}tone(mf(r+12),t+.3,.09,'p25',.045);tone(mf(r+19),t+.38,.18,'p25',.045)}
+      else if(kind==='flip'){
+        let o=0;for(let i=0;i<10;i++){tone(mf(sRise(3+i)),t+o,.045,'p50',.03);noise(t+o,.02+.002*i,.03,'w');o+=Math.max(.04,.11-.008*i)}
+        noise(t+.8,.04,.06,'h');tone(2200,t+.8,.06,'p12',.03,900); // ペラッ
+      }else if(kind==='win'){
+        const b=5+w*3;for(let i=0;i<2+w;i++)tone(mf(sRise(b+i*2)),t+i*.065,.12,'p25',.05);
+        tone(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.3,'square',.035);tone(110,t,.3,'sine',.14,40);
+      }else if(kind==='lose'){tone(mf(r-5),t,.16,'sawtooth',.045);tone(mf(r-6),t+.2,.32,'sawtooth',.045,mf(r-8));tone(mf(r-17),t,.5,'triangle',.05)}
+      else if(kind==='cash'){for(let i=0;i<3;i++)tone(mf(sLad(6+i*2)),t+i*.07,.12,'triangle',.04)}
+      else if(kind==='perfect'){
+        tone(110,t,.6,'sine',.18,32);noise(t,.1,.8,'w');
+        [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+i*.06,.13,'p25',.055);tone(mf(r+s),t+i*.06,.13,'triangle',.04)});
+        [0,4,7,12,16].forEach(s=>tone(mf(r+s+12),t+.5,.9,'square',.026));
+      }
+    });
+    if(kind==='cash')seJaraStream(t+.15,.6,12);
+    else if(kind==='perfect'){seJaraStream(t+.3,1.6,20);sDuck(.4,2)}
+    else if(kind==='win'&&w>=2)sDuck(.2,.6);
+  }catch(e){}
+}
 
 /* ---------- skill fx: 烈火斬(fire) / 雷撃陣(bolt) / 千矢雨(arrow) + カメラ(ズーム/揺れ) + JACKPOT ----------
    FX[]={k,t0}。p = 発動からの秒数。draw は戦闘キャンバス(bc)のワールド空間(カメラ変換の内側) */
@@ -3669,7 +3801,7 @@ function expLeft(now){if(EXP.d<0)return 0;now=now||nowMs();if(EXP.t0>now){EXP.t0
 const expDone=()=>EXP.d>=0&&expLeft()<=0;
 const expMs=i=>Math.floor((30+X.best*3)*EXD[i].k);
 function expGo(i){if(EXP.d>=0||!expOpen(i))return false;EXP.d=i;EXP.t0=nowMs();EXP.ntf=0;expSave();
-  fxToast('遠征隊が '+EXD[i].n+' へ出発!','#7ff3ff');try{if(sOK()){const t=sNow();[523,659,784,1047].forEach((f,k)=>tone(f,t+k*.08,.12,'square',.035))}}catch(e){}
+  fxToast('遠征隊が '+EXD[i].n+' へ出発!','#7ff3ff');seExp('go');
   if(fxOpen)fxMenu();return true}
 function expCancel(){if(EXP.d<0)return;EXP.d=-1;EXP.t0=0;expSave();fxToast('遠征隊を呼び戻した','#aaa');expBadge();if(fxOpen)fxMenu()}
 /* 報酬を決めて付与(テストからも呼ぶ)。戻り値 {ms,gem,relic,big} */
@@ -3684,13 +3816,13 @@ function expCollect(){const r=expClaim();if(!r){if(fxOpen)fxMenu();return}const 
    (r.gem?'<div class="ok"><span>宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
    (r.relic?'<div class="ok"><span>遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
    '</div><div class="fxs" style="margin-top:6px">遠征 累計 '+EXP.n+'回(大成功 '+EXP.big+'回)</div>',[['もう一度 出発!',()=>{expGo(r.i);fxMenu()}],['閉じる',null,'g']]);
-  try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();if(r.big){shake();flash('#ffd400')}}catch(e){}}
+  try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();seExp(r.big?'big':'back');if(r.big){shake();flash('#ffd400')}}catch(e){}}
 /* メニューボタンの「!」 */
 function expBadge(){try{const b=$('fxmbi');if(!b)return;const on=expDone();b.style.display=on?'block':'none';b.textContent=on?'!':'';b.style.fontSize='11px';b.style.lineHeight='14px'}catch(e){}}
 function expFmt(s){s=Math.ceil(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=s%60;return h+':'+String(m).padStart(2,'0')+':'+String(c).padStart(2,'0')}
 let expTk=0;
 FU.push(dt=>{expTk+=dt;if(expTk<1)return;expTk=0;
-  if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');try{if(sOK()){const t=sNow();[784,988,1319].forEach((f,k)=>tone(f,t+k*.1,.14,'square',.03))}}catch(e){}}
+  if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');seExp('ret');}
   if(fxOpen&&EXP.d>=0){const e=$('exrem');if(e){const l=expLeft();if(l<=0)fxMenu();else{e.textContent=expFmt(l);const b=$('exbar');if(b)b.style.width=Math.round(100*(1-l/EXD[EXP.d].sec))+'%'}}}});
 try{if(document.addEventListener)document.addEventListener('visibilitychange',()=>{if(!document.hidden){EXP.ntf=0;expTk=1}})}catch(e){}
 function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">遠征隊は アプリを閉じていても時間で帰ってくる。<br>英雄は戦い続けるので放置の損は無し。転生しても残る。</div>';
@@ -3731,13 +3863,13 @@ const btOn=id=>!!(BT.cur&&BTK[BT.cur.k].id===id);
 if(typeof resMs==='function'){const o=resMs;resMs=function(n){return o.call(this,btOn('ms')?n*3:n)}}
 const btBusy=()=>!!(G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2)||(typeof HL!=='undefined'&&HL));
 function btStart(k){if(k==null)k=Math.floor(Math.random()*BTK.length);const K=BTK[k];BT.cur={k,rem:BT.dur,t0:T};BT.pre=0;BT.n++;btSave();
-  try{banner(K.n+'!! '+K.d,K.c);kyuin(7,K.c);fan();if(sOK()){const t=sNow();[523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>tone(f,t+.75+i*.09,.12,'square',.035))}}catch(e){}
+  try{banner(K.n+'!! '+K.d,K.c);kyuin(7,K.c);fan();seBt('start',k)}catch(e){}
   fxToast(K.n+' 開始! '+BT.dur+'秒間 '+K.d,K.c)}
-function btEnd(){const K=BTK[BT.cur.k];BT.cur=null;BT.left=btGap();btSave();showMsg(K.n+' 終了','#aaa')}
+function btEnd(){const K=BTK[BT.cur.k];BT.cur=null;BT.left=btGap();btSave();showMsg(K.n+' 終了','#aaa');seBt('end')}
 function btUpd(dt){if(!run)return;
   if(BT.cur){if(BT.cur.t0<0)BT.cur.t0=T;BT.cur.rem-=dt;if(BT.cur.rem<=0)btEnd()}
   else{BT.left-=dt;
-    if(BT.left<=5&&!BT.pre){BT.pre=1;showMsg('まもなく ボーナスタイム!','#ffd400');try{if(sOK()){const t=sNow();for(let i=0;i<3;i++)tone(1319,t+i*.3,.1,'p25',.03,1760)}}catch(e){}}
+    if(BT.left<=5&&!BT.pre){BT.pre=1;showMsg('まもなく ボーナスタイム!','#ffd400');seBt('pre');}
     if(BT.left<=0){if(btBusy())BT.left=0;else btStart()}}
   BT.sv+=dt;if(BT.sv>5){BT.sv=0;btSave()}}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{btUpd(dt)}catch(e){BT.cur=null;BT.left=btGap()}return r}}
@@ -3773,7 +3905,7 @@ const hlCard=()=>1+Math.floor(Math.random()*13);
 const hlName=n=>n===1?'A':n===11?'J':n===12?'Q':n===13?'K':String(n);
 function hlStart(){HL={t:0,ph:0,a:hlCard(),b:0,w:0,pick:0,auto:0,res:'',fl:0};
   $('fxgt').textContent='ハイ&ロー!';$('fxgr').textContent='x1';$('fxgh').textContent='左=HIGH / 右=LOW をタップ(自動あり)';
-  mg2e.style.display='flex';try{beep(900,.15,'square',.05)}catch(e){}}
+  mg2e.style.display='flex';seHl('start')}
 /* 95 の mg2Start をラップ(ローテーションで hilo が来たらこちらで開始) */
 {const o=mg2Start;mg2Start=function(ty){if(ty==='hilo')return hlStart();return o.apply(this,arguments)}}
 {const o=mini;mini=function(){if(HL)return;return o.apply(this,arguments)}}
@@ -3781,16 +3913,16 @@ function hlStart(){HL={t:0,ph:0,a:hlCard(),b:0,w:0,pick:0,auto:0,res:'',fl:0};
 if(typeof relicUpd==='function'){const o=relicUpd;relicUpd=function(){if(HL&&RDR.q&&!RDR.show)return;return o.apply(this,arguments)}}
 /* 選ぶ: up=1 HIGH / 0 LOW */
 function hlChoose(up,auto){const h=HL;if(!h||h.ph!==0)return;h.pick=up;h.auto=auto?1:0;h.b=hlCard();h.ph=1;h.t=0;
-  try{if(sOK()){const t=sNow();for(let i=0;i<6;i++)tone(600+i*80,t+i*.06,.04,'square',.025)}}catch(e){}}
+  seHl('flip')}
 function hlJudge(){const h=HL,ok=h.pick?h.b>=h.a:h.b<=h.a;h.ph=2;h.t=0;
   if(ok){h.w++;$('fxgr').textContent='x'+(1<<h.w);h.fl=1;
-    try{if(sOK()){const t=sNow();[784,988,1319,1568].slice(0,1+h.w).forEach((f,i)=>tone(f,t+i*.07,.12,'square',.035))}}catch(e){}
+    seHl('win',h.w);
     if(h.w>=3){kyuin(8,'#ffd400');flash('#ffd400')}else kyuin(2+h.w,'#ffd400')}
-  else{h.fl=0;try{beep(220,.35,'sawtooth',.05)}catch(e){}}
+  else{h.fl=0;seHl('lose')}
   $('fxgh').textContent=(ok?'当たり!':'はずれ…')+(h.auto?'(自動)':'')}
 function hlFin(){const h=HL,m=1<<h.w,g=addGold(HLB()*m);h.ph=3;h.t=0;h.res='x'+m+' +G'+fmt(g);$('fxgr').textContent=h.res;
   $('fxgh').textContent=h.w>=3?'パーフェクト!! 3連勝':h.w?h.w+'連勝!':'残念…でも x1 はもらえる';
-  if(h.w>=3){X.st.mgp++;banner('ハイ&ロー 3連勝!!','#ffd400');try{fan()}catch(e){}}}
+  if(h.w>=3){X.st.mgp++;banner('ハイ&ロー 3連勝!!','#ffd400');try{fan()}catch(e){}seHl('perfect')}else if(h.w)seHl('cash')}
 function hlEnd(){mg2e.style.display='none';HL=null}
 function hlTap(e){const h=HL;if(!h||h.ph!==0)return;let up=1;try{const r=$('fxgc').getBoundingClientRect();if(e&&e.clientX!=null)up=(e.clientX-r.left)<(r.width||240)/2?1:0}catch(x){}hlChoose(up,0)}
 if(mg2e.addEventListener)mg2e.addEventListener('pointerdown',hlTap);

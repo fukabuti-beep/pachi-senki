@@ -609,6 +609,61 @@ html body #fxm .fxs,html body #fxm .fxp,#upx .fxs,.cfgb .note{text-wrap:pretty}
 /* 背の低い画面(iPhone SE など)では設定の行間を詰める */
 @media (max-height:700px){.cfgb{padding-top:18px}.cfgb h2{margin-bottom:6px;font-size:20px}.cfgb .row{margin-bottom:3px}.cfgb .note{margin-bottom:5px}}
 
+/* 39-btnfx.css */
+/* 激アツ演出(89d〜89g): 共通オーバーレイ / スロット破砕 / ボタンの動き */
+#hyc{position:absolute;left:0;top:0;width:384px;height:786px;pointer-events:none;z-index:4;image-rendering:pixelated}
+/* スロット破砕中: 小さいリールを隠す → 戻る時は組み直しのポップ */
+#slot.hybs .r{visibility:hidden}
+#slot.hyrb .r{animation:hyrb .45s cubic-bezier(.3,1.7,.5,1) both}
+#slot.hyrb .r:nth-child(2){animation-delay:.06s}#slot.hyrb .r:nth-child(3){animation-delay:.12s}
+@keyframes hyrb{0%{transform:scale(.2);opacity:0}100%{transform:none;opacity:1}}
+
+/* 押せ!!: 出現バウンド → 脈動 / 回る光の輪 / 押下の衝撃波 */
+#push.on #pkB{animation:hypin .5s cubic-bezier(.25,1.8,.5,1) both,pkpulse .5s steps(2) .5s infinite}
+#push.on #pkT{animation:hytin .4s cubic-bezier(.3,1.6,.5,1) both,pktxt .16s steps(2) .4s infinite}
+#push.on.jp #pkT{animation:hytin .4s cubic-bezier(.3,1.6,.5,1) both,pktxt .16s steps(2) .4s infinite,pkhue 1.1s linear infinite}
+#push.small #pkT{animation:pktxt .16s steps(2) infinite}
+@keyframes hypin{0%{transform:translateY(-60px) scale(.3)}60%{transform:translateY(6px) scale(1.12)}100%{transform:none}}
+@keyframes hytin{0%{transform:scale(2.2);opacity:0}100%{transform:none;opacity:1}}
+#pkB:before{content:"";position:absolute;inset:-14px;border-radius:50%;pointer-events:none;
+ background:conic-gradient(from 0deg,transparent 0 62%,rgba(255,240,160,.95) 74%,#fff 78%,transparent 88%);
+ -webkit-mask:radial-gradient(circle,transparent 0 64%,#000 65% 71%,transparent 72%);mask:radial-gradient(circle,transparent 0 64%,#000 65% 71%,transparent 72%);
+ animation:hyspin 1.1s linear infinite}
+@keyframes hyspin{to{transform:rotate(360deg)}}
+#pkB:after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 6px #fff,0 0 0 12px rgba(255,212,0,.8)}
+#push.hyw #pkB:after{animation:hywave .5s ease-out forwards}
+#push.hyw #pkB:before{animation:hywave2 .6s ease-out forwards}
+@keyframes hywave{0%{opacity:1;transform:scale(.8)}100%{opacity:0;transform:scale(2.3)}}
+@keyframes hywave2{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(3) rotate(90deg)}}
+#push.on.hit #pkB{animation:none;transform:translateY(14px) scale(.92)}
+#push.on.hit #pkT,#push.on.jp.hit #pkT{animation:none;transform:scale(1.25)}
+
+/* チャンスボタン: 出現バウンド + 回る光の輪 */
+#gkcb.on{animation:hypop .42s cubic-bezier(.3,1.7,.5,1) both,gkcb .5s steps(2) .42s infinite}
+@keyframes hypop{0%{transform:translateY(30px) scale(.2);opacity:0}100%{transform:none;opacity:1}}
+#gkcb:before{content:"";position:absolute;inset:-9px;border-radius:50%/44%;pointer-events:none;
+ background:conic-gradient(from 0deg,transparent 0 60%,#fff 76%,transparent 90%);
+ -webkit-mask:radial-gradient(ellipse,transparent 0 62%,#000 64% 70%,transparent 72%);mask:radial-gradient(ellipse,transparent 0 62%,#000 64% 70%,transparent 72%);
+ animation:hyspin 1s linear infinite}
+/* 押した後の残像(結果の動き) */
+#hycbg{position:fixed;z-index:7;width:92px;height:56px;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;
+ background:radial-gradient(circle at 40% 35%,#ff7a7a,#f0223c 45%,#8a0018 100%);border-radius:50%/42%;
+ box-shadow:0 0 0 3px #000,0 0 0 5px #ffd400,0 0 0 7px #000,0 2px 0 4px #520010;color:#fff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000}
+#hycbg b{font-size:11px;letter-spacing:2px;font-weight:normal;color:#ffd400}
+#hycbg i{font-style:normal;font-size:22px;letter-spacing:2px;line-height:1}
+#hycbg s{position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 4px var(--hc,#fff);opacity:0}
+#hycbg.go s{animation:hywave .55s ease-out forwards}
+#hycbg.go.hyhot{animation:hyhot .9s cubic-bezier(.3,1.4,.5,1) forwards}
+#hycbg.go.hymid{animation:hymid .9s ease-out forwards}
+#hycbg.go.hylow{animation:hylow .9s ease-in forwards}
+@keyframes hyhot{0%{transform:translateY(5px) scale(.94)}20%{transform:translateY(-16px) scale(1.25);filter:brightness(1.6)}60%{transform:translateY(-10px) scale(1.15);opacity:1}100%{transform:translateY(-22px) scale(1.4);opacity:0}}
+@keyframes hymid{0%{transform:translateY(5px) scale(.94)}25%{transform:translateY(-6px) scale(1.08)}70%{opacity:1}100%{transform:translateY(-8px) scale(1.1);opacity:0}}
+@keyframes hylow{0%{transform:translateY(5px) scale(.94)}30%{transform:translateY(4px) scale(.9);filter:grayscale(.8)}100%{transform:translateY(16px) scale(.7);filter:grayscale(1);opacity:0}}
+/* ハンドル: 押すたびの小さな衝撃波 */
+#hd:after{content:"";position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 3px #ffd400}
+#hd.hyp:after{animation:hywave .35s ease-out}
+@media (prefers-reduced-motion:reduce){#push.on #pkB,#push.on #pkT,#pkB:before,#push.hyw #pkB:after,#push.hyw #pkB:before,#gkcb.on,#gkcb:before,#hycbg.go,#hycbg.go s,#hd.hyp:after,#slot.hyrb .r{animation:none}}
+
 /* 39-hudtext.css */
 /* HUD の小さすぎた文字(ui)。筐体の枠(#hud 28px / SPゲージ 10px / #q・#pl 14px)の寸法は変えず、
    文字を大きく・明るく・黒縁で読みやすくする。 */
@@ -2400,6 +2455,32 @@ function seHl(kind,w){
   }catch(e){}
 }
 
+/* ---------- 激アツ演出(89d〜89g)用の SE (sound) ----------
+   seHy(k,a): k = 'bko'(暗転: 低く沈む+BGMを絞る) / 'rel'(暗転明け a=0ガセ 1リーチ 2SUPER、BGMを戻す)
+                 'crack'(スロットにヒビ) / 'shatter'(砕け散る) / 'bigin'(巨大スロット着地) / 'bigstop'(巨大リール停止 a=1 で熱い) / 'bigwin'(揃った)
+                 'charge'(超必殺の溜め a=秒) / 'cut'(カットイン) / 'fire'(大技 a=0剣士 1魔法 2弓) / 'hit'(着弾) / 'fail'(不発) / 'pop'(ボタン出現) / 'wave'(ボタンの衝撃波)
+   AC が無い/ミュート/失敗でも何もしないで戻る。BGM を絞るのは暗転中だけ(最長でも数秒、hyDuck(0) と applyMix で必ず戻す)。 */
+function hyDuck(on){try{if(!AC||typeof SGR==='undefined'||!SGR||SGR.bad||!SGR.bg)return;if(on){const p=SGR.bg.gain,v=bgGain()*.3,t=AC.currentTime;try{p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(v,t+.5)}catch(e){p.value=v}}else applyMix()}catch(e){}}
+function seHy(k,a){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
+  switch(k){
+  case 'bko':hyDuck(1);tone(330,t,.9,'triangle',.05,82);tone(165,t+.05,1.1,'sawtooth',.025,55);noise(t,.03,.9,'l');break;
+  case 'rel':hyDuck(0);if(a>=2){tone(220,t,.5,'sawtooth',.04,1760);[523,659,784,1047].forEach((f,i)=>tone(f,t+.18+i*.05,.25,'square',.03));noise(t,.05,.4,'h')}
+    else if(a==1){tone(330,t,.35,'square',.035,990);tone(990,t+.3,.2,'square',.025)}else{tone(440,t,.4,'triangle',.03,220)}break;
+  case 'crack':tone(2400,t,.05,'square',.03,1200);noise(t,.06,.08,'h');tone(1800,t+.09,.05,'square',.025,900);break;
+  case 'shatter':noise(t,.12,.45,'h');noise(t,.08,.25,'w');for(let i=0;i<8;i++)tone(3200-i*260+Math.random()*200,t+i*.035,.07,'square',.018);tone(110,t,.3,'sawtooth',.06,40);break;
+  case 'bigin':tone(80,t,.45,'sawtooth',.08,30);noise(t,.1,.35,'l');tone(392,t+.12,.3,'square',.03,784);break;
+  case 'bigstop':tone(a?110:150,t,.22,'square',.07,a?50:80);noise(t,.07,.12,'l');if(a)tone(1568,t+.05,.25,'square',.03,2093);break;
+  case 'bigwin':[784,988,1175,1568,1976].forEach((f,i)=>tone(f,t+i*.07,.18,'square',.035));tone(392,t,.6,'sawtooth',.03,784);break;
+  case 'charge':{const d=Math.max(.3,a||1);tone(110,t,d,'sawtooth',.04,880);tone(220,t,d,'square',.02,1760);noise(t,.03,d,'l');break}
+  case 'cut':tone(1175,t,.08,'square',.04);tone(1568,t+.07,.08,'square',.04);tone(2349,t+.14,.25,'square',.035,2637);noise(t,.05,.2,'h');break;
+  case 'fire':if(a==0){noise(t,.12,.35,'h');tone(1600,t,.3,'sawtooth',.04,200)}else if(a==1){tone(60,t,.8,'sawtooth',.07,40);noise(t,.1,.8,'l');tone(880,t,.6,'square',.02,110)}
+    else{for(let i=0;i<6;i++){tone(2600-i*200,t+i*.05,.08,'square',.02,600)}noise(t,.08,.3,'h')}break;
+  case 'hit':tone(70,t,.6,'sawtooth',.09,28);noise(t,.16,.6,'l');noise(t+.05,.08,.3,'h');break;
+  case 'fail':tone(660,t,.12,'square',.035,330);tone(330,t+.12,.35,'triangle',.03,110);noise(t+.1,.04,.3,'l');break;
+  case 'pop':tone(784,t,.05,'square',.03,1568);tone(1568,t+.05,.06,'square',.025);break;
+  case 'wave':tone(196,t,.18,'square',.05,98);noise(t,.07,.15,'l');tone(1319,t+.02,.12,'square',.025,1760);break}
+}catch(e){}}
+
 /* ---------- skill fx: 烈火斬(fire) / 雷撃陣(bolt) / 千矢雨(arrow) + カメラ(ズーム/揺れ) + JACKPOT ----------
    FX[]={k,t0}。p = 発動からの秒数。draw は戦闘キャンバス(bc)のワールド空間(カメラ変換の内側) */
 const fxRn=a=>Math.abs(Math.sin(a*127.1)*43758.5%1),fxBmp=(p,a,b,c)=>p<a?0:p<b?(p-a)/(b-a):p<c?1-(p-b)/(c-b):0,fxEo=q=>1-(1-Math.min(1,Math.max(0,q)))*(1-Math.min(1,Math.max(0,q)));
@@ -3040,6 +3121,206 @@ function lyInit(){if(LY.init)return;LY.init=1;
     drawCmb=function(t){if(!lyBusyB()&&!(typeof GK!=='undefined'&&GK.rr)&&typeof chDrawSB==='function'){LY.cmbD=1;return}return dc(t)};
     if(typeof chDrawSB==='function'){const s0=chDrawSB;chDrawSB=function(t){const r=s0.apply(this,arguments);if(LY.cmbD){LY.cmbD=0;try{dc(t)}catch(e){}}return r}}}}catch(e){}}
 {const _u=update;update=function(dt){if(!LY.init)lyInit();const r=_u.apply(this,arguments);try{lyUpd(dt)}catch(e){LY.bnQ.length=0;LY.miniQ=0}return r}}
+
+/* ---------- 暗転予告 (fx) + 激アツ演出の共通オーバーレイ ----------
+   HY: #app の上に重ねる透明キャンバス(#hyc, 384x786=筐体の座標, pointer-events:none, z-index:4=強化シートより下)。
+       暗転(89d)・スロット破砕/巨大スロット(89e)が使う。何も出ていない時は display:none(描画コストなし)。
+   暗転: 回転開始時に、当否から決まる確率で「暗転」を仕込む(信頼度つきの予告。当否・図柄・停止時間は変えない)。
+       擬似連(86)が終わって 0.45 秒後に、戦闘画面と盤面がゆっくり暗くなる(スロットだけ明るいまま)→
+       リーチ発生で明ける: SUPER=「発展!!」/リーチ=「リーチ!」/ハズレ=ゆっくり戻る(ガセ)。点滅はしない(不透明度を毎秒1.3程度で上下するだけ)。
+       RUSH 中はテンポ優先で出さない。強化シートが開いている間は描かない。転生(PGEN が変わる)や回転の打ち切りで即消える。
+   BK.force = 1 で次の回転に必ず暗転(テスト用)。 */
+const HY={cv:null,c:null,on:0,lay:null,layT:-9};
+function hyCtx(){if(HY.cv!==null)return HY.c;HY.cv=0;try{const a=$('app'),cv=document.createElement('canvas');cv.width=384;cv.height=786;cv.id='hyc';if(cv.style)cv.style.display='none';a.appendChild(cv);HY.cv=cv;HY.c=cv.getContext('2d')}catch(e){HY.c=null}return HY.c}
+function hyRect(id,fb){try{let e=$(id);const w=e.offsetWidth,h=e.offsetHeight;if(!(h>0&&w>1))return fb;let x=0,y=0,k=0;while(e&&e.id!=='app'&&k++<6){x+=e.offsetLeft||0;y+=e.offsetTop||0;e=e.offsetParent}return{x,y,w,h}}catch(e){return fb}}
+function hyLay(){if(HY.lay&&T-HY.layT<1&&T>=HY.layT)return HY.lay;HY.layT=T;return HY.lay={b:hyRect('bw',{x:12,y:82,w:360,h:158}),s:hyRect('slot',{x:12,y:245,w:360,h:66}),p:hyRect('pw',{x:12,y:317,w:360,h:400})}}
+function hySheet(){try{const a=$('app');return !!(a&&a.classList&&a.classList.contains('upo'))}catch(e){return false}}
+function hyLite(){return (typeof UX!=='undefined'&&UX.S&&UX.S.fl<=0)||(typeof FXRM!=='undefined'&&FXRM)}
+// 各演出の描画関数(順に呼ぶ)。fn(c,t,L) が true を返したら「まだ描いている」
+const HYD=[];
+function hyFrame(t){if(!HYD.length)return;let any=0;for(const d of HYD)if(d.act())any=1;
+  if(!any){if(HY.on){HY.on=0;try{HY.c&&HY.c.clearRect(0,0,384,786);if(HY.cv&&HY.cv.style)HY.cv.style.display='none'}catch(e){}}return}
+  const c=hyCtx();if(!c)return;if(!HY.on){HY.on=1;try{if(HY.cv.style)HY.cv.style.display='block'}catch(e){}}
+  c.clearRect(0,0,384,786);if(hySheet())return;const L=hyLay();c.imageSmoothingEnabled=false;
+  for(const d of HYD)if(d.act()){c.save();try{d.draw(c,t,L)}catch(e){}c.restore()}}
+function hyTxt(c,t,x,y,px,fill){if(typeof thickTxt==='function')thickTxt(c,t,x,y,px,fill,{d:px>=24?3:2,lw:px>=24?7:4});else{c.font=px+'px '+FN;c.lineWidth=5;c.strokeStyle='#000';c.strokeText(t,x,y);c.fillStyle=fill;c.fillText(t,x,y)}}
+
+/* --- 暗転 --- */
+const BK={s:null,force:0,n:0};
+function bkProb(s){if(s.jp)return .5;if(s.hit)return s.type==2?.3:.18;if(s.type==2)return .07;if(s.type==1)return .02;return s.yk>=3?.04:.005}
+{const _st=startSpin;startSpin=function(){const was=sp,r=_st.apply(this,arguments);try{const s=sp;if(!was&&s&&!s.bk0){s.bk0=1;
+  if(G.rush<=0&&(BK.force||Math.random()<bkProb(s))){BK.force=0;s.bko=1;BK.s={sp:s,ph:0,a:0,t0:T,g:PGEN,rel:-1,tx:null}}}}catch(e){}return r}}
+function bkUpd(dt){const B=BK.s;if(!B)return;const s=B.sp;
+  if(B.g!==PGEN){BK.s=null;hyDuck(0);return}
+  if(B.ph<3&&sp!==s){B.ph=3;B.rel=0;hyDuck(0)}
+  if(B.ph==0){if((!s.pzN||s.pzI>=s.pzN)&&s.t>=.45){B.ph=1;B.t0=T;BK.n++;seHy('bko');try{showMsg('……','#9aa0c8')}catch(e){}}}
+  else if(B.ph==1){B.a=Math.min(.82,B.a+dt*1.3);
+    if(s.rs||(!s.type&&s.t>=2.0)){B.ph=3;B.rel=s.type|0;B.tr=T;seHy('rel',B.rel);B.tx=B.rel==2?['発展!!','#ff2d7a']:B.rel==1?['リーチ!','#44aaff']:null}}
+  if(B.ph==3){B.a-=dt*(B.rel>0?1.8:.9);if(B.a<=0){B.a=0;if(!B.tx||T-B.tr>.9)BK.s=null}}}
+function bkDraw(c,t,L){const B=BK.s;if(!B)return;const a=Math.max(0,B.a),S=L.s;
+  if(a>0){c.fillStyle='rgba(0,0,6,'+a.toFixed(3)+')';const y0=S.y-4,y1=S.y+S.h+4;c.fillRect(0,0,384,y0);c.fillRect(0,y1,384,786-y1);c.fillRect(0,y0,Math.max(0,S.x-4),y1-y0);c.fillRect(S.x+S.w+4,y0,384-(S.x+S.w+4),y1-y0);
+    // スロットの縁だけ淡く光らせる(スポットライト)
+    c.fillStyle='rgba(255,240,200,'+(a*.35).toFixed(3)+')';c.fillRect(S.x-4,y0-2,S.w+8,2);c.fillRect(S.x-4,y1,S.w+8,2);
+    // 盤面の中央に細い光の線がのびる(溜め)
+    if(B.ph==1){const q=Math.min(1,(T-B.t0)/1.4),w=Math.round(q*220);c.fillStyle='rgba(255,255,255,'+(.25+q*.35).toFixed(3)+')';c.fillRect(L.p.x+L.p.w/2-w/2,L.p.y+L.p.h*.42,w,2);
+      c.fillStyle='rgba(200,190,255,'+(a*.6).toFixed(3)+')';c.font='12px '+FN;c.textAlign='center';c.fillText('・・・',L.p.x+L.p.w/2,L.p.y+L.p.h*.42-10)}}
+  if(B.tx&&B.tr!=null){const p=T-B.tr;if(p<.9){const s=p<.14?2.2-p/.14*1.2:1;c.save();c.globalAlpha=Math.min(1,(.9-p)*4);c.translate(L.p.x+L.p.w/2,L.p.y+L.p.h*.42);c.scale(s,s);c.textAlign='center';hyTxt(c,B.tx[0],0,0,B.rel==2?40:30,B.tx[1]);c.restore()}}}
+HYD.push({act:()=>!!BK.s,draw:bkDraw});
+{const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{bkUpd(dt)}catch(e){BK.s=null;hyDuck(0)}return r}}
+{const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{hyFrame(t)}catch(e){}return r}}
+
+/* ---------- スロット破砕 → 巨大スロット (fx) ----------
+   SUPER リーチ(sp.type==2)の発生時に、当否から決まる確率で発展: 通常の3リール(#slot)にヒビ → 砕け散る(破片が飛ぶ)→
+   盤面の中央に巨大リール(16x16 の図柄を6倍)が落ちてきて、本物のリールの動きをそのまま大きく映す(reelShow を記録するだけ。
+   停止時間・図柄・擬似連/復活(86)は本体のまま)→ 揃えば「大当たり!!」/外れれば色が抜けて消える → 小さいスロットが組み直る。
+   発生率: JACKPOT 75% / 当たり 40% / ハズレ 10%(SUPER リーチ中・RUSH 外のみ)。期待度の色(背景の光線)は 赤/金/青/虹。
+   描画は 89d の共通オーバーレイ(#hyc)。破片は最大48個。光の演出 OFF / prefers-reduced-motion では破片を減らし揺れ・回転を止める。
+   BS.force = 1 で次の SUPER リーチに必ず発展(テスト用)。 */
+const BS={s:null,force:0,n:0},HYR=[{d:7,sp:0,ph:0},{d:7,sp:0,ph:0},{d:7,sp:0,ph:0}];
+{const o=reelShow;reelShow=function(i,d,spin,ph){try{const R=HYR[i];if(R){R.d=d;R.sp=spin?1:0;R.ph=ph||0}}catch(e){}return o.apply(this,arguments)}}
+function bsProb(s){return s.jp?.75:s.hit?.4:.1}
+function bsSlot(on){try{const e=$('slot');if(!e)return;const c=String(e.className||'').replace(/\s*hy(bs|rb)/g,'');e.className=on?c+' hybs':c+' hyrb';if(!on)presLater(()=>{try{e.className=String(e.className).replace(/\s*hyrb/g,'')}catch(_){}},500)}catch(e){}}
+function bsStart(s){const r=Math.random();BS.n++;
+  const col=s.jp?'rb':s.hit?(r<.55?'#ff2244':'#ffd400'):(r<.7?'#3a8aff':'#ff2244');
+  BS.s={sp:s,t0:T,g:PGEN,ph:0,col,sh:[],last:[HYR[0].sp,HYR[1].sp,HYR[2].sp],kick:[0,0,0],res:null,tr:0};seHy('crack');try{showMsg('!?','#fff')}catch(e){}}
+function bsShards(B,L){const S=L.s,lite=hyLite(),n=lite?12:44;
+  for(let i=0;i<n&&B.sh.length<48;i++){const k=i%3,rx=S.x+10+k*59+Math.random()*52,ry=S.y+8+Math.random()*50,a=Math.random()*TAU,v=120+Math.random()*260,z=4+Math.random()*9;
+    const pts=[];for(let j=0;j<3;j++){const an=j/3*TAU+Math.random()*.9;pts.push(Math.cos(an)*z,Math.sin(an)*z)}
+    B.sh.push({x:rx,y:ry,vx:Math.cos(a)*v,vy:Math.sin(a)*v-180,r:0,vr:(Math.random()-.5)*14,pts,c:['#f2ead2','#ffd400','#3a2398','#b8bce0','#fff'][i%5],l:1.3+Math.random()*.4})}}
+function bsUpd(dt){const B=BS.s;if(!B){const s=sp;if(s&&s.type==2&&s.rs&&!s.bs0){s.bs0=1;if(G.rush<=0&&(BS.force||Math.random()<bsProb(s))){BS.force=0;s.bigs=1;bsStart(s)}}return}
+  if(B.g!==PGEN){BS.s=null;bsSlot(0);return}
+  const p=T-B.t0,L=hyLay();
+  if(B.ph==0&&p>=.18&&!B.c2){B.c2=1;seHy('crack')}
+  if(B.ph==0&&p>=.38){B.ph=1;bsSlot(1);bsShards(B,L);seHy('shatter');if(!hyLite())shake()}
+  if(B.ph==1&&p>=.6){B.ph=2;B.tin=T;seHy('bigin');if(!hyLite())shake()}
+  for(let i=B.sh.length-1;i>=0;i--){const q=B.sh[i];q.vy+=900*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.r+=q.vr*dt;q.l-=dt;if(q.l<=0||q.y>800)B.sh.splice(i,1)}
+  if(B.ph>=2&&!B.res){for(let i=0;i<3;i++){const now=HYR[i].sp;if(B.last[i]&&!now){B.kick[i]=1;const hot=i==2&&HYR[0].d==HYR[1].d&&HYR[1].d==HYR[2].d;seHy('bigstop',hot?1:0)}B.last[i]=now}
+    if(sp!==B.sp){const win=!!B.sp.hit;B.res=win?'win':'lose';B.tr=T;bsSlot(0);if(win)seHy('bigwin')}}
+  for(let i=0;i<3;i++)B.kick[i]=Math.max(0,B.kick[i]-dt*4);
+  if(B.res&&T-B.tr>1.1)BS.s=null;
+  // 盤面に出る前に回転が終わった(打ち切り等)
+  if(B.ph<2&&sp!==B.sp&&!B.res){B.res='lose';B.tr=T;bsSlot(0)}}
+function bsCol(B,t,k){return B.col==='rb'?'hsl('+Math.floor(t*160+(k||0))%360+',100%,60%)':B.col}
+function bsDraw(c,t,L){const B=BS.s;if(!B)return;const p=T-B.t0,S=L.s,lite=hyLite();
+  // ヒビ(スロットの上)
+  if(B.ph==0){c.strokeStyle='#fff';c.lineWidth=2;const n=B.c2?3:1;for(let k=0;k<3;k++){const cx=S.x+36+k*59,cy=S.y+33;c.beginPath();for(let j=0;j<n+2;j++){const an=j*2.1+k,len=10+j*7;c.moveTo(cx,cy);c.lineTo(cx+Math.cos(an)*len*.6,cy+Math.sin(an)*len*.5);c.lineTo(cx+Math.cos(an+.3)*len,cy+Math.sin(an+.3)*len*.8)}c.stroke()}}
+  // 破片
+  for(const q of B.sh){c.save();c.globalAlpha=Math.min(1,q.l*2);c.translate(q.x,q.y);c.rotate(lite?0:q.r);c.fillStyle=q.c;c.beginPath();c.moveTo(q.pts[0],q.pts[1]);c.lineTo(q.pts[2],q.pts[3]);c.lineTo(q.pts[4],q.pts[5]);c.closePath();c.fill();c.strokeStyle='#000';c.lineWidth=1;c.stroke();c.restore()}
+  if(B.ph<2)return;
+  const P=L.p,cx=P.x+P.w/2,cy=P.y+P.h*.46,pin=T-B.tin,fo=B.res?Math.max(0,1-(T-B.tr-.75)/.35):1;if(fo<=0)return;
+  let sc=pin<.25?.2+pin/.25*.95:pin<.4?1.15-(pin-.25)/.15*.15:1;if(lite)sc=Math.min(1,sc);
+  c.globalAlpha=Math.min(1,pin*5)*fo;
+  // 盤面を暗く+期待度の色の光線
+  c.fillStyle='rgba(6,2,22,.72)';c.fillRect(P.x,P.y,P.w,P.h);
+  c.save();c.beginPath();c.rect(P.x,P.y,P.w,P.h);c.clip();c.translate(cx,cy);if(!lite)c.rotate(t*.6);for(let i=0;i<12;i++){c.rotate(TAU/12);c.fillStyle=bsCol(B,t,i*30);c.globalAlpha=(i%2?.22:.12)*fo;c.beginPath();c.moveTo(0,0);c.lineTo(300,-34);c.lineTo(300,34);c.closePath();c.fill()}c.restore();
+  c.globalAlpha=Math.min(1,pin*5)*fo;
+  c.translate(cx,cy);c.scale(sc,sc);
+  const RW=96,GP=10,W=RW*3+GP*2+28,H=RW+28,x0=-W/2,y0=-H/2;
+  // 筐体(金ベゼル)
+  c.fillStyle='#000';c.fillRect(x0-6,y0-6,W+12,H+12);c.fillStyle='#ffd400';c.fillRect(x0-4,y0-4,W+8,H+8);c.fillStyle='#b88a00';c.fillRect(x0-1,y0-1,W+2,H+2);c.fillStyle='#000';c.fillRect(x0,y0,W,H);c.fillStyle='#2a1878';c.fillRect(x0+2,y0+2,W-4,H-4);
+  // LED(枠をゆっくり流れる)
+  const ph=Math.floor(t*(lite?3:10));for(let k=0;k<40;k++){const on=(k+ph)%4<2,fx=x0-4+k*(W+8)/40;c.fillStyle=on?bsCol(B,t,k*9):'#3a2a70';c.fillRect(Math.round(fx),y0-4,3,3);c.fillRect(Math.round(fx),y0+H+1,3,3)}
+  // 題字
+  c.textAlign='center';hyTxt(c,B.res==='win'?'大当たり!!':'SUPER BIG REACH',0,y0-14,B.res==='win'?24:16,B.res==='win'?'hsl('+Math.floor(t*200)%360+',100%,64%)':bsCol(B,t));
+  // 巨大リール
+  const hit3=HYR[0].d==HYR[1].d&&HYR[1].d==HYR[2].d&&!HYR[2].sp,reach=!HYR[0].sp&&!HYR[1].sp&&HYR[0].d==HYR[1].d;
+  for(let i=0;i<3;i++){const R=HYR[i],rx=x0+14+i*(RW+GP),ry=y0+14+Math.round(B.kick[i]*-8);
+    c.fillStyle='#000';c.fillRect(rx-4,ry-4,RW+8,RW+8);c.fillStyle=(i==2&&R.sp&&reach)?bsCol(B,t):'#b8bce0';c.fillRect(rx-2,ry-2,RW+4,RW+4);
+    c.save();c.translate(rx,ry);c.scale(6,6);try{UX.drawReel(c,R.d,!!R.sp,R.ph,0,0,-1)}catch(e){}c.restore();
+    if(B.res==='lose'){c.fillStyle='rgba(20,20,40,.55)';c.fillRect(rx,ry,RW,RW)}
+    c.fillStyle='rgba(255,255,255,.18)';c.fillRect(rx+4,ry+4,10,RW-8)}
+  // リーチライン/揃いライン
+  if(reach&&!B.res){c.globalAlpha*=.5+.3*Math.sin(t*4);c.fillStyle=bsCol(B,t);c.fillRect(x0+6,-2,W-12,4)}
+  if(B.res==='win'||hit3&&B.sp.hit){const q=Math.min(1,(T-(B.tr||T))*4);c.globalAlpha=fo;c.strokeStyle='hsl('+Math.floor(t*240)%360+',100%,60%)';c.lineWidth=4;c.strokeRect(x0-8-q*6,y0-8-q*6,W+16+q*12,H+16+q*12)}}
+HYD.push({act:()=>!!BS.s,draw:bsDraw});
+{const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{bsUpd(dt)}catch(e){if(BS.s){BS.s=null;bsSlot(0)}}return r}}
+
+/* ---------- JACKPOT の超必殺技 (fx) ----------
+   777 の押せ!! の後(87 jpRush)、UJ.p=20% で前置きアニメの代わりに「超必殺技」: 溜め → 暗転 → カットイン(提供イラスト PIMGI / なければ 83b の PORT / SPR)
+   → 画面を横切る大技(剣士=巨大な斬撃 / 魔法使い=極太ビーム / 弓使い=巨大な矢と矢の雨)→ 着弾の瞬間に jackpot()。
+   UJ.fail=30% で不発: 撃とうとして「プスン…」→「不発!?」→「…でも JACKPOT!!」で jackpot()。どちらも jackpot() を1回呼ぶだけなので報酬は同じ。
+   従来の前置き(そのまま/777叩きつけ/カウントダウン)は残り80%でそのまま出る(置き換えではなくバリエーション)。
+   89c の交通整理: 主役の演出として lyBig/lyBusyB に参加(ミニゲームは待つ・ボーナス帯は引っ込む)。
+   全画面の点滅はしない(暗転は不透明度を上げ下げするだけ、着弾は局所の衝撃リング)。転生(PGEN)で即消える(jackpot は呼ばない)。
+   UJ.force = 0(成功) / 1(不発) で次の JACKPOT を固定、UJ.hero で英雄を固定(テスト用)。 */
+const UJ={s:null,p:.2,fail:.3,force:null,hero:null,pp:[],n:0,nf:0};
+const UJN=[['真・天地一閃','剣士'],['極大魔法 星墜とし','魔法使い'],['神弓 千ノ流星','弓使い']],UJC=['#ff7a45','#b57bff','#4dff8a'];
+function ujStart(){const f=UJ.force,h=UJ.hero!=null?UJ.hero:Math.floor(Math.random()*3),fail=f!=null?f===1:Math.random()<UJ.fail;UJ.force=null;UJ.n++;if(fail)UJ.nf++;
+  UJ.s={t0:T,h,fail,g:PGEN,st:0,jp:0};UJ.pp.length=0;seHy('charge',1.1);try{showMsg('超必殺技!?','#ffd400')}catch(e){}}
+{const o=jpRush;jpRush=function(){try{if(!UJ.s&&(UJ.force!=null||(HEV.jv==null&&Math.random()<UJ.p))){ujStart();return}}catch(e){}return o.apply(this,arguments)}}
+// 89c(交通整理)に「主役の演出」として参加
+try{const o=lyBig;lyBig=function(){return !!UJ.s||o.apply(this,arguments)}}catch(e){}
+try{const o=lyBusyB;lyBusyB=function(){return !!UJ.s||o.apply(this,arguments)}}catch(e){}
+function ujJP(){const U=UJ.s;if(!U||U.jp)return;U.jp=1;jackpot()}
+function ujUpd(dt){const U=UJ.s;if(!U)return;if(U.g!==PGEN){UJ.s=null;UJ.pp.length=0;return}const p=T-U.t0,ex=262,ey=80;
+  // 溜めの粒(画面の端から英雄へ集まる)
+  if(p<1.1&&UJ.pp.length<40&&Math.random()<dt*40){const a=Math.random()*TAU;UJ.pp.push({a,r:150+Math.random()*60,v:180+Math.random()*120})}
+  for(let i=UJ.pp.length-1;i>=0;i--){const q=UJ.pp[i];q.r-=q.v*dt;if(q.r<6)UJ.pp.splice(i,1)}
+  const st=p<1.1?0:p<1.35?1:p<2.25?2:3;
+  if(st>U.st){U.st=st;if(st==2)seHy('cut');if(st==3){if(U.fail){seHy('fail');try{showMsg('不発!?','#9aa0c8')}catch(e){}}else seHy('fire',U.h)}}
+  if(!U.fail){if(p>=2.95&&!U.jp){ujJP();seHy('hit');try{lyImpact('b',ex,ey,'#ffd400',1);lyImpact('b',ex,ey,UJC[U.h],0);lyStop(.15)}catch(e){}burst(ex,ey,hyLite()?12:40,UJC[U.h]);if(!hyLite())shake()}
+    if(p>=3.75)UJ.s=null}
+  else{if(p>=3.25&&!U.jp){ujJP();seHy('bigwin');try{lyImpact('b',180,80,'#ffd400',1)}catch(e){}}if(p>=4.1)UJ.s=null}}
+function ujHue(t,o){return 'hsl('+Math.floor(t*(hyLite()?60:220)+(o||0))%360+',100%,62%)'}
+function ujDraw(t){const U=UJ.s;if(!U)return;const p=t-U.t0,h=U.h,col=UJC[h],hxp=6+h*46+32,hyp=52+36,lite=hyLite();
+  // 暗さ(ゆっくり上下するだけ)
+  const dk=p<1.1?p/1.1*.6:p<1.35?.6+(p-1.1)/.25*.32:U.fail?(p<2.25?.92:Math.max(.55,.92-(p-2.25)*.6)):(p<2.95?.92:Math.max(0,.92-(p-2.95)*1.3));
+  bc.save();bc.fillStyle='rgba(0,0,8,'+Math.max(0,Math.min(.95,dk)).toFixed(3)+')';bc.fillRect(0,0,360,150);bc.imageSmoothingEnabled=false;
+  // 溜め: 英雄を明るく描き直し+オーラ+集まる粒+ゲージ
+  if(p<1.35||(U.fail&&p>=2.25&&p<3.25)){const spr=SPR['h'+h+(U.fail&&p>=2.25?'b':'s')]||SPR['h'+h];const r=22+Math.min(1,p/1.1)*16+Math.sin(t*5)*2;
+    bc.globalAlpha=.35;bc.fillStyle=col;bc.beginPath();bc.arc(hxp,hyp,r,0,TAU);bc.fill();bc.globalAlpha=.25;bc.fillStyle='#fff';bc.beginPath();bc.arc(hxp,hyp,r*.6,0,TAU);bc.fill();bc.globalAlpha=1;
+    if(spr)bc.drawImage(spr,hxp-32,52+(p<1.35?Math.round(Math.sin(t*30)*(p/1.35)):0),64,64);
+    for(const q of UJ.pp){bc.fillStyle=col;bc.fillRect(Math.round(hxp+Math.cos(q.a)*q.r),Math.round(hyp+Math.sin(q.a)*q.r*.6),3,3)}
+    if(p<1.35){const g=Math.min(1,p/1.1);bc.fillStyle='#000';bc.fillRect(130,118,200,10);bc.fillStyle=col;bc.fillRect(132,120,Math.round(196*g),6);bc.textAlign='left';hyTxtB('超必殺技 CHARGE',132,112,12,'#fff')}}
+  // カットイン
+  if(p>=1.35&&p<2.25){const q=p-1.35,open=Math.min(1,q/.12),close=q>.78?Math.max(0,(.9-q)/.12):1,H=Math.round(104*open*close),y0=75-(H>>1);
+    bc.fillStyle='#120630';bc.fillRect(0,y0,360,H);bc.save();bc.beginPath();bc.rect(0,y0,360,H);bc.clip();
+    bc.fillStyle='rgba(255,255,255,.5)';for(let i=0;i<16;i++){const x=360-((t*(640+(i%4)*170)+i*91)%560);bc.fillRect(x,y0+((i*31)%104),80+(i%3)*40,2)}
+    bc.globalAlpha=.35;bc.fillStyle=col;bc.fillRect(0,y0+H-26,360,26);bc.globalAlpha=1;
+    const e=Math.min(1,q/.2),ee=1-Math.pow(1-e,3),sc=2.6;try{if(typeof cutChar==='function')cutChar(h,-10-(1-ee)*160,y0+52-31*sc,sc,1)}catch(e2){}
+    const tx=Math.round(352-(1-ee)*200);bc.textAlign='right';hyTxtB('★ 超必殺技 ★',tx,y0+24,13,'#ffd400');hyTxtB(UJN[h][0],tx,y0+64,UJN[h][0].length>7?22:28,'#fff');bc.restore();
+    bc.fillStyle=col;bc.fillRect(0,y0-3,360,3);bc.fillRect(0,y0+H,360,3)}
+  // 大技(成功)
+  if(!U.fail&&p>=2.25&&p<3.1){const q=(p-2.25)/.7;
+    if(h==0){const x=-120+q*600;for(let k=4;k>=0;k--){bc.globalAlpha=k?.18:1;bc.strokeStyle=k?col:'#fff';bc.lineWidth=k?14:8;bc.beginPath();bc.arc(x-k*26,75,62,-1.25,1.25);bc.stroke()}bc.globalAlpha=1;bc.strokeStyle='#ffd400';bc.lineWidth=3;bc.beginPath();bc.arc(x+6,75,68,-1.1,1.1);bc.stroke()}
+    else if(h==1){const len=Math.min(1,q*2.2)*400,y=75;bc.fillStyle=col;bc.fillRect(0,y-22,len,44);bc.fillStyle='#e8d8ff';bc.fillRect(0,y-12,len,24);bc.fillStyle='#fff';bc.fillRect(0,y-5,len,10);
+      bc.fillStyle='#fff';for(let i=0;i<14;i++){const xx=(i*37+t*900)%Math.max(1,len);bc.fillRect(Math.round(xx),y-22+((i*13)%44),6,2)}}
+    else{const x=-80+q*560;bc.fillStyle='#fff';bc.fillRect(x-90,72,90,6);bc.fillStyle=col;bc.beginPath();bc.moveTo(x,64);bc.lineTo(x+28,75);bc.lineTo(x,86);bc.closePath();bc.fill();
+      for(let i=0;i<12;i++){const ax=-60+((q*700+i*53)%480),ay=18+((i*29)%110);bc.fillStyle=i%2?col:'#fff';bc.fillRect(Math.round(ax-24),ay,24,2);bc.fillRect(Math.round(ax),ay-2,4,6)}}}
+  // 不発
+  if(U.fail&&p>=2.25){const q=p-2.25;
+    if(q<1.6){for(let k=0;k<5;k++){const r=4+q*14+k*3;bc.globalAlpha=Math.max(0,.6-q*.4);bc.fillStyle='#8a8aa0';bc.beginPath();bc.arc(hxp+20+k*4,hyp-6-q*20-k*3,r,0,TAU);bc.fill()}bc.globalAlpha=1;
+      const s=q<.15?2-q/.15:1,wob=lite?0:Math.sin(q*14)*.06;bc.save();bc.translate(220,70);bc.rotate(wob);bc.scale(s,s);bc.textAlign='center';hyTxtB('不発!?',0,0,36,'#9ab0d0');bc.restore();
+      if(q>.6){bc.textAlign='center';hyTxtB('…でも',220,104,16,'#fff')}}
+    if(q>=1.0){const r=q-1.0,s=r<.15?2.4-r/.15*1.4:1;bc.save();bc.translate(220,92);bc.scale(s,s);bc.textAlign='center';hyTxtB('JACKPOT!!',0,0,34,ujHue(t));bc.restore()}}
+  if(!U.fail&&p>=2.95){const r=p-2.95,s=r<.15?2.6-r/.15*1.6:1;bc.globalAlpha=Math.min(1,(3.75-p)*3);bc.save();bc.translate(180,84);bc.scale(s,s);bc.textAlign='center';hyTxtB('JACKPOT!!',0,0,40,ujHue(t));bc.restore();bc.textAlign='center';hyTxtB(UJN[h][0],180,112,12,'#fff')}
+  bc.restore()}
+function hyTxtB(s,x,y,px,fill){if(typeof thickTxt==='function')thickTxt(bc,s,x,y,px,fill,{d:px>=24?3:2,lw:px>=24?7:4});else{bc.font=px+'px '+FN;bc.fillStyle=fill;bc.fillText(s,x,y)}}
+{const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{ujUpd(dt)}catch(e){if(UJ.s){const U=UJ.s;UJ.s=null;if(!U.jp&&U.g===PGEN)jackpot()}}return r}}
+{const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{ujDraw(t)}catch(e){}return r}}
+
+/* ---------- ボタン演出の動き (fx) / 見た目は css/39-btnfx.css ----------
+   押せ!!(#push #pkB): 出現でバウンド → 待機は脈動+回る光の輪 → 押下で沈み込み+二重の衝撃波(+SE)。
+   チャンスボタン(#gkcb, 98b): 出現でバウンド(+SE)・回る光の輪。押すと同じ場所に「残像」(#hycbg)を出して沈み込み+衝撃波 →
+     結果の動き: 激アツ/確定=跳ね上がって金の輪 / チャンス!!=小さく跳ねる / チャンス!(低)=しぼんで色が抜ける。当否・文言は 98b のまま。
+   ハンドル(#hd): 押すたびに小さな衝撃波(連打でも 0.12 秒に1回)。
+   動きは CSS アニメーション(transform/opacity のみ)。prefers-reduced-motion では動きを止める。 */
+function hbRe(el,cls){try{if(!el)return;const c=String(el.className||'').split(' ').filter(x=>x&&x!==cls).join(' ');el.className=c;void el.offsetWidth;el.className=(c?c+' ':'')+cls}catch(e){}}
+{const o=pushPrompt;pushPrompt=function(){const was=PUSH,r=o.apply(this,arguments);try{if(!was&&PUSH)seHy('pop')}catch(e){}return r}}
+{const o=pushPress;pushPress=function(auto){const P0=PUSH,ok=P0&&!P0.done,r=o.apply(this,arguments);try{if(ok){seHy('wave');const e=$('push');if(e&&e.className.indexOf('hyw')<0)e.className+=' hyw'}}catch(e){}return r}}
+// チャンスボタン
+let HBG=null;
+function hbGhost(){if(HBG)return HBG;try{HBG=document.createElement('div');HBG.id='hycbg';HBG.innerHTML='<b>CHANCE</b><i>PUSH</i><s></s>';if(HBG.style)HBG.style.display='none';document.body.appendChild(HBG)}catch(e){HBG=null}return HBG}
+{const o=cbShow;cbShow=function(){const r=o.apply(this,arguments);try{seHy('pop')}catch(e){}return r}}
+{const o=cbPress;cbPress=function(){const C=ACT.cb,live=C&&!C.done&&sp&&sp===C.s;let L=null,top=null;
+  if(live){try{const b=$('gkcb');L=b.style.left;top=b.style.top}catch(e){}}
+  const r=o.apply(this,arguments);
+  if(live)try{const m=String($('msg').textContent||''),k=/激アツ|確定/.test(m)?'hot':/チャンス!!/.test(m)?'mid':'low',g=hbGhost();seHy('wave');
+    if(g){g.style.left=L;g.style.top=top;g.style.display='flex';g.style.setProperty&&g.style.setProperty('--hc',k==='hot'?'#ffd400':k==='mid'?'#33dd66':'#44aaff');g.className='';void g.offsetWidth;g.className='go hy'+k;
+      const G0=g;presLater(()=>{try{if(G0.className.indexOf('go')>=0){G0.style.display='none';G0.className=''}}catch(e){}},950)}}catch(e){}
+  return r}}
+// ハンドル
+{let lt=-9;const h=$('hd');try{if(h&&h.addEventListener)h.addEventListener('pointerdown',()=>{if(T-lt<.12)return;lt=T;hbRe(h,'hyp')})}catch(e){}}
 
 /* ---------- extra dopamine ---------- */
 let HS=0,QL=[],CB=null;

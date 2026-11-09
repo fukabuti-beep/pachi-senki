@@ -101,7 +101,7 @@ for (const mode of ['none', 'broken', 'mute']) {
   for (let i = 0; i < 8; i++) { g.eval("kyuin(3,'#fff')"); vs.push(g.eval('sKB.v')); g.advance(.8); }
   ok(vs[0] === 1 && vs[vs.length - 1] >= .6 && vs[vs.length - 1] < .8, 'キュイン連発の音量逓減: ' + vs.map(v => v.toFixed(2)).join(','));
   g.eval("kyuin(9,'#fff')"); ok(g.eval('sKB.v') === 1, '大当たり級のキュインがフル音量でない');
-  g.advance(10); g.eval('sKH=[]'); o = g.audio.osc; g.eval("kyuin(5,'#fff')"); ok(g.audio.osc - o >= 15, 'キュインの発音数が少ない ' + (g.audio.osc - o));
+  g.advance(10); g.eval('sKH=[];sKB=null'); o = g.audio.osc; g.eval("kyuin(5,'#fff')");   // sKB=null: 乱数次第で鳴っている自然なキュイン(FEVER等)に左右されないように ok(g.audio.osc - o >= 15, 'キュインの発音数が少ない ' + (g.audio.osc - o));
   console.log('キュイン: 差し替え/間引き/逓減 ' + vs.map(v => v.toFixed(2)).join(' '));
 }
 

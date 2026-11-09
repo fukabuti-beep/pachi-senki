@@ -30,5 +30,5 @@ function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
 function pushPress(auto){const P0=PUSH;if(!P0||P0.done)return;P0.done=1;P0.tm.forEach(clearTimeout);
  const el=$('push');el.className+=' hit';$('pkT').textContent='GO!!';
  flash('#fff');shake();kyuin(P0.small?5:9,'#ffd400');
- setTimeout(()=>{el.className='';PUSH=null;P0.cb()},P0.small?420:700)}
+ setTimeout(()=>{if(PUSH!==P0)return;el.className='';PUSH=null;P0.cb()},P0.small?420:700)}
 $('push').onpointerdown=()=>pushPress(0);

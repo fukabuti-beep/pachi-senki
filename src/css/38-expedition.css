@@ -1,0 +1,12 @@
+/* 遠征(98d)/ボーナスタイム(98e)のメニュー部品。34-menu.css の筐体デザイン(金ベゼル/液晶)に合わせる */
+html body #fxm .exbox{margin:6px 0 10px;padding:10px 8px;background:linear-gradient(#1e1258,#120838);
+ box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px #ffd400,inset 0 0 0 6px #000,0 3px 0 #000}
+html body #fxm .exbox .fxp{font-size:16px;margin:0;text-shadow:2px 2px 0 #000}
+html body #fxm .exbox .fxn{margin:6px 0}
+html body #fxm .exgauge{height:10px;margin:2px 12px 8px;background:#0b0624;box-shadow:0 0 0 2px #000,0 0 0 4px #3a2a8a}
+html body #fxm .exgauge i{display:block;height:100%;background:repeating-linear-gradient(90deg,#7ff3ff 0 6px,#2fb3d0 6px 8px)}
+html body #fxm .exgo{font-size:18px;padding:10px 26px}
+html body #fxm .exbig,html body #fxm .btgold{color:#ffd400;font-size:18px;animation:exbig 1.2s steps(2) infinite}
+@keyframes exbig{50%{color:#ff7ac0}}
+html body #ctl #fxmb i#fxmbi{font-style:normal;min-width:14px;text-align:center;box-shadow:0 0 0 2px #000}
+@media (prefers-reduced-motion:reduce){html body #fxm .exbig,html body #fxm .btgold{animation:none}}

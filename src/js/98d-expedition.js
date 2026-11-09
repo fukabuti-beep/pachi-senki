@@ -19,7 +19,7 @@ function expLeft(now){if(EXP.d<0)return 0;now=now||nowMs();if(EXP.t0>now){EXP.t0
 const expDone=()=>EXP.d>=0&&expLeft()<=0;
 const expMs=i=>Math.floor((30+X.best*3)*EXD[i].k);
 function expGo(i){if(EXP.d>=0||!expOpen(i))return false;EXP.d=i;EXP.t0=nowMs();EXP.ntf=0;expSave();
-  fxToast('遠征隊が '+EXD[i].n+' へ出発!','#7ff3ff');try{if(sOK()){const t=sNow();[523,659,784,1047].forEach((f,k)=>tone(f,t+k*.08,.12,'square',.035))}}catch(e){}
+  fxToast('遠征隊が '+EXD[i].n+' へ出発!','#7ff3ff');seExp('go');
   if(fxOpen)fxMenu();return true}
 function expCancel(){if(EXP.d<0)return;EXP.d=-1;EXP.t0=0;expSave();fxToast('遠征隊を呼び戻した','#aaa');expBadge();if(fxOpen)fxMenu()}
 /* 報酬を決めて付与(テストからも呼ぶ)。戻り値 {ms,gem,relic,big} */
@@ -34,13 +34,13 @@ function expCollect(){const r=expClaim();if(!r){if(fxOpen)fxMenu();return}const 
    (r.gem?'<div class="ok"><span>宝石</span><span style="color:#7ff3ff">+'+r.gem+'</span></div>':'')+
    (r.relic?'<div class="ok"><span>遺物 '+r.relic.r.n+'</span><span style="color:'+r.relic.r.c+'">'+(r.relic.nw?'NEW!':'Lv '+r.relic.lv)+'</span></div>':'')+
    '</div><div class="fxs" style="margin-top:6px">遠征 累計 '+EXP.n+'回(大成功 '+EXP.big+'回)</div>',[['もう一度 出発!',()=>{expGo(r.i);fxMenu()}],['閉じる',null,'g']]);
-  try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();if(r.big){shake();flash('#ffd400')}}catch(e){}}
+  try{banner(r.big?'遠征 大成功!!':'遠征隊 帰還!',r.big?'#ffd400':D.c);kyuin(r.big?8:4,r.big?'#ffd400':D.c);fan();seExp(r.big?'big':'back');if(r.big){shake();flash('#ffd400')}}catch(e){}}
 /* メニューボタンの「!」 */
 function expBadge(){try{const b=$('fxmbi');if(!b)return;const on=expDone();b.style.display=on?'block':'none';b.textContent=on?'!':'';b.style.fontSize='11px';b.style.lineHeight='14px'}catch(e){}}
 function expFmt(s){s=Math.ceil(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=s%60;return h+':'+String(m).padStart(2,'0')+':'+String(c).padStart(2,'0')}
 let expTk=0;
 FU.push(dt=>{expTk+=dt;if(expTk<1)return;expTk=0;
-  if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');try{if(sOK()){const t=sNow();[784,988,1319].forEach((f,k)=>tone(f,t+k*.1,.14,'square',.03))}}catch(e){}}
+  if(expDone()&&!EXP.ntf){EXP.ntf=1;expBadge();fxToast('遠征隊が帰ってきた! メニューで受け取ろう','#7ff3ff');seExp('ret');}
   if(fxOpen&&EXP.d>=0){const e=$('exrem');if(e){const l=expLeft();if(l<=0)fxMenu();else{e.textContent=expFmt(l);const b=$('exbar');if(b)b.style.width=Math.round(100*(1-l/EXD[EXP.d].sec))+'%'}}}});
 try{if(document.addEventListener)document.addEventListener('visibilitychange',()=>{if(!document.hidden){EXP.ntf=0;expTk=1}})}catch(e){}
 function expMenu(){let h='<div class="fxh">遠征</div><div class="fxs">遠征隊は アプリを閉じていても時間で帰ってくる。<br>英雄は戦い続けるので放置の損は無し。転生しても残る。</div>';

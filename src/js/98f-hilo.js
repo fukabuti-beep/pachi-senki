@@ -13,7 +13,7 @@ const hlCard=()=>1+Math.floor(Math.random()*13);
 const hlName=n=>n===1?'A':n===11?'J':n===12?'Q':n===13?'K':String(n);
 function hlStart(){HL={t:0,ph:0,a:hlCard(),b:0,w:0,pick:0,auto:0,res:'',fl:0};
   $('fxgt').textContent='ハイ&ロー!';$('fxgr').textContent='x1';$('fxgh').textContent='左=HIGH / 右=LOW をタップ(自動あり)';
-  mg2e.style.display='flex';try{beep(900,.15,'square',.05)}catch(e){}}
+  mg2e.style.display='flex';seHl('start')}
 /* 95 の mg2Start をラップ(ローテーションで hilo が来たらこちらで開始) */
 {const o=mg2Start;mg2Start=function(ty){if(ty==='hilo')return hlStart();return o.apply(this,arguments)}}
 {const o=mini;mini=function(){if(HL)return;return o.apply(this,arguments)}}
@@ -21,16 +21,16 @@ function hlStart(){HL={t:0,ph:0,a:hlCard(),b:0,w:0,pick:0,auto:0,res:'',fl:0};
 if(typeof relicUpd==='function'){const o=relicUpd;relicUpd=function(){if(HL&&RDR.q&&!RDR.show)return;return o.apply(this,arguments)}}
 /* 選ぶ: up=1 HIGH / 0 LOW */
 function hlChoose(up,auto){const h=HL;if(!h||h.ph!==0)return;h.pick=up;h.auto=auto?1:0;h.b=hlCard();h.ph=1;h.t=0;
-  try{if(sOK()){const t=sNow();for(let i=0;i<6;i++)tone(600+i*80,t+i*.06,.04,'square',.025)}}catch(e){}}
+  seHl('flip')}
 function hlJudge(){const h=HL,ok=h.pick?h.b>=h.a:h.b<=h.a;h.ph=2;h.t=0;
   if(ok){h.w++;$('fxgr').textContent='x'+(1<<h.w);h.fl=1;
-    try{if(sOK()){const t=sNow();[784,988,1319,1568].slice(0,1+h.w).forEach((f,i)=>tone(f,t+i*.07,.12,'square',.035))}}catch(e){}
+    seHl('win',h.w);
     if(h.w>=3){kyuin(8,'#ffd400');flash('#ffd400')}else kyuin(2+h.w,'#ffd400')}
-  else{h.fl=0;try{beep(220,.35,'sawtooth',.05)}catch(e){}}
+  else{h.fl=0;seHl('lose')}
   $('fxgh').textContent=(ok?'当たり!':'はずれ…')+(h.auto?'(自動)':'')}
 function hlFin(){const h=HL,m=1<<h.w,g=addGold(HLB()*m);h.ph=3;h.t=0;h.res='x'+m+' +G'+fmt(g);$('fxgr').textContent=h.res;
   $('fxgh').textContent=h.w>=3?'パーフェクト!! 3連勝':h.w?h.w+'連勝!':'残念…でも x1 はもらえる';
-  if(h.w>=3){X.st.mgp++;banner('ハイ&ロー 3連勝!!','#ffd400');try{fan()}catch(e){}}}
+  if(h.w>=3){X.st.mgp++;banner('ハイ&ロー 3連勝!!','#ffd400');try{fan()}catch(e){}seHl('perfect')}else if(h.w)seHl('cash')}
 function hlEnd(){mg2e.style.display='none';HL=null}
 function hlTap(e){const h=HL;if(!h||h.ph!==0)return;let up=1;try{const r=$('fxgc').getBoundingClientRect();if(e&&e.clientX!=null)up=(e.clientX-r.left)<(r.width||240)/2?1:0}catch(x){}hlChoose(up,0)}
 if(mg2e.addEventListener)mg2e.addEventListener('pointerdown',hlTap);

@@ -82,7 +82,7 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
   ok(Math.abs(g.eval('SB.a()') / a0 - 1.01) < 1e-9, '★のダメージボーナス: ' + g.eval('SB.a()') / a0);
   g.eval('G.stage=5;spawn();G.hp=1;kill()'); ok(g.eval("zkStar('b0')") === 1, 'ボスの★');
   ok(JSON.parse(g.store.pachi2_zukan).m0 === 10, '図鑑の保存');
-  const g2 = createGame({ seed: 6, storage: { pachi2_zukan: JSON.stringify({ m0: 'x', b9: 5, m1: 1e99 }) } }); ok(g2.eval('ZK.m0') === undefined && g2.eval('ZK.b9') === undefined && g2.eval('ZK.m1') === 1e9, '不正な図鑑セーブ');
+  const g2 = createGame({ seed: 6, storage: { pachi2_zukan: JSON.stringify({ m0: 'x', b99: 5, m1: 1e99 }) } }); ok(g2.eval('ZK.m0') === undefined && g2.eval('ZK.b99') === undefined && g2.eval('ZK.m1') === 1e9, '不正な図鑑セーブ');
 }
 // (f) 攻撃モーション: 特殊モーションの位置オフセットが有限で、時間が経てば戻る
 {

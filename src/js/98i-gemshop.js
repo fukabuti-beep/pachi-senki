@@ -67,7 +67,7 @@ function gsSwap(j){try{msCheckDay()}catch(e){}if(typeof MS==='undefined'||!MS)re
   const cand=[];MSD.forEach((m,i)=>{if(MS.ids.indexOf(i)<0&&m.k!=='stage')cand.push(i)});if(!cand.length)return false;
   if(!gsPay(3))return false;const i=cand[Math.floor(Math.random()*cand.length)];MS.ids[j]=i;MS.lv[j]=0;MS.p[j]=0;MS.c[j]=0;try{msSave()}catch(e){}
   GS.sw=gsToday();fxToast('ミッションを「'+MSD[i].n+'」に入れ替えた','#ffa04a');gsSe(0);gsRe();return true}
-function gsBuyTurbo(){if(GS.own.turbo)return false;if(!gsPay(20))return false;GS.own.turbo=1;GS.tb=1;fxToast('自動強化ターボ! 自動強化が4倍速に','#8dff7a');gsSe(1);gsRe();return true}
+function gsBuyTurbo(){if(GS.own.turbo)return false;if(!(typeof soulLv==='function'&&soulLv('auto')>0)){fxToast('先に魂の祭壇で自動強化を手に入れよう','#aaa');return false}if(!gsPay(20))return false;GS.own.turbo=1;GS.tb=1;fxToast('自動強化ターボ! 自動強化が4倍速に','#8dff7a');gsSe(1);gsRe();return true}
 function gsTurboToggle(){GS.tb=GS.tb?0:1;gsRe()}
 /* ---- 見た目 ---- */
 function gsBuyC(kind,i){const C=GSC[kind];if(!C||!C.L[i])return false;const own=GS.own[kind].indexOf(i)>=0;

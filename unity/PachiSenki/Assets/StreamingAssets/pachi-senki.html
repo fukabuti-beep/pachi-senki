@@ -509,6 +509,77 @@ input[type=range]{-webkit-user-select:none;user-select:none}
 /* 内側のスクロール領域だけはスクロール可、端で筐体ごと揺れないように */
 .cfgb,html body #fxm .rb,html body #fxg .rb{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
+/* 38-polish.css */
+/* 全画面のデザイン統一と見やすさの調整(design)。34-menu.css の筐体デザイン(金ベゼル/LED/液晶数値/虹)に他の画面を揃える。
+   見た目だけ: 構造・id・当否・演出の流れは変えない。shadowBlur は使わない(box-shadow/text-shadow も静的なものだけ)。 */
+
+/* ===== 共通: 見出しの下線を虹色に(メニュー/強化シートの鍛冶屋・魂の祭壇/設定) ===== */
+html body #fxm .fxh,#upx .fxh{padding-bottom:8px;
+ background:linear-gradient(90deg,transparent,#ff2d7a 14%,#ffd400 32%,#43e060 50%,#27e3ff 68%,#a066ff 86%,transparent) bottom/100% 2px no-repeat}
+
+/* ===== 設定(歯車): 青い素の箱 → 三本線メニューと同じ金ベゼル+LED+リベットの筐体パネル ===== */
+#cfg{background:radial-gradient(ellipse at 50% 40%,rgba(40,16,90,.78),rgba(5,3,20,.92) 70%)}
+.cfgb{position:relative;padding:22px 14px 14px;
+ background:radial-gradient(circle at 50% 0,#3a2490,#160a44 55%,#0b0624);
+ box-shadow:0 0 0 3px #000,0 0 0 6px #ffe56a,0 0 0 9px #a87500,0 0 0 11px #000,0 0 40px 6px rgba(255,45,122,.45),inset 0 0 0 2px #2a1a6a;
+ scrollbar-width:thin;scrollbar-color:#ffd400 #160a44}
+/* LED 電飾(上辺)。グリッド表示(横向き)でもセルを取らないよう absolute */
+.cfgb::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;border-bottom:2px solid #000;
+ background:#0b0624 repeating-linear-gradient(90deg,#fff36a 0 5px,#3a2a70 5px 9px,#ff2d7a 9px 14px,#3a2a70 14px 18px);animation:mnled .45s steps(2) infinite}
+.cfgb::after{content:"";position:absolute;inset:14px 6px 6px;pointer-events:none;
+ background:radial-gradient(circle at 0 0,#ffe56a 0 2px,transparent 3px),radial-gradient(circle at 100% 0,#ffe56a 0 2px,transparent 3px),
+  radial-gradient(circle at 0 100%,#ffe56a 0 2px,transparent 3px),radial-gradient(circle at 100% 100%,#ffe56a 0 2px,transparent 3px);opacity:.9}
+.cfgb h2{font-size:22px;color:#ffd400;letter-spacing:4px;margin:0 0 10px;padding-bottom:8px;
+ text-shadow:0 2px 0 #b85a00,0 4px 0 #4a1a00,2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;
+ background:linear-gradient(90deg,transparent,#ff2d7a 14%,#ffd400 32%,#43e060 50%,#27e3ff 68%,#a066ff 86%,transparent) bottom/100% 2px no-repeat}
+/* 各行をパネルに(メニューの一覧行と同じ見た目)。行頭に◆ */
+.cfgb .row{margin:0 0 5px;padding:1px 8px;background:linear-gradient(90deg,#1e1258,#140a3c);box-shadow:inset 0 0 0 1px #3a2a8a,0 2px 0 #000}
+.cfgb .row>span{width:94px;color:#fff;white-space:nowrap}
+.cfgb .row>span::before{content:"◆";color:#ffd400;margin-right:4px;font-size:10px;vertical-align:1px}
+.cfgb .row .seg,.cfgb .row .tg,.cfgb .row .bad{margin-top:1px;margin-bottom:6px}
+/* 音量の数値を液晶風に */
+.cfgb .row b{width:38px;padding:3px 0;text-align:center;background:#0a1a10;color:#9bff6b;font-variant-numeric:tabular-nums;
+ box-shadow:inset 0 0 0 2px #000,0 0 0 2px #3a4a3a;text-shadow:0 0 6px rgba(155,255,107,.7),1px 1px 0 #000}
+/* 注記: 10px・薄い・右寄せで読みにくかった → 11px・行の下に全幅で */
+.cfgb .note{font-size:11px;opacity:1;color:#c8c0ff;margin:-2px 2px 8px;padding:0 4px;line-height:1.55}
+.cfgb .big{margin-top:8px}
+#cfgCf{box-shadow:inset 0 0 0 2px #a8142f,0 2px 0 #000;margin-bottom:8px}
+@media (prefers-reduced-motion:reduce){.cfgb::before{animation:none}}
+@media (orientation:landscape) and (max-height:520px){.cfgb .note{margin:-4px 2px 4px}.cfgb .row{margin-bottom:4px}}
+
+/* ===== 三本線メニュー ===== */
+/* タブ: 「ミッション」「ランキング」が字間で詰まって見えた → 字間を詰め、(高さは 20-ui.css の 44px のまま) */
+html body #fxm .fxt button{letter-spacing:0!important}
+/* 本文のボタンと液晶が横並びの時(くじ等)に上下を揃える */
+html body #fxm .fxb{vertical-align:middle}
+html body #fxm .fxn{vertical-align:middle}
+html body #fxm .fxn+.fxb{margin-top:4px;margin-bottom:6px}
+/* 下の「閉じる」等は幅を広げて親指で押しやすく */
+html body #fxm #fxmbt .fxb{min-width:150px;min-height:44px}
+/* 文字入力(プレイヤー名/サポーターコード): 素の入力欄 → 液晶パネル風 */
+html body #fxm input#rkname,html body #fxm input#supcode{height:40px;padding:0 8px!important;border:0!important;background:#0a1a10!important;color:#9bff6b!important;
+ font-size:15px!important;vertical-align:middle;margin:6px 0;box-shadow:inset 0 0 0 2px #000,inset 0 0 10px rgba(155,255,107,.18),0 0 0 2px #3a4a3a,0 0 0 4px #000;outline:0;border-radius:0}
+html body #fxm input#rkname:focus,html body #fxm input#supcode:focus{box-shadow:inset 0 0 0 2px #000,inset 0 0 10px rgba(155,255,107,.3),0 0 0 2px #ffd400,0 0 0 4px #000}
+html body #fxm input::placeholder{color:#3f6a3a;opacity:1}
+/* デイリーミッションの進み具合バー: 5px で見えにくかった → 太く */
+html body #fxm .fxl span[style*="height:5px"]{height:8px!important;margin-top:4px!important}
+/* ログインボーナスのカレンダー: 7日目だけ2行で高さがずれていた/11px で小さい → 同じ高さのマスに揃える */
+html body #fxm span[style*="width:34px"]{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;vertical-align:top;
+ width:38px!important;height:42px;padding:0!important;font-size:12px!important;line-height:1.15}
+
+/* ===== 強化シート ===== */
+/* グループ切り替えタブ(通常強化/鍛冶屋/魂の祭壇): 高さ 33px → 44px(メニューのタブと同じ) */
+#upg button{min-height:44px}
+#upx .fxb{min-height:44px}
+/* 下のヒント: 10px・薄い → 11px */
+.hint{font-size:11px;opacity:.75}
+/* 強化カードの効果説明(11px)が opacity .75 で沈んでいた → 少し明るく */
+#up span{opacity:.9}
+/* 説明文の行末に1文字だけ残る折り返し(「〜を得\n る。」)を減らす(対応ブラウザのみ) */
+html body #fxm .fxs,html body #fxm .fxp,#upx .fxs,.cfgb .note{text-wrap:pretty}
+/* 背の低い画面(iPhone SE など)では設定の行間を詰める */
+@media (max-height:700px){.cfgb{padding-top:18px}.cfgb h2{margin-bottom:6px;font-size:20px}.cfgb .row{margin-bottom:3px}.cfgb .note{margin-bottom:5px}}
+
 </style></head><body>
 <div id="sa"></div>
 <div id="rot" aria-hidden="true">縦向きで遊ぶと大きく見やすくなります</div>

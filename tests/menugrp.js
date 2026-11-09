@@ -14,11 +14,12 @@ function walkAll(g) {
   const names = g.eval('FM.map(m=>m.n)'), seen = new Set();
   g.eval('fxClose();fxMenu()');
   const groups = clicks(content(g), /^fmgPick\(/);
-  ok(groups.length >= 2 && groups.length <= 4, 'group buttons: ' + groups.length);
+  ok(groups.length >= 2 && groups.length <= 5, 'group buttons: ' + groups.length);
   for (const gb of groups) {
     g.eval(gb.js);
     const tabs = clicks(content(g), /^fmgTab\(/);
-    ok(tabs.length >= 1 && tabs.length <= 4, 'tabs in group ' + gb.label + ': ' + tabs.length);
+    if (!tabs.length) { seen.add(g.eval('FM[fxTab].n')); ok(g.eval('fxOpen') === true, 'single-tab group opens: ' + gb.label); continue; }   // 中のタブが1つのグループは大分類ボタンで直接開く
+    ok(tabs.length <= 4, 'tabs in group ' + gb.label + ': ' + tabs.length);
     for (const t of tabs) {
       g.eval(t.js);
       const cur = g.eval('FM[fxTab].n');
@@ -38,11 +39,11 @@ function walkAll(g) {
   // 既知のタブの振り分け
   ok(g.eval("fmgOf('遊戯')===0&&fmgOf('くじ')===0&&fmgOf('遠征')===0"), 'play group');
   ok(g.eval("fmgOf('実績')===1&&fmgOf('図鑑')===1&&fmgOf('遺物')===1&&fmgOf('仲間')===1"), 'collect group');
-  ok(g.eval("fmgOf('転生')===2&&fmgOf('ミッション')===2"), 'grow group');
-  ok(g.eval("fmgOf('応援★')===3&&fmgOf('ランキング')===3"), 'other group (with ★)');
+  ok(g.eval("fmgOf('転生')===2&&fmgOf('ミッション')===3"), 'grow group / mission group');
+  ok(g.eval("fmgOf('応援★')===4&&fmgOf('ランキング')===4"), 'other group (with ★)');
   // 後から追加されたタブは「その他」に入る
   g.eval("FM.push({n:'テスト新機能',r:()=>'<div class=\"fxh\">NEW</div>'})");
-  ok(g.eval("fmgOf('テスト新機能')") === 3, 'unknown tab -> その他');
+  ok(g.eval("fmgOf('テスト新機能')") === 4, 'unknown tab -> その他');
   const seen = walkAll(g);
   ok(seen.has('テスト新機能'), 'new tab reachable');
   // 最後に開いたタブを覚える

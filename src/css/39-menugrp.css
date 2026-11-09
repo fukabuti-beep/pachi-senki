@@ -22,3 +22,8 @@ html body #fxm .fxt.mgT button{font-size:13px!important}
 /* 下段の選択中タブは大分類の色(上段の金と区別) */
 html body #fxm .fxt.mgT button.on{background:var(--mgc,#ffd400)!important;color:#140a30!important;
  box-shadow:inset 2px 2px 0 rgba(255,255,255,.6),inset -2px -2px 0 rgba(0,0,0,.35),0 0 0 2px #000,0 1px 0 2px #000,0 0 12px var(--mgc,#ffd400)!important}
+
+/* 大分類が5つ(遊ぶ/集める/育てる/ミッション/その他)になったので 上段3つ・下段2つ に並べる */
+html body #fxm .fxt.mgG{grid-template-columns:repeat(6,1fr)}
+html body #fxm .fxt.mgG button{grid-column:span 2}
+html body #fxm .fxt.mgG button:nth-child(n+4){grid-column:span 3}

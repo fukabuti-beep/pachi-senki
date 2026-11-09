@@ -7,8 +7,8 @@ namespace PachiSenki.Core
     public static class Bal
     {
         public static double atk0 = 5, atkg = 1.25, mulg = 1.2, hp0 = 1500, hpg = 1.32, boss = 4, costg = 1.63, costgCap = 1.45, costk = 50;
-        public static double hit0 = .15, hitStep = .01, rushP = .12, jpP = .04;
-        public static double spBall = .14, spHero = 2.7, spStep = .06, ultMin = 9;
+        public static double hit0 = .15, hitStep = .025, rushP = .10, jpP = .04;
+        public static double spBall = .14, spHero = 1.9, spStep = .06, ultMin = 14, ultK = 35;
         public static double goldBase = 45, goldStep = .12, fevBase = 60, fevStep = .1;
         public static int pityStart = 24, pityEnd = 60;
         public static double evP = .15, supP = .3, supG = .25;
@@ -28,7 +28,7 @@ namespace PachiSenki.Core
         public static readonly UpgradeDef[] All = {
             new UpgradeDef("攻","英雄強化","ダメージ+25%",15,0,Inf),
             new UpgradeDef("速","発射速度","玉+0.5/秒 MAX11",20,0,11),
-            new UpgradeDef("当","当たり確率","大当たり+7% MAX12",30,0,12),
+            new UpgradeDef("当","当たり確率","大当たり率+2.5% MAX12",30,0,12),
             new UpgradeDef("金","ゴールド","獲得+20%",25,0,Inf),
             new UpgradeDef("会","会心率","CRIT+3% MAX15",22,0,15),
             new UpgradeDef("運","ルーレット運","高倍率UP MAX15",40,0,15),
@@ -40,6 +40,7 @@ namespace PachiSenki.Core
             new UpgradeDef("宝","お宝運","出現/報酬UP MAX10",70,10,10),
             new UpgradeDef("招","ルーレット招待","押せ!!発生+2% MAX10",90,15,10),
             new UpgradeDef("超","超倍率","化ける率+3% MAX10",120,20,10),
+            new UpgradeDef("極","会心ダメージ","会心の威力+8%",1500,25,Inf),
         };
         public static int Count => All.Length;
     }

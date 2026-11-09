@@ -5,8 +5,9 @@
 const PRES_MIN=30;
 const SB={a:()=>1+.1*X.souls,g:()=>1+.05*X.souls};
 if(typeof hurt==='function'){const o=hurt;hurt=function(x){const a=[].slice.call(arguments);a[0]=x*SB.a();return o.apply(this,a)}}
-/* 獲得できる魂: stage<PRES_MIN なら0。stage30=5, 60=14, 100=31, 150=58 */
-const soulGain=s=>s<PRES_MIN?0:Math.floor(Math.pow(s/10,1.5));
+/* 獲得できる魂: stage<PRES_MIN なら0。5x(stage/30)^2.5 = stage30=5, 40=10, 50=17, 60=28, 80=58, 100=101, 150=279。
+   (旧式 (stage/10)^1.5 は 30=5/80=22 と平坦で、転生しても前回の最高に戻るのが遅く(sim: 9〜17分)うま味が薄かった。balance) */
+const soulGain=s=>s<PRES_MIN?0:Math.floor(Math.min(1e9,5*Math.pow(s/PRES_MIN,2.5)));
 /* 演出中(スロット/ルーレット/ミニゲーム/カットイン)は転生させない */
 const presBusy=()=>!!(sp||RL||G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2));
 function presAsk(){

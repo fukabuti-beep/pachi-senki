@@ -675,13 +675,13 @@ function enSpr(st){st=st||G.stage;return st%5==0?'b'+((st/5-1)%4):'m'+((st-1+3*M
 
 /* ---------- upgrades: data + stat formulas + buy ---------- */
 // UP: [記号,名前,説明,基本コスト,解放ステージ]  ※並び(=G.lv[]の添字)は既存セーブ互換のため変更しない
-const UP=[['攻','英雄強化','ダメージ+25%',15],['速','発射速度','玉+0.5/秒 MAX11',20],['当','当たり確率','大当たり+7% MAX12',30],['金','ゴールド','獲得+20%',25],['会','会心率','CRIT+3% MAX15',22],['運','ルーレット運','高倍率UP MAX15',40],['溜','SPチャージ','ゲージ+6% MAX8',35,3],['延','RUSH延長','継続+0.5秒 MAX5',50,8],['黄','黄金玉率','黄金玉+12% MAX10',60,12],['祭','FEVER率','発生率+10% MAX10',80,16]];
+const UP=[['攻','英雄強化','ダメージ+25%',15],['速','発射速度','玉+0.5/秒 MAX11',20],['当','当たり確率','大当たり率+2.5% MAX12',30],['金','ゴールド','獲得+20%',25],['会','会心率','CRIT+3% MAX15',22],['運','ルーレット運','高倍率UP MAX15',40],['溜','SPチャージ','ゲージ+6% MAX8',35,3],['延','RUSH延長','継続+0.5秒 MAX5',50,8],['黄','黄金玉率','黄金玉+12% MAX10',60,12],['祭','FEVER率','発生率+10% MAX10',80,16]];
 // 最大Lv(Infinity=無制限)。特別感を保つため「演出の発生頻度」系は必ず上限を持つ。攻/金だけが無限に伸びる。
 const UPMAX=[Infinity,11,12,Infinity,15,15,8,5,10,10];
 // チューニング用の係数(sim から BAL.xxx=... で上書き可能)
 const BAL={atk0:5,atkg:1.25,mulg:1.2,hp0:1500,hpg:1.32,boss:4,costg:1.63,costgCap:1.45,costk:50,
- hit0:.15,hitStep:.01,rushP:.12,jpP:.04,
- spBall:.14,spHero:2.7,spStep:.06,ultMin:9,
+ hit0:.15,hitStep:.025,rushP:.10,jpP:.04,
+ spBall:.14,spHero:1.9,spStep:.06,ultMin:14,ultK:35,
  goldBase:45,goldStep:.12,fevBase:60,fevStep:.1,
  pityStart:24,pityEnd:60};
 const lvE=i=>Math.min(G.lv[i],UPMAX[i]);   // 旧セーブでMAX超過のLvも上限で頭打ち
@@ -724,9 +724,9 @@ const ultReady=()=>T-LU>=BAL.ultMin;
 
 /* ---------- 強化項目の追加 (balance) ----------
    UP/UPMAX/G.lv の末尾に追加(既存の添字は変えない)。00-core のセーブ読込は先頭10個だけなので、追加分はここで読み直す。
-   10 タップ攻撃 / 11 お宝運 / 12 ルーレット招待 / 13 超倍率 。効果は 98b-active / 87-hitev から UPX.* で参照する。 */
-UP.push(['撃','タップ攻撃','タップ威力+30%',45,5],['宝','お宝運','出現/報酬UP MAX10',70,10],['招','ルーレット招待','押せ!!発生+2% MAX10',90,15],['超','超倍率','化ける率+3% MAX10',120,20]);
-UPMAX.push(Infinity,10,10,10);
+   10 タップ攻撃 / 11 お宝運 / 12 ルーレット招待 / 13 超倍率 / 14 会心ダメージ(STAGE 25 解放、無制限)。効果は 98b-active / 87-hitev から UPX.* で参照する。 */
+UP.push(['撃','タップ攻撃','タップ威力+30%',45,5],['宝','お宝運','出現/報酬UP MAX10',70,10],['招','ルーレット招待','押せ!!発生+2% MAX10',90,15],['超','超倍率','化ける率+3% MAX10',120,20],['極','会心ダメージ','会心の威力+8%',1500,25]);
+UPMAX.push(Infinity,10,10,10,Infinity);
 while(G.lv.length<UP.length)G.lv.push(1);
 try{const s=JSON.parse(localStorage.getItem('pachi2')||'null');if(s&&Array.isArray(s.lv))for(let i=10;i<UP.length;i++){const v=Math.floor(+s.lv[i]);if(Number.isFinite(v)&&v>=1)G.lv[i]=Math.min(v,1e6)}}catch(e){}
 // 遺物(96r-relic)のボーナスは RLB(key) で受け取る(未ロード時は0)
@@ -736,6 +736,7 @@ const UPX={
   trsRate:()=>(1+.1*(lvE(11)-1))*(1+RLB('trs')),                // お宝の出現頻度
   trsGain:()=>1+.2*(lvE(11)-1),                                  // お宝の報酬
   evP:()=>BAL.evP+Math.min(.25,.02*(lvE(12)-1)+RLB('ev')),         // 押せ!!(ルーレットイベント)の発生率
+  critD:()=>1+.08*((G.lv[14]||1)-1),                               // 会心(★)ダメージの倍率。必殺/黄金玉/JACKPOT などの大技も会心扱いなので乗る
   supP:()=>BAL.supP+Math.min(.35,.03*(lvE(13)-1)+RLB('sup'))};    // 超倍率チャンス
 
 /* ---------- ui: upgrade buttons, HUD refresh, flash/shake/msg ---------- */
@@ -972,13 +973,14 @@ function pushPress(auto){const P0=PUSH;if(!P0||P0.done)return;P0.done=1;P0.tm.fo
  setTimeout(()=>{el.className='';PUSH=null;P0.cb()},P0.small?420:700)}
 $('push').onpointerdown=()=>pushPress(0);
 
-/* 追加強化(23-upgrades2)のアイコン。26-dots の UX.ICNC に足して ic10〜ic13 に描く */
+/* 追加強化(23-upgrades2)のアイコン。26-dots の UX.ICNC に足して ic10〜ic14 に描く */
 const ICN2={};
 ICN2.tap=['.....kyk..','....kyyk..','...kyyk...','..kyyyyyk.','.kyyyyyk..','...kyyk...','..kyyk....','.kyyk.....','.kyk......','..k.......'];
 ICN2.trs=['....kk....','...kyyk...','....kk....','..knnnnk..','.knnnnnnk.','knnyyynnnk','knnyYynnnk','knnnnnnnnk','.knnnnnnk.','..kkkkkk..'];
 ICN2.inv=['..kkkkkk..','.krrrrrrk.','krwrrrrrrk','krrrkkrrrk','krrkyykrrk','krrkyykrrk','krrrkkrrrk','krrrrrrrwk','.krrrrrrk.','..kkkkkk..'];
 ICN2.sup=['...vvvv...','..vppppv..','.vpwppbbv.','vpwpbbccbv','vppbbccggv','vpbbccggyv','vpbccggyyv','.vccggyyv.','..vggyyv..','...vvvv...'];
-function upIcons2(){try{['tap','trs','inv','sup'].forEach((k,j)=>{if(!UX.ICNC[k])UX.ICNC[k]=UX.fromMap(ICN2[k]);UX.putIcon('ic'+(10+j),k)})}catch(e){}}
+ICN2.crt=['....kk....','...kyyk...','k.kyrryk.k','kykyrrykyk','.kyrwwryk.','.kyrwwryk.','kykyrrykyk','k.kyrryk.k','...kyyk...','....kk....'];
+function upIcons2(){try{['tap','trs','inv','sup','crt'].forEach((k,j)=>{if(!UX.ICNC[k])UX.ICNC[k]=UX.fromMap(ICN2[k]);UX.putIcon('ic'+(10+j),k)})}catch(e){}}
 upIcons2();
 
 /* ---------- battle: logic (spawn/hurt/kill/ult) ---------- */
@@ -987,11 +989,11 @@ function spawn(){G.mx=G.hp=hpOf(G.stage);G.en=isBoss()?'b'+((G.stage/5-1)%2):'m'
 const F=[],PT=[],PR=[],FX=[],HA=[-9,-9,-9];let cmb=0,cmbT=0,cut=null,DT=.016;
 const cm=()=>1+Math.min(cmb,50)*.03;
 function burst(x,y,n,c){for(let i=0;i<n;i++){const a=Math.random()*TAU,s=1+Math.random()*4;PT.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,l:1,c})}}
-function hurt(x,col,big,crit){if(crit)x*=3;F.push({x:215+Math.random()*80,y:60+Math.random()*25,t:0,s:(crit?'★':'')+fmt(x),c:crit?'#ffe14d':col||'#fff',b:big||crit});G.hit=crit?1.4:.8;if(crit){burst(262,80,8,'#ffe14d');zoom();HS=.07}G.hp-=x;if(G.hp<=0)kill()}
+function hurt(x,col,big,crit){if(crit)x*=3*UPX.critD();F.push({x:215+Math.random()*80,y:60+Math.random()*25,t:0,s:(crit?'★':'')+fmt(x),c:crit?'#ffe14d':col||'#fff',b:big||crit});G.hit=crit?1.4:.8;if(crit){burst(262,80,8,'#ffe14d');zoom();HS=.07}G.hp-=x;if(G.hp<=0)kill()}
 function kill(){const rr=Math.random()<.12,g=Math.floor(G.mx*.35*mul()*(isBoss()?2:1)*(rr?5:1));if(rr){banner('RARE DROP!!','#ffd400');kyuin(5,'#ffd400')}G.gold+=g;for(let i=0;i<30;i++)PT.push({x:262,y:90,vx:(Math.random()-.5)*7,vy:-2-Math.random()*4,l:1.4,c:'#ffd400'});F.push({x:150,y:35,t:0,s:'+'+fmt(g),c:'#ffd400',b:1});beep(880,.15,'square',.05);if(isBoss()){setTimeout(mini,1200);fan()}G.stage++;if([3,5,8].includes(G.stage))banner('NEW 強化解放!','#22e0ff');spawn()}
 function heroAtk(i,m){HA[i]=T;PR.push({i,t:0,d:atk()*m*cm(),cr:Math.random()<critP()})}
 function cutin(h,txt,c,cb){cut={t0:T,h,txt,c,cb,f:0};flash('#fff');beep(300,.3,'sawtooth',.06)}
-function ult(){LU=T;const h=Math.floor(Math.random()*3);G.sp=0;cutin(h,['烈火斬','雷撃陣','千矢雨'][h],'#22e0ff',()=>{FX.push({k:h,t0:T});burst(262,80,50,'#22e0ff');shake();hurt(atk()*25*cm(),'#22e0ff',1,1);beep(220,.4,'sawtooth',.08)})}
+function ult(){LU=T;const h=Math.floor(Math.random()*3);G.sp=0;cutin(h,['烈火斬','雷撃陣','千矢雨'][h],'#22e0ff',()=>{FX.push({k:h,t0:T});burst(262,80,50,'#22e0ff');shake();hurt(atk()*BAL.ultK*cm(),'#22e0ff',1,1);beep(220,.4,'sawtooth',.08)})}
 
 /* ---------- battle: rendering (drawB) ----------
    構成: 背景(36) → 状態オーバーレイ(36) → 英雄 → 敵 → スキルFX(80) → 弾 → 被弾/撃破(82) → 粒子 → [カメラ終了] → ビネット/枠/チップ(36) → HP/数字(81)/カットイン */
@@ -2742,8 +2744,9 @@ FM.push({n:'ミッション',r:()=>{msCheckDay();const done=MS.c.filter(v=>v).le
 const PRES_MIN=30;
 const SB={a:()=>1+.1*X.souls,g:()=>1+.05*X.souls};
 if(typeof hurt==='function'){const o=hurt;hurt=function(x){const a=[].slice.call(arguments);a[0]=x*SB.a();return o.apply(this,a)}}
-/* 獲得できる魂: stage<PRES_MIN なら0。stage30=5, 60=14, 100=31, 150=58 */
-const soulGain=s=>s<PRES_MIN?0:Math.floor(Math.pow(s/10,1.5));
+/* 獲得できる魂: stage<PRES_MIN なら0。5x(stage/30)^2.5 = stage30=5, 40=10, 50=17, 60=28, 80=58, 100=101, 150=279。
+   (旧式 (stage/10)^1.5 は 30=5/80=22 と平坦で、転生しても前回の最高に戻るのが遅く(sim: 9〜17分)うま味が薄かった。balance) */
+const soulGain=s=>s<PRES_MIN?0:Math.floor(Math.min(1e9,5*Math.pow(s/PRES_MIN,2.5)));
 /* 演出中(スロット/ルーレット/ミニゲーム/カットイン)は転生させない */
 const presBusy=()=>!!(sp||RL||G.roul||G.jp>0||cut||MG||(typeof MG2!=='undefined'&&MG2));
 function presAsk(){

@@ -31,7 +31,7 @@ unity/
 ```
 
 ## 動かし方
-- テスト(Unity 不要): `dotnet run --project unity/CoreTests`(.NET 8 SDK)。乱数がWeb版と一致すること、15分×3シードで例外/NaN/リークなし、決定的、セーブ互換、天井、30分の到達ステージ(現状 平均 37.8 = Web版本体と同等)を確認。
+- テスト(Unity 不要): `dotnet run --project unity/CoreTests`(.NET 8 SDK)。乱数がWeb版と一致すること、15分×3シードで例外/NaN/リークなし、決定的、セーブ互換、天井、30分の到達ステージ(現状 平均 39.8。Web版 sim は遺物/図鑑/鍛冶屋込みで 約42)を確認。
 - Unity: Unity Hub で `unity/PachiSenki` を開く(推奨 Unity 6 LTS = 6000.0.85f2)→ 空のシーンのまま再生 → 仮表示で盤面・玉・スロット・戦闘・強化が動く。
 
 ## 自分のPCへの導入(Windows / Mac)

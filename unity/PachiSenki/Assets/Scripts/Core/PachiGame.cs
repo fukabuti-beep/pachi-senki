@@ -117,6 +117,7 @@ namespace PachiSenki.Core
         public double GoldRate() => (1 + Bal.goldStep * (LvE(8) - 1)) / Bal.goldBase;
         public double FevRate() => (1 + Bal.fevStep * (LvE(9) - 1)) / Bal.fevBase;
         public double EvP() => Bal.evP + Math.Min(.25, .02 * (LvE(12) - 1));
+        public double CritD() => 1 + .08 * (G.lv[14] - 1);   // 会心ダメージ(Web版 UPX.critD)
         public double SupP() => Bal.supP + Math.Min(.35, .03 * (LvE(13) - 1));
         public double Cm() => 1 + Math.Min(PegCombo, 50) * .03;
         public bool IsBoss => G.stage % 5 == 0;
@@ -131,7 +132,7 @@ namespace PachiSenki.Core
         public void Spawn() { G.mx = G.hp = HpOf(G.stage); G.hit = 0; if (IsBoss) OnBanner?.Invoke("BOSS出現!", "#ff2d7a"); }
         public void Hurt(double x, bool crit = false)
         {
-            if (crit) x *= 3;
+            if (crit) x *= 3 * CritD();
             G.hit = crit ? 1.4 : .8; OnHurt?.Invoke(x, crit);
             G.hp -= x; if (G.hp <= 0) Kill();
         }
@@ -383,7 +384,7 @@ namespace PachiSenki.Core
             G.at += dt;
             if (G.at > .55 / (G.rush > 0 ? 2 : 1)) { G.at = 0; G.ai = (G.ai + 1) % 3; HeroAtk(G.ai, .8 * (G.rush > 0 ? 2 : 1)); SpAdd(Bal.spHero * Spm()); }
             if (G.sp >= 100 && ultT < 0 && !Blocking && T - lastUlt >= Bal.ultMin) Ult();
-            if (ultT >= 0 && T >= ultT) { ultT = -1; Hurt(Atk() * 25 * Cm(), true); }
+            if (ultT >= 0 && T >= ultT) { ultT = -1; Hurt(Atk() * Bal.ultK * Cm(), true); }
             if (G.rush > 0) { if (!PushPause) G.rush -= dt; if (G.rush <= 0) { G.rush = 0; G.combo = 0; OnRushEnd?.Invoke(); } }
             if (rs != null && G.rush <= 0 && !Blocking && !EventActive && G.jp <= 0)
             {

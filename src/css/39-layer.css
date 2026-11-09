@@ -1,0 +1,11 @@
+/* 演出の交通整理 (fx, 89c-layer.js)
+   .bup: 全画面パネル(ルーレット/ミニゲーム)や強化シートが開いている時、バナーを戦闘画面の上へ小さめに移す(top は JS が戦闘画面の位置から設定)。
+   .lysup: 超倍率の瞬間、ルーレットのパネルの後ろに金の光の筋が広がってから消える(明暗の点滅なし・1回だけ)。 */
+#bn.bup{font-size:34px;letter-spacing:2px}
+#rl.lysup::before{content:"";position:absolute;left:50%;top:50%;width:150vmax;height:150vmax;margin:-75vmax 0 0 -75vmax;pointer-events:none;z-index:-1;
+ background:repeating-conic-gradient(from 0deg,rgba(255,212,0,.34) 0deg 7deg,rgba(255,212,0,0) 7deg 22.5deg);
+ -webkit-mask-image:radial-gradient(circle,#000 0,#000 30%,transparent 62%);mask-image:radial-gradient(circle,#000 0,#000 30%,transparent 62%);
+ animation:lysup 2.4s ease-out forwards}
+#rl.lysup{isolation:isolate}
+@keyframes lysup{0%{opacity:0;transform:scale(.3) rotate(0deg)}15%{opacity:1;transform:scale(1) rotate(8deg)}70%{opacity:.85}100%{opacity:0;transform:scale(1.15) rotate(30deg)}}
+@media (prefers-reduced-motion:reduce){#rl.lysup::before{animation:lysupr 2.4s linear forwards}@keyframes lysupr{0%{opacity:0}20%{opacity:.6}100%{opacity:0}}}

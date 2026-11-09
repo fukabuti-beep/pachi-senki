@@ -1,0 +1,46 @@
+/* 遠征隊の編成(98g)。34-menu.css / 38-expedition.css の筐体デザイン(金ベゼル/液晶/立体ボタン)に合わせる */
+html body #fxm .ptbox{margin:6px 0 8px;padding:8px 6px 10px;background:linear-gradient(#1a1050,#100834);
+ box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px #3a2a8a,0 3px 0 #000}
+html body #fxm .ptttl{color:#ffd400;font-size:15px;letter-spacing:1px;text-shadow:2px 2px 0 #000}
+html body #fxm .ptttl small{color:#9bff6b;font-size:11px;margin-left:4px}
+html body #fxm .ptrow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+html body #fxm .ptc{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;padding:5px 1px 6px;
+ font:inherit;color:#c8c0ff;background:linear-gradient(#3a2a8a,#22145a);border:0;cursor:pointer;
+ box-shadow:inset 2px 2px 0 #6a5ad0,inset -2px -2px 0 #120838,0 0 0 2px #000,0 3px 0 2px #000}
+html body #fxm .ptc span{font-size:10px;line-height:12px;white-space:nowrap;overflow:hidden;max-width:100%;letter-spacing:0}
+html body #fxm .ptc small{font-size:10px;line-height:11px;color:#9bff6b}
+html body #fxm .ptc.on{background:linear-gradient(#ffe56a,#e0a800);color:#2a1000;transform:translateY(2px);
+ box-shadow:inset 2px 2px 0 #fff6b0,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 1px 0 2px #000,0 0 10px rgba(255,212,0,.55)}
+html body #fxm .ptc.on small{color:#1a5a00}
+html body #fxm .ptc.lk{cursor:default}
+html body #fxm .ptc.lk:not(.on){opacity:.55}
+html body #fxm .ptc.no{opacity:.5;box-shadow:inset 0 0 0 1px #3a2a8a,0 0 0 2px #000;background:#140a3c;cursor:default}
+html body #fxm .ptc em{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-style:normal;font-size:9px;line-height:11px;padding:0 3px;
+ background:#ff2d7a;color:#fff;box-shadow:0 0 0 1px #000;white-space:nowrap}
+html body #fxm .ptim{display:block;width:30px;height:30px;image-rendering:pixelated;image-rendering:crisp-edges}
+html body #fxm .ptnim{background:#2a1a6a;box-shadow:inset 0 0 0 2px #000}
+html body #fxm .ptxp{display:block;width:80%;height:4px;margin-top:2px;background:#0b0624;box-shadow:0 0 0 1px #000}
+html body #fxm .ptxp i{display:block;height:100%;background:#7ff3ff}
+html body #fxm .pta2{color:#ff7ac0}
+html body #fxm .pta1{color:#ffd400}
+html body #fxm .ptbn{color:#9bff6b}
+/* 帰還モーダル: 仲間のお土産 */
+html body #fxm .ptgift{display:flex;flex-direction:column;gap:5px;margin:8px 0 4px}
+html body #fxm .ptg{display:flex;align-items:center;gap:8px;padding:5px 8px;text-align:left;font-size:13px;line-height:16px;color:#fff;
+ background:linear-gradient(90deg,#2a1a6a,#140a3c);box-shadow:inset 0 0 0 1px #ffd400,0 2px 0 #000;animation:ptin .3s steps(3) both;animation-delay:var(--d,0s)}
+html body #fxm .ptg small{color:#a8a0e0;font-size:11px}
+html body #fxm .ptg .ptim{width:36px;height:36px;flex:none}
+html body #fxm .ptjump{animation:ptjump .6s steps(4) infinite;animation-delay:var(--d,0s)}
+html body #fxm .ptup{color:#ffd400;animation:exbig 1.2s steps(2) infinite}
+html body #fxm .ptgv{color:#ffe9a0}
+@keyframes ptin{from{transform:translateX(-20px);opacity:0}}
+@keyframes ptjump{50%{transform:translateY(-5px)}}
+/* メニュー内の「!」(遊ぶ/遠征) */
+html body #fxm .fxt button .mgdot{position:absolute;top:-7px;left:-5px;min-width:14px;height:14px;font-style:normal;font-size:11px;line-height:14px;
+ text-align:center;color:#fff;background:#ff2d7a;box-shadow:0 0 0 2px #000;z-index:1;letter-spacing:0;animation:ptdot 1s steps(2) infinite}
+@keyframes ptdot{50%{background:#ffd400;color:#2a1000}}
+/* 行き先の「出発」ボタンが縦に折り返さないように */
+html body #fxm .exl>div>span:last-child{flex:none;margin-left:6px}
+html body #fxm .exl .fxb{white-space:nowrap}
+@media (max-width:379px){html body #fxm .ptrow{gap:4px}html body #fxm .ptim{width:26px;height:26px}}
+@media (prefers-reduced-motion:reduce){html body #fxm .ptg,html body #fxm .ptjump,html body #fxm .ptup,html body #fxm .fxt button .mgdot{animation:none}}

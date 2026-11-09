@@ -36,8 +36,8 @@ function fmgMenu(){try{
   const L=fmgList(),g=fmgOf(FM[fxTab].n);fmgG=g;
   fmgLast.t=FM[fxTab].n;fmgLast.g[g]=FM[fxTab].n;fmgSave();
   const gs='<div class="fxt mgG" role="tablist">'+FMGRP.map((G_,k)=>{const n=L[k].length;
-    return n?'<button type="button" class="'+(k===g?'on':'')+'" style="--mgc:'+G_.c+'" onclick="fmgPick('+k+')">'+G_.n+'<small>'+n+'</small></button>':''}).join('')+'</div>';
+    return n?'<button type="button" class="'+(k===g?'on':'')+'" style="--mgc:'+G_.c+'" onclick="fmgPick('+k+')">'+G_.n+'<small>'+n+'</small>'+(typeof fmgMark==='function'?fmgMark(G_.n,1):'')+'</button>':''}).join('')+'</div>';
   const cur=L[g],ts='<div class="fxt mgT mgN'+Math.min(cur.length,4)+'" style="--mgc:'+FMGRP[g].c+'">'+cur.map(i=>
-    '<button type="button" class="'+(i===fxTab?'on':'')+'" data-n="'+String(FM[i].n).replace(/"/g,'&quot;')+'" onclick="fmgTab('+i+')">'+FM[i].n+'</button>').join('')+'</div>';
+    '<button type="button" class="'+(i===fxTab?'on':'')+'" data-n="'+String(FM[i].n).replace(/"/g,'&quot;')+'" onclick="fmgTab('+i+')">'+FM[i].n+(typeof fmgMark==='function'?fmgMark(FM[i].n,0):'')+'</button>').join('')+'</div>';
   fxShow('<div class="mgW">'+gs+ts+'</div>'+FM[fxTab].r(),[['閉じる',null,'g']]);
   return true}catch(e){if(typeof FERR!=='undefined')FERR++;try{console.error('[menu]',e)}catch(_){}return false}}

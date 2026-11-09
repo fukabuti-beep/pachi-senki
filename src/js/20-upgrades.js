@@ -8,7 +8,7 @@ const BAL={atk0:5,atkg:1.25,mulg:1.2,hp0:1500,hpg:1.32,boss:4,costg:1.63,costgCa
  hit0:.15,hitStep:.025,rushP:.10,jpP:.04,
  spBall:.07,spHero:1.0,spStep:.06,ultMin:14,ultK:42,
  goldBase:45,goldStep:.12,fevBase:60,fevStep:.1,
- pityStart:24,pityEnd:60,bossg:1.15,soulRep:.5};
+ pityStart:20,pityEnd:60,bossg:1.15,soulRep:.5};
 const lvE=i=>Math.min(G.lv[i],UPMAX[i]);   // 旧セーブでMAX超過のLvも上限で頭打ち
 const cost=i=>G.lv[i]>=UPMAX[i]?Infinity:Math.floor(UP[i][3]*BAL.costk*Math.pow(UPMAX[i]===Infinity?BAL.costg:BAL.costgCap,G.lv[i]-1));
 const hpOf=s=>Math.floor(BAL.hp0*Math.pow(BAL.hpg,s-1)*(s%5==0?BAL.boss:1));

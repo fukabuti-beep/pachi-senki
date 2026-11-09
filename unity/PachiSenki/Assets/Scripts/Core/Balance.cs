@@ -10,7 +10,7 @@ namespace PachiSenki.Core
         public static double hit0 = .15, hitStep = .025, rushP = .10, jpP = .04;
         public static double spBall = .07, spHero = 1.0, spStep = .06, ultMin = 14, ultK = 42;
         public static double goldBase = 45, goldStep = .12, fevBase = 60, fevStep = .1;
-        public static int pityStart = 24, pityEnd = 60;
+        public static int pityStart = 20, pityEnd = 60;
         public static double evP = .15, supP = .3, supG = .25;
         public static double bossg = 1.15, soulRep = .5;   // ボス特効(添字15) / 転生の魂: 記録までの分の割合(Web版 94-prestige)
     }

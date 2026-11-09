@@ -58,7 +58,7 @@ static class Program
         var back = new PachiGame(new Mulberry32(1)); back.Load(JsonSerializer.Deserialize<SaveData>(json, new JsonSerializerOptions { IncludeFields = true }));
         Ok(back.G.stage == gs.G.stage && back.G.lv.SequenceEqual(gs.G.lv), "セーブの読み戻し");
         var broken = new PachiGame(); broken.Load(new SaveData { gold = double.NaN, stage = -5, lv = new[] { 3, 0, -1, 2, 1, 1, 1, 1, 1, 1 } });
-        Ok(broken.G.gold == 0 && broken.G.stage == 1 && broken.G.lv[0] == 3 && broken.G.lv[1] == 1 && broken.G.lv.Length == 14 && broken.G.lv[13] == 1, "壊れたセーブ/旧セーブの丸め");
+        Ok(broken.G.gold == 0 && broken.G.stage == 1 && broken.G.lv[0] == 3 && broken.G.lv[1] == 1 && broken.G.lv.Length == 15 && broken.G.lv[14] == 1, "壊れたセーブ/旧セーブの丸め");
 
         // 4) 天井: 通常時 pityEnd 回はずれたら次は必ず当たる
         var p = new PachiGame(new Mulberry32(5)); int maxDry = 0;
@@ -100,7 +100,7 @@ static class Program
         // 5) バランス計測(Web版 tools/sim.js と同じ買い方: 毎秒いちばん安い強化を買う)
         double sumSt = 0; int n = 5;
         for (uint seed = 1; seed <= n; seed++) sumSt += Run(seed, 30, true).G.stage;
-        Console.WriteLine($"30分 x {n}シード 平均到達 stage {sumSt / n:0.0}(Web版 sim の本体のみ相当: 32〜38 前後。遺物/図鑑/魂など未移植の分は含まない)");
+        Console.WriteLine($"30分 x {n}シード 平均到達 stage {sumSt / n:0.0}(Web版 sim は 約42。遺物/図鑑/魂など未移植の分は含まない)");
         Ok(sumSt / n > 15 && sumSt / n < 80, "到達ステージが想定外");
 
         if (bad > 0) { Console.Error.WriteLine(bad + " failure(s)"); return 1; }

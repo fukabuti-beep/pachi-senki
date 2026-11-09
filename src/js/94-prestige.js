@@ -18,8 +18,8 @@ const soulGain=(s,b)=>{if(!(s>=PRES_MIN))return 0;const r=Math.min(s,b==null?PRE
 try{upCapSet(X.pres)}catch(e){}
 /* 転生画面の説明: 記録更新の分は満額 / 記録までは35% / 次の転生で強化の上限 +1 */
 function presInfo(s){const gn=soulGain(s),rec=PREC>=PRES_MIN?PREC:0,over=rec&&s>rec,ce=upCapExt(X.pres),cn=upCapExt(X.pres+1);
-  return '<div class="fxs" style="margin-top:6px">'+(rec?'最高記録 STAGE '+rec+' を超えた分は魂が満額、記録までの分は '+Math.round(BAL.soulRep*100)+'%。'+(over?'<br><span style="color:#7dffa6">記録更新中! +'+(s-rec)+' STAGE</span>':'<br><span style="color:#ffb0c8">記録まであと '+(rec-s)+' STAGE(超えると魂が大きく増える)</span>'):'初めての転生は魂が満額。次からは最高記録を超えた分が満額になる。')+
-    (lvE(16)>1?'<br>魂の収穫 x'+soulHarv().toFixed(2):'')+(cn>ce?'<br>転生すると 当たり確率/ルーレット運/お宝運/招待/超倍率 の上限 +1(今 +'+ce+')':'')+'</div>'}
+  return '<div class="fxs presi" style="margin-top:6px">'+(rec?'最高記録 STAGE '+rec+' を超えた分は魂 100%(記録までは '+Math.round(BAL.soulRep*100)+'%)'+(over?'<br><span style="color:#7dffa6">記録更新中! +'+(s-rec)+' STAGE</span>':'<br><span style="color:#ffb0c8">記録まであと '+(rec-s)+' STAGE(超えると魂が大きく増える)</span>'):'はじめての転生は魂 100%。次からは最高記録を超えた分が 100%')+
+    (lvE(16)>1?'<br>魂の収穫 x'+soulHarv().toFixed(2):'')+(cn>ce?'<br>転生すると 当たり確率・ルーレット運・お宝運・招待・超倍率 の MAX +1(今 +'+ce+')':'')+'</div>'}
 /* 演出中(スロット/ルーレット/ミニゲーム/カットイン/押せ!!)かどうか。
    以前はこれが真だと転生を断っていたが、放置中はスロットがほぼ常に回っているので事実上転生できなかった。
    今は「転生する!」を押したら presAbort() で進行中の演出を安全に打ち切ってから即転生する(確認画面で注意書きを出すだけ)。 */
@@ -44,7 +44,7 @@ function presAbort(){PGEN++;const tr=f=>{try{f()}catch(e){}};
 function presAsk(){
   const gn0=soulGain(G.stage);if(gn0<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
   const gn=presGainShow(G.stage),sa=presSbaShow();   // 表示は 魂の器(94b)込み・再出発の勢い(94b)抜き(QA: 実際の獲得と表示がずれていた)
-  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
+  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE 1 からやり直して 魂をもらう。<br><span style="color:#ffb0c8">最初から</span> STAGE・ゴールド・強化<br><span style="color:#7dffa6">残る</span> 魂・実績・最高記録・仲間'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>攻撃 x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
 function presDo(){
   const gn=soulGain(G.stage);if(gn<1){fxClose();return 0}
   presAbort();

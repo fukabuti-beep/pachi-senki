@@ -1,0 +1,17 @@
+/* リソースのドット絵アイコン(29d-resicon の resIcon/resAmt)。背景画像は 29d が <style id="resicon"> で入れる */
+.ri{display:inline-block;width:1.1em;height:1.1em;min-width:12px;min-height:12px;background:no-repeat center/contain;vertical-align:-.2em;margin-right:.2em;image-rendering:pixelated;flex:none;font-style:normal;filter:drop-shadow(1px 1px 0 #000)}
+.ri.big{width:36px;height:36px;margin:0}
+.ra{white-space:nowrap;display:inline-block}
+.ra-gold{color:#ffd400}.ra-ms{color:#d2b0ff}.ra-gem{color:#7ff3ff}.ra-soul{color:#d8ccff}.ra-relic{color:#ffb060}.ra-exp{color:#8dff7a}
+.fxb .ri{margin-right:.15em}
+/* HUD のゴールド: CSS の丸 → ドットの金貨 */
+#hud .coin.ri{width:16px;height:16px;min-width:16px;border:0;border-radius:0;box-shadow:none;background-color:transparent;margin:0 2px 0 0}
+/* 強化シートの価格: 「G 1,234」→ 金貨アイコン + 数字 */
+#up em::before{content:"";display:inline-block;width:13px;height:13px;margin-right:4px;vertical-align:-1px;background:no-repeat center/contain;image-rendering:pixelated;filter:drop-shadow(1px 1px 0 #000)}
+#up button.mx em::before{display:none}
+/* 説明文を読みやすく(強化ボタンの説明・メニュー/強化シートの小さい文字) */
+#up span{font-size:12px;opacity:1;color:#d8d0ff}
+#up span .lv{color:#9ad8ff}
+html body #fxm .fxs,#upx .fxs{font-size:13px}
+html body #fxm .fxl small,#upx .fxl small{font-size:12px;color:#c0b8f0}
+html body #fxm .fxl,#upx .fxl{font-size:13px}

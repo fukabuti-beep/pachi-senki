@@ -8,7 +8,7 @@ function refresh(){let n=0,nx=-1,nr=-1;const cs=[],rs=[];
 UP.forEach((u,i)=>{const c=cost(i),ok=G.gold>=c,vis=G.stage>=(u[4]||0),mx=c===Infinity,r=mx?1:Math.min(1,G.gold/c);cs[i]=[c,ok,vis,mx];rs[i]=r;if(vis&&!ok&&!mx&&r>nr){nr=r;nx=i}});
 /* nx = 次に買える強化(いちばん近い未達)。強調表示 */
 UP.forEach((u,i)=>{const c=cs[i],b=$('u'+i),cl=(c[1]?'ok':'')+(c[3]?' mx':'')+(i===nx?' nx':''),d=c[2]?'':'none';
-uiSet('l'+i,G.lv[i]+(c[3]||UPMAX[i]===Infinity?'':'/'+UPMAX[i]));uiSet('c'+i,c[3]?'MAX':'G '+fmtC(c[0]));
+uiSet('l'+i,G.lv[i]+(c[3]||UPMAX[i]===Infinity?'':'/'+UPMAX[i]));uiSet('c'+i,c[3]?'MAX':fmtC(c[0]));   /* ゴールドのアイコンは 29d-resicon が em::before に付ける */
 if(b._cl!==cl){b._cl=cl;b.className=cl.trim()}
 const pv=c[1]||c[3]?'1':''+Math.floor(rs[i]*20)/20;if(b._p!==pv){b._p=pv;if(b.style.setProperty)b.style.setProperty('--pf',pv)}
 if(b._d!==d){b._d=d;b.style.display=d}if(c[1]&&c[2])n++});

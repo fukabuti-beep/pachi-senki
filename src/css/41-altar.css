@@ -1,0 +1,32 @@
+/* 魂の祭壇(転生を統合、98i-altar)と メニュー「育成」タブ。筐体デザイン(金ベゼル/液晶/立体ボタン)に合わせる */
+#upx .alt .fxh{margin-bottom:4px}
+.altflow{display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 8px}
+.altflow span{flex:1;max-width:150px;font-size:12px;line-height:1.35;padding:4px 2px;white-space:nowrap;color:#a8a0e0;background:#140a3c;box-shadow:inset 0 0 0 2px #3a2a8a,0 2px 0 #000}
+.altflow span.on{color:#fff;box-shadow:inset 0 0 0 2px #c8b8ff,0 2px 0 #000,0 0 8px rgba(200,184,255,.5)}
+.altflow b{color:#ffd400;font-size:16px;font-weight:400}
+.altflow i,.altt i{display:inline-block;font-style:normal;width:16px;height:16px;line-height:16px;margin-right:4px;background:#ffd400;color:#2a1000;box-shadow:0 0 0 2px #000;font-size:12px;text-align:center}
+.altsoul{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 6px;padding:6px 10px;background:#0a0a1e;box-shadow:inset 0 0 0 2px #000,0 0 0 2px #4a3a8a,0 0 0 4px #000}
+.altsoul span{display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.altsoul small{font-size:11px;color:#a8a0e0}
+.altsoul b{font-size:26px;font-weight:400;color:#e6dcff;text-shadow:0 0 8px rgba(200,184,255,.8),2px 2px 0 #000}
+.altsoul b.fr{color:#9bff6b;text-shadow:0 0 8px rgba(155,255,107,.7),2px 2px 0 #000}
+.altsoul .altfx{font-size:13px;color:#ffd400;line-height:1.35;align-items:flex-start;padding-left:8px;border-left:2px dotted #4a3a8a;text-shadow:2px 2px 0 #000}
+.altc{margin:8px 0 2px;padding:8px 8px 10px;background:linear-gradient(#1e1258,#110838);box-shadow:inset 0 0 0 2px #6a5ad0,0 0 0 2px #000,0 3px 0 2px #000;text-align:center}
+.altt{font-size:15px;color:#ffe9a0;text-align:left;margin-bottom:4px;text-shadow:2px 2px 0 #000}
+.altgain{display:flex;flex-direction:column;align-items:center;gap:2px;margin:4px 0}
+.altgain small{font-size:12px;color:#c8c0ff}
+.altgain .altn{font-size:28px;font-weight:400;line-height:1.1;text-shadow:0 0 10px rgba(200,184,255,.8),2px 2px 0 #000}
+.altgain b.altn{font-size:20px;color:#ffb0c8}
+.altgain .altn .ri{width:26px;height:26px;vertical-align:-4px}
+#upx .altgo{font-size:16px;padding:8px 26px}
+.altkeep{margin-top:8px;font-size:12px;line-height:1.6;color:#c8c0ff;text-align:left}
+.altkeep .rs,.altkeep .kp{display:inline-block;font-size:11px;padding:0 4px;margin-right:4px;box-shadow:0 0 0 1px #000;color:#2a1000}
+.altkeep .rs{background:#ffb0c8}.altkeep .kp{background:#7dffa6}
+.altlv{font-style:normal;font-size:11px;color:#9ad8ff}
+#upx .alt .fxl .fxb{margin:0;padding:5px 9px;min-width:54px}
+.altmx{font-weight:400;color:#ffd400}
+/* メニュー「育成」 */
+html body #fxm .fxl>div.altnav{align-items:center}
+html body #fxm .fxl>div.altnav b{font-weight:400;font-size:15px;color:#ffe9a0}
+html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
+.altok{color:#7dffa6}

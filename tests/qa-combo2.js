@@ -15,8 +15,9 @@ const txt = g => g.eval("$('fxmc').innerHTML").replace(/<[^>]+>/g, ' ');
   ok(t.indexOf('魂 +' + (base + bonus)) >= 0, '確認画面の魂: ' + t.slice(0, 200));
   ok(t.indexOf('魂 40 → ' + (40 + base + bonus)) >= 0, '確認画面の所持数: ' + t);
   g.eval('fxClose()');
-  const tab = g.eval("FM.find(m=>m.n==='転生').r()").replace(/<[^>]+>/g, ' ');
-  ok(tab.indexOf('獲得予定 魂 +' + (base + bonus)) >= 0, '転生タブ: ' + tab.slice(0, 300));
+  // 転生タブは魂の祭壇(強化シート、98i)に統合
+  const tab = g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()").replace(/<[^>]+>/g, ' ');
+  ok(/転生すると\s+\+(\d+)/.test(tab) && +tab.match(/転生すると\s+\+(\d+)/)[1] === base + bonus, '祭壇の転生: ' + tab.slice(0, 300));
   const s0 = g.eval('X.souls'); g.eval('presDo()');
   ok(g.eval('X.souls') - s0 === base + bonus, '実際の獲得 ' + (g.eval('X.souls') - s0) + ' / 表示 ' + (base + bonus));
 }
@@ -30,10 +31,9 @@ const txt = g => g.eval("$('fxmc').innerHTML").replace(/<[^>]+>/g, ' ');
   ok(fight > show * 5, '戦闘には勢いが乗る: ' + fight + ' / ' + show);
   ok(Math.abs(show - plain) < 1e-9, '表示は勢い抜き: ' + show + ' / ' + plain);
   ok(!!g.eval('SOUL_RUN'), 'sbShow で勢いが消えない');
-  const re = new RegExp('ダメージ x' + show.toFixed(1).replace('.', '\\.'));
+  const re = new RegExp('攻撃 x' + show.toFixed(1).replace('.', '\\.'));
   ok(re.test(g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()")), '魂の祭壇の表示');
-  ok(re.test(g.eval("FM.find(m=>m.n==='転生').r()")), '転生タブの表示');
-  g.eval('G.stage=40;spawn()'); g.eval('presAsk()'); ok(re.test(txt(g)) || /ダメージ x/.test(txt(g)) && !new RegExp('ダメージ x' + fight.toFixed(1)).test(txt(g)), '確認画面の表示: ' + txt(g));
+  g.eval('G.stage=40;spawn()'); g.eval('presAsk()'); ok(re.test(txt(g)) || /攻撃 x/.test(txt(g)) && !new RegExp('攻撃 x' + fight.toFixed(1)).test(txt(g)), '確認画面の表示: ' + txt(g));
 }
 // (c) 再出発の勢い中にアプリを開き直しても勢いが続く(以前は消えて開始ステージで止まった)。期限切れ/別の周回の記録は使わない
 {

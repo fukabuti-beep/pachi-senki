@@ -4,7 +4,7 @@
   "description": "パチ戦記 - 放置バトルパチンコ (ブラウザ / スマホ向け単一HTML)",
   "scripts": {
     "build": "node tools/build.js",
-    "test": "node tools/build.js && node tests/smoke.js && node tests/feature.js && node tests/audio.js && node tests/fx.js && node tests/push.js && node tests/pwa.js && node tests/monet.js && node tests/robust.js && node tests/gekiatsu.js && node tests/active.js && node tests/content.js && node tests/content2.js && node tests/app.js && node tests/ios.js && node tests/uifix.js && node tests/prestige.js && node tests/menugrp.js && node tests/audio2.js && node tests/layer.js && node tests/party.js && node tests/qa-combo.js && node tests/balance2.js && node tests/soulrun.js && node tests/area.js",
+    "test": "node tools/build.js && node tests/smoke.js && node tests/feature.js && node tests/audio.js && node tests/fx.js && node tests/push.js && node tests/pwa.js && node tests/monet.js && node tests/robust.js && node tests/gekiatsu.js && node tests/active.js && node tests/content.js && node tests/content2.js && node tests/app.js && node tests/ios.js && node tests/uifix.js && node tests/prestige.js && node tests/menugrp.js && node tests/audio2.js && node tests/layer.js && node tests/party.js && node tests/qa-combo.js && node tests/balance2.js && node tests/soulrun.js && node tests/area.js && node tests/qa-combo2.js",
     "sim": "node tools/sim.js"
   }
 }

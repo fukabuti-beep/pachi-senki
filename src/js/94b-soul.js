@@ -31,19 +31,29 @@ const soulBonusGain=gn=>Math.floor(gn*.1*soulLv('soul'));
     const gl=soulLv('gold');if(gl>0)G.gold=Math.floor(2000*gl*gl*Math.pow(1.4,Math.max(0,st-1)/5));
     // 開始ステージが高いと強化 Lv1 のままでは敵が硬すぎて止まる(sim/QA で STAGE51 から4分進まない例)。
     // 再出発から STAGE+15 まで(最長3分)は「再出発の勢い」で攻撃力を補い、1体を約20発で倒せるようにする(下の SB.a ラップ)
-    if(st>1)SOUL_RUN={until:T+180,stage:st+15};
+    if(st>1){SOUL_RUN={until:T+180,stage:st+15};soulRunSave()}else{SOUL_RUN=null;try{localStorage.removeItem('pachi2_srun')}catch(e){}}
     if(st>1||gl>0){try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}refresh()}
     if(b>0||st>1)setTimeout(()=>{try{fxToast((b>0?'魂の器 +'+b+' ':'')+(st>1?'STAGE '+st+' から再出発!':''),'#c8b8ff')}catch(e){}},900)}}catch(e){}return gn}}
 // 再出発の勢い: 開始ステージで飛ばした分の攻撃力不足を一時的に補う(勢いが切れる/STAGE+15 を越えたら通常どおり)
 let SOUL_RUN=null;
+/* QA: 勢いの残りを保存(localStorage['pachi2_srun']={u:終わる実時刻ms,s:STAGE上限})。保存しないと勢い中にアプリを開き直すと
+   強化 Lv1 のまま開始ステージで止まっていた(再出発の勢いが無かった頃と同じ)。期限は実時間なので閉じていた分も減る(最長3分は不変) */
+function soulRunSave(){try{if(SOUL_RUN)localStorage.setItem('pachi2_srun',JSON.stringify({u:Math.round(nowMs()+(SOUL_RUN.until-T)*1000),s:SOUL_RUN.stage}))}catch(e){}}
+let SOUL_RUNP=null;   // 読み込んだ残り。T(99-main)はまだ無いので最初の update で SOUL_RUN に戻す
+try{const j=JSON.parse(localStorage.getItem('pachi2_srun')||'null');if(j){const l=Math.min(180,(+j.u-nowMs())/1000),s=Math.floor(+j.s);
+  if(l>0&&Number.isFinite(s)&&G.stage<=s&&G.stage>1)SOUL_RUNP={l,s};else localStorage.removeItem('pachi2_srun')}}catch(e){}
+FU.push(()=>{if(SOUL_RUNP){if(!SOUL_RUN)SOUL_RUN={until:T+SOUL_RUNP.l,stage:SOUL_RUNP.s};SOUL_RUNP=null}});
 {const oa=SB.a;SB.a=()=>{const base=oa();try{if(SOUL_RUN&&T<SOUL_RUN.until&&G.stage<=SOUL_RUN.stage){const per=Math.max(1,atk()*base);return base*Math.max(1,G.mx/(per*20))}if(SOUL_RUN&&(T>=SOUL_RUN.until||G.stage>SOUL_RUN.stage))SOUL_RUN=null}catch(e){}return base}}
+// 表示用(QA): 再出発の勢いを除いた SB.a(勢い中にメニューが「ダメージ x240」等と出ていた)/ 魂の器込みの獲得量(presDo の実際の加算と同じ)
+function sbShow(){const r=SOUL_RUN;SOUL_RUN=null;try{return SB.a()}finally{SOUL_RUN=r}}
+const soulTotal=s=>{const g=soulGain(s);return g+soulBonusGain(g)};
 // 自動強化
 let SOULT=0;
 function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;if(SOULT<2)return;SOULT=0;let bi=-1,bc2=Infinity;
   for(let i=0;i<UP.length;i++){if(G.stage<(UP[i][4]||0))continue;const c=cost(i);if(c<bc2&&G.gold>=c){bc2=c;bi=i}}if(bi>=0)buy(bi)}
 FU.push(dt=>soulAutoTick(dt));
 // メニュー: 魂の祭壇 + 転生タブの補足
-FM.push({n:'魂の祭壇',r:()=>'<div class="fxh">魂の祭壇</div><div class="fxs">魂を使って永続強化。使っても魂のボーナス(ダメージ x'+SB.a().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+')は減らない。</div><div class="fxn" style="font-size:22px">使える魂 '+soulFree()+' / '+X.souls+'</div><div class="fxl">'+
+FM.push({n:'魂の祭壇',r:()=>'<div class="fxh">魂の祭壇</div><div class="fxs">魂を使って永続強化。使っても魂のボーナス(ダメージ x'+sbShow().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+')は減らない。</div><div class="fxn" style="font-size:22px">使える魂 '+soulFree()+' / '+X.souls+'</div><div class="fxl">'+
   SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+'/'+s.max+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
   (soulLv('auto')?'<button class="fxb" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+
   '<div class="fxs" style="margin-top:6px">今 STAGE '+G.stage+' で転生 → 魂 +'+soulGain(G.stage)+(soulLv('soul')?'(+器 '+soulBonusGain(soulGain(G.stage))+')':'')+(soulNext(G.stage)?' / 次の魂は STAGE '+soulNext(G.stage):'')+'</div>'});

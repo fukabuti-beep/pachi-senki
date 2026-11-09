@@ -42,8 +42,9 @@ function presAbort(){PGEN++;const tr=f=>{try{f()}catch(e){}};
   tr(()=>{if(typeof ACT!=='undefined'){ACT.cb=null;ACT.warn=null;ACT.fin=null;ACT.mile=null;if(typeof cbHide==='function')cbHide()}});
   tr(()=>{RS=null;HS=0})}
 function presAsk(){
-  const gn=soulGain(G.stage);if(gn<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
-  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+SB.a().toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
+  const gn0=soulGain(G.stage);if(gn0<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
+  const gn=presGainShow(G.stage),sa=presSbaShow();   // 表示は 魂の器(94b)込み・再出発の勢い(94b)抜き(QA: 実際の獲得と表示がずれていた)
+  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE・ゴールド・強化がリセットされます。<br>実績・最高到達・仲間は残ります。'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>ダメージ x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
 function presDo(){
   const gn=soulGain(G.stage);if(gn<1){fxClose();return 0}
   presAbort();
@@ -55,4 +56,7 @@ function presDo(){
      前の周回の収入基準になり、リセットしたゴールドが一気に戻っていた(QA: STAGE 31 の転生直後に 8.9億G) */
   try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}
   saveX();fxClose();banner('転生!! 魂 +'+gn,'#c8b8ff');kyuin(6,'#c8b8ff');fan();shake();achCheck();return gn}
-FM.push({n:'転生',r:()=>{const gn=soulGain(G.stage),can=gn>=1;return '<div class="fxh">転生</div><div class="fxp">STAGE '+PRES_MIN+' 以上でリセットし、永続ボーナス「魂」を得る。</div><div class="fxs">所持 魂 '+X.souls+'(転生 '+X.pres+'回)<br>ダメージ x'+SB.a().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+'</div><div class="fxs" style="margin-top:6px">今の STAGE '+G.stage+' → 獲得予定 魂 +'+gn+'</div>'+presInfo(G.stage)+'<button class="fxb'+(can?'':' d')+'" onclick="presAsk()">転生する</button>'}});
+/* 表示用(QA): 獲得予定は 94b の魂の器を足した実際の量、ダメージ倍率は 94b の「再出発の勢い」(一時的な補正)を除いた値 */
+const presGainShow=s=>{try{if(typeof soulTotal==='function')return soulTotal(s)}catch(e){}return soulGain(s)};
+const presSbaShow=()=>{try{if(typeof sbShow==='function')return sbShow()}catch(e){}return SB.a()};
+FM.push({n:'転生',r:()=>{const gn=presGainShow(G.stage),can=soulGain(G.stage)>=1;return '<div class="fxh">転生</div><div class="fxp">STAGE '+PRES_MIN+' 以上でリセットし、永続ボーナス「魂」を得る。</div><div class="fxs">所持 魂 '+X.souls+'(転生 '+X.pres+'回)<br>ダメージ x'+presSbaShow().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+'</div><div class="fxs" style="margin-top:6px">今の STAGE '+G.stage+' → 獲得予定 魂 +'+gn+'</div>'+presInfo(G.stage)+'<button class="fxb'+(can?'':' d')+'" onclick="presAsk()">転生する</button>'}});

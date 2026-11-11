@@ -1,0 +1,53 @@
+/* 激アツ演出(89d〜89g): 共通オーバーレイ / スロット破砕 / ボタンの動き */
+#hyc{position:absolute;left:0;top:0;width:384px;height:786px;pointer-events:none;z-index:4;image-rendering:pixelated}
+/* スロット破砕中: 小さいリールを隠す → 戻る時は組み直しのポップ */
+#slot.hybs .r{visibility:hidden}
+#slot.hyrb .r{animation:hyrb .45s cubic-bezier(.3,1.7,.5,1) both}
+#slot.hyrb .r:nth-child(2){animation-delay:.06s}#slot.hyrb .r:nth-child(3){animation-delay:.12s}
+@keyframes hyrb{0%{transform:scale(.2);opacity:0}100%{transform:none;opacity:1}}
+
+/* 押せ!!: 出現バウンド → 脈動 / 回る光の輪 / 押下の衝撃波 */
+#push.on #pkB{animation:hypin .5s cubic-bezier(.25,1.8,.5,1) both,pkpulse .5s steps(2) .5s infinite}
+#push.on #pkT{animation:hytin .4s cubic-bezier(.3,1.6,.5,1) both,pktxt .16s steps(2) .4s infinite}
+#push.on.jp #pkT{animation:hytin .4s cubic-bezier(.3,1.6,.5,1) both,pktxt .16s steps(2) .4s infinite,pkhue 1.1s linear infinite}
+#push.small #pkT{animation:pktxt .16s steps(2) infinite}
+@keyframes hypin{0%{transform:translateY(-60px) scale(.3)}60%{transform:translateY(6px) scale(1.12)}100%{transform:none}}
+@keyframes hytin{0%{transform:scale(2.2);opacity:0}100%{transform:none;opacity:1}}
+#pkB:before{content:"";position:absolute;inset:-14px;border-radius:50%;pointer-events:none;
+ background:conic-gradient(from 0deg,transparent 0 62%,rgba(255,240,160,.95) 74%,#fff 78%,transparent 88%);
+ -webkit-mask:radial-gradient(circle,transparent 0 64%,#000 65% 71%,transparent 72%);mask:radial-gradient(circle,transparent 0 64%,#000 65% 71%,transparent 72%);
+ animation:hyspin 1.1s linear infinite}
+@keyframes hyspin{to{transform:rotate(360deg)}}
+#pkB:after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 6px #fff,0 0 0 12px rgba(255,212,0,.8)}
+#push.hyw #pkB:after{animation:hywave .5s ease-out forwards}
+#push.hyw #pkB:before{animation:hywave2 .6s ease-out forwards}
+@keyframes hywave{0%{opacity:1;transform:scale(.8)}100%{opacity:0;transform:scale(2.3)}}
+@keyframes hywave2{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(3) rotate(90deg)}}
+#push.on.hit #pkB{animation:none;transform:translateY(14px) scale(.92)}
+#push.on.hit #pkT,#push.on.jp.hit #pkT{animation:none;transform:scale(1.25)}
+
+/* チャンスボタン: 出現バウンド + 回る光の輪 */
+#gkcb.on{animation:hypop .42s cubic-bezier(.3,1.7,.5,1) both,gkcb .5s steps(2) .42s infinite}
+@keyframes hypop{0%{transform:translateY(30px) scale(.2);opacity:0}100%{transform:none;opacity:1}}
+#gkcb:before{content:"";position:absolute;inset:-9px;border-radius:50%/44%;pointer-events:none;
+ background:conic-gradient(from 0deg,transparent 0 60%,#fff 76%,transparent 90%);
+ -webkit-mask:radial-gradient(ellipse,transparent 0 62%,#000 64% 70%,transparent 72%);mask:radial-gradient(ellipse,transparent 0 62%,#000 64% 70%,transparent 72%);
+ animation:hyspin 1s linear infinite}
+/* 押した後の残像(結果の動き) */
+#hycbg{position:fixed;z-index:7;width:92px;height:56px;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;
+ background:radial-gradient(circle at 40% 35%,#ff7a7a,#f0223c 45%,#8a0018 100%);border-radius:50%/42%;
+ box-shadow:0 0 0 3px #000,0 0 0 5px #ffd400,0 0 0 7px #000,0 2px 0 4px #520010;color:#fff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000}
+#hycbg b{font-size:11px;letter-spacing:2px;font-weight:normal;color:#ffd400}
+#hycbg i{font-style:normal;font-size:22px;letter-spacing:2px;line-height:1}
+#hycbg s{position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 4px var(--hc,#fff);opacity:0}
+#hycbg.go s{animation:hywave .55s ease-out forwards}
+#hycbg.go.hyhot{animation:hyhot .9s cubic-bezier(.3,1.4,.5,1) forwards}
+#hycbg.go.hymid{animation:hymid .9s ease-out forwards}
+#hycbg.go.hylow{animation:hylow .9s ease-in forwards}
+@keyframes hyhot{0%{transform:translateY(5px) scale(.94)}20%{transform:translateY(-16px) scale(1.25);filter:brightness(1.6)}60%{transform:translateY(-10px) scale(1.15);opacity:1}100%{transform:translateY(-22px) scale(1.4);opacity:0}}
+@keyframes hymid{0%{transform:translateY(5px) scale(.94)}25%{transform:translateY(-6px) scale(1.08)}70%{opacity:1}100%{transform:translateY(-8px) scale(1.1);opacity:0}}
+@keyframes hylow{0%{transform:translateY(5px) scale(.94)}30%{transform:translateY(4px) scale(.9);filter:grayscale(.8)}100%{transform:translateY(16px) scale(.7);filter:grayscale(1);opacity:0}}
+/* ハンドル: 押すたびの小さな衝撃波 */
+#hd:after{content:"";position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 3px #ffd400}
+#hd.hyp:after{animation:hywave .35s ease-out}
+@media (prefers-reduced-motion:reduce){#push.on #pkB,#push.on #pkT,#pkB:before,#push.hyw #pkB:after,#push.hyw #pkB:before,#gkcb.on,#gkcb:before,#hycbg.go,#hycbg.go s,#hd.hyp:after,#slot.hyrb .r{animation:none}}

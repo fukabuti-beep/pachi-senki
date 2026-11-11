@@ -31,13 +31,13 @@ const idle = 'G.rush=0;G.roul=0;G.jp=0;sp=null;cut=null;PUSH=null;RL=null;MG=nul
   g.eval(`var __bh=0;(function(){const o=bigHit;bigHit=function(){__bh++;return o.apply(this,arguments)}})();${idle}
     BS.force=1;G.q=1;QL.length=0;QL.push({h:1,c:0});startSpin();sp.pzN=0;sp.rv=0;sp.type=2;sp.stop[2]=7.5;var __f=sp.f.slice();`);
   let started = 0, ph2 = 0, maxSh = 0, res = null;
-  for (let i = 0; i < 400; i++) { g.advance(.05); const b = g.eval('BS.s?{ph:BS.s.ph,sh:BS.s.sh.length,res:BS.s.res}:null'); if (b) { started = 1; if (b.ph >= 2) ph2 = 1; maxSh = Math.max(maxSh, b.sh); if (b.res) res = b.res } if (g.eval('__bh') && !b && started) break }
+  for (let i = 0; i < 400; i++) { g.advance(.05); const b = g.eval('BS.s?{ph:BS.s.ph,sh:BS.s.sh.length,res:BS.s.res}:null'); if (b) { started = 1; if (b.ph >= 2) ph2 = 1; maxSh = Math.max(maxSh, b.sh); if (b.res && !res) { res = b.res; globalThis.__recD = g.eval('HYR[2].d') } } if (g.eval('__bh') && !b && started) break }
   ok(started && ph2, '巨大スロットが出ない');
   ok(maxSh > 0 && maxSh <= 48, '破片の数: ' + maxSh);
   ok(res === 'win', '当たりで巨大スロットが揃わない: ' + res);
   ok(g.eval('__bh') === 1 && g.eval('__f[0]===__f[1]&&__f[1]===__f[2]'), '巨大スロットで当否/図柄が変わった');
   ok(g.eval('!BS.s') && !/hybs/.test(g.eval('$("slot").className')), '巨大スロットが残る/小さいスロットが戻らない');
-  ok(g.eval('HYR[2].d') === g.eval('__f[2]'), '巨大リールの記録が本物と違う');
+  ok(globalThis.__recD === g.eval('__f[2]'), '巨大リールの記録が本物と違う');   // 揃った瞬間の記録で比べる(その後の次の回転で上書きされるため)
   console.log('巨大スロット: OK');
 }
 

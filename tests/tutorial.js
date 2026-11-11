@@ -33,9 +33,7 @@ let saved;
   // 新機能ガイド: 転生
   g.eval('G.stage=31;X.best=31;spawn()'); let pr = false; for (let i = 0; i < 80; i++) { g.advance(.25); closeModal(g); if (S(g).t === 'pres') pr = true } ok(pr, '転生ガイドが出ない');
   // メニュー
-  ok(g.eval('FM.some(m=>m.n==="物語")&&FM.some(m=>m.n==="遊び方")'), 'タブが無い');
-  ok(g.eval('fmgOf("物語")') === 1, '物語は「集める」グループ');
-  const html = g.eval('styView("a0");styMenu()'); ok(html.indexOf('旅立ち') >= 0 && html.indexOf('ホムラ') >= 0, '物語タブの読み返し');
+  ok(g.eval('!FM.some(m=>m.n==="物語")&&FM.some(m=>m.n==="遊び方")'), '物語タブは出さない(作り手の希望)/遊び方タブはある');
   ok(g.eval('typeof tutSkip')=== 'function', 'skip');
   ok(g.eval('F.length<=200&&PT.length<=2000&&STY.q.length<=6'), '配列上限');
   saved = { ...g.store };

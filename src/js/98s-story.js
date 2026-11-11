@@ -4,11 +4,11 @@
    ・操作は止めない(盤面・強化・メニューはそのまま触れる)。パネルをタップで早送り(文字送り→次の行)、放置なら1行約3秒で自動で進んで閉じる。「とばす」で即終了。
    ・演出中は待つ(89c-layer の交通整理に合わせる): JACKPOT/押せ!!/全画面ルーレット/ミニゲーム/カットイン/エリアのタイトル帯・大爆発/メニュー表示中は出さない。
      出ている途中でそれらが始まったら隠して時間を止め、終わったら続きから。
-   ・見たシーンは三本線メニューの「物語」タブ(「集める」グループ)で読み返せる。
+   ・シーンはその場で見るだけ(読み返しのタブは作り手の希望で出さない)。
    ・進行は localStorage['pachi2_tut'](98t-tutorial と共用: s=見たシーン / g=見たガイド / skip=序盤ガイドを飛ばした / off=新機能ガイドOFF)。
      キーが無く、すでに進んでいるセーブ(STAGE/最高記録/転生/強化)は「旧セーブ」として、通過済みのシーンを既読(読み返せる)にして出さない。
    ・Math.random は使わない(sim/テストの乱数列を変えない)。ロード時は 98h の AREAS / 91 の X・FM / 29c の FMGRP にだけ依存。
-   フック: 他ファイルの編集なし(kill/update をラップ、FM.push、FMGRP の「集める」に '物語' を追加)。 */
+   フック: 他ファイルの編集なし(kill/update をラップ、読み返しタブは出さない)。 */
 const TS_KEY='pachi2_tut';
 const TS={v:1,s:{},g:{},skip:0,off:0,old:0};
 let TS_NEW=false;   // このロードで初めて作った(98t が旧セーブ判定に使う)
@@ -44,7 +44,7 @@ const SCN=[
 {id:'p1',t:'時の魔法',h:'はじめての転生',L:[[1,'時の魔法で、旅の始まりに戻ったわ'],[2,'でも魂の力は残ってる。前より体が軽い!'],[0,'何度でもやり直して、もっと先へ行こうぜ!']]}];
 const scnOf=id=>SCN.find(s=>s.id===id);
 
-/* 旧セーブ: 通過済みのシーンを既読に(出さないが「物語」で読める) */
+/* 旧セーブ: 通過済みのシーンを既読に(出さない) */
 if(TS_NEW&&tsOldSave()){TS.old=1;TS.skip=1;try{const b=Math.max(X.best,G.stage),ai=Math.floor((b-1)/25);
   for(let a=0;a<8;a++){if(a<=ai)TS.s['a'+a]=1;if(b>25*(a+1))TS.s['b'+a]=1}
   if(X.pres>0)TS.s.p1=1;if(X.st&&X.st.jp>0)TS.s.jp=1}catch(e){}tsSave()}
@@ -130,8 +130,7 @@ function styUpd(dt){
   try{if(g&&run&&G.stage>s0){const a=Math.floor((s0-1)/25);if(a<8){styQueue('b'+a);/* 撃破シーンを次のエリアの登場より先に */const i=STY.q.indexOf('b'+a);if(i>0){STY.q.splice(i,1);STY.q.unshift('b'+a)}}}}catch(e){}return r}}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{styUpd(dt)}catch(e){if(typeof FERR!=='undefined')FERR++}return r}}
 
-/* ===== メニュー「物語」(「集める」グループ) ===== */
-try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(q=>q.n==='集める');if(g&&g.t.indexOf('物語')<0)g.t.push('物語')}}catch(e){}
+/* ===== 読み返し画面(現在は未使用) ===== */
 function styView(id){STY.view=STY.view===id?null:id;try{fxMenu()}catch(e){}}
 function styReplay(id){const sc=scnOf(id);if(!sc||!TS.s[id])return;try{fxClose()}catch(e){}STY.q=STY.q.filter(q=>q!==id);STY.cur=null;STY.gen++;STY.cur={id,sc,i:-1,t:0,ch:0,dur:0};styNext()}
 function styMenu(){const n=SCN.filter(s=>TS.s[s.id]).length;
@@ -140,4 +139,4 @@ function styMenu(){const n=SCN.filter(s=>TS.s[s.id]).length;
   SCN.map(s=>{const ok=!!TS.s[s.id];if(!ok)return '<div class="styR no"><span>??? <small>('+s.h+')</small></span></div>';
     const op=STY.view===s.id;return '<div class="styR"><span><b>'+s.t+'</b> <small style="opacity:.7">'+s.h+'</small></span><span><button type="button" onclick="styView(\''+s.id+'\')">'+(op?'とじる':'読む')+'</button> <button type="button" onclick="styReplay(\''+s.id+'\')">再生</button></span></div>'+
       (op?'<div class="tx">'+s.L.map(l=>'<p>'+(l[0]===8?'<i style="color:#ff6a8a">'+(s.en||STA(s.ei))+'</i>':who(l[0]))+l[1]+'</p>').join('')+'</div>':'')}).join('')+'</div>'}
-FM.push({n:'物語',r:styMenu});
+// 読み返し画面(物語タブ)は作り手の希望で出さない。styMenu は残す(将来使う時用)

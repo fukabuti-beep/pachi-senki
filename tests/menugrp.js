@@ -19,7 +19,7 @@ function walkAll(g) {
     g.eval(gb.js);
     const tabs = clicks(content(g), /^fmgTab\(/);
     if (!tabs.length) { seen.add(g.eval('FM[fxTab].n')); ok(g.eval('fxOpen') === true, 'single-tab group opens: ' + gb.label); continue; }   // 中のタブが1つのグループは大分類ボタンで直接開く
-    ok(tabs.length <= 4, 'tabs in group ' + gb.label + ': ' + tabs.length);
+    ok(tabs.length <= 5, 'tabs in group ' + gb.label + ': ' + tabs.length);
     for (const t of tabs) {
       g.eval(t.js);
       const cur = g.eval('FM[fxTab].n');

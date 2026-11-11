@@ -1,7 +1,7 @@
 // 遠征(98d) / ボーナスタイム(98e) / ハイ&ロー(98f): セーブ互換・効果・自動決着・転生で残る
 const { createGame } = require('../tools/harness');
 let bad = 0; const ok = (c, m) => { if (!c) { bad++; console.error('FAIL: ' + m) } };
-const busyOff = 'sp=null;RL=null;G.roul=0;G.jp=0;cut=null;MG=null;MG2=null;HL=null;';
+const busyOff = 'sp=null;RL=null;G.roul=0;G.jp=0;cut=null;MG=null;MG2=null;HL=null;PUSH=null;if(typeof JPX!=="undefined")JPX.p=null;if(typeof HEV!=="undefined")HEV.jr=null;if(typeof UJ!=="undefined")UJ.s=0;';
 // (a) 遠征: 出発 → 実時間で帰還 → 受け取り → 保存 → 転生でも残る
 {
   const g = createGame({ seed: 1 }); g.start(); g.advance(1);

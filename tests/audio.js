@@ -174,7 +174,7 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null;hryUp=function(q,i,to
 {
   const level = (o) => {
     const g = createGame({ seed: 3, audio: 'render' }); g.start(); g.eval(KEEP);
-    g.eval(o.vol || 'setVol(.7,.9)'); g.advance(1); if (o.setup) g.eval(o.setup);
+    g.eval(o.vol || 'setVol(.7,.9)'); g.advance(4); if (o.setup) g.eval(o.setup);   // 4秒: スタート時のタイトル曲のジングル(79c)が鳴り終わってから測る
     const t0 = g.time;
     for (let s = 0; s < o.dur; s += .5) { if (o.hold) g.eval(o.hold + ';' + QUIET); g.advance(.5); g.eval(KEEP); const e = o.ev && o.ev[s]; if (e) g.eval(e) }
     const r = g.audio.rec.render(t0 + (o.skip || 0), g.time, SR, [g.eval('SGR.mx')]);

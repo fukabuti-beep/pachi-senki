@@ -55,10 +55,12 @@ namespace PachiSenki.Core
         {
             if (double.IsPositiveInfinity(n)) return "MAX";
             if (n < 1e3) return Math.Floor(n).ToString();
-            if (n < 1e6) return (n / 1e3).ToString("0.0") + "K";
-            if (n < 1e9) return (n / 1e6).ToString("0.0") + "M";
-            if (n < 1e12) return (n / 1e9).ToString("0.0") + "B";
-            return (n / 1e12).ToString("0.0") + "T";
+            // Web版 00-core の fmt と同じ: T より上も単位(Qa..Dc)、それ以上は指数表記(桁が増えてもはみ出さない)
+            string[] suf = { "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc" };
+            int e = (int)Math.Floor(Math.Log10(n) / 3); double v = n / Math.Pow(10, e * 3);
+            if (v >= 999.95) { v /= 1e3; e++; }
+            if (e < suf.Length) return v.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + suf[e];
+            return n.ToString("0.00e0", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }

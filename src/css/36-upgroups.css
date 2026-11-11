@@ -15,3 +15,6 @@
  box-shadow:inset 2px 2px 0 #ffb0c8,inset -2px -2px 0 #7a0030,0 0 0 2px #000,0 4px 0 2px #000;text-shadow:2px 2px 0 #6a0028;cursor:pointer}
 #upx .fxb.d{background:linear-gradient(#5a5a70,#3a3a4a);box-shadow:inset 2px 2px 0 #8a8aa0,inset -2px -2px 0 #22222e,0 0 0 2px #000,0 4px 0 2px #000;opacity:.75}
 #upx .fxb:active{transform:translateY(3px)}
+/* グループが5つ(通常強化/鍛冶屋/魂の祭壇/宝石ショップ/くじ)になった時は文字を詰めて1行に収める(98k) */
+#upg.upg5{gap:4px;padding:6px 6px 0}
+#upg.upg5 button{font-size:11px;letter-spacing:0;padding:7px 1px}

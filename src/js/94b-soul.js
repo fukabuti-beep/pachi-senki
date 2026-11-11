@@ -7,14 +7,19 @@
    ・遺物の目利き: 遺物ドロップ率 +5%/Lv(96r-relic が relicDropP() を参照)
    ・魂の器: 転生で得る魂 +10%/Lv
    あわせて、転生メニューに「次の魂まであと何ステージか」を表示する。 */
+// 作り手の指摘「魂の要求量が少なく、上限があるので余りまくる」→ コストを Lv ごとに増える(指数)形にし、上限を大きく、
+// さらに上限なしの「魂の力(ダメージ)」「魂の富(ゴールド)」を足して、魂の使い道が尽きないようにした。
+const SCOST=(b,r)=>l=>Math.ceil(b*Math.pow(r,l));
 const SOULD=[
-  {k:'start',n:'開始ステージ',d:'転生後 STAGE+5/Lv',max:10,c:l=>3*(l+1)},
-  {k:'gold',n:'初期ゴールド',d:'転生後に G を持って開始',max:8,c:l=>2*(l+1)},
+  {k:'start',n:'開始ステージ',d:'転生後 STAGE+5/Lv',max:30,c:SCOST(5,1.3)},
+  {k:'gold',n:'初期ゴールド',d:'転生後に G を持って開始',max:20,c:SCOST(4,1.3)},
   {k:'auto',n:'自動強化',d:'一番安い強化を自動で購入',max:1,c:()=>5},
-  {k:'relic',n:'遺物の目利き',d:'遺物ドロップ率 +5%/Lv',max:6,c:l=>4*(l+1)},
-  {k:'soul',n:'魂の器',d:'転生で得る魂 +10%/Lv',max:10,c:l=>5*(l+1)}];
+  {k:'relic',n:'遺物の目利き',d:'遺物ドロップ率 +5%/Lv',max:8,c:SCOST(8,1.45)},
+  {k:'soul',n:'魂の器',d:'転生で得る魂 +10%/Lv',max:25,c:SCOST(10,1.32)},
+  {k:'pow',n:'魂の力',d:'ダメージ +8%/Lv(上限なし)',max:Infinity,c:SCOST(10,1.22)},
+  {k:'rich',n:'魂の富',d:'ゴールド +8%/Lv(上限なし)',max:Infinity,c:SCOST(10,1.22)}];
 let SOUL={spent:0,lv:{},auto:1};
-try{const j=JSON.parse(localStorage.getItem('pachi2_soul')||'null');if(j&&typeof j=='object'){SOUL.spent=Math.max(0,Math.floor(+j.spent)||0);SOUL.auto=j.auto===0?0:1;SOULD.forEach(s=>{const v=Math.floor(+(j.lv||{})[s.k]);if(Number.isFinite(v)&&v>0)SOUL.lv[s.k]=Math.min(s.max,v)})}}catch(e){}
+try{const j=JSON.parse(localStorage.getItem('pachi2_soul')||'null');if(j&&typeof j=='object'){SOUL.spent=Math.max(0,Math.floor(+j.spent)||0);SOUL.auto=j.auto===0?0:1;SOULD.forEach(s=>{const v=Math.floor(+(j.lv||{})[s.k]);if(Number.isFinite(v)&&v>0)SOUL.lv[s.k]=Math.min(s.max,Math.min(v,1e6))})}}catch(e){}
 function soulSave(){try{localStorage.setItem('pachi2_soul',JSON.stringify(SOUL))}catch(e){}}
 const soulLv=k=>SOUL.lv[k]||0;
 const soulFree=()=>Math.max(0,X.souls-SOUL.spent);
@@ -47,6 +52,8 @@ FU.push(()=>{if(SOUL_RUNP){if(!SOUL_RUN)SOUL_RUN={until:T+SOUL_RUNP.l,stage:SOUL
 // 表示用(QA): 再出発の勢いを除いた SB.a(勢い中にメニューが「ダメージ x240」等と出ていた)/ 魂の器込みの獲得量(presDo の実際の加算と同じ)
 function sbShow(){const r=SOUL_RUN;SOUL_RUN=null;try{return SB.a()}finally{SOUL_RUN=r}}
 const soulTotal=s=>{const g=soulGain(s);return g+soulBonusGain(g)};
+// 魂の力/魂の富(上限なし): ダメージ・ゴールドに掛ける
+{const oa=SB.a,og=SB.g;SB.a=()=>oa()*(1+.08*soulLv('pow'));SB.g=()=>og()*(1+.08*soulLv('rich'))}
 // 自動強化
 let SOULT=0;
 function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;if(SOULT<2)return;SOULT=0;let bi=-1,bc2=Infinity;
@@ -54,6 +61,6 @@ function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;
 FU.push(dt=>soulAutoTick(dt));
 // メニュー: 魂の祭壇 + 転生タブの補足
 FM.push({n:'魂の祭壇',r:()=>'<div class="fxh">魂の祭壇</div><div class="fxs">魂を使って永続強化。使っても魂のボーナス(ダメージ x'+sbShow().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+')は減らない。</div><div class="fxn" style="font-size:22px">使える魂 '+soulFree()+' / '+X.souls+'</div><div class="fxl">'+
-  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+'/'+s.max+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
+  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+(Number.isFinite(s.max)?'/'+s.max:'')+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
   (soulLv('auto')?'<button class="fxb" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+
   '<div class="fxs" style="margin-top:6px">今 STAGE '+G.stage+' で転生 → 魂 +'+soulGain(G.stage)+(soulLv('soul')?'(+器 '+soulBonusGain(soulGain(G.stage))+')':'')+(soulNext(G.stage)?' / 次の魂は STAGE '+soulNext(G.stage):'')+'</div>'});

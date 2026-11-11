@@ -59,7 +59,8 @@ const sv = o => ({ pachi2: JSON.stringify(Object.assign({ v: 2, gold: 5, stage: 
   g.eval('X.souls=100;saveX()'); const a0 = g.eval('SB.a()');
   for (let i = 0; i < 3; i++) g.eval("soulBuy('start')"); g.eval("soulBuy('gold');soulBuy('auto');soulBuy('soul');soulBuy('relic')");
   ok(g.eval('X.souls') === 100 && g.eval('SB.a()') === a0, '魂を使ったらボーナスが減った');
-  ok(g.eval('SOUL.spent') === 3 + 6 + 9 + 2 + 5 + 5 + 4, '使用済み魂: ' + g.eval('SOUL.spent'));
+  const exp = g.eval("(c=>c('start',0)+c('start',1)+c('start',2)+c('gold',0)+c('auto',0)+c('soul',0)+c('relic',0))((k,l)=>SOULD.find(d=>d.k===k).c(l))");   // コストは Lv で増える式(94b)
+  ok(g.eval('SOUL.spent') === exp, '使用済み魂: ' + g.eval('SOUL.spent') + ' (期待 ' + exp + ')');
   ok(g.eval('relicDropP()') > .35, '遺物の目利き');
   g.eval('sp=null;RL=null;G.roul=0;G.jp=0;cut=null;MG=null;if(typeof MG2!=="undefined")MG2=null;G.stage=80;X.best=80');
   const gn = g.eval('soulGain(80)'); g.eval('presDo()');
@@ -180,7 +181,7 @@ const tick = () => new Promise(r => setImmediate(r));
 // (l) 強化画面のグループ(鍛冶屋/魂の祭壇はメニューから移動)/ 押せ!! の文字分割
 {
   const g = createGame({ seed: 14 }); g.start(); g.advance(1);
-  ok(g.eval("FM.every(m=>m.n!=='鍛冶屋'&&m.n!=='魂の祭壇')") && g.eval('UPG.list.map(x=>x[0]).join()') === '通常強化,鍛冶屋,魂の祭壇', 'グループの移動: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
+  ok(g.eval("FM.every(m=>m.n!=='鍛冶屋'&&m.n!=='魂の祭壇')") && g.eval('UPG.list.map(x=>x[0]).join()').indexOf('通常強化,鍛冶屋,魂の祭壇') === 0, 'グループの移動: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
   g.eval('grpSet(1)'); ok(g.eval('UPG.g') === 1 && /鍛冶屋/.test(g.eval("$('upx').innerHTML")), '鍛冶屋が強化画面に出ない');
   g.eval('RES.ms=1e6;fxOpen=false;smithUp(0)'); ok(g.eval('RES.w[0]') === 1 && g.eval('fxOpen') === false, '強化画面から買うとメニューが開く');
   g.eval('grpSet(2)'); ok(/魂の祭壇/.test(g.eval("$('upx').innerHTML")), '魂の祭壇が強化画面に出ない');

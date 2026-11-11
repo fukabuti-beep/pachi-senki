@@ -473,6 +473,9 @@ html body #fxm #fxmbt{margin-top:6px}
  box-shadow:inset 2px 2px 0 #ffb0c8,inset -2px -2px 0 #7a0030,0 0 0 2px #000,0 4px 0 2px #000;text-shadow:2px 2px 0 #6a0028;cursor:pointer}
 #upx .fxb.d{background:linear-gradient(#5a5a70,#3a3a4a);box-shadow:inset 2px 2px 0 #8a8aa0,inset -2px -2px 0 #22222e,0 0 0 2px #000,0 4px 0 2px #000;opacity:.75}
 #upx .fxb:active{transform:translateY(3px)}
+/* グループが5つ(通常強化/鍛冶屋/魂の祭壇/宝石ショップ/くじ)になった時は文字を詰めて1行に収める(98k) */
+#upg.upg5{gap:4px;padding:6px 6px 0}
+#upg.upg5 button{font-size:11px;letter-spacing:0;padding:7px 1px}
 
 /* 37-fixes.css */
 /* 実機ブラウザ検証で見つけたレイアウト不具合の修正(見た目の仕様は変えない)。 */
@@ -781,6 +784,8 @@ html body #fxm .fxt.mgT button.on{background:var(--mgc,#ffd400)!important;color:
 html body #fxm .fxt.mgG{grid-template-columns:repeat(6,1fr)}
 html body #fxm .fxt.mgG button{grid-column:span 2}
 html body #fxm .fxt.mgG button:nth-child(n+4){grid-column:span 3}
+/* 大分類が4つだけの時(リソース消費系を強化画面へ移して「育てる」が空になった時)は 2x2 */
+html body #fxm .fxt.mgG.mgC4 button,html body #fxm .fxt.mgG.mgC4 button:nth-child(n+4){grid-column:span 3}
 
 /* 39-party.css */
 /* 遠征隊の編成(98g)。34-menu.css / 38-expedition.css の筐体デザイン(金ベゼル/液晶/立体ボタン)に合わせる */
@@ -900,6 +905,12 @@ html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
 html body #fxm .fxs,#upx .fxs{font-size:13px}
 html body #fxm .fxl small,#upx .fxl small{font-size:12px;color:#c0b8f0}
 html body #fxm .fxl,#upx .fxl{font-size:13px}
+
+/* 41-roulquick.css */
+/* ルーレット(87d): 暗幕を薄く、枠はタップで早送りできる(カーソルで示す) */
+#rl{background:rgba(5,3,20,.45)!important}
+#rl .rb{pointer-events:auto;cursor:pointer}
+#rl .rb:after{content:"タップで早送り";display:block;margin-top:6px;font-size:11px;color:#c8c0ff;opacity:.8;text-align:center}
 
 /* 41-title.css */
 /* ---------- 動くタイトル画面 (fx担当 / 89d-title.js) ---------- #ov.ttv2 は JS が付ける(JS が動かない時は従来の見た目) */
@@ -1490,7 +1501,7 @@ function fmgMenu(){try{
   fxTab=Math.max(0,Math.min(fxTab|0,FM.length-1));
   const L=fmgList(),g=fmgOf(FM[fxTab].n);fmgG=g;
   fmgLast.t=FM[fxTab].n;fmgLast.g[g]=FM[fxTab].n;fmgSave();
-  const gs='<div class="fxt mgG" role="tablist">'+FMGRP.map((G_,k)=>{const n=L[k].length;
+  const gs='<div class="fxt mgG mgC'+L.filter(a=>a.length).length+'" role="tablist">'+FMGRP.map((G_,k)=>{const n=L[k].length;
     return n?'<button type="button" class="'+(k===g?'on':'')+'" style="--mgc:'+G_.c+'" onclick="fmgPick('+k+')">'+G_.n+(n>1?'<small>'+n+'</small>':'')+(typeof fmgMark==='function'?fmgMark(G_.n,1):'')+'</button>':''}).join('')+'</div>';
   const cur=L[g],ts=cur.length<=1?'':'<div class="fxt mgT mgN'+Math.min(cur.length,5)+'" style="--mgc:'+FMGRP[g].c+'">'+cur.map(i=>
     '<button type="button" class="'+(i===fxTab?'on':'')+'" data-n="'+String(FM[i].n).replace(/"/g,'&quot;')+'" onclick="fmgTab('+i+')">'+FM[i].n+(typeof fmgMark==='function'?fmgMark(FM[i].n,0):'')+'</button>').join('')+'</div>';
@@ -3303,6 +3314,19 @@ function jpxDraw(t){
 // 押せ!! の文字を一文字ずつの span にして波打たせる(CSS 35-jp.css の .ch)
 {const o=pushPrompt;pushPrompt=function(){const r=o.apply(this,arguments);try{const el=$('pkT');if(el&&PUSH){const t=String(el.textContent||'');el.innerHTML=[...t].map((c,i)=>'<span class="ch" style="--i:'+i+'">'+(c===' '?'&nbsp;':c.replace(/[<>&]/g,''))+'</span>').join('')}}catch(e){}return r}}
 
+/* ---------- ルーレットの画面占有を短く (feature/fx) ----------
+   作り手の指摘「ボタン演出からのルーレットタイムで画面占有され過ぎるとフラストレーションが溜まる」。
+   当否・倍率・報酬は 60-roulette のまま(updRoul に渡す時間の進み方だけ変える):
+   ・回転 4.6秒→約3.1秒、結果表示 1.8秒→約1.2秒、超倍率の溜め 4.4秒→約3.4秒
+   ・ルーレット(.rb)をタップすると早送り(回転はすぐ止まり、結果もすぐ閉じる)
+   ・背景の暗幕を薄くして戦闘画面が透けて見えるように(css/41-roulquick.css) */
+const RQ={ff:0};
+{const o=updRoul;updRoul=function(dt){try{if(RL){const k=RQ.ff?6:RL.ph===0?1.48:RL.hold?1.3:1.5;return o.call(this,dt*k)}}catch(e){}RQ.ff=0;return o.apply(this,arguments)}}
+{const o=startRoul;startRoul=function(){RQ.ff=0;return o.apply(this,arguments)}}
+/* タップで早送り(暗幕自体は pointer-events:none のまま=盤面への操作は通す。ルーレットの枠だけタップを受ける) */
+try{const rl=$('rl'),rb=rl&&rl.querySelector?rl.querySelector('.rb'):null;
+  if(rb&&rb.addEventListener)rb.addEventListener('pointerdown',e=>{if(RL){RQ.ff=1;try{e.stopPropagation()}catch(x){}}})}catch(e){}
+
 /* ---------- バナー文字の強化 (fx) ----------
    banner(t,c) をラップして、CSS(30-banner.css)用に data-t(背面レイヤーの文字) / --c(色) / .rb(熱い文言は虹色) を付けるだけ。 */
 const BN_HOT=/激アツ|JACKPOT|超倍率|確定|LEGEND|RECORD|777|EXCELLENT/;
@@ -4091,14 +4115,19 @@ FM.push({n:'転生',r:()=>{const gn=presGainShow(G.stage),can=soulGain(G.stage)>
    ・遺物の目利き: 遺物ドロップ率 +5%/Lv(96r-relic が relicDropP() を参照)
    ・魂の器: 転生で得る魂 +10%/Lv
    あわせて、転生メニューに「次の魂まであと何ステージか」を表示する。 */
+// 作り手の指摘「魂の要求量が少なく、上限があるので余りまくる」→ コストを Lv ごとに増える(指数)形にし、上限を大きく、
+// さらに上限なしの「魂の力(ダメージ)」「魂の富(ゴールド)」を足して、魂の使い道が尽きないようにした。
+const SCOST=(b,r)=>l=>Math.ceil(b*Math.pow(r,l));
 const SOULD=[
-  {k:'start',n:'開始ステージ',d:'転生後 STAGE+5/Lv',max:10,c:l=>3*(l+1)},
-  {k:'gold',n:'初期ゴールド',d:'転生後に G を持って開始',max:8,c:l=>2*(l+1)},
+  {k:'start',n:'開始ステージ',d:'転生後 STAGE+5/Lv',max:30,c:SCOST(5,1.3)},
+  {k:'gold',n:'初期ゴールド',d:'転生後に G を持って開始',max:20,c:SCOST(4,1.3)},
   {k:'auto',n:'自動強化',d:'一番安い強化を自動で購入',max:1,c:()=>5},
-  {k:'relic',n:'遺物の目利き',d:'遺物ドロップ率 +5%/Lv',max:6,c:l=>4*(l+1)},
-  {k:'soul',n:'魂の器',d:'転生で得る魂 +10%/Lv',max:10,c:l=>5*(l+1)}];
+  {k:'relic',n:'遺物の目利き',d:'遺物ドロップ率 +5%/Lv',max:8,c:SCOST(8,1.45)},
+  {k:'soul',n:'魂の器',d:'転生で得る魂 +10%/Lv',max:25,c:SCOST(10,1.32)},
+  {k:'pow',n:'魂の力',d:'ダメージ +8%/Lv(上限なし)',max:Infinity,c:SCOST(10,1.22)},
+  {k:'rich',n:'魂の富',d:'ゴールド +8%/Lv(上限なし)',max:Infinity,c:SCOST(10,1.22)}];
 let SOUL={spent:0,lv:{},auto:1};
-try{const j=JSON.parse(localStorage.getItem('pachi2_soul')||'null');if(j&&typeof j=='object'){SOUL.spent=Math.max(0,Math.floor(+j.spent)||0);SOUL.auto=j.auto===0?0:1;SOULD.forEach(s=>{const v=Math.floor(+(j.lv||{})[s.k]);if(Number.isFinite(v)&&v>0)SOUL.lv[s.k]=Math.min(s.max,v)})}}catch(e){}
+try{const j=JSON.parse(localStorage.getItem('pachi2_soul')||'null');if(j&&typeof j=='object'){SOUL.spent=Math.max(0,Math.floor(+j.spent)||0);SOUL.auto=j.auto===0?0:1;SOULD.forEach(s=>{const v=Math.floor(+(j.lv||{})[s.k]);if(Number.isFinite(v)&&v>0)SOUL.lv[s.k]=Math.min(s.max,Math.min(v,1e6))})}}catch(e){}
 function soulSave(){try{localStorage.setItem('pachi2_soul',JSON.stringify(SOUL))}catch(e){}}
 const soulLv=k=>SOUL.lv[k]||0;
 const soulFree=()=>Math.max(0,X.souls-SOUL.spent);
@@ -4131,6 +4160,8 @@ FU.push(()=>{if(SOUL_RUNP){if(!SOUL_RUN)SOUL_RUN={until:T+SOUL_RUNP.l,stage:SOUL
 // 表示用(QA): 再出発の勢いを除いた SB.a(勢い中にメニューが「ダメージ x240」等と出ていた)/ 魂の器込みの獲得量(presDo の実際の加算と同じ)
 function sbShow(){const r=SOUL_RUN;SOUL_RUN=null;try{return SB.a()}finally{SOUL_RUN=r}}
 const soulTotal=s=>{const g=soulGain(s);return g+soulBonusGain(g)};
+// 魂の力/魂の富(上限なし): ダメージ・ゴールドに掛ける
+{const oa=SB.a,og=SB.g;SB.a=()=>oa()*(1+.08*soulLv('pow'));SB.g=()=>og()*(1+.08*soulLv('rich'))}
 // 自動強化
 let SOULT=0;
 function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;if(SOULT<2)return;SOULT=0;let bi=-1,bc2=Infinity;
@@ -4138,7 +4169,7 @@ function soulAutoTick(dt){if(!soulLv('auto')||!SOUL.auto||!run)return;SOULT+=dt;
 FU.push(dt=>soulAutoTick(dt));
 // メニュー: 魂の祭壇 + 転生タブの補足
 FM.push({n:'魂の祭壇',r:()=>'<div class="fxh">魂の祭壇</div><div class="fxs">魂を使って永続強化。使っても魂のボーナス(ダメージ x'+sbShow().toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+')は減らない。</div><div class="fxn" style="font-size:22px">使える魂 '+soulFree()+' / '+X.souls+'</div><div class="fxl">'+
-  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+'/'+s.max+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
+  SOULD.map(s=>{const l=soulLv(s.k),mx=l>=s.max,c=mx?0:s.c(l),ok=!mx&&soulFree()>=c;return '<div class="'+(l||ok?'ok':'no')+'"><span>'+s.n+' Lv'+l+(Number.isFinite(s.max)?'/'+s.max:'')+'<br><small>'+s.d+'</small></span><span>'+(mx?'MAX':'<button class="fxb'+(ok?'':' d')+'" style="margin:0;padding:4px 8px" onclick="soulBuy(\''+s.k+'\')">魂'+c+'</button>')+'</span></div>'}).join('')+'</div>'+
   (soulLv('auto')?'<button class="fxb" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+
   '<div class="fxs" style="margin-top:6px">今 STAGE '+G.stage+' で転生 → 魂 +'+soulGain(G.stage)+(soulLv('soul')?'(+器 '+soulBonusGain(soulGain(G.stage))+')':'')+(soulNext(G.stage)?' / 次の魂は STAGE '+soulNext(G.stage):'')+'</div>'});
 
@@ -5283,7 +5314,7 @@ function altarHtml(){
   /* ② 永続強化 */
   h+='<div class="altc"><div class="altt"><i>2</i>魂で永続強化</div><div class="fxs">魂を使っても 魂ボーナスは減らない</div><div class="fxl">'+
    SOULD.map(d=>{const l=soulLv(d.k),mx=l>=d.max,c=mx?0:d.c(l),ok=!mx&&free>=c;
-     return '<div class="'+(l||ok?'ok':'no')+'"><span>'+d.n+' <em class="altlv">Lv'+l+'/'+d.max+'</em><br><small>'+(ALTD[d.k]?ALTD[d.k](l):d.d)+'</small></span><span>'+
+     return '<div class="'+(l||ok?'ok':'no')+'"><span>'+d.n+' <em class="altlv">Lv'+l+(Number.isFinite(d.max)?'/'+d.max:'')+'</em><br><small>'+(ALTD[d.k]?ALTD[d.k](l):d.d)+'</small></span><span>'+
        (mx?'<b class="altmx">MAX</b>':'<button type="button" class="fxb'+(ok?'':' d')+'" onclick="soulBuy(\''+d.k+'\')">'+resIcon('soul')+c+'</button>')+'</span></div>'}).join('')+'</div>'+
    (soulLv('auto')?'<button type="button" class="fxb g" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+'</div></div>';
   return h}
@@ -5476,6 +5507,26 @@ function expBtnUpd(){try{const el=EXB.lb;if(!el||typeof EXP==='undefined')return
   const k=t+c;if(k===EXB.last)return;EXB.last=k;el.textContent=t;EXB.el.className='bv sq'+(c?' x'+c:'')}catch(e){}}
 FU.push(dt=>{EXB.t+=dt;if(EXB.t<.5)return;EXB.t=0;expBtnUpd()});
 try{expBtnUpd()}catch(e){}
+
+/* ---------- リソースを使う画面は強化ボタンへ (ui) ----------
+   作り手の指摘「リソース消費系のタブがメニューにあって分かりにくい。全て強化ボタンからアクセスできるように」。
+   強化画面(#sheet)のグループに「宝石ショップ」(98i-gemshop)と「くじ」(96t)を移し、メニューからは外す。
+   メニューの「育成」タブ(98i-altar の案内)も、強化画面に全部そろったので外す。
+   これで ゴールド=通常強化 / 魔石=鍛冶屋・くじ / 魂=魂の祭壇 / 宝石=宝石ショップ と、使い道がすべて強化ボタンの中にまとまる。
+   読み込み順: 98c(UPG を作る)・98i(altar/gemshop が FM に登録)より後。 */
+(function(){try{
+  const take=n=>{const i=FM.findIndex(m=>m.n===n);if(i<0)return null;return FM.splice(i,1)[0].r};
+  const gs=take('宝石ショップ'),kj=take('くじ');take('育成');
+  if(gs&&!UPG.list.some(x=>x[0]==='宝石屋'))UPG.list.push(['宝石屋',gs]);
+  if(kj&&!UPG.list.some(x=>x[0]==='くじ'))UPG.list.push(['くじ',kj]);
+  const bar=$('upg');if(bar)bar.innerHTML=UPG.list.map((g,i)=>'<button type="button" data-g="'+i+'" class="'+(i===UPG.g?'on':'')+'">'+g[0]+'</button>').join('');
+  if(bar&&bar.classList)bar.classList.add('upg'+UPG.list.length);
+}catch(e){}})();
+/* 宝石ショップで買った後は、開いている強化画面を描き直す(元はメニューの再描画だけだった) */
+{const o=gsRe;gsRe=function(){const r=o.apply(this,arguments);try{grpRefresh()}catch(e){}return r}}
+/* 強化画面のグループを名前で開く(他の画面からの案内用) */
+function upOpen(name){try{const i=UPG.list.findIndex(x=>x[0]===name);if(i<0)return;if(typeof fxClose==='function'&&typeof fxOpen!=='undefined'&&fxOpen)fxClose();
+  if(!sheetOpen()){const b=$('ubt');if(b&&b.click)b.click()}grpSet(i)}catch(e){}}
 
 /* ---------- 軽いストーリー(会話シーン) (feature) ----------
    3人の英雄(剣士ホムラ/魔法使いシズク/弓使いコハク。すべてオリジナル)が、世界の「運」を吸い込む虚無の王(魔王)ニヒラを目指して旅をする。

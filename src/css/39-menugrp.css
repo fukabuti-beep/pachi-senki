@@ -29,3 +29,5 @@ html body #fxm .fxt.mgT button.on{background:var(--mgc,#ffd400)!important;color:
 html body #fxm .fxt.mgG{grid-template-columns:repeat(6,1fr)}
 html body #fxm .fxt.mgG button{grid-column:span 2}
 html body #fxm .fxt.mgG button:nth-child(n+4){grid-column:span 3}
+/* 大分類が4つだけの時(リソース消費系を強化画面へ移して「育てる」が空になった時)は 2x2 */
+html body #fxm .fxt.mgG.mgC4 button,html body #fxm .fxt.mgG.mgC4 button:nth-child(n+4){grid-column:span 3}

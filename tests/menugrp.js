@@ -37,7 +37,7 @@ function walkAll(g) {
   ok(g.eval('FM.length') >= 10, 'FM tabs: ' + g.eval('FM.length'));
   walkAll(g);
   // 既知のタブの振り分け
-  ok(g.eval("fmgOf('遊戯')===0&&fmgOf('くじ')===0&&fmgOf('遠征')===0"), 'play group');
+  ok(g.eval("fmgOf('遊戯')===0&&fmgOf('遠征')===0&&fmgOf('イベント')===0"), 'play group');
   ok(g.eval("fmgOf('実績')===1&&fmgOf('図鑑')===1&&fmgOf('遺物')===1&&fmgOf('仲間')===1"), 'collect group');
   ok(g.eval("fmgOf('転生')===2&&fmgOf('ミッション')===3"), 'grow group / mission group');
   ok(g.eval("fmgOf('応援★')===4&&fmgOf('ランキング')===4"), 'other group (with ★)');
@@ -52,16 +52,16 @@ function walkAll(g) {
   g.eval('fxClose()');
   ok(JSON.parse(store.pachi2_menu || g.eval("localStorage.getItem('pachi2_menu')")).t === '遺物', 'saved last tab');
   // 大分類ボタンはそのグループで最後に開いたタブへ
-  g.eval("fmgTab(FM.findIndex(m=>m.n==='くじ'));fmgPick(1)");
+  g.eval("fmgTab(FM.findIndex(m=>m.n==='遠征'));fmgPick(1)");   // くじは強化画面へ移動(98k)したので遠征で確かめる
   ok(g.eval('FM[fxTab].n') === '遺物', 'group remembers its last tab: ' + g.eval('FM[fxTab].n'));
   g.eval('fmgPick(0)');
-  ok(g.eval('FM[fxTab].n') === 'くじ', 'play group remembers くじ');
+  ok(g.eval('FM[fxTab].n') === '遠征', 'play group remembers 遠征');
   ok(g.eval('FERR') === 0, 'no feature errors');
   // 再起動しても同じタブから
   const saved = g.eval("localStorage.getItem('pachi2_menu')");
   const g2 = createGame({ seed: 2, storage: { pachi2_menu: saved } }); g2.start(); g2.advance(1);
   g2.eval('fxClose();fxMenu()');
-  ok(g2.eval('FM[fxTab].n') === 'くじ', 'restored after restart: ' + g2.eval('FM[fxTab].n')); }
+  ok(g2.eval('FM[fxTab].n') === '遠征', 'restored after restart: ' + g2.eval('FM[fxTab].n')); }
 { // 壊れた保存値
   for (const bad of ['{', '"x"', '{"t":5,"g":"a"}', '{"t":"消えたタブ"}']) {
     const g = createGame({ seed: 3, storage: { pachi2_menu: bad } }); g.start(); g.advance(1);

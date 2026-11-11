@@ -1,0 +1,4 @@
+/* ルーレット(87d): 暗幕を薄く、枠はタップで早送りできる(カーソルで示す) */
+#rl{background:rgba(5,3,20,.45)!important}
+#rl .rb{pointer-events:auto;cursor:pointer}
+#rl .rb:after{content:"タップで早送り";display:block;margin-top:6px;font-size:11px;color:#c8c0ff;opacity:.8;text-align:center}

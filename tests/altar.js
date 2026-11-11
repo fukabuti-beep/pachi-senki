@@ -9,11 +9,8 @@ const alt = g => g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()");
   const g = createGame({ seed: 5 }); g.start(); g.advance(1);
   g.eval('if(fxOpen)fxClose()');
   ok(g.eval("FM.every(m=>m.n!=='転生')"), 'メニューに転生タブが残っている');
-  ok(g.eval("FM.some(m=>m.n==='育成')&&fmgOf('育成')===2"), '育てるグループに育成タブが無い');
-  ok(g.eval("UPG.list.map(x=>x[0]).join()") === '通常強化,鍛冶屋,魂の祭壇', 'グループ: ' + g.eval("UPG.list.map(x=>x[0]).join()"));
-  g.eval("fxTab=FM.findIndex(m=>m.n==='育成');fxMenu()");
-  const h = g.eval("$('fxmc').innerHTML");
-  ok(/altOpen\(2\)/.test(h) && /altOpen\(1\)/.test(h) && /altOpen\(0\)/.test(h), '育成タブの案内ボタン');
+  ok(g.eval("FM.every(m=>m.n!=='育成')"), '育成タブはメニューから外す(リソース消費系は強化ボタンへ集約=98k)');
+  ok(g.eval("UPG.list.map(x=>x[0]).join()").indexOf('通常強化,鍛冶屋,魂の祭壇') === 0, 'グループ: ' + g.eval("UPG.list.map(x=>x[0]).join()"));
   g.eval('altOpen(2)');
   ok(g.eval('fxOpen') === false && g.eval('so') === true && g.eval('UPG.g') === 2 && /転生する/.test(g.eval("$('upx').innerHTML")), '開く → 魂の祭壇');
   ok(g.eval('FERR') === 0, 'FERR ' + g.eval('FERR'));
@@ -51,12 +48,13 @@ const alt = g => g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()");
   { const fs = require('fs'), d = require('path').join(__dirname, '../dist/pachi-senki.html');
     if (fs.existsSync(d)) { const t = fs.readFileSync(d, 'utf8'); ok(t.includes('.ri{') && t.includes('.altsoul') && t.includes('#hud .coin.ri'), 'アイコン/祭壇の CSS が成果物に無い') } }
   const has = (html, k, tag) => ok(html.indexOf('ri-' + k) >= 0, tag + ' に ' + k + ' のアイコンが無い');
-  const tab = n => g.eval(`FM.find(m=>m.n==='${n}').r()`);
+  const tab = n => g.eval(`(FM.find(m=>m.n==='${n}')||{r:(UPG.list.find(x=>x[0]==='${n}')||[0,()=>''])[1]}).r()`);   // くじ等は強化画面(UPG)へ移動済み
   has(g.eval("UPG.list[1][1]()"), 'ms', '鍛冶屋'); has(g.eval("UPG.list[1][1]()"), 'gem', '鍛冶屋');
   has(alt(g), 'soul', '魂の祭壇');
   has(tab('くじ'), 'ms', 'くじ'); has(tab('くじ'), 'gem', 'くじ'); has(tab('くじ'), 'gold', 'くじ');
   has(tab('ミッション'), 'gem', 'ミッション'); has(tab('遠征'), 'ms', '遠征'); has(tab('実績'), 'gold', '実績');
-  has(tab('育成'), 'soul', '育成');
+  // 育成タブは外した(98k)ので、その分のアイコン確認は魂の祭壇(UPG)で行う
+  has(g.eval("UPG.list.find(x=>x[0]==='魂の祭壇')[1]()"), 'soul', '魂の祭壇');
   // 強化シートの価格は「G 」の文字を出さない(アイコンは CSS)
   g.eval('refresh()'); ok(!/^G /.test(g.eval("$('c0').textContent")), '価格: ' + g.eval("$('c0').textContent"));
   // 戦闘画面の右下(96s resDraw)が例外なく描ける

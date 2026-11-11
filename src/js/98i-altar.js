@@ -22,7 +22,7 @@ function altarHtml(){
   /* ② 永続強化 */
   h+='<div class="altc"><div class="altt"><i>2</i>魂で永続強化</div><div class="fxs">魂を使っても 魂ボーナスは減らない</div><div class="fxl">'+
    SOULD.map(d=>{const l=soulLv(d.k),mx=l>=d.max,c=mx?0:d.c(l),ok=!mx&&free>=c;
-     return '<div class="'+(l||ok?'ok':'no')+'"><span>'+d.n+' <em class="altlv">Lv'+l+'/'+d.max+'</em><br><small>'+(ALTD[d.k]?ALTD[d.k](l):d.d)+'</small></span><span>'+
+     return '<div class="'+(l||ok?'ok':'no')+'"><span>'+d.n+' <em class="altlv">Lv'+l+(Number.isFinite(d.max)?'/'+d.max:'')+'</em><br><small>'+(ALTD[d.k]?ALTD[d.k](l):d.d)+'</small></span><span>'+
        (mx?'<b class="altmx">MAX</b>':'<button type="button" class="fxb'+(ok?'':' d')+'" onclick="soulBuy(\''+d.k+'\')">'+resIcon('soul')+c+'</button>')+'</span></div>'}).join('')+'</div>'+
    (soulLv('auto')?'<button type="button" class="fxb g" onclick="soulAutoToggle()">自動強化: '+(SOUL.auto?'ON':'OFF')+'</button>':'')+'</div></div>';
   return h}

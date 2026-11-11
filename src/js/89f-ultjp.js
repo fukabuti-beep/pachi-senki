@@ -23,11 +23,11 @@ function ujUpd(dt){const U=UJ.s;if(!U)return;if(U.g!==PGEN){UJ.s=null;UJ.pp.leng
   if(st>U.st){U.st=st;if(st==2)seHy('cut');if(st==3){if(U.fail){seHy('fail');try{showMsg('不発!?','#9aa0c8')}catch(e){}}else seHy('fire',U.h)}}
   if(!U.fail){if(p>=2.95&&!U.jp){ujJP();seHy('hit');try{lyImpact('b',ex,ey,'#ffd400',1);lyImpact('b',ex,ey,UJC[U.h],0);lyStop(.15)}catch(e){}burst(ex,ey,hyLite()?12:40,UJC[U.h]);if(!hyLite())shake()}
     if(p>=3.75)UJ.s=null}
-  else{if(p>=3.25&&!U.jp){ujJP();seHy('bigwin');try{lyImpact('b',180,80,'#ffd400',1)}catch(e){}}if(p>=4.1)UJ.s=null}}
+  else{if(p>=3.25&&!U.jp){ujJP();seHy('bigwin');try{lyImpact('b',180,80,'#ffd400',1)}catch(e){}}if(p>=3.7)UJ.s=null}}
 function ujHue(t,o){return 'hsl('+Math.floor(t*(hyLite()?60:220)+(o||0))%360+',100%,62%)'}
 function ujDraw(t){const U=UJ.s;if(!U)return;const p=t-U.t0,h=U.h,col=UJC[h],hxp=6+h*46+32,hyp=52+36,lite=hyLite();
   // 暗さ(ゆっくり上下するだけ)
-  const dk=p<1.1?p/1.1*.6:p<1.35?.6+(p-1.1)/.25*.32:U.fail?(p<2.25?.92:Math.max(.55,.92-(p-2.25)*.6)):(p<2.95?.92:Math.max(0,.92-(p-2.95)*1.3));
+  const dk=p<1.1?p/1.1*.6:p<1.35?.6+(p-1.1)/.25*.32:U.fail?(p<2.25?.92:p<3.25?Math.max(.55,.92-(p-2.25)*.6):Math.max(0,.55-(p-3.25)*1.3)):(p<2.95?.92:Math.max(0,.92-(p-2.95)*1.3));
   bc.save();bc.fillStyle='rgba(0,0,8,'+Math.max(0,Math.min(.95,dk)).toFixed(3)+')';bc.fillRect(0,0,360,150);bc.imageSmoothingEnabled=false;
   // 溜め: 英雄を明るく描き直し+オーラ+集まる粒+ゲージ
   if(p<1.35||(U.fail&&p>=2.25&&p<3.25)){const spr=SPR['h'+h+(U.fail&&p>=2.25?'b':'s')]||SPR['h'+h];const r=22+Math.min(1,p/1.1)*16+Math.sin(t*5)*2;
@@ -48,15 +48,16 @@ function ujDraw(t){const U=UJ.s;if(!U)return;const p=t-U.t0,h=U.h,col=UJC[h],hxp
     if(h==0){const x=-120+q*600;for(let k=4;k>=0;k--){bc.globalAlpha=k?.18:1;bc.strokeStyle=k?col:'#fff';bc.lineWidth=k?14:8;bc.beginPath();bc.arc(x-k*26,75,62,-1.25,1.25);bc.stroke()}bc.globalAlpha=1;bc.strokeStyle='#ffd400';bc.lineWidth=3;bc.beginPath();bc.arc(x+6,75,68,-1.1,1.1);bc.stroke()}
     else if(h==1){const len=Math.min(1,q*2.2)*400,y=75;bc.fillStyle=col;bc.fillRect(0,y-22,len,44);bc.fillStyle='#e8d8ff';bc.fillRect(0,y-12,len,24);bc.fillStyle='#fff';bc.fillRect(0,y-5,len,10);
       bc.fillStyle='#fff';for(let i=0;i<14;i++){const xx=(i*37+t*900)%Math.max(1,len);bc.fillRect(Math.round(xx),y-22+((i*13)%44),6,2)}}
-    else{const x=-80+q*560;bc.fillStyle='#fff';bc.fillRect(x-90,72,90,6);bc.fillStyle=col;bc.beginPath();bc.moveTo(x,64);bc.lineTo(x+28,75);bc.lineTo(x,86);bc.closePath();bc.fill();
-      for(let i=0;i<12;i++){const ax=-60+((q*700+i*53)%480),ay=18+((i*29)%110);bc.fillStyle=i%2?col:'#fff';bc.fillRect(Math.round(ax-24),ay,24,2);bc.fillRect(Math.round(ax),ay-2,4,6)}}}
+    else{const x=-80+q*560;bc.globalAlpha=.35;bc.fillStyle=col;bc.fillRect(x-220,66,200,18);bc.globalAlpha=1;bc.fillStyle='#fff';bc.fillRect(x-130,71,130,8);bc.fillStyle='#000';bc.beginPath();bc.moveTo(x-4,54);bc.lineTo(x+46,75);bc.lineTo(x-4,96);bc.closePath();bc.fill();bc.fillStyle=col;bc.beginPath();bc.moveTo(x,58);bc.lineTo(x+40,75);bc.lineTo(x,92);bc.closePath();bc.fill();bc.fillStyle='#fff';bc.fillRect(x-150,64,20,4);bc.fillRect(x-150,82,20,4);
+      for(let i=0;i<12;i++){const ax=-60+((q*700+i*53)%480),ay=18+((i*29)%110);bc.fillStyle=i%2?col:'#fff';bc.fillRect(Math.round(ax-34),ay,34,3);bc.fillRect(Math.round(ax),ay-3,6,9)}}}
   // 不発
   if(U.fail&&p>=2.25){const q=p-2.25;
-    if(q<1.6){for(let k=0;k<5;k++){const r=4+q*14+k*3;bc.globalAlpha=Math.max(0,.6-q*.4);bc.fillStyle='#8a8aa0';bc.beginPath();bc.arc(hxp+20+k*4,hyp-6-q*20-k*3,r,0,TAU);bc.fill()}bc.globalAlpha=1;
+    if(q<1.0){for(let k=0;k<5;k++){const r=4+q*14+k*3;bc.globalAlpha=Math.max(0,.6-q*.4);bc.fillStyle='#8a8aa0';bc.beginPath();bc.arc(hxp+20+k*4,hyp-6-q*20-k*3,r,0,TAU);bc.fill()}bc.globalAlpha=1;
       const s=q<.15?2-q/.15:1,wob=lite?0:Math.sin(q*14)*.06;bc.save();bc.translate(220,70);bc.rotate(wob);bc.scale(s,s);bc.textAlign='center';hyTxtB('不発!?',0,0,36,'#9ab0d0');bc.restore();
       if(q>.6){bc.textAlign='center';hyTxtB('…でも',220,104,16,'#fff')}}
-    if(q>=1.0){const r=q-1.0,s=r<.15?2.4-r/.15*1.4:1;bc.save();bc.translate(220,92);bc.scale(s,s);bc.textAlign='center';hyTxtB('JACKPOT!!',0,0,34,ujHue(t));bc.restore()}}
-  if(!U.fail&&p>=2.95){const r=p-2.95,s=r<.15?2.6-r/.15*1.6:1;bc.globalAlpha=Math.min(1,(3.75-p)*3);bc.save();bc.translate(180,84);bc.scale(s,s);bc.textAlign='center';hyTxtB('JACKPOT!!',0,0,40,ujHue(t));bc.restore();bc.textAlign='center';hyTxtB(UJN[h][0],180,112,12,'#fff')}
+}
+  // 着弾後は従来の JACKPOT 表示(80 jpShow)が主役。技名だけ下に残す
+  if(!U.fail&&p>=2.95){bc.globalAlpha=Math.max(0,Math.min(1,(3.75-p)*3));bc.textAlign='center';hyTxtB('― '+UJN[h][0]+' ―',180,142,12,col)}
   bc.restore()}
 function hyTxtB(s,x,y,px,fill){if(typeof thickTxt==='function')thickTxt(bc,s,x,y,px,fill,{d:px>=24?3:2,lw:px>=24?7:4});else{bc.font=px+'px '+FN;bc.fillStyle=fill;bc.fillText(s,x,y)}}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{ujUpd(dt)}catch(e){if(UJ.s){const U=UJ.s;UJ.s=null;if(!U.jp&&U.g===PGEN)jackpot()}}return r}}

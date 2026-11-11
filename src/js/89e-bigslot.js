@@ -13,7 +13,7 @@ function bsStart(s){const r=Math.random();BS.n++;
   const col=s.jp?'rb':s.hit?(r<.55?'#ff2244':'#ffd400'):(r<.7?'#3a8aff':'#ff2244');
   BS.s={sp:s,t0:T,g:PGEN,ph:0,col,sh:[],last:[HYR[0].sp,HYR[1].sp,HYR[2].sp],kick:[0,0,0],res:null,tr:0};seHy('crack');try{showMsg('!?','#fff')}catch(e){}}
 function bsShards(B,L){const S=L.s,lite=hyLite(),n=lite?12:44;
-  for(let i=0;i<n&&B.sh.length<48;i++){const k=i%3,rx=S.x+10+k*59+Math.random()*52,ry=S.y+8+Math.random()*50,a=Math.random()*TAU,v=120+Math.random()*260,z=4+Math.random()*9;
+  for(let i=0;i<n&&B.sh.length<48;i++){const k=i%3,rx=S.x+10+k*59+Math.random()*52,ry=S.y+8+Math.random()*50,a=Math.random()*TAU,v=120+Math.random()*260,z=6+Math.random()*10;
     const pts=[];for(let j=0;j<3;j++){const an=j/3*TAU+Math.random()*.9;pts.push(Math.cos(an)*z,Math.sin(an)*z)}
     B.sh.push({x:rx,y:ry,vx:Math.cos(a)*v,vy:Math.sin(a)*v-180,r:0,vr:(Math.random()-.5)*14,pts,c:['#f2ead2','#ffd400','#3a2398','#b8bce0','#fff'][i%5],l:1.3+Math.random()*.4})}}
 function bsUpd(dt){const B=BS.s;if(!B){const s=sp;if(s&&s.type==2&&s.rs&&!s.bs0){s.bs0=1;if(G.rush<=0&&(BS.force||Math.random()<bsProb(s))){BS.force=0;s.bigs=1;bsStart(s)}}return}
@@ -36,7 +36,7 @@ function bsDraw(c,t,L){const B=BS.s;if(!B)return;const p=T-B.t0,S=L.s,lite=hyLit
   // 破片
   for(const q of B.sh){c.save();c.globalAlpha=Math.min(1,q.l*2);c.translate(q.x,q.y);c.rotate(lite?0:q.r);c.fillStyle=q.c;c.beginPath();c.moveTo(q.pts[0],q.pts[1]);c.lineTo(q.pts[2],q.pts[3]);c.lineTo(q.pts[4],q.pts[5]);c.closePath();c.fill();c.strokeStyle='#000';c.lineWidth=1;c.stroke();c.restore()}
   if(B.ph<2)return;
-  const P=L.p,cx=P.x+P.w/2,cy=P.y+P.h*.46,pin=T-B.tin,fo=B.res?Math.max(0,1-(T-B.tr-.75)/.35):1;if(fo<=0)return;
+  const P=L.p,cx=P.x+P.w/2,cy=P.y+P.h*.5,pin=T-B.tin,fo=B.res?Math.max(0,1-(T-B.tr-.75)/.35):1;if(fo<=0)return;
   let sc=pin<.25?.2+pin/.25*.95:pin<.4?1.15-(pin-.25)/.15*.15:1;if(lite)sc=Math.min(1,sc);
   c.globalAlpha=Math.min(1,pin*5)*fo;
   // 盤面を暗く+期待度の色の光線

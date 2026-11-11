@@ -1,0 +1,22 @@
+/* 押せ!!ボタンの熱さ(89h): ph1=赤 ph2=金 ph3=虹。ボタン(#pkB)の周りだけ光らせる。全画面は点滅させない */
+#push.ph2 #pkB canvas{filter:sepia(1) saturate(3.2) brightness(1.2) hue-rotate(2deg)}
+#push.ph3 #pkB canvas{animation:phHue 1.6s linear infinite}
+@keyframes phHue{from{filter:hue-rotate(0deg) saturate(1.6) brightness(1.1)}to{filter:hue-rotate(360deg) saturate(1.6) brightness(1.1)}}
+#push #pkB{position:relative}
+#push.ph1 #pkB:after,#push.ph2 #pkB:after,#push.ph3 #pkB:after{content:"";position:absolute;inset:-14%;border-radius:50%;pointer-events:none;z-index:-1;
+ background:radial-gradient(circle,var(--phc,#ff3050) 0,transparent 68%);opacity:.75;animation:phAura .85s ease-in-out infinite alternate}
+#push.ph1{--phc:rgba(255,48,80,.75)}
+#push.ph2{--phc:rgba(255,220,40,1)}
+#push.ph3{--phc:rgba(255,255,255,.9)}
+#push.ph3 #pkB:after{background:conic-gradient(#ff2d55,#ffd400,#33dd66,#22e0ff,#7a5cff,#ff2d55);filter:blur(6px);animation:phAura .85s ease-in-out infinite alternate,phSpin 2.4s linear infinite}
+@keyframes phAura{from{transform:scale(.92);opacity:.55}to{transform:scale(1.08);opacity:.9}}
+@keyframes phSpin{to{rotate:360deg}}
+/* 登場: 上から叩きつけ */
+#push.phin #pkB{animation:phIn .35s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes phIn{0%{transform:translateY(-60%) scale(1.9);opacity:0}60%{transform:translateY(4%) scale(.92);opacity:1}100%{transform:none}}
+/* 押下: 光の放射 */
+#push.phhit:before{content:"";position:absolute;left:50%;top:50%;width:150vmin;height:150vmin;margin:-75vmin 0 0 -75vmin;pointer-events:none;z-index:0;
+ background:repeating-conic-gradient(var(--phc,#fff) 0 6deg,transparent 6deg 18deg);opacity:0;animation:phRay .6s ease-out both;
+ -webkit-mask:radial-gradient(circle,#000 0,transparent 60%);mask:radial-gradient(circle,#000 0,transparent 60%)}
+@keyframes phRay{0%{opacity:.85;transform:scale(.3) rotate(0deg)}100%{opacity:0;transform:scale(1) rotate(25deg)}}
+@media (prefers-reduced-motion:reduce){#push #pkB canvas,#push #pkB:after,#push.phhit:before,#push.phin #pkB{animation:none!important}}

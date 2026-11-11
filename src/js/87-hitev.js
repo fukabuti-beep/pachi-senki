@@ -9,7 +9,7 @@ const HEV={force:null,mq:[],mr:null,jr:null};
 function hitBase(){return atk()*40*(1+G.combo*.5)}
 function hitEvent(jp){const f=HEV.force,base=hitBase();
   if(f?f==='jp':jp){pushPrompt(()=>jpRush(),{jp:1,ms:2400});return}
-  if(f?f==='roul':Math.random()<UPX.evP()){pushPrompt(()=>{startRoul(base);if(RL)RL.sup=Math.random()<UPX.supP()},{ms:2400});return}
+  if(f?f==='roul':Math.random()<UPX.evP()){const sup=Math.random()<UPX.supP();/* 超倍率は先に抽選(確率は同じ)→ボタンの熱さの色に反映(89h) */pushPrompt(()=>{startRoul(base);if(RL)RL.sup=sup},{ms:2400,heat:sup?(Math.random()<.6?3:2):(Math.random()<.2?2:1)});return}
   miniRoul(base);G.roul=0;startSpin()}
 
 /* --- ミニルーレット(非ブロッキング) --- */

@@ -10,10 +10,13 @@
 1. Cloudflare のアカウントを作る(無料プランで可)。
 2. Workers & Pages → Create → Worker を作成し、`server/ranking-worker.js` の中身を貼り付けて Deploy。
 3. Storage → KV で名前空間(例 `pachi-rank`)を作り、Worker の Settings → Bindings で **変数名 `RANK`** として紐付ける。
-4. 表示された Worker のURL(例 `https://pachi-rank.xxxx.workers.dev`)を `src/js/97t-rank.js` の `RANK_API` に設定 → build/コミット。
+4. 表示された Worker のURL(例 `https://pachi-rank.xxxx.workers.dev`)を `src/js/97t-rank.js` の `RANK_SERVER` に設定 → build/コミット。
 5. ゲームでプレイヤー名を決めると、自己ベスト更新時に自動送信(最短60秒おき)。「ランキング」タブのボタンで上位20位を表示。
 
 注意: ブラウザゲームのスコアは改ざんできるので、景品などは絶対に付けないこと。異常な記録は KV から手で消す運用。
+- サーバー見本の守り: 値の上限・プレイヤーごと60秒の連打防止・「初めて送ってからの経過時間に対してありえない値」を弾く(STAGE は 80+120×経過時間 まで等)。`GET /me` で自分の順位。
+- 動作確認: `node tests/rankserver.js`(サーバー単体)・`node tests/rankclient.js`(ゲームとつないだ状態)。
+- **オンラインを有効にしたら store/privacy.html を更新すること**(プレイヤー名・記録・ランダムなIDを送るため。今は「通信しない」と書いてある)。
 
 ### B. ストア版(Game Center / Google Play Games)
 ネイティブ側が `window.PachiNative.rank = { submit(board, score, name): Promise<boolean>, top(board): Promise<{name, score}[]> }` を注入すると、それを使います(`RANK_API` より優先)。ボード名: `stage` `chain` `score` `hits`。

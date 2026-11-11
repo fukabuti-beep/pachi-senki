@@ -11,7 +11,7 @@ function loadBundle() {
 }
 
 // ls: 'ok'(既定) | 'throw'(localStorage への参照自体が例外=一部のプライベートモード) | 'setthrow'(setItem だけ例外=容量超過)
-function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok' } = {}) {
+function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok', globals = {} } = {}) {   // globals: 読み込み前に置く値(例 fetch のスタブ)
   let simTime = 0;
   const timers = []; let tid = 1;
   const audio = { osc: 0, noise: 0, byMinute: {}, spans: [], resumes: 0, waves: 0, pwaves: 0 };
@@ -93,6 +93,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
   else sandbox.localStorage = lsObj;
   sandbox.window = sandbox;
   const M = Object.create(Math); M.random = rnd; sandbox.Math = M;
+  Object.assign(sandbox, globals);
   const ctx = vm.createContext(sandbox);
   vm.runInContext(loadBundle(), ctx, { filename: 'bundle.js' });
 

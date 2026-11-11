@@ -8,3 +8,7 @@ html body #fxm .svrow .fxb{flex:1}
 html body #fxm .svb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #2a1f5e;font-size:13px}
 html body #fxm .svb small{font-size:11px;color:#b7aee0}
 html body #fxm .svrow .fxb{font-size:13px;white-space:nowrap;padding-left:4px;padding-right:4px}
+/* ランキング(97t): 自分の順位と自分の行 */
+html body #fxm .rkme{margin:8px 0;padding:6px 10px;font-size:15px;color:#fff;background:#2a1a6a;border:2px solid #ffd400;text-align:center}
+html body #fxm .rkme b{color:#ffe56a;font-size:20px}
+html body #fxm .fxl .rkmine{box-shadow:inset 0 0 0 2px #ffd400}

@@ -69,7 +69,7 @@ npm test                            # build + smoke
 | 97s-support.js | 開発者を応援(BOOTH 配布向け: BOOTH_URL で商品ページ/BOOST 案内、応援版のサポーターコード入力でパトロン登録=宝石30個+パトロン証+★。ストア版の purchaseTip 受け口も残す)。お礼は見た目のみ。`pachi2_sup`。配布は `python3 tools/booth.py`(BOOTH.md) | feature |
 | 97u-app.js | Unity アプリ(WebView)との橋渡し `window.PachiApp`(WebShell.cs が注入): 振動(大当たり/JACKPOT/ボス撃破、設定で ON/OFF、ブラウザは navigator.vibrate がある端末のみ)とセーブの控え(pachi2* を PlayerPrefs へ、消えたら書き戻し)。`pachi2_vib`(テスト: tests/app.js) | feature |
 | 97v-ios.js / css/37-ios.css | iPhone(WKWebView/Safari/ホーム画面追加)向け: 筐体のバウンス・ピンチ拡大を touchmove で抑止(スクロール領域/入力欄は除く)、長押しメニュー/選択の抑止、AudioContext の復帰(pageshow/focus/touchstart/click、interrupted の保険)、Google Font の非ブロッキング読込(index.html の `#gf`)後に盤面/ルーレット文字を描き直し、重ね表示の safe-area と dvh。見た目・バランスは不変(テスト: tests/ios.js) | feature |
-| 97t-rank.js | ランキング: 自己ベスト/共有/プレイヤー名、オンラインは RANK_API か PachiNative.rank を設定した時だけ(既定は通信しない)。サーバー見本 server/ranking-worker.js、手順 ONLINE.md | feature |
+| 97t-rank.js | ランキング: 自己ベスト/共有/プレイヤー名、オンラインは `RANK_SERVER`(テストは window.PACHI_RANK_API)か PachiNative.rank を設定した時だけ(既定は通信しない)。通信は8秒で打ち切り(`rkReq`)、送信失敗/連打防止は記録を残して間をあけて再送(最長10分)、自分の順位(`/me`)と上位50件、開いたら自動読み込み(テスト: tests/rankserver.js・tests/rankclient.js)。サーバー見本 server/ranking-worker.js、手順 ONLINE.md | feature |
 | css/37-fixes.css | 実機ブラウザ検証で見つけたレイアウト修正(トーストをメニューより前面に・長いメニュータブで「閉じる」を下端に固定)(テスト: tests/uifix.js) | ui |
 | 98-mgfx.js / css/32-minigame.css | ミニゲーム(BONUS STOP/宝箱くじ/コインラッシュ)の描画とパネルの強化。ルールは 85/95 のまま | fx |
 | 90-extra.js | 覚醒/黄金玉/ヒットストップ等 | balance |

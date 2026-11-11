@@ -2,3 +2,6 @@ dist/
 node_modules/
 .DS_Store
 .claude/worktrees/
+store/promo/*.webm
+store/promo/*.mp4
+store/promo/meta.json

@@ -7,3 +7,7 @@
 #ctl #expb.xret em{background:#ff2d55;color:#fff;animation:expbP 1.2s ease-in-out infinite}
 @keyframes expbP{50%{transform:scale(1.18)}}
 @media (prefers-reduced-motion:reduce){#ctl #expb.xret em{animation:none}}
+/* 遠征ボタンを足して強化ボタンが細くなったので、「強化」と強化できる数の札が折り返さないように */
+#ctl #ubt{min-width:0;white-space:nowrap}
+#ctl #ubt span{white-space:nowrap}
+#ctl #ubt em{flex:none}

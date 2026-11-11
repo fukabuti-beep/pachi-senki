@@ -56,5 +56,13 @@ for (const audio of ['none', 'broken', 'suspended']) {
   ok(g.eval('TTL.balls.length<=40&&TTL.P.length<=220&&TTL.tw.length<=24&&TTL.F.length<=8'), 'title arrays bounded');
   ok(g.eval('TTL.P.length+TTL.F.length') >= 0 && g.eval('TTL.ht.some(v=>v>0)'), 'heroes attacked enemies');
 }
+// 7) 音量(数値レンダリング): タイトル曲/ジングルが他の BGM と同じ範囲(ピーク .05〜.35)
+{ const { stats } = require('../tools/audiorender');
+  const g = createGame({ seed: 7, audio: 'render' }); g.eval('ttTap();setVol(.7,0)'); g.advance(1);
+  let t0 = g.time; g.advance(8, .05); let st = stats(g.audio.rec.render(t0, g.time, 16000, []).out, 16000);
+  ok(st.peak > .05 && st.peak < .35 && st.rms > .006, `title song level peak=${st.peak.toFixed(3)} rms=${st.rms.toFixed(4)}`);
+  g.start(); t0 = g.time; g.advance(1.3, .05); st = stats(g.audio.rec.render(t0, g.time, 16000, []).out, 16000);
+  ok(st.peak > .05 && st.peak < .4, `jingle level peak=${st.peak.toFixed(3)}`);
+}
 if (fails) { console.error(fails + ' title failure(s)'); process.exit(1); }
 console.log('TITLE OK');

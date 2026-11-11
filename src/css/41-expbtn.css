@@ -1,0 +1,9 @@
+/* 遠征ボタン(98j): 設定/音ボタンと同じ四角ボタン、右上に状態の札 */
+#ctl #expb canvas{width:20px;height:20px;image-rendering:pixelated}
+#ctl #expb em{position:absolute;right:-4px;top:-6px;z-index:2;min-width:16px;padding:1px 3px;font:10px/12px "DotGothic16",monospace;font-style:normal;letter-spacing:0;
+ color:#000;background:#ffd400;border:1px solid #000;box-shadow:0 0 0 1px #fff4;pointer-events:none;display:none}
+#ctl #expb.xgo em,#ctl #expb.xaway em,#ctl #expb.xret em{display:block}
+#ctl #expb.xaway em{background:#7ff3ff}
+#ctl #expb.xret em{background:#ff2d55;color:#fff;animation:expbP 1.2s ease-in-out infinite}
+@keyframes expbP{50%{transform:scale(1.18)}}
+@media (prefers-reduced-motion:reduce){#ctl #expb.xret em{animation:none}}

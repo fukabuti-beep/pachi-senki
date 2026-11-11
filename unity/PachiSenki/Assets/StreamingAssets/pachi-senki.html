@@ -871,6 +871,17 @@ html body #fxm .fxl>div.altnav b{font-weight:400;font-size:15px;color:#ffe9a0}
 html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
 .altok{color:#7dffa6}
 
+/* 41-expbtn.css */
+/* 遠征ボタン(98j): 設定/音ボタンと同じ四角ボタン、右上に状態の札 */
+#ctl #expb canvas{width:20px;height:20px;image-rendering:pixelated}
+#ctl #expb em{position:absolute;right:-4px;top:-6px;z-index:2;min-width:16px;padding:1px 3px;font:10px/12px "DotGothic16",monospace;font-style:normal;letter-spacing:0;
+ color:#000;background:#ffd400;border:1px solid #000;box-shadow:0 0 0 1px #fff4;pointer-events:none;display:none}
+#ctl #expb.xgo em,#ctl #expb.xaway em,#ctl #expb.xret em{display:block}
+#ctl #expb.xaway em{background:#7ff3ff}
+#ctl #expb.xret em{background:#ff2d55;color:#fff;animation:expbP 1.2s ease-in-out infinite}
+@keyframes expbP{50%{transform:scale(1.18)}}
+@media (prefers-reduced-motion:reduce){#ctl #expb.xret em{animation:none}}
+
 /* 41-resicon.css */
 /* リソースのドット絵アイコン(29d-resicon の resIcon/resAmt)。背景画像は 29d が <style id="resicon"> で入れる */
 .ri{display:inline-block;width:1.1em;height:1.1em;min-width:12px;min-height:12px;background:no-repeat center/contain;vertical-align:-.2em;margin-right:.2em;image-rendering:pixelated;flex:none;font-style:normal;filter:drop-shadow(1px 1px 0 #000)}
@@ -5440,6 +5451,32 @@ try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='育てる');if(g
 function gsAutoBuy(){let b=null,c=Infinity;GSM.forEach(m=>{const l=gsLv(m.k);if(l<m.max&&m.c(l)<c){c=m.c(l);b=m.k}});return b&&gsGem()>=c?gsBuyM(b):false}
 if(typeof AC_!=='undefined'){AC_.push(['gs1','はじめての買い物','宝石ショップで買い物',1,()=>GS.spent>0,[()=>Math.min(1,GS.spent),1]]);AC_.push(['gs300','宝石の大旦那','宝石を累計300個使う',3,()=>GS.spent>=300,[()=>GS.spent,300]])}
 
+/* ---------- 遠征ボタン(操作パネル) (feature) ----------
+   作り手の指摘「遠征の導線が無い」: これまで遠征は ☰ → 遊ぶ → 遠征 の奥にしか入口が無かった。
+   操作パネル(#ctl)の設定ボタンの前に「遠征」ボタン #expb を JS で足し、押すとメニューの遠征タブを直接開く。
+   ボタンの右上に状態を出す: 出発できる=GO(黄)/遠征中=残り時間(水色 例 25m・3h)/帰還=!(赤、ゆっくり脈動)。
+   98d の EXP/expOpen/expDone/expLeft を読むだけ(遠征のロジックは変えない)。 */
+const ICN_FLAG=['.k........','.krrrrk...','.krrwrrk..','.krrrrrrk.','.krrrrrk..','.kkkkkk...','.k........','.k........','.k........','kkk.......'];
+const EXB={el:null,lb:null,last:'',t:0};
+(function(){try{
+  if(typeof document==='undefined'||!document.createElement)return;const ctl=$('ctl'),ref=$('cfgb');
+  const b=document.createElement('button');b.id='expb';b.className='bv sq';b.type='button';if(b.setAttribute)b.setAttribute('aria-label','遠征');
+  const cv=document.createElement('canvas');cv.id='expi';cv.width=10;cv.height=10;b.appendChild(cv);
+  const s=document.createElement('em');s.id='expbd';b.appendChild(s);
+  EXB.el=b;EXB.lb=s;try{if(ctl&&ref&&ctl.insertBefore)ctl.insertBefore(b,ref)}catch(e){}
+  try{if(!UX.ICNC.flag)UX.ICNC.flag=UX.fromMap(ICN_FLAG);UX.putIcon('expi','flag')}catch(e){}
+  b.onclick=expBtnOpen;
+}catch(e){}})();
+/* メニューの「遠征」タブを直接開く */
+function expBtnOpen(){try{const i=FM.findIndex(m=>m.n==='遠征');if(i<0)return;fxTab=i;fxMenu()}catch(e){}}
+function expBtnUpd(){try{const el=EXB.lb;if(!el||typeof EXP==='undefined')return;let t='',c='';
+  if(EXP.d<0){if(expOpen(0)){t='GO';c='go'}}
+  else if(expDone()){t='!';c='ret'}
+  else{const s=Math.ceil(expLeft());t=s>=3600?Math.floor(s/3600)+'h':Math.max(1,Math.ceil(s/60))+'m';c='away'}
+  const k=t+c;if(k===EXB.last)return;EXB.last=k;el.textContent=t;EXB.el.className='bv sq'+(c?' x'+c:'')}catch(e){}}
+FU.push(dt=>{EXB.t+=dt;if(EXB.t<.5)return;EXB.t=0;expBtnUpd()});
+try{expBtnUpd()}catch(e){}
+
 /* ---------- 軽いストーリー(会話シーン) (feature) ----------
    3人の英雄(剣士ホムラ/魔法使いシズク/弓使いコハク。すべてオリジナル)が、世界の「運」を吸い込む虚無の王(魔王)ニヒラを目指して旅をする。
    ・エリア(98h-area)に入った時/エリアの主を倒した時/初めての JACKPOT/初めての転生 に 2〜4行の会話を戦闘画面の上に出す。
@@ -5608,7 +5645,7 @@ const TG=[
 {id:'sp',basic:1,el:'spw',who:1,d:5,tx:'SPゲージが満タンになると、必殺技が自動で出るわ',c:()=>G.sp>=60},
 {id:'boss',basic:1,el:'bw',who:0,d:5,tx:'ボスだ! 倒すとミニゲームや遺物(お宝)が出ることがあるぞ',c:()=>isBoss()},
 {id:'menu',el:'fxmb',who:2,d:6,tx:'☰ メニューには ミッション・図鑑・遺物・仲間 などがあるよ',c:()=>X.best>=6},
-{id:'exp',el:'fxmb',who:2,d:6,tx:'☰ の「遠征」で仲間を送り出すと、時間がたってからお宝を持ち帰るよ',c:()=>X.best>=10},
+{id:'exp',el:'expb',who:2,d:6,tx:'旗のボタン「遠征」で仲間を送り出すと、時間がたってからお宝を持ち帰るよ',c:()=>X.best>=10},
 {id:'smith',el:'ubt',who:0,d:6,tx:'強化画面の「鍛冶屋」で、魔石を使って武器を鍛えられるぞ',c:()=>X.best>=15},
 {id:'pres',el:()=>tutFM()?'fxmb':'ubt',who:1,d:7,tx:'STAGE 30 から「転生」できるわ。最初に戻るかわりに魂がもらえて、ずっと強くなれる',c:()=>G.stage>=30||X.best>=30},
 {id:'altar',el:'ubt',who:1,d:7,tx:'魂は強化画面の「魂の祭壇」で、開始ステージなどの永続強化に使えるわ',c:()=>X.pres>=1}];

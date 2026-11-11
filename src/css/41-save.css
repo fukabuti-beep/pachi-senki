@@ -1,0 +1,10 @@
+/* セーブ画面(97w) */
+html body #fxm .svbox{margin:10px 0;padding:8px 10px;border:2px solid #000;box-shadow:inset 0 0 0 2px #3a2f6e;background:#140c38}
+html body #fxm .svh{font-size:14px;color:#ffe56a;margin-bottom:6px}
+html body #fxm .svh small{font-size:11px;color:#b7aee0}
+html body #fxm .svbox textarea{width:100%;box-sizing:border-box;font:11px/1.3 monospace;color:#8dff7a;background:#05100a;border:2px solid #000;box-shadow:inset 0 0 0 1px #2a6a3a;padding:6px;resize:none;word-break:break-all}
+html body #fxm .svrow{display:flex;gap:8px;margin-top:6px}
+html body #fxm .svrow .fxb{flex:1}
+html body #fxm .svb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #2a1f5e;font-size:13px}
+html body #fxm .svb small{font-size:11px;color:#b7aee0}
+html body #fxm .svrow .fxb{font-size:13px;white-space:nowrap;padding-left:4px;padding-right:4px}

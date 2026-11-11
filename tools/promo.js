@@ -34,7 +34,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 #pcard .s1{font-size:38px;color:#ffe56a}#pcard .s2{font-size:30px;color:#c8c0ff;line-height:1.7}#pcard .s3{margin-top:20px;font-size:34px;padding:14px 30px;border:5px solid #ffd400;color:#fff;background:#2a1a6a}
 `});
   await pg.evaluate(() => { const d = document.createElement('div'); d.id = 'pcap'; document.body.appendChild(d);
-    const c = document.createElement('div'); c.id = 'pcard'; c.innerHTML = '<div class="s1">放置バトルパチンコ</div><div class="lg">パチ戦記</div><div class="s2">ブラウザでもスマホでも<br>インストール不要・無料</div><div class="s3">BOOTH で配布中<br><small>fukabuchi.booth.pm</small></div>'; document.body.appendChild(c); });
+    const c = document.createElement('div'); c.id = 'pcard'; c.innerHTML = '<div class="s1">放置バトルパチンコ</div><div class="lg">パチ戦記</div><div class="s2">ブラウザでもスマホでも<br>インストール不要・無料</div><div class="s3">画面は開発中の画面です。</div>'; document.body.appendChild(c); });
   await pg.evaluate(()=>{try{UX.S.fl=1}catch(e){}});   // 録画中はフラッシュ「弱」(白飛びのコマを避ける)
   const cap = async (t, s, ms) => { await pg.evaluate(([t, s]) => { const e = document.getElementById('pcap'); e.className = ''; e.innerHTML = t ? '<b>' + t + (s ? '<small>' + s + '</small>' : '') + '</b>' : ''; void e.offsetWidth; if (t) e.className = 'on' }, [t, s || '']); if (ms) await wait(ms); };
   const ev = s => pg.evaluate(s).catch(e => errs.push('eval ' + e));

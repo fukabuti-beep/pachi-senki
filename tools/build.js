@@ -18,7 +18,10 @@ for (const f of files) {
 const imgDir = path.join(root, 'src/img');
 const imgs = fs.existsSync(imgDir) ? fs.readdirSync(imgDir).filter(f => /\.(webp|png)$/.test(f)).sort() : [];
 const pimg = 'const PIMG={' + imgs.map(f => JSON.stringify(f.replace(/\.\w+$/, '')) + ':"data:image/' + (f.endsWith('.png') ? 'png' : 'webp') + ';base64,' + fs.readFileSync(path.join(imgDir, f)).toString('base64') + '"').join(',') + '};\n';
-const js = pimg + files.map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
+// 体験版(EDITION=free): 先頭で window.PACHI_EDITION='free' にし、1行目に @full と書いたファイル(完全版だけの中身)は入れない(01-edition.js)
+const FREE = process.env.EDITION === 'free';
+const useFiles = FREE ? files.filter(f => !/@full/.test(fs.readFileSync(path.join(jsDir, f), 'utf8').split('\n')[0])) : files;
+const js = (FREE ? "window.PACHI_EDITION='free';\n" : '') + pimg + useFiles.map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
 try { new vm.Script(js, { filename: 'bundle.js' }); }
 catch (e) { bad++; console.error('SYNTAX ERROR in bundle: ' + e.message); }
 if (bad) process.exit(1);
@@ -36,18 +39,18 @@ if (fontCss) page = page.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>\s*/g, '
 const base = page.replace('/*@CSS*/', () => fontCss + css).replace('/*@JS*/', () => js);
 // 単一HTML版: アイコンはdata URI(外部ファイル不要)。manifest/SWなし(file:// や埋め込み表示でも動く)
 const single = base.replace('<!--@PWA-->', () => '<link rel="apple-touch-icon" href="data:image/png;base64,' + ICON('apple-touch-icon.png').toString('base64') + '">');
-const out = path.join(root, process.env.OUT || 'dist/pachi-senki.html');
+const out = path.join(root, process.env.OUT || (FREE ? 'dist/pachi-senki-free.html' : 'dist/pachi-senki.html'));
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, single);
 console.log(`built ${path.relative(root, out)}  (${files.length} js files, ${(single.length / 1024).toFixed(1)} KB)`);
 // Unity 版(Web版をアプリ内の WebView で動かす)にも同じ単一HTMLを置く。Unity 側は StreamingAssets から読み込む
-if (!process.env.OUT && fs.existsSync(path.join(root, 'unity/PachiSenki/Assets'))) {
+if (!process.env.OUT && !FREE && fs.existsSync(path.join(root, 'unity/PachiSenki/Assets'))) {
   const ua = path.join(root, 'unity/PachiSenki/Assets/StreamingAssets/pachi-senki.html');
   fs.mkdirSync(path.dirname(ua), { recursive: true }); fs.writeFileSync(ua, single);
   console.log('built ' + path.relative(root, ua) + '  (Unity 版の WebView 用)');
 }
 // PWA版(dist/pwa/): index.html + manifest + sw.js + icons。静的ホスティング(GitHub Pages/Netlify等)に置けばホーム画面に追加→オフライン起動できる。
-if (!process.env.OUT) {
+if (!process.env.OUT && !FREE) {
   const dir = path.join(root, 'dist/pwa'), ver = hash(base);
   fs.mkdirSync(dir, { recursive: true });
   const reg = `<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<script>if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})</script>`;

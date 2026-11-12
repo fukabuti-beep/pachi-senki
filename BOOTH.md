@@ -1,25 +1,27 @@
 # BOOTH での配布手順
 
-## 1. 配布ファイルを作る
+## 1. 配布ファイルを作る(体験版と完全版)
 ```
-python3 tools/booth.py 1.0.0
+SUPPORT_CODE=PACHI-XXXX-XXXX python3 tools/booth.py 1.1.0
 ```
-→ `dist/booth/pachi-senki-1.0.0.zip`(無料版: `パチ戦記/pachi-senki.html` + `README.txt`)
+→ `dist/booth/` に2つできる(サポーターコードはリポジトリに置かず、環境変数で渡す)
+- `pachi-senki-1.1.0-体験版.zip` … `EDITION=free` でビルドした HTML。STAGE 75(エリア3)まで。先頭行に `@full` と書いたファイルは入らない
+- `pachi-senki-1.1.0-完全版.zip` … 全部入り HTML + `サポーターコード.txt`(SUPPORT_CODE を渡した時)
 
-応援版も作る場合(サポーターコードはリポジトリに置かず、環境変数で渡す):
-```
-SUPPORT_CODE=PACHI-XXXX-XXXX python3 tools/booth.py 1.0.0
-```
-→ `dist/booth/pachi-senki-1.0.0-supporter.zip`(+ `サポーターコード.txt`)
+体験版だけ手で作る: `EDITION=free node tools/build.js` → `dist/pachi-senki-free.html`
+(Pages / Unity / テストは常に完全版。体験版の上限は `src/js/01-edition.js` の `FREE_MAX`、案内画面は `98l-edition.js`)
 
 `booth/README.txt` の「作者 / 連絡先」を自分の情報に書き換えてから作ること。
 
 ## 2. BOOTH に出品する
-1. 無料版: 商品を「ダウンロード商品」で作成 → 価格 0円 → 無料版 zip をアップロード。
-   - 無料商品でも購入者は **BOOST(任意の上乗せ)** で応援できる(BOOTH の標準機能)。
-2. 応援版(任意): 別の商品(例 300円)として、応援版 zip をアップロード。中身は同じゲーム + サポーターコード。
-   - 説明文に「内容は無料版と同じです。応援用です」と明記すると親切。
-3. 商品ページのURLが決まったら `src/js/97s-support.js` の `BOOTH_URL` に設定して作り直す → ゲーム内「応援」タブに「BOOTH のページを開く」ボタンが出る。
+1. 体験版: 「ダウンロード商品」0円 → 体験版 zip。
+2. 完全版: 別の商品(有料)→ 完全版 zip。説明文は store/booth-page.md。
+   - セーブは引き継ぎコード(メニュー「その他」→「セーブ」)で体験版から完全版へ移せる、と書く。
+3. 商品ページのURLが決まったら `src/js/97s-support.js` の `BOOTH_URL` に設定して作り直す → 体験版の「完全版のご案内」と「応援」タブにボタンが出る。
+
+## 完全版だけの中身を足すとき
+- 新しいファイルの**1行目**に `// @full` と書く → 体験版のビルドから外れる(ロード時に他ファイルから参照されないこと)。
+- `98l-edition.js` の `FULL_FEATS`(案内画面の一覧)に追記する(98l 自体は @full にしない)。
 
 ## 3. サポーターコードを変える
 - ゲームはコードの **ハッシュ** だけを持つ(`SUP_CODE_HASH`)。新しいコードにするときは次で値を出して `SUP_CODE_HASH` に追加する(古い値を残せば旧コードも有効):

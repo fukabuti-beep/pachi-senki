@@ -876,6 +876,12 @@ html body #fxm .fxl>div.altnav b{font-weight:400;font-size:15px;color:#ffe9a0}
 html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
 .altok{color:#7dffa6}
 
+/* 41-edition.css */
+/* 体験版/完全版の札(98l) */
+#edb{position:absolute!important;left:12px;top:calc(34px + env(safe-area-inset-top,0px));z-index:60!important;padding:3px 10px;font-size:13px;letter-spacing:1px;border:2px solid #000;box-shadow:0 0 0 2px #ffd400,0 3px 0 2px #000;pointer-events:none}
+#edb.free{background:#22e0ff;color:#002a33}
+#edb.full{background:linear-gradient(90deg,#ff2d55,#ffd400,#33dd66,#22e0ff,#7a5cff);color:#fff;text-shadow:-1px 0 #000,1px 0 #000,0 -1px #000,0 1px #000}
+
 /* 41-expbtn.css */
 /* 遠征ボタン(98j): 設定/音ボタンと同じ四角ボタン、右上に状態の札 */
 #ctl #expb canvas{width:20px;height:20px;image-rendering:pixelated}
@@ -1065,6 +1071,17 @@ const fmt=n=>{if(n===Infinity)return'MAX';if(!(n>=1e3))return Math.floor(n)+'';l
 let G={gold:0,stage:1,hp:0,mx:0,lv:[1,1,1,1,1,1,1,1,1,1],rush:0,combo:0,q:0,at:0,hit:0,sp:0,roul:0,en:'m0',ai:0,pool:0,jp:0,aw:0,fv:0};
 /* セーブ読込: 壊れた値/型違い/Infinity/NaN/巨大値は既定値に丸める(プライベートモードで localStorage が使えない場合も try で無視) */
 try{const s=JSON.parse(localStorage.getItem('pachi2')||'null');if(s&&typeof s=='object'){const n=(v,d,hi)=>{v=+v;return Number.isFinite(v)&&v>0?Math.min(v,hi):d};G.gold=n(s.gold,0,1e300);G.stage=Math.floor(n(s.stage,1,2000));G.lv=G.lv.map((v,i)=>Math.floor(n(Array.isArray(s.lv)?s.lv[i]:0,v,999)))}}catch(e){}
+
+/* ---------- 体験版 / 完全版 (共有) ----------
+   BOOTH では「無料の体験版」と「有料の完全版」を配る。どちらも同じ src から作る:
+     node tools/build.js                       → 完全版(dist/pachi-senki.html。GitHub Pages / Unity / テストもこれ)
+     EDITION=free node tools/build.js          → 体験版(dist/pachi-senki-free.html)。先頭に window.PACHI_EDITION='free' を入れ、
+                                                 1行目に「@full」と書いたファイル(完全版だけの中身)は入れない
+   体験版は STAGE FREE_MAX(エリア3の終わり)まで。続きは 98l-edition が「完全版で」と案内する。
+   セーブは同じ形式なので、体験版の引き継ぎコード(97w)を完全版でそのまま読み込める。 */
+const EDITION=(typeof window!=='undefined'&&window.PACHI_EDITION==='free')?'free':'full';
+const IS_FULL=EDITION==='full';
+const FREE_MAX=75;
 
 /* ---------- pixel sprites (すべてオリジナル) ----------
    mk(名,パレット,行,full): 行は左半分(鏡像) / full=true なら全幅。SPR[名]=canvas, PXL[名]=[x,y,色]の一覧(撃破の爆散用)
@@ -5680,6 +5697,34 @@ try{expBtnUpd()}catch(e){}
 /* 強化画面のグループを名前で開く(他の画面からの案内用) */
 function upOpen(name){try{const i=UPG.list.findIndex(x=>x[0]===name);if(i<0)return;if(typeof fxClose==='function'&&typeof fxOpen!=='undefined'&&fxOpen)fxClose();
   if(!sheetOpen()){const b=$('ubt');if(b&&b.click)b.click()}grpSet(i)}catch(e){}}
+
+/* ---------- 体験版の上限と完全版の案内 (feature) ----------
+   体験版(EDITION='free'、01-edition)は STAGE FREE_MAX(エリア3の主)まで。主を倒しても STAGE はそこで止まり(同じボスを繰り返し倒せる=放置は続く)、
+   最初の1回は「体験版はここまで」の案内、以降はトーストで知らせる。メニュー「その他」に「完全版」タブ(体験版のみ)。
+   タイトルに 体験版/完全版 の札。完全版の中身の一覧 FULL_FEATS は体験版にも入る(@full のファイルは体験版に入らないため、ここに書く)。 */
+const FULL_FEATS=[
+  ['エリア4〜8 と その先','紅蓮の火山から 終焉の虚空まで、残り5つのエリアと 2周目(STAGE 201〜)'],
+  ['エリアの主 5体 と 形態変化','溶岩魔人・冥府の魔将・天翼の守護神・星喰いの騎士・虚無の王'],
+  ['物語の続き','3人の旅の後半と、虚無の王との決着'],
+  ['遠征の新しい行き先','魔王城(12時間)・天空の神殿(16時間)と、新しい仲間 ゴーレム/ピクシー'],
+  ['ずっと遊べる やりこみ','転生・魂の祭壇・宝石屋・図鑑・遺物を 上限まで']];
+const ED={told:0,n:0};
+function edFullHtml(){return '<div class="fxh">完全版のご案内</div><div class="fxs">体験版は <b>STAGE '+FREE_MAX+'(エリア3)</b>まで遊べます。<br>完全版では、この続きが全部遊べます。</div>'+
+  '<div class="fxl">'+FULL_FEATS.map(f=>'<div class="ok"><span><b>'+f[0]+'</b><br><small>'+f[1]+'</small></span></div>').join('')+'</div>'+
+  '<div class="fxs">体験版のセーブは そのまま引き継げます(メニュー「その他」→「セーブ」の引き継ぎコードを、完全版で読み込むだけ)。</div>'+
+  (typeof BOOTH_URL!=='undefined'&&BOOTH_URL?'<button type="button" class="fxb" onclick="edOpenShop()">BOOTH で完全版を見る</button>':'')}
+function edOpenShop(){try{if(typeof window!=='undefined'&&window.open)window.open(BOOTH_URL,'_blank','noopener')}catch(e){}}
+if(!IS_FULL){
+  {const _k=kill;kill=function(){const r=_k.apply(this,arguments);try{if(G.stage>FREE_MAX){G.stage=FREE_MAX;spawn();ED.n++;
+      if(!ED.told){ED.told=1;presLater(()=>{try{fxShow(edFullHtml(),[['このまま遊ぶ',null,'g']])}catch(e){}},2600)}
+      else if(ED.n%3===0)fxToast('体験版はここまで! 続きは完全版で','#ffd400')}}catch(e){}return r}}
+  FM.push({n:'完全版',r:edFullHtml});
+  try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(q=>q.n==='その他');if(g&&g.t.indexOf('完全版')<0)g.t.unshift('完全版')}}catch(e){}
+  // 起動時に上限を超えたセーブ(完全版から持ってきた等)は上限に合わせる
+  try{if(G.stage>FREE_MAX){G.stage=FREE_MAX;spawn()}}catch(e){}
+}
+/* タイトルの札 */
+try{if(typeof document!=='undefined'&&document.createElement){const ov=$('ov');if(ov&&ov.appendChild){const b=document.createElement('div');b.id='edb';b.className=IS_FULL?'full':'free';b.textContent=IS_FULL?'完全版':'体験版';ov.appendChild(b)}}}catch(e){}
 
 /* ---------- 軽いストーリー(会話シーン) (feature) ----------
    3人の英雄(剣士ホムラ/魔法使いシズク/弓使いコハク。すべてオリジナル)が、世界の「運」を吸い込む虚無の王(魔王)ニヒラを目指して旅をする。

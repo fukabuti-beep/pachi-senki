@@ -1,0 +1,4 @@
+/* 体験版/完全版の札(98l) */
+#edb{position:absolute!important;left:12px;top:calc(34px + env(safe-area-inset-top,0px));z-index:60!important;padding:3px 10px;font-size:13px;letter-spacing:1px;border:2px solid #000;box-shadow:0 0 0 2px #ffd400,0 3px 0 2px #000;pointer-events:none}
+#edb.free{background:#22e0ff;color:#002a33}
+#edb.full{background:linear-gradient(90deg,#ff2d55,#ffd400,#33dd66,#22e0ff,#7a5cff);color:#fff;text-shadow:-1px 0 #000,1px 0 #000,0 -1px #000,0 1px #000}

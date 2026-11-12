@@ -761,6 +761,19 @@
 - 98s-story.js: TS, TS_NEW, tsSave, STY, STH
 - 99-main.js: run, update
 
+## 98y-finale.js(完全版のみ)
+- 10-sprites.js: SPR
+- 29d-resicon.js: resIcon
+- 36-battle-bg.js: L
+- 75-audio.js: tone
+- 77-se.js: sOK, sNow
+- 91-meta.js: FU, fxToast
+- 93-achieve.js: AC_
+- 96s-smith.js: resGem
+- 98h-area.js: AREAS
+- 98s-story.js: SCN, TS, styQueue, STY, styBusy
+- 99-main.js: run, T
+
 ## 98z-tower.js(完全版のみ)
 - 10-sprites.js: enSpr
 - 29-push.js: PUSH

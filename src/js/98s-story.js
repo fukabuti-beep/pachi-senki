@@ -92,7 +92,7 @@ function styPlace(){const e=STY.el;if(!e)return;try{const r=$('b').getBoundingCl
 /* 顔の絵: 作り手のイラスト(PIMG)→ コード描画の胸像(PORT)→ 戦闘のドット絵(SPR) の順に試す */
 function styFace(cv,who,sc){try{const x=cv.getContext('2d');if(!x)return;x.clearRect(0,0,56,56);
   if(who===8){const s=SPR[sc&&sc.e];if(s){x.imageSmoothingEnabled=false;const m=Math.min(56/s.width,56/s.height);x.drawImage(s,(56-s.width*m)/2,(56-s.height*m)/2,s.width*m,s.height*m)}return}
-  if(who<0||who>2)return;
+  if(who<0||who>3)return;   // 3=4人目(完全版の 98yb が STH と SPR.h3 を足す)
   const im=typeof PIMGI!=='undefined'?PIMGI['hero'+who]:null;
   if(im&&im.width){const f=(typeof PIMGF!=='undefined'&&PIMGF['hero'+who])||[.5,.4],s=Math.min(im.width,im.height)*.42,cx=Math.max(s/2,Math.min(im.width-s/2,f[0]*im.width)),cy=Math.max(s/2,Math.min(im.height-s/2,f[1]*im.height));
     x.imageSmoothingEnabled=true;x.drawImage(im,cx-s/2,cy-s/2,s,s,0,0,56,56);x.imageSmoothingEnabled=false;return}

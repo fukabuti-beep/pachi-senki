@@ -22,7 +22,7 @@
 | `drawCut` | 84-charfx.js |
 | `drawEnemy` | 98h-area.js → 98z-tower.js |
 | `drawHP` | 98h-area.js → 98z-tower.js |
-| `drawHeroes` | 94c-herohp.js |
+| `drawHeroes` | 94c-herohp.js → 98yb-lancer.js |
 | `drawP` | 87b-jpfx.js → 89c-layer.js |
 | `enSpr` | 98h-area.js |
 | `expGo` | 98i-gemshop.js |

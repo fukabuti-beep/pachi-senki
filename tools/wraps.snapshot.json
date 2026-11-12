@@ -85,7 +85,8 @@
   "98z-tower.js"
  ],
  "drawHeroes": [
-  "94c-herohp.js"
+  "94c-herohp.js",
+  "98yb-lancer.js"
  ],
  "drawP": [
   "87b-jpfx.js",

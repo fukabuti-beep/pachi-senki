@@ -42,6 +42,7 @@ npm test                            # build + smoke
 | tools/booth.py, tools/store-shots.js, tools/store-pack.py, tools/promo.js, tools/promo.sh | BOOTH の zip / 商品ページの画像 / 紹介動画 |
 | tools/font-subset.py, tools/cutout.py, tools/icons.py, tools/export-sprites.js | フォント絞り込み / イラストの切り抜き / アイコン / Unity 用のドット絵書き出し |
 | docs/APP.md, docs/BOOTH.md, docs/MONETIZE.md, docs/ONLINE.md, docs/UNITY.md | 説明書: アプリ化 / BOOTH 配布 / 収益化 / オンラインランキング / Unity 版 |
+| docs/DESIGN.md | 退屈させない設計メモ(フロー/自己決定/目標勾配/新しさのペース…と解放の表、新機能のチェック表)。機能を足す前に読む |
 | docs/STORY.md | 物語・キャラクターの設定資料(性格・一人称・語尾・使わない言葉・色・物語の流れ・伏線と回収)。台詞はここが正 |
 | docs/DEPS.md, docs/WRAPS.md | 自動生成(tools/deps.js --update): ファイル同士の依存 / 関数を包む順番 |
 | store/booth-page.md, store/privacy.html, store/shots/ | 配布用: 商品ページの文 / プライバシーポリシー / 商品ページの画像 |
@@ -85,6 +86,7 @@ npm test                            # build + smoke
 | 93b-mission.js | デイリーミッション(日付で3つ、達成で宝石2+魔石、全達成で宝石5)。`localStorage['pachi2_mission']` | feature |
 | 94-prestige.js / css/38-busyfix.css | 転生(魂)。操作の置き場所は強化シートの魂の祭壇(98i、メニューの「転生」タブは 98i が外す)。魂 `soulGain(s)` = F(s)-(1-`BAL.soulRep`)xF(min(s,PREC)) x魂の収穫、F(s)=5x(s/30)^2.5: 最高記録を超えた分は満額・記録までは50%(`PREC`=周回開始時の最高記録、`localStorage['pachi2_prec']`。旧セーブは「転生済みで記録より手前なら X.best、他は0」で推定して保存)。転生画面の説明は `presInfo(s)`。転生で X.gps/fgb/fgt もリセット。「転生する!」は演出中でも即転生: `presAbort()` が進行中の演出(回転/カットイン/押せ!!/ルーレット/JACKPOT/ミニゲーム/RUSHリザルト等)を打ち切る。後から走る setTimeout は `presLater(fn,ms)`(転生の世代 `PGEN` が変わっていたら何もしない)で予約すること。38-busyfix.css は押せ!!(#push)をメニュー/設定の下に(テスト: tests/prestige.js) | feature |
 | 94b-soul.js | 魂の祭壇: 魂を使って永続強化(開始ステージ/初期G/自動強化/遺物ドロップ率/魂の器/魂の力=ダメージ+8%・魂の富=ゴールド+8%(この2つは上限なし))。コストは `SCOST(b,r)`=ceil(b·r^Lv) の指数で増える(作り手の指摘「魂が余る」対応、上限も 開始30/初期G20/遺物8/器25 に拡大)。開始ステージで再出発した直後は「再出発の勢い」(`SOUL_RUN`: STAGE+15 まで最長3分、1体≒20発になるよう SB.a を補正)で止まらない(テスト: tests/soulrun.js)。使っても X.souls(ボーナス)は減らない。`localStorage['pachi2_soul']`。presDo をラップ | feature |
+| 96-allies.js | 仲間(サポート、X.best で解放・転生で残る): ポチ12/魔導士30/竜60/癒しの妖精ルル90(8秒ごとに英雄の体力+15%)/雷鳥ライデン140(12秒ごとに落雷+敵の次の攻撃を2.5秒遅らせる)。戦闘画面の左下に並ぶ。遠征隊(98g の PTM)は別の一覧(妖精と雷鳥は遠征に行かない) | feature |
 | 96b-zukan.js | モンスター図鑑: 敵14種の撃破数と★(★1つでダメージ+1%)。`localStorage['pachi2_zukan']`。kill と SB.a をラップ | feature |
 | 96s-smith.js | リソース: 魔石(撃破で入手)・宝石(JACKPOT/高ランク/図鑑★/お宝)と鍛冶屋(武器強化=キャラ別通常攻撃+12%/Lv・10Lv毎に宝石で限界突破、宝石の護符=3分間 G/ダメージ x2)。`localStorage['pachi2_res']`、転生で残る。戦闘画面右下に所持数 | feature |
 | 96t-kuji.js | 魔石くじ(魔石100/10連1000、確率はメニューに明記。ゲーム内通貨のみ) | feature |
@@ -117,6 +119,8 @@ npm test                            # build + smoke
 | 01-edition.js / 98l-edition.js / css/41-edition.css | 体験版/完全版: `EDITION=free node tools/build.js` → dist/pachi-senki-free.html(`window.PACHI_EDITION='free'` を先頭に、**1行目に `@full` があるファイルは除外**)。既定ビルド(Pages/Unity/テスト)は完全版。`EDITION`/`IS_FULL`/`FREE_MAX`(=175)。98l: 体験版は kill をラップして STAGE 175 で止め「完全版のご案内」(`edFullHtml`、一覧 `FULL_FEATS`=完全版コンテンツを足したら追記)、メニュー「完全版」(その他)、タイトルに札 #edb。BOOTH zip は tools/booth.py が体験版/完全版の2つを作る(docs/BOOTH.md)(テスト: tests/edition.js) | feature |
 | 98z-tower.js / css/41-tower.css | **@full(完全版のみ)** 無限の塔: メニュー「遊ぶ」→「無限の塔」(X.best>=30)。今の敵をしまって塔のボスと連続バトル(いつものダメージがそのまま当たる)、1階20秒(`TWT`)、撃破で次の階・時間切れで結果画面→元の敵に戻る(ステージは進まない)。HP `twHp(f)`=STAGE 2f のボスの1.5倍(到達は だいたい (最高STAGE-8)/2 階)。記録を越えた階だけ 魔石4f・5階ごと宝石1(10階ごと3)・10階ごとに塔の加護 ダメージ+3%(SB.a)。見た目は描画中だけ G.stage を `twVs(f)` に差し替えて drawEnemy/drawHP/drawBgB(5階ごとエリアの主)。kill/spawn を一番外側でラップ(挑戦中の kill は塔だけ、spawn=転生などで打ち切り)。実績 tw10/tw30/tw60。`localStorage['pachi2_tower']`、転生で残る(テスト: tests/tower.js) | feature |
 | 94c-herohp.js / 98m-heroup.js / css/41-heroup.css | 英雄の体力と敵の攻撃(体験版にも入る。作り手の方針「序盤は順当、中盤以降はリソースを使って育てないと詰まる」「ボス戦だけ厳しく」): 3人それぞれ体力(`HB`x役割 1.4/0.8/1.0)、敵が一定間隔で攻撃(剣士が2倍狙われる)。敵の強さ `hvThr(s)`=0.25x1.08^(s-15)(STAGE 30 までは さらに 30%→100%)。雑魚戦は倒れても6秒で起き上がる(全滅なし)。ボス戦(STAGE 15〜のボスと無限の塔)は倒れたら戦闘終了まで起きず攻撃しない、3人とも倒れると全滅→**1つ前のステージへ**+リベンジ(攻撃+10%/回 最大3、そのボスを倒すまで)、塔は挑戦終了。STAGE 30 からボスに装甲(hurt ÷`hvBossK` 50で3/80で6/最大8、体力とゴールドは不変)=ボス戦が長くなる。元気ボーナス(体力が多いほど通常攻撃 最大+30%、heroAtk の m に掛ける)。英雄ごとの強化 `HUP`(体力 x1.18/Lv・防御 ÷1.12/Lv は上限なし コスト伸び1.9、回復 +20%/Lv MAX15、解放STAGE10/15/20、ゴールド、転生でリセット、`localStorage['pachi2_hero']`)は強化画面の「英雄」グループ(98m、通常強化の次。タブ6つは 3x2、次のボスで持つ秒数 `hvSurv` を表示)。魂の祭壇の自動強化と sim は `hupNeed()`(持つ秒数が `HVSAFE`=40秒未満の英雄がいる時だけ買う)。spawn/heroAtk/hurt/drawHeroes/drawB/presDo/SB.a をラップ(テスト: tests/herohp.js) | feature |
+| 98n-skin.js / css/41-skin.css | 衣装(スキン、体験版にも入る): 英雄のコマ(h0〜 の ''/b/w/s)を元の色一覧(PXL の控え `SKO`)から色の置きかえ表で**同じキャンバスに**塗り直す(SPR を使う所は全部変わる。SPW/HVDK/HUPF のキャッシュは消す。PIMG のイラストは不変)。`SKD[英雄]`=[{id,n,gem|lb+pr,m}]、宝石で買う or 条件(進み具合を表示、満たせば自動で所持)。`skSet(i,id)` `skAdd(i,list)`(@full が衣装を足す)。強化画面「英雄」の下に `skMenu`(UPG の英雄の描画関数を包む、`<!--sk-->` の印)。`localStorage['pachi2_skin']`、転生で残る(テスト: tests/skin.js) | feature |
+| 98yb-lancer.js | **@full(完全版のみ)** 4人目の英雄 槍使いツララ(設定 docs/STORY.md): X.best>75 で加入(転生で残る)、STH[3]/SPR.h3(mkH)。後衛=狙われない(HV の3人配列に入れない)。1.4秒ごとに突き `lnHit`=atk x1.5 x槍術、ボスの装甲 hvBossK を無視(先に×k)。強化「槍術」+20%/Lv(ゴールド、上限なし、`pachi2_lancer`、転生=PGEN の変化でリセット)、強化画面「英雄」に4枚目のカード(`<!--sk-->` の前に差し込む)。物語: 加入 j4 と a3/a5/a6/f1 に一言(98s は styFace の who を 3 まで許す1行変更)。衣装: ツララ2着+3人の「光の衣」(エンディング後)。drawHeroes をラップ。実績 ln1(テスト: tests/skin.js・tests/story.js) | feature |
 | 98y-finale.js | **@full(完全版のみ)** 物語の最終章とエンディング(設定は docs/STORY.md): 98s の SCN に最終章 f1「解き放たれる光」を足し、b7(STAGE 200)を見たら待ち行列へ。f1 が終わって演出が落ち着いたら全画面のエンディング #edg(星空に光の玉が8方向へ・3人の行進・スタッフロール=英雄/取り戻した8つの土地/正気に戻った者/ありがとう、タップで早送り、最後に「2周目へ」、放置でも約45秒で閉じる。ゲームは裏で進行)。初回だけ宝石10+実績 end1。`localStorage['pachi2_end']`={n}。ラップなし(FU で見張る)(テスト: tests/finale.js) | feature/fx |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
 
@@ -177,7 +181,8 @@ npm test                            # build + smoke
 ## 保守・デバッグの手順(毎回必ず。作り手はコードを読まないので、確認は機械と手順で担保する)
 作業の前
 1. 触るファイルの依存を docs/DEPS.md(使っている他ファイルの名前)と docs/WRAPS.md(同じ関数を包む順番)で確認する。
-2. 既存の仕組みで済むなら新しい依存・新しいラップ・新しいファイルを作らない(同じ役目のものが既にないか先に探す)。使い終わった物(関数・ファイル・一度きりのスクリプト)は残さず消す(Git に履歴が残るので戻せる)。作業用の一時ファイルはリポジトリの外(scratchpad)に置く。
+2. 新しい遊びを足す前に docs/DESIGN.md のチェック表を通す(何の退屈をなくすか・役割がかぶらないか・進み具合が見えるか・解放の表の空きに置くか)。
+3. 既存の仕組みで済むなら新しい依存・新しいラップ・新しいファイルを作らない(同じ役目のものが既にないか先に探す)。使い終わった物(関数・ファイル・一度きりのスクリプト)は残さず消す(Git に履歴が残るので戻せる)。作業用の一時ファイルはリポジトリの外(scratchpad)に置く。
 
 作業の後(`npm test` に全部入っている。どれか1つでも NG ならコミットしない)
 3. `node tools/deps.js` … 完全版だけの名前を typeof なしで使っていないか / ラップの並びが変わっていないか。

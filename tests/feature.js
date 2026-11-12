@@ -174,16 +174,16 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
   const g = createGame({ seed: 9, storage: mkStore({ best: 1 }, { gold: 0, stage: 1, lv: [] }) });
   g.start(); g.advance(20, 0.05);
   ok(g.eval('ALY.every(a=>a.h===-9)'), 'no ally acts before unlock');
-  g.eval('G.stage=70;X.best=70;G.hp=G.mx=1e30'); g.advance(30, 0.05);
+  g.eval('G.stage=150;X.best=150;G.hp=G.mx=1e30'); g.advance(30, 0.05);
   ok(g.eval('ALY.every(a=>a.h>0)'), 'all allies act once unlocked');
-  ok(g.eval('alyAnn') === 70, 'unlock announced once');
+  ok(g.eval('alyAnn') === 150, 'unlock announced once');
   g.eval('ALY.forEach(a=>a.go())'); // 直接発動も安全
   g.advance(30, 0.05);
   ok(fin(g.eval('G.gold')) && fin(g.eval('G.sp')) && g.eval('G.sp') <= 100, 'allies keep state finite/bounded');
   ok(g.eval('PT.length') <= 1500 && g.eval('F.length') <= 150, 'allies do not leak fx arrays');
   g.eval('FM[3].r()'); noErr(g, 'allies');
   // 転生しても最高到達が残る → 仲間も残る
-  g.eval('G.stage=70;spawn();'); while (g.eval('presBusy()')) g.advance(1, 0.05);
+  g.eval('G.stage=150;spawn();'); while (g.eval('presBusy()')) g.advance(1, 0.05);
   g.eval('presDo()'); ok(g.eval('G.stage') === 1 && g.eval('ALY.every(alyOn)'), 'allies survive prestige');
   const g2 = createGame({ seed: 9, storage: g.store }); ok(g2.eval('ALY.every(alyOn)'), 'allies persist across reload');
   g.advance(10, 0.05); noErr(g, 'allies after prestige');

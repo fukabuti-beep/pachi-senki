@@ -1,0 +1,16 @@
+/* 衣装(98n-skin)と 4人目の英雄のカード(98yb-lancer)。強化画面「英雄」グループの中 */
+#upx .skh{margin:12px 0 4px;font-size:14px;color:#ff9ad0;border-bottom:2px solid #4a3aa8;padding-bottom:3px}
+#upx .skh small{font-size:10px;color:#cfc6ff;margin-left:6px}
+#upx .skr{margin:6px 0}
+#upx .skr>b{font-size:12px}
+#upx .skl{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:3px}
+#upx .skb{font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border:0;color:#fff;background:linear-gradient(#2a1e5c,#170f38);box-shadow:inset 2px 2px 0 #4a3aa8,inset -2px -2px 0 #0c0628,0 0 0 2px #000;min-height:44px}
+#upx .skb svg{image-rendering:pixelated}
+#upx .skb span{font-size:11px}
+#upx .skb small{font-size:10px;color:#ffd400}
+#upx .skb small i{font-style:normal;color:#7ff3ff}
+#upx .skb.on{box-shadow:inset 2px 2px 0 #ffe56a,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 0 8px rgba(255,212,0,.5)}
+#upx .skb.on small{color:#8dff9a}
+#upx .skb.lk svg{filter:brightness(.55)}
+#upx .lnj{font-size:11px;color:#cfc6ff;margin:2px 0 6px}
+#upx .hupr.ln1{grid-template-columns:1fr}

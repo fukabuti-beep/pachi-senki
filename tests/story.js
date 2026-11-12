@@ -13,9 +13,10 @@ const J = s => JSON.parse(g.eval('JSON.stringify(' + s + ')'));
 const NG = [
   { n: 'ホムラ', re: [/僕/, /私/, /わよ/, /わね/, /かしら/, /わ[!!。…?]*$/] },
   { n: 'シズク', re: [/俺/, /僕/, /だぜ/, /ぞ[!!。]/, /ぜ[!!。]*$/] },
-  { n: 'コハク', re: [/俺/, /私/, /だぜ/, /わよ/, /わね/, /かしら/, /わ[!!。…?]*$/, /ぜ[!!。]*$/] }];
+  { n: 'コハク', re: [/俺/, /私/, /だぜ/, /わよ/, /わね/, /かしら/, /わ[!!。…?]*$/, /ぜ[!!。]*$/] },
+  { n: 'ツララ', re: [/俺/, /僕/, /私/, /だぜ/, /わよ/, /わね/, /ぜ[!!。]*$/] }];
 const lines = [];   // [英雄, 台詞, どこ]
-for (const sc of J('SCN')) for (const [w, t] of sc.L) if (w <= 2) lines.push([w, t, '物語 ' + sc.id]);
+for (const sc of J('SCN')) for (const [w, t] of sc.L) if (w <= 3) lines.push([w, t, '物語 ' + sc.id]);
 const HLC = J('HLC'); for (const k in HLC) HLC[k].forEach((a, i) => a.forEach(t => lines.push([i, t, '吹き出し ' + k])));
 for (const tg of J('TG.map(x=>[x.who,x.tx,x.id])')) lines.push([tg[0], tg[1], 'チュートリアル ' + tg[2]]);
 J('CUTL').forEach((a, i) => a.forEach(t => lines.push([i, t, 'カットイン'])));
@@ -27,7 +28,8 @@ const doc = fs.readFileSync(path.join(__dirname, '../docs/STORY.md'), 'utf8');
 const sth = J('STH');
 const colRow = (doc.split('\n').find(l => /^\| 色 \|/.test(l)) || ''), cols = colRow.match(/#[0-9a-fA-F]{6}/g) || [];
 sth.forEach((h, i) => { ok(doc.includes(h.n + '(' + h.r + ')'), `docs/STORY.md に ${h.n}(${h.r}) が無い`); ok(cols[i] && cols[i].toLowerCase() === h.c.toLowerCase(), `${h.n} の色が資料(${cols[i]})とゲーム(${h.c})で違う`); });
-ok(g.eval('typeof hupMenu==="function"') && sth.every(h => g.eval('hupMenu()').includes(h.c)), '英雄の強化画面の色が物語と違う');
+ok(g.eval('typeof hupMenu==="function"') && sth.slice(0, 3).every(h => g.eval('hupMenu()').includes(h.c)), '英雄の強化画面の色が物語と違う');
+ok(sth.length === 4 && J('SCN').filter(sc => sc.L.some(l => l[0] === 3)).length >= 4, 'ツララの台詞が加入シーン以外にもある(完全版)');
 
 // 3) 骨組み
 const scn = J('SCN'), byId = Object.fromEntries(scn.map(s => [s.id, s]));

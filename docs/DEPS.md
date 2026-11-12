@@ -482,6 +482,7 @@
 - 77-se.js: fan
 - 91-meta.js: addGold, X, FU, fxToast, FM
 - 93-achieve.js: sbg, AC_
+- 94c-herohp.js: HV, hvMax
 - 99-main.js: T
 
 ## 96b-zukan.js
@@ -735,6 +736,20 @@
 - 98i-altar.js: altOpen
 - 98s-story.js: STH
 
+## 98n-skin.js
+- 10-sprites.js: SPR, PXL, SPW
+- 26-dots.js: cur
+- 29d-resicon.js: resIcon
+- 70-show.js: banner
+- 77-se.js: fan
+- 91-meta.js: X, fxToast
+- 94c-herohp.js: HVDK
+- 96s-smith.js: RES
+- 98c-upgroups.js: grpRefresh, UPG
+- 98m-heroup.js: HUPF
+- 98s-story.js: STH
+- 98yb-lancer.js: lnOn
+
 ## 98s-story.js
 - 10-sprites.js: SPR
 - 26-dots.js: cur
@@ -773,6 +788,29 @@
 - 98h-area.js: AREAS
 - 98s-story.js: SCN, TS, styQueue, STY, styBusy
 - 99-main.js: run, T
+
+## 98yb-lancer.js(完全版のみ)
+- 10-sprites.js: mkH, SPR
+- 25-ui.js: refresh
+- 29d-resicon.js: resIcon
+- 30-battle.js: isBoss, hurt
+- 35-battle-draw.js: drawHeroes
+- 36-battle-bg.js: L
+- 70-show.js: banner
+- 75-audio.js: beep, tone
+- 77-se.js: sOK, sNow, fan
+- 91-meta.js: X, fxToast, FU
+- 93-achieve.js: AC_
+- 94-prestige.js: PGEN
+- 94b-soul.js: soulLv, SOUL
+- 94c-herohp.js: hvBossK, HV
+- 98c-upgroups.js: grpRefresh, UPG
+- 98m-heroup.js: hupFace
+- 98n-skin.js: skAdd
+- 98s-story.js: STH, TS, styQueue, STY, SCN, scnOf
+- 98y-finale.js: END
+- 98z-tower.js: TW
+- 99-main.js: T, run
 
 ## 98z-tower.js(完全版のみ)
 - 10-sprites.js: enSpr

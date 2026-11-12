@@ -111,9 +111,93 @@ SCN.push({id:'j4',t:'氷の中の槍使い',h:'STAGE 75 のあと',L:[
   add('f1',[3,'いい光だねー。…ウチ、今度は 寝すごさないよー'])}
 /* 衣装: ツララと、完全版だけの3人の衣装(エンディングを見ると「光の衣」) */
 const lnEnd=()=>[(typeof END!=='undefined'?END.n:0)>0?1:0,1];
-skAdd(3,[{id:'sakura',n:'春の槍使い',gem:SKGEM,m:{'#8fd8ff':'#ffb0d0','#5aa8e0':'#e07aa8','#e8f4ff':'#fff0f6','#9ab8d8':'#e0a8c0'}},
-         {id:'tower',n:'塔の覇者',lb:'無限の塔 50階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),50],m:{'#8fd8ff':'#b48cff','#5aa8e0':'#7a5cd0','#e8f4ff':'#2a2040','#9ab8d8':'#14102e'}}]);
-skAdd(0,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#d5dae6':'#fff6c0','#7c859b':'#e0c060','#d1303c':'#fff','#3556d6':'#ffe9a0','#22338f':'#d0b050'}}]);
-skAdd(1,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#5b6cff':'#fff6c0','#3a45b8':'#e0c060','#c8b8ff':'#fff'}}]);
-skAdd(2,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#3dd27f':'#fff6c0','#1b7a47':'#e0c060','#caffb0':'#fff'}}]);
+/* 春の槍使い=桜色の髪に花の髪飾り・若草色の服 / 塔の覇者=金の王冠・黒紫の外套・金の槍 / 光の衣=白と金の衣に背中の小さな羽 */
+const LNART={
+'3:sakura':{pal:'h#ffb0d0,H#e07aa8,i#ffe0ec,D#a04070,u#ff7ab0,U#c03a78,a#fff0f6,b#e0a8c0,F#a06080,q#7dd87a,t#3a8a4a,T#22602e,K#103018,o#2a6a3a,L#0c2a14,m#c8e8b0,l#ffe0ec,M#5a8a4a,f#7dd87a',
+ head:[
+  "",
+  "...........kkkkkkkkk",
+  ".........kkfiihhhhhhkk",
+  "........wiiiiihhhhhhhHk",
+  ".......wgwihhhhhhhhhhhHk",
+  "......khwhfhhhhhhhhhhhHHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhHhhhHhhhHhhhHhHHHk",
+  ".....khhhzzzzzzzzzzzzhHHHk",
+  ".....khhHseeessssseeeshHHk",
+  ".....khhHswUUsssSswUUshHHk",
+  ".....khHHswuussSSswuuSHHHk",
+  ".....khHHsssssssssssSSHHHk",
+  "......kHHksssxxsssSSkHHHk"],
+ body:[
+  "......kHkkaaTkkkkTaakkHk",
+  ".....kkkaaaaaTTTTaaaabkkk",
+  "....kaaawaaaaatTaaaaabbbk",
+  "....kqqwgwaaaaaaaaaabqqqk",
+  "....ktTkkqqaaaqqaabqqkktTk",
+  "....kggk.kTTTgggTTTTk.kggk",
+  "....kssk.kaaaaTTaaabk.kssk",
+  ".....kk..kaaakTTkabbk..kk"]},
+'3:tower':{pal:'a#4a3c68,b#2a2040,F#100818,q#ffd24d,t#8a1c28,T#5a1020,K#2a0810,o#2a2040,L#100818,j#ff3050,u#ffd24d,U#b98300,l#ffe9a0,m#ffd24d,M#8a5a00',
+ head:[
+  "..........g....g....g",
+  "..........gg..ggg..gg",
+  ".........kggggjggjggggk",
+  "........kiiiiihhhhhhhHk",
+  ".......kiiihhhhhhhhhhhHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhHhhhHhhhHhhhHhHHHk",
+  ".....khhhzzzzzzzzzzzzhHHHk",
+  ".....khhHseeessssseeeshHHk",
+  ".....khhHswUUsssSswUUshHHk",
+  ".....khHHswuussSSswuuSHHHk",
+  ".....khHHsssssssssssSSHHHk",
+  "......kHHksssxxsssSSkHHHk"],
+ body:[
+  "......kHkkaaTkkkkTaakkHk",
+  ".....kkkaaaaaTTTTaaaabkkk",
+  "....kaaaaaaaagjgaaaaabbbk",
+  "....kqqqaaaaaaaaaaaabqqqk",
+  "....ktTkkqqaaaqqaabqqkktTk",
+  "....kggk.kTTTgggTTTTk.kggk",
+  "....kssk.kaaaaTTaaabk.kssk",
+  ".....kk..kaaakTTkabbk..kk"]},
+'0:light':{pal:'a#ffffff,b#c8d4f0,c#ffffff,F#b08a30,r#ffd24d,R#e0a020,J#8a5a00,t#f4f6ff,T#b8c4e8,K#b08a30,o#ffd24d,L#8a5a00,l#ffffff,m#ffe9a0,M#b08a30,g#7ff3ff,N#1a7a9a',
+ body:[
+  ".mm.....kkrrrrrrrrrRkk....mm",
+  "mllm..kkcakrrrrrrRRkabkk..mllm",
+  "mlllmkcaabkarrrrRRakbabbk.mlllm",
+  ".mllmkaabkkcaagaabbkkbabk.mllm",
+  "..mm.kssk.kcaaaaabbk.kssk.mm",
+  "......kk..koooggoook..kk",
+  "..........krraaaabrRk",
+  "..........krrkttTkRRk"]},
+'1:light':{pal:'p#ffffff,P#c8d4f0,c#ffffff,G#b08a30,h#ffffff,H#c8d4f0,j#ffffff,D#b08a30,W#ffffff,o#ffd24d,L#8a5a00,q#fff6a0,Q#b08a30',
+ body:[
+  ".yy...kvvkPyyqyyPkvVVk....yy",
+  "yWWy.kkvkpppyyypPPkVVkk...yWWy",
+  "yWWWypckcpppppppPPPkVkPk..yWWWy",
+  ".yWWyppkpypppppppyPkkPPk..yWWy",
+  "..yykssk.kpppppPPPk.kssk..yy",
+  ".....kk..kyyppppPyyk..kk",
+  ".........kpppppPPPPk",
+  "........kpppypppPyPPk"]},
+'2:light':{pal:'h#ffffff,g#ffffff,H#c8d4f0,d#c8d4f0,c#ffffff,D#b08a30,b#ffd24d,B#e0a020,L#8a5a00,W#ffffff,u#ffd24d,U#b98300',
+ body:[
+  ".yy....kkhhhhkkkkhhhHHkk..yy",
+  "yWWy..kgkhhhhhhhhhhHHkgdk.yWWy",
+  "yWWWykggkkbgggggggddkkgdk.yWWWy",
+  ".yWWykggk.kgbgggggdk.kgdk.yWWy",
+  "..yy.kssk.kggbggyddk.kssk.yy",
+  "......kk..kbbbbbBBBk..kk",
+  "..........kgggggdddk",
+  "..........kggkkkkddk"]}};
+skAdd(3,[{id:'sakura',n:'春の槍使い',gem:SKGEM,art:LNART['3:sakura']},
+         {id:'tower',n:'塔の覇者',lb:'無限の塔 50階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),50],art:LNART['3:tower']}]);
+for(let i=0;i<3;i++)skAdd(i,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,art:LNART[i+':light']}]);
 try{if(typeof AC_!=='undefined')AC_.push(['ln1','4人目の英雄','槍使いツララが仲間になる',3,()=>lnOn(),[()=>X.best,LNST+1]])}catch(e){}

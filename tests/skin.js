@@ -14,6 +14,8 @@ ok(g.eval("skSet(0,'gold')") === false, '条件つきは満たすまで着られ
 ok(g.eval('SKGEM') >= 400, '宝石の衣装は高め');
 g.eval("skSet(0,'d')"); ok(g.eval("JSON.stringify(PXL.h0.map(q=>q[2]))") === col0, 'いつもの に戻せる');
 g.eval("skSet(0,'blue')"); const st = g.store;
+ok(g.eval("JSON.stringify(PXL.h0.map(q=>q[0]+','+q[1]))!==JSON.stringify(SKO.h0.map(q=>q[0]+','+q[1]))") && g.eval('SPR.h0s.width')===48 && g.eval('PXL.h0s.length>100'), '衣装で形も変わる(色だけでない)・攻撃のコマも作り直される');
+ok(g.eval("Object.keys(SKD).every(k=>SKD[k].every(s=>s.id==='d'||(s.art&&hBuild(+k,s.art)[''].length>200)))"), 'すべての衣装に絵がある');
 const g2 = createGame({ seed: 5, storage: st }); ok(g2.eval('skCur(0).id') === 'blue' && g2.eval("PXL.h0.some(q=>q[2]==='#3a8cff')"), '読み直しても着ている');
 // --- 追加の仲間 ---
 ok(g.eval('ALY.length') === 5 && g.eval("SPR.fa5&&SPR.fa6") , '仲間が5人');

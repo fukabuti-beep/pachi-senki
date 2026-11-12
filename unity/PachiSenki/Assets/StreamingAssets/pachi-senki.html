@@ -1179,24 +1179,30 @@ function spw(n){if(SPW[n])return SPW[n];const s=SPR[n],c=document.createElement(
 /* 英雄: 32x32(戦闘画面では2倍=64px)。作りは docs/DESIGN.md「ドット絵の考え方」(dotartplay の32x32アクション風に学ぶ):
    頭16行・胴8行・足8行 / 目は3x4(まつ毛+白目+瞳の濃淡)/ 輪郭は黒でなく素材の暗い色(k を自動で塗り分け。目のふちだけ濃いまま)/ 光は左上 /
    攻撃は体ごと動かす: 構え(武器を引く・腰を落とす)→ 攻撃(踏み込んで腕を伸ばし、武器は必ず手の先から出る)。構え/攻撃のコマは横48(右に16の余白=伸ばした腕と武器と軌跡のぶん)。
-   mkH3(i,pal,mat,head,body,legs,legsS,fr): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
+   mkH3(i,pal,mat,head,body,legs,legsS,fr)(元データは HSRC[i] に残す): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
      fr={i:待機,w:構え,s:攻撃} それぞれ [上半身を横にずらすpx, 足(0=legs/1=legsS), 重ね描き [x,y,文字列]…, 腰を落とすpx]。
      重ね描きの '_' は消す(下ろした腕を消して、肩から腕を描き直す)。待機Bは頭を1px沈める。描く側は必ず SPR[n].width を見る(64 決め打ちにしない)。
-   見た目は作り手提供のイラスト(src/img)に合わせる。HGRP[i]=色のまとまり(衣装 98n が、基本色の置きかえから影や輪郭の色も自動で作る) */
-const HGRP={};
-function mkH3(i,pal,mat,head,body,legs,legsS,fr){const M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
-  HGRP[i]=mat.map(m=>[P[m[1][0]],[P[m[0]],...[...m[1]].slice(1).map(c=>P[c])]]);
+   見た目は作り手提供のイラスト(src/img)に合わせる。衣装(98n)は hBuild(i,{pal,head,body…}) で形ごと作り直す */
+const HSRC={};
+/* hBuild(i,o): 英雄 i の4コマを [[x,y,色]…] で返す。o={pal:'文字#色,…'(上書き/追加), head,body,legs,legsS(行の差し替え)} は衣装(98n)用 */
+function hBuild(i,o){const S=HSRC[i],M=S.M,P=Object.assign({},S.P);o=o||{};if(o.pal)o.pal.split(',').forEach(s=>P[s[0]]=s.slice(1));
+  const head=o.head||S.head,body=o.body||S.body,legs=o.legs||S.legs,legsS=o.legsS||S.legsS,fr=S.fr;
   const build=(f,bob,W)=>{const pad=r=>(r+'.'.repeat(W)).slice(0,W),sh=(r,dx)=>dx>=0?('.'.repeat(dx)+r).slice(0,W):r.slice(-dx)+'.'.repeat(-dx),dp=f[3]||0;
     let g=[];for(let k=0;k<dp;k++)g.push([...'.'.repeat(W)]);
     g=g.concat([...head,...body].map(r=>[...sh(pad(r),f[0])]),(f[1]?legsS:legs).slice(dp).map(r=>[...pad(r)]));
     if(bob)g=[[...'.'.repeat(W)],...g.slice(0,16),...g.slice(17)];
     f[2].forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+(bob?1:0);if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch=='_'?'.':ch}));
-    const at=(x,y)=>(g[y]&&g[y][x])||'.',out=g.map(r=>r.slice());
-    for(let y=0;y<32;y++)for(let x=0;x<W;x++){if(g[y][x]!='k')continue;const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(n.some(c=>'wuUe'.includes(c)))continue;
+    const at=(x,y)=>(g[y]&&g[y][x])||'.',L=[];
+    for(let y=0;y<32;y++)for(let x=0;x<W;x++){let ch=g[y][x];if(ch=='k'){const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(!n.some(c=>'wuUe'.includes(c))){
       let c=n.filter(q=>M[q]).map(q=>M[q]);if(!c.length)c=[at(x-1,y-1),at(x+1,y-1),at(x-1,y+1),at(x+1,y+1)].filter(q=>M[q]).map(q=>M[q]);
-      if(c.length)out[y][x]=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}
-    return out.map(r=>r.join(''))};
-  mk('h'+i,pal,build(fr.i,0,32),1);mk('h'+i+'b',pal,build(fr.i,1,32),1);mk('h'+i+'w',pal,build(fr.w,0,48),1);mk('h'+i+'s',pal,build(fr.s,0,48),1)}
+      if(c.length)ch=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}}
+      if(P[ch])L.push([x,y,P[ch]])}
+    return L};
+  return {'':build(fr.i,0,32),b:build(fr.i,1,32),w:build(fr.w,0,48),s:build(fr.s,0,48)}}
+function mkH3(i,pal,mat,head,body,legs,legsS,fr){const M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
+  HSRC[i]={P,M,head,body,legs,legsS,fr};
+  const R=hBuild(i);for(const f in R){const c=document.createElement('canvas');c.width=f==''||f=='b'?32:48;c.height=32;const x=c.getContext('2d');
+    R[f].forEach(q=>{x.fillStyle=q[2];x.fillRect(q[0],q[1],1,1)});SPR['h'+i+f]=c;PXL['h'+i+f]=R[f]}}
 /* ===== 英雄0: 剣士ホムラ ===== */
 mkH3(0,'D#7a1028,E#a85a40,F#3a4466,J#701030,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,k#14101f,h#e0443a,H#a8262e,i#ff7a45,I#ffb070,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#ffc020,U#d07800,x#7a1a20,a#d5dae6,b#7c859b,c#ffffff,r#d1303c,R#9c1c3c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8',[["D","hHiI"],["E","sSz"],["F","abc"],["J","rR"],["K","tT"],["L","o"],["M","lm"],["N","g"]],
 [
@@ -6090,24 +6096,201 @@ const UPG_OLD=['通常強化','鍛冶屋','魂の祭壇'];
 {const _a=altOpen;altOpen=function(g){if(typeof g==='number'&&UPG_OLD[g]){const i=UPG.list.findIndex(x=>x[0]===UPG_OLD[g]);if(i>=0)g=i}return _a.call(this,g)}}
 
 /* ---------- 衣装(スキン) (feature) ----------
-   英雄のドット絵の色を着せ替える(性能は変わらない)。強化画面「英雄」グループの下に「衣装」。
-   ・仕組み: 英雄のコマ(h0〜 の 待機/待機B/構え/攻撃)を、元の色の一覧(PXL)から「色の置きかえ表」で **同じキャンバスに** 塗り直す。
+   英雄のドット絵を着せ替える(色だけでなく髪・帽子・飾りの形も変わる。性能は変わらない)。強化画面「英雄」グループの下に「衣装」。
+   ・仕組み: 英雄のコマ(h0〜 の 待機/待機B/構え/攻撃)を、衣装の絵(SKART)から作り直して **同じキャンバスに** 塗り直す。
      キャンバスは差し替えないので、戦闘・物語の顔・タイトルなど SPR['h0'] を使う所は全部そのまま変わる。白シルエット等のキャッシュは消す。
      (作り手提供のカットイン用イラスト PIMG は変わらない)
    ・手に入れ方(docs/DESIGN.md: 目標とごほうび・進み具合が見える): 宝石で買う / 条件を満たす(進み具合 7/10 を表示)。
    ・完全版だけの衣装や4人目の衣装は、@full のファイルが SKD に足す(skAdd)。
    セーブ: localStorage['pachi2_skin'] = {own:{'英雄:衣装':1}, cur:[衣装id,...]}。転生で残る。 */
 const SKGEM=400;   // 宝石で買う衣装の値段。やり込み要素なので かなり高め(作り手の方針「やり込んでやっと手に入る達成感」)。条件つきも長く遊んで届く数に
+/* 衣装の絵(SKART): 元の絵からの「色の上書き pal」と「行の差し替え head/body/legs/legsS」。10-sprites の hBuild(i,art) が4コマを作る。
+   作り手の方針: 色ちがいではなく、衣装ごとにコンセプトがあり、形と飾りが一目で分かること。
+   蒼炎の剣士=燃え上がる蒼い髪・黒い鎧・なびく蒼いマフラー / 黄金の鎧=額の金の輪と紅玉・大きな肩当て・白いマント /
+   紅の魔女=先の折れた紅い帽子・黒い帯と金の留め具・黒い服に紅の飾り / 白の賢者=金の輪と宝玉のついた白いフード・白い法衣 /
+   夕焼けの狩人=フードを下ろして赤い鉢巻きと羽根飾り・橙の服 / 夜の狩人=三日月の印の紺のフード・紫の覆面と なびくマフラー */
+const SKART={
+'0:blue':{pal:'h#3a8cff,H#1f56b8,i#7fd8ff,I#d8f8ff,D#102a70,u#7ff3ff,U#1a9ac0,a#4a5578,b#2a3050,c#7fd8ff,F#101424,r#7ff3ff,R#2a9ac8,J#10506a,t#2a3050,T#181c30,K#0a0c18,g#7ff3ff,N#1a7a9a,l#d8f8ff,m#7fd8ff,M#1f56b8,o#181c30,L#0a0c18',
+ head:[
+  "..............kk",
+  ".............kIik..k",
+  ".......k....kIiihkkik",
+  "......kik..kiiihhhkihk..k",
+  "...k.kiihkkiihhhhhhhhhkkhk",
+  "...khkihhhhhhhhhhhhhhhhhHhk",
+  "....khihhhhhhhhhhhhhhhhHHk",
+  "....khhhhhhhhhhhhhhhhhhHHk",
+  "...khhhhHhhhhHhhhhHhhhhHHHk",
+  "....khhHzhhhHzhhhHzhhhHHHk",
+  "....khHzsszHzsssHzssszHHk",
+  "....kHHseeessssseeeszHHk",
+  ".....kHswUUsssSswUUsskk",
+  ".....kkswuussSSswuusSk",
+  "......ksssssssssssssSk",
+  ".......kssssxxxsssSSk"],
+ body:[
+  "........kkrrrrrrrrrRkk",
+  "..krrkkkcakrrrrrrRRkabkk",
+  ".krRkkcaabkarrgrRRakbabbk",
+  "krRk.kaabkkcgggggbbkkbabk",
+  "kRk..kssk.kcacgcabbk.kssk",
+  "......kk..koooggoook..kk",
+  "..........krraaaabrRk",
+  "..........krrkttTkRRk"]},
+'0:gold':{pal:'a#ffd24d,b#b98300,c#fff6c0,F#6a4a00,r#f4f4ff,R#b8c0e0,J#6a70a8,t#8a1c28,T#5a1020,K#2a0810,g#ffffff,N#b98300,j#ff3050,l#fffbe0,m#ffd24d,M#8a5a00',
+ head:[
+  "..............k",
+  ".........k...kIk...k",
+  "........kik.kiihk.kik",
+  "....k..kiihkiihhhkkihhk..k",
+  "...khkkiihhhhhhhhhhhhhhkkhk",
+  "...khhiihhhhhhhhhhhhhhhhHhk",
+  "....khihhhhhhahhhhhhhhhHHk",
+  "....khhhhhhhhkakhhhhhhhHHk",
+  "...khaaaaaaaajaaaaaaaabHHHk",
+  "....khhHzhhhHzhhhHzhhhHHHk",
+  "....khHzsszHzsssHzssszHHk",
+  "....kHHseeessssseeeszHHk",
+  ".....kHswUUsssSswUUsskk",
+  ".....kkswuussSSswuusSk",
+  "......ksssssssssssssSk",
+  ".......kssssxxxsssSSk"],
+ body:[
+  "......kkkkrrrrrrrrrRkkkk",
+  "....kkccakrrrrrrrRRkaabkk",
+  "...kccaabkarrrrRRakbaabbk",
+  "...kcaabkkcaajaabbkkbaabk",
+  ".....kssk.kcaaaaabbk.kssk",
+  "......kk..koooggoook..kk",
+  "........kRrkrraaaabrRkrRk",
+  "........kRrkrrkttTkRRkRRk"]},
+'1:red':{pal:'h#c8203a,H#8a1028,j#ff5a6a,D#4a0818,p#3a2c44,P#221a2c,c#5a4a68,G#0c0810,u#ff5a6a,U#b01838,q#ff4a6a,Q#8a1028,B#18121e,r#e0443a,o#3a2c44,L#0c0810',
+ head:[
+  ".................kkkk",
+  "...............kkjhhHk",
+  ".............kkjhhHkkHk",
+  "...........kkjjhhHHk.kk",
+  "..........kjjhhhhHHk",
+  ".........kjjhhhhhhHHk",
+  "........kBBBByyyBBBBBk",
+  "..kkkkkkjjhhhhhhhhhHHkkkkkk",
+  "..kjjjhhhhhhhhhhhhhhhhHHHHHk",
+  "...kkkkVVVVVVVVVVVVVVVkkkk",
+  "......kvvvvsvvvvsvvvvVk",
+  "......kvseeessseeesvVVk",
+  "......kvswUUssswUUsvVVk",
+  "......kvswuusSswuusvVVk",
+  "......kvvsssssssssSvVVk",
+  "......kvvkssxxssSkvVVVk"],
+ body:[
+  "......kvvkPyyqyyPkvVVk",
+  ".....kkvkppprrrpPPkVVkk",
+  "....kpckcpppppppPPPkVkPk",
+  "....kppkprppppppprPkkPPk",
+  "....kssk.kpppppPPPk.kssk",
+  ".....kk..krrppppPrrk..kk",
+  ".........kpppppPPPPk",
+  "........kppprpppPrPPk"],
+ legs:[
+  "........kpppppppPPPPk",
+  ".......kpppppppPPPPPPk",
+  ".......kppprpppPPPrPPk",
+  ".......krrpppppPPPPrrk",
+  "........kkrrrrrrrrrkk",
+  ".........koook.koook",
+  "........kooook.kooook",
+  "........kkkkkk.kkkkkk"],
+ legsS:[
+  "........kpppppppPPPPk",
+  ".......kpppppppPPPPPPk",
+  "......kpppprpppPPPrPPPk",
+  ".....krrppppppPPPPPPrrk",
+  "......kkrrrrrrrrrrrkk",
+  "........koook...koook",
+  ".......kooook..kooook",
+  ".......kkkkkk..kkkkkk"]},
+'1:white':{pal:'p#f2f4ff,P#b8c0e0,c#ffffff,G#6a70a8,v#fff0c8,V#e0c890,F#9a7a40,u#7fb0ff,U#3a60c0,q#7fb0ff,Q#2a4a9a,o#e0c060,L#8a6a10',
+ head:[
+  "",
+  "...........kkkkkkkk",
+  ".........kkccccpppPkk",
+  "........kccpppppppppPk",
+  ".......kcpppppppppppPPk",
+  "......kcppppppppppppPPPk",
+  ".....kyyyyyyyyqyyyyyyYYYk",
+  ".....kppkVVVVVVVVVVVVVkPPk",
+  ".....kpkvvvvvvvvvvvvvvVkPk",
+  ".....kpkvvVvvvvVvvvvVvVkPk",
+  ".....kpvvvvsvvvvsvvvvVPk",
+  ".....kpvseeessseeesvVVPk",
+  ".....kpvswUUssswUUsvVVPk",
+  ".....kpvswuusSswuusvVVPk",
+  ".....kpvvsssssssssSvVVPk",
+  "......kvvkssxxssSkvVVVk"],
+ body:[
+  "......kvvkPyyqyyPkvVVk",
+  ".....kkvkpppyyypPPkVVkk",
+  "....kpckcpppyqypPPPkVkPk",
+  "....kppkpypppypppyPkkPPk",
+  "....kssk.kpppppPPPk.kssk",
+  ".....kk..kyyppppPyyk..kk",
+  ".........kpppppPPPPk",
+  "........kpppypppPyPPk"]},
+'2:sun':{pal:'g#ff9a3d,d#b8621a,h#ff9a3d,H#b8621a,c#ffd0a0,D#6a3008,r#e0443a,R#a8262e,J#701030,u#ffb040,U#c06a10',
+ head:[
+  "",
+  "....................kk",
+  "..........kkkkkkkkk.kxxk",
+  "........kknnnnnnnnnkkxrk",
+  ".......knnnnnnnnnnnnNkrk",
+  "......knnnnnnnnnnnnnnNNk",
+  "......krrrrrrrrrrrrrrRRkk",
+  "......kRrrrrrrrrrrrrRRRkrk",
+  "......knnnnNnnnNnnnNnNNkRrk",
+  "......knnnnnznnnznnnNNNk.kRk",
+  "......knnNzeeesszeeesNNk..k",
+  "......knnNswUUssswUUsNk",
+  ".......kNkswuusSswuuSk",
+  ".......kkkggggggggggdk",
+  "..........kgggggggddk",
+  "...........kkgggddkk"]},
+'2:night':{pal:'h#3a4488,H#27306a,c#6a7ac8,D#10143a,g#4a5a9a,d#2c3470,u#7ff3ff,U#2a9ac8,b#4a4a6a,B#2a2a44,L#101020,p#a060e0,P#6a30a8,n#3a3a4a,N#22222e,F#0c0c14',
+ head:[
+  "............kkkkkkk",
+  "..........kkcchhhhhkk",
+  ".........kcchhhhhhhhHk",
+  "........kcchhhyyhhhhhHk",
+  ".......kchhhhyhhhhhhhHHk",
+  ".......khhhhhhyyhhhhhHHk",
+  "......khhhHkkkkkkkkkHHHHk",
+  "......khhHknnnnnnnnNkHHHk",
+  "......khhHknnNnnnNnnNkHHk",
+  "......khHknnznnnznnnNkHHk",
+  "......khHkzeeesszeeeskHHk",
+  "......khHkswUUssswUUskHHk",
+  "......khHkswuusSswuuSkHHk",
+  "......khHkppppppppppPkHHk",
+  ".......kHHkpppppppPPkHHk",
+  "........kHHkkpppPPkkHHk"],
+ body:[
+  ".......kkhhppppkkhhhHHkk",
+  "..kpk.kgkhhhhhhhhhhHHkgdk",
+  ".kpPkkggkkbgggggggddkkgdk",
+  "kpPk.kggk.kgbgggggdk.kgdk",
+  "kPk..kssk.kggbggyddk.kssk",
+  "......kk..kbbbbbBBBk..kk",
+  "..........kgggggdddk",
+  "..........kggkkkkddk"]}};
 const SKD={
  0:[{id:'d',n:'いつもの'},
-    {id:'blue',n:'蒼炎の剣士',gem:SKGEM,m:{'#e0443a':'#3a8cff','#a8262e':'#1f56b8','#d1303c':'#3a8cff'}},
-    {id:'gold',n:'黄金の鎧',lb:'JACKPOT 50回',pr:()=>[X.st.jp||0,50],m:{'#d5dae6':'#ffd24d','#7c859b':'#b98300'}}],
+    {id:'blue',n:'蒼炎の剣士',gem:SKGEM,art:SKART['0:blue']},
+    {id:'gold',n:'黄金の鎧',lb:'JACKPOT 50回',pr:()=>[X.st.jp||0,50],art:SKART['0:gold']}],
  1:[{id:'d',n:'いつもの'},
-    {id:'red',n:'紅の魔女',gem:SKGEM,m:{'#7a4dff':'#e0443a','#4d2fb8':'#a8262e','#5b6cff':'#c8324a','#3a45b8':'#8a1c30','#c8b8ff':'#ffc0c8'}},
-    {id:'white',n:'白の賢者',lb:'転生 20回',pr:()=>[X.pres||0,20],m:{'#7a4dff':'#cfd6ff','#4d2fb8':'#8f98c8','#5b6cff':'#eef1ff','#3a45b8':'#a8b0d8'}}],
+    {id:'red',n:'紅の魔女',gem:SKGEM,art:SKART['1:red']},
+    {id:'white',n:'白の賢者',lb:'転生 20回',pr:()=>[X.pres||0,20],art:SKART['1:white']}],
  2:[{id:'d',n:'いつもの'},
-    {id:'sun',n:'夕焼けの狩人',gem:SKGEM,m:{'#3dd27f':'#ff9a3d','#1b7a47':'#b8621a','#2fb36b':'#e07a2a','#caffb0':'#ffe0b0'}},
-    {id:'night',n:'夜の狩人',lb:'大当たり 3000回',pr:()=>[X.st.hit||0,3000],m:{'#3dd27f':'#4a5a9a','#1b7a47':'#27306a','#2fb36b':'#343c78','#caffb0':'#b8c4ff'}}]};
+    {id:'sun',n:'夕焼けの狩人',gem:SKGEM,art:SKART['2:sun']},
+    {id:'night',n:'夜の狩人',lb:'大当たり 3000回',pr:()=>[X.st.hit||0,3000],art:SKART['2:night']}]};
 const SK={own:{},cur:[]};
 try{const d=JSON.parse(localStorage.getItem('pachi2_skin')||'{}');if(d.own&&typeof d.own==='object')for(const k in d.own)if(d.own[k]&&/^\d:[a-z0-9]{1,10}$/.test(k))SK.own[k]=1;
   if(Array.isArray(d.cur))d.cur.slice(0,8).forEach((v,i)=>{if(typeof v==='string'&&/^[a-z0-9]{1,10}$/.test(v))SK.cur[i]=v})}catch(e){}
@@ -6116,20 +6299,12 @@ const SKFR=['','b','w','s'],SKO={};   // SKO[コマ名]=元の色の一覧(初�
 const skOf=(i,id)=>(SKD[i]||[]).find(s=>s.id===id);
 const skCur=i=>{const s=skOf(i,SK.cur[i]||'d');return s&&skHas(i,s)?s:skOf(i,'d')};
 function skHas(i,s){if(!s)return false;if(s.id==='d'||SK.own[i+':'+s.id])return true;if(s.pr){try{const p=s.pr();return p[0]>=p[1]}catch(e){return false}}return false}
-/* 色のまとまり(10-sprites の HGRP: [基本色,[輪郭・影・光の色…]])を使って、基本色の置きかえから 影や輪郭の色も同じだけ動かす。
-   表に直接書いてある色はそちらを優先(作り手が色を指定できる) */
-function skHsl(h){const n=parseInt(h.slice(1),16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;let H=0,S=0;
-  if(d){S=d/(1-Math.abs(2*l-1));H=mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4;H*=60}return [H,S,l]}
-function skHex(H,S,L){H=((H%360)+360)%360;S=Math.max(0,Math.min(1,S));L=Math.max(0,Math.min(1,L));const c=(1-Math.abs(2*L-1))*S,x=c*(1-Math.abs(H/60%2-1)),m=L-c/2;
-  const q=H<60?[c,x,0]:H<120?[x,c,0]:H<180?[0,c,x]:H<240?[0,x,c]:H<300?[x,0,c]:[c,0,x];return '#'+q.map(v=>('0'+Math.round((v+m)*255).toString(16)).slice(-2)).join('')}
-function skMap(i,m){const o=Object.assign({},m||{});try{const G=(typeof HGRP!=='undefined'&&HGRP[i])||[];
-  for(const g of G){const to=o[g[0]];if(!to)continue;const a=skHsl(g[0]),b=skHsl(to);
-    for(const c of g[1]){if(o[c]||c===g[0])continue;const h=skHsl(c);o[c]=skHex(h[0]+(b[1]<.08?0:b[0]-a[0]),a[1]>.05?h[1]*b[1]/a[1]:b[1],a[2]>.02?h[2]*b[2]/a[2]:h[2])}}}catch(e){}return o}
-/* 塗り直し */
-function skApply(i){try{const s=skCur(i),m=skMap(i,s&&s.m);
+/* 塗り直し: 衣装の絵(art)があれば hBuild で4コマを作り直し、無ければ元の絵。同じキャンバスに塗る(大きさは同じ) */
+function skPix(i,s,f){if(s&&s.art&&typeof hBuild==='function'){try{return hBuild(i,s.art)[f]}catch(e){}}return SKO['h'+i+f]||PXL['h'+i+f]||[]}
+function skApply(i){try{const s=skCur(i);
   for(const f of SKFR){const n='h'+i+f,c=SPR[n];if(!c||!PXL[n])continue;if(!SKO[n])SKO[n]=PXL[n].map(q=>q.slice());
     const x=c.getContext('2d');if(!x)continue;x.clearRect(0,0,c.width,c.height);
-    PXL[n]=SKO[n].map(q=>{const col=m[q[2]]||q[2];x.fillStyle=col;x.fillRect(q[0],q[1],1,1);return [q[0],q[1],col]});
+    PXL[n]=skPix(i,s,f).map(q=>{x.fillStyle=q[2];x.fillRect(q[0],q[1],1,1);return [q[0],q[1],q[2]]});
     delete SPW[n];if(typeof HVDK!=='undefined')delete HVDK[n]}
   if(typeof HUPF!=='undefined')delete HUPF[i];delete SKSV[i]}catch(e){}}
 function skAdd(i,list){SKD[i]=(SKD[i]||[{id:'d',n:'いつもの'}]).concat(list.filter(s=>!skOf(i,s.id)));skApply(i)}
@@ -6146,9 +6321,9 @@ FU.push(dt=>{SKT+=dt;if(SKT<2||!run)return;SKT=0;let ch=0;
   if(ch)skSave()});
 /* 見本(16x16 のドット絵を SVG に。衣装ごとに1回作って覚える) */
 const SKSV={};
-function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=skMap(i,s.m);let r='';
-  for(const q of src)r+='<rect x="'+q[0]+'" y="'+q[1]+'" width="1" height="1" fill="'+(m[q[2]]||q[2])+'"/>';
-  const W=(SPR['h'+i]&&SPR['h'+i].width)||32;return SKSV[i][key]='<svg viewBox="0 0 '+W+' '+W+'" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
+function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];let r='';
+  for(const q of skPix(i,s,''))r+='<rect x="'+q[0]+'" y="'+q[1]+'" width="1" height="1" fill="'+q[2]+'"/>';
+  return SKSV[i][key]='<svg viewBox="0 0 32 32" width="48" height="48" shape-rendering="crispEdges">'+r+'</svg>'}
 function skName(i){return (typeof STH!=='undefined'&&STH[i])?STH[i].n:'英雄'+(i+1)}
 function skMenu(){let h='<!--sk--><div class="skh">衣装 <small>見た目だけ変わる(転生しても残る)</small></div>';
   for(const k of Object.keys(SKD)){const i=+k;if(i>2&&!(typeof lnOn==='function'&&lnOn()))continue;
@@ -6713,11 +6888,95 @@ SCN.push({id:'j4',t:'氷の中の槍使い',h:'STAGE 75 のあと',L:[
   add('f1',[3,'いい光だねー。…ウチ、今度は 寝すごさないよー'])}
 /* 衣装: ツララと、完全版だけの3人の衣装(エンディングを見ると「光の衣」) */
 const lnEnd=()=>[(typeof END!=='undefined'?END.n:0)>0?1:0,1];
-skAdd(3,[{id:'sakura',n:'春の槍使い',gem:SKGEM,m:{'#8fd8ff':'#ffb0d0','#5aa8e0':'#e07aa8','#e8f4ff':'#fff0f6','#9ab8d8':'#e0a8c0'}},
-         {id:'tower',n:'塔の覇者',lb:'無限の塔 50階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),50],m:{'#8fd8ff':'#b48cff','#5aa8e0':'#7a5cd0','#e8f4ff':'#2a2040','#9ab8d8':'#14102e'}}]);
-skAdd(0,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#d5dae6':'#fff6c0','#7c859b':'#e0c060','#d1303c':'#fff','#3556d6':'#ffe9a0','#22338f':'#d0b050'}}]);
-skAdd(1,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#5b6cff':'#fff6c0','#3a45b8':'#e0c060','#c8b8ff':'#fff'}}]);
-skAdd(2,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#3dd27f':'#fff6c0','#1b7a47':'#e0c060','#caffb0':'#fff'}}]);
+/* 春の槍使い=桜色の髪に花の髪飾り・若草色の服 / 塔の覇者=金の王冠・黒紫の外套・金の槍 / 光の衣=白と金の衣に背中の小さな羽 */
+const LNART={
+'3:sakura':{pal:'h#ffb0d0,H#e07aa8,i#ffe0ec,D#a04070,u#ff7ab0,U#c03a78,a#fff0f6,b#e0a8c0,F#a06080,q#7dd87a,t#3a8a4a,T#22602e,K#103018,o#2a6a3a,L#0c2a14,m#c8e8b0,l#ffe0ec,M#5a8a4a,f#7dd87a',
+ head:[
+  "",
+  "...........kkkkkkkkk",
+  ".........kkfiihhhhhhkk",
+  "........wiiiiihhhhhhhHk",
+  ".......wgwihhhhhhhhhhhHk",
+  "......khwhfhhhhhhhhhhhHHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhHhhhHhhhHhhhHhHHHk",
+  ".....khhhzzzzzzzzzzzzhHHHk",
+  ".....khhHseeessssseeeshHHk",
+  ".....khhHswUUsssSswUUshHHk",
+  ".....khHHswuussSSswuuSHHHk",
+  ".....khHHsssssssssssSSHHHk",
+  "......kHHksssxxsssSSkHHHk"],
+ body:[
+  "......kHkkaaTkkkkTaakkHk",
+  ".....kkkaaaaaTTTTaaaabkkk",
+  "....kaaawaaaaatTaaaaabbbk",
+  "....kqqwgwaaaaaaaaaabqqqk",
+  "....ktTkkqqaaaqqaabqqkktTk",
+  "....kggk.kTTTgggTTTTk.kggk",
+  "....kssk.kaaaaTTaaabk.kssk",
+  ".....kk..kaaakTTkabbk..kk"]},
+'3:tower':{pal:'a#4a3c68,b#2a2040,F#100818,q#ffd24d,t#8a1c28,T#5a1020,K#2a0810,o#2a2040,L#100818,j#ff3050,u#ffd24d,U#b98300,l#ffe9a0,m#ffd24d,M#8a5a00',
+ head:[
+  "..........g....g....g",
+  "..........gg..ggg..gg",
+  ".........kggggjggjggggk",
+  "........kiiiiihhhhhhhHk",
+  ".......kiiihhhhhhhhhhhHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  "......khhhhhhhhhhhhhhhHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhhhhhhhhhhhhhhhHHHk",
+  ".....khhHhhhHhhhHhhhHhHHHk",
+  ".....khhhzzzzzzzzzzzzhHHHk",
+  ".....khhHseeessssseeeshHHk",
+  ".....khhHswUUsssSswUUshHHk",
+  ".....khHHswuussSSswuuSHHHk",
+  ".....khHHsssssssssssSSHHHk",
+  "......kHHksssxxsssSSkHHHk"],
+ body:[
+  "......kHkkaaTkkkkTaakkHk",
+  ".....kkkaaaaaTTTTaaaabkkk",
+  "....kaaaaaaaagjgaaaaabbbk",
+  "....kqqqaaaaaaaaaaaabqqqk",
+  "....ktTkkqqaaaqqaabqqkktTk",
+  "....kggk.kTTTgggTTTTk.kggk",
+  "....kssk.kaaaaTTaaabk.kssk",
+  ".....kk..kaaakTTkabbk..kk"]},
+'0:light':{pal:'a#ffffff,b#c8d4f0,c#ffffff,F#b08a30,r#ffd24d,R#e0a020,J#8a5a00,t#f4f6ff,T#b8c4e8,K#b08a30,o#ffd24d,L#8a5a00,l#ffffff,m#ffe9a0,M#b08a30,g#7ff3ff,N#1a7a9a',
+ body:[
+  ".mm.....kkrrrrrrrrrRkk....mm",
+  "mllm..kkcakrrrrrrRRkabkk..mllm",
+  "mlllmkcaabkarrrrRRakbabbk.mlllm",
+  ".mllmkaabkkcaagaabbkkbabk.mllm",
+  "..mm.kssk.kcaaaaabbk.kssk.mm",
+  "......kk..koooggoook..kk",
+  "..........krraaaabrRk",
+  "..........krrkttTkRRk"]},
+'1:light':{pal:'p#ffffff,P#c8d4f0,c#ffffff,G#b08a30,h#ffffff,H#c8d4f0,j#ffffff,D#b08a30,W#ffffff,o#ffd24d,L#8a5a00,q#fff6a0,Q#b08a30',
+ body:[
+  ".yy...kvvkPyyqyyPkvVVk....yy",
+  "yWWy.kkvkpppyyypPPkVVkk...yWWy",
+  "yWWWypckcpppppppPPPkVkPk..yWWWy",
+  ".yWWyppkpypppppppyPkkPPk..yWWy",
+  "..yykssk.kpppppPPPk.kssk..yy",
+  ".....kk..kyyppppPyyk..kk",
+  ".........kpppppPPPPk",
+  "........kpppypppPyPPk"]},
+'2:light':{pal:'h#ffffff,g#ffffff,H#c8d4f0,d#c8d4f0,c#ffffff,D#b08a30,b#ffd24d,B#e0a020,L#8a5a00,W#ffffff,u#ffd24d,U#b98300',
+ body:[
+  ".yy....kkhhhhkkkkhhhHHkk..yy",
+  "yWWy..kgkhhhhhhhhhhHHkgdk.yWWy",
+  "yWWWykggkkbgggggggddkkgdk.yWWWy",
+  ".yWWykggk.kgbgggggdk.kgdk.yWWy",
+  "..yy.kssk.kggbggyddk.kssk.yy",
+  "......kk..kbbbbbBBBk..kk",
+  "..........kgggggdddk",
+  "..........kggkkkkddk"]}};
+skAdd(3,[{id:'sakura',n:'春の槍使い',gem:SKGEM,art:LNART['3:sakura']},
+         {id:'tower',n:'塔の覇者',lb:'無限の塔 50階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),50],art:LNART['3:tower']}]);
+for(let i=0;i<3;i++)skAdd(i,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,art:LNART[i+':light']}]);
 try{if(typeof AC_!=='undefined')AC_.push(['ln1','4人目の英雄','槍使いツララが仲間になる',3,()=>lnOn(),[()=>X.best,LNST+1]])}catch(e){}
 
 // @full  (完全版だけ。体験版のビルドには入らない)

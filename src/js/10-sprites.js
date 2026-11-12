@@ -9,24 +9,30 @@ function spw(n){if(SPW[n])return SPW[n];const s=SPR[n],c=document.createElement(
 /* 英雄: 32x32(戦闘画面では2倍=64px)。作りは docs/DESIGN.md「ドット絵の考え方」(dotartplay の32x32アクション風に学ぶ):
    頭16行・胴8行・足8行 / 目は3x4(まつ毛+白目+瞳の濃淡)/ 輪郭は黒でなく素材の暗い色(k を自動で塗り分け。目のふちだけ濃いまま)/ 光は左上 /
    攻撃は体ごと動かす: 構え(武器を引く・腰を落とす)→ 攻撃(踏み込んで腕を伸ばし、武器は必ず手の先から出る)。構え/攻撃のコマは横48(右に16の余白=伸ばした腕と武器と軌跡のぶん)。
-   mkH3(i,pal,mat,head,body,legs,legsS,fr): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
+   mkH3(i,pal,mat,head,body,legs,legsS,fr)(元データは HSRC[i] に残す): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
      fr={i:待機,w:構え,s:攻撃} それぞれ [上半身を横にずらすpx, 足(0=legs/1=legsS), 重ね描き [x,y,文字列]…, 腰を落とすpx]。
      重ね描きの '_' は消す(下ろした腕を消して、肩から腕を描き直す)。待機Bは頭を1px沈める。描く側は必ず SPR[n].width を見る(64 決め打ちにしない)。
-   見た目は作り手提供のイラスト(src/img)に合わせる。HGRP[i]=色のまとまり(衣装 98n が、基本色の置きかえから影や輪郭の色も自動で作る) */
-const HGRP={};
-function mkH3(i,pal,mat,head,body,legs,legsS,fr){const M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
-  HGRP[i]=mat.map(m=>[P[m[1][0]],[P[m[0]],...[...m[1]].slice(1).map(c=>P[c])]]);
+   見た目は作り手提供のイラスト(src/img)に合わせる。衣装(98n)は hBuild(i,{pal,head,body…}) で形ごと作り直す */
+const HSRC={};
+/* hBuild(i,o): 英雄 i の4コマを [[x,y,色]…] で返す。o={pal:'文字#色,…'(上書き/追加), head,body,legs,legsS(行の差し替え)} は衣装(98n)用 */
+function hBuild(i,o){const S=HSRC[i],M=S.M,P=Object.assign({},S.P);o=o||{};if(o.pal)o.pal.split(',').forEach(s=>P[s[0]]=s.slice(1));
+  const head=o.head||S.head,body=o.body||S.body,legs=o.legs||S.legs,legsS=o.legsS||S.legsS,fr=S.fr;
   const build=(f,bob,W)=>{const pad=r=>(r+'.'.repeat(W)).slice(0,W),sh=(r,dx)=>dx>=0?('.'.repeat(dx)+r).slice(0,W):r.slice(-dx)+'.'.repeat(-dx),dp=f[3]||0;
     let g=[];for(let k=0;k<dp;k++)g.push([...'.'.repeat(W)]);
     g=g.concat([...head,...body].map(r=>[...sh(pad(r),f[0])]),(f[1]?legsS:legs).slice(dp).map(r=>[...pad(r)]));
     if(bob)g=[[...'.'.repeat(W)],...g.slice(0,16),...g.slice(17)];
     f[2].forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+(bob?1:0);if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch=='_'?'.':ch}));
-    const at=(x,y)=>(g[y]&&g[y][x])||'.',out=g.map(r=>r.slice());
-    for(let y=0;y<32;y++)for(let x=0;x<W;x++){if(g[y][x]!='k')continue;const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(n.some(c=>'wuUe'.includes(c)))continue;
+    const at=(x,y)=>(g[y]&&g[y][x])||'.',L=[];
+    for(let y=0;y<32;y++)for(let x=0;x<W;x++){let ch=g[y][x];if(ch=='k'){const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(!n.some(c=>'wuUe'.includes(c))){
       let c=n.filter(q=>M[q]).map(q=>M[q]);if(!c.length)c=[at(x-1,y-1),at(x+1,y-1),at(x-1,y+1),at(x+1,y+1)].filter(q=>M[q]).map(q=>M[q]);
-      if(c.length)out[y][x]=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}
-    return out.map(r=>r.join(''))};
-  mk('h'+i,pal,build(fr.i,0,32),1);mk('h'+i+'b',pal,build(fr.i,1,32),1);mk('h'+i+'w',pal,build(fr.w,0,48),1);mk('h'+i+'s',pal,build(fr.s,0,48),1)}
+      if(c.length)ch=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}}
+      if(P[ch])L.push([x,y,P[ch]])}
+    return L};
+  return {'':build(fr.i,0,32),b:build(fr.i,1,32),w:build(fr.w,0,48),s:build(fr.s,0,48)}}
+function mkH3(i,pal,mat,head,body,legs,legsS,fr){const M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
+  HSRC[i]={P,M,head,body,legs,legsS,fr};
+  const R=hBuild(i);for(const f in R){const c=document.createElement('canvas');c.width=f==''||f=='b'?32:48;c.height=32;const x=c.getContext('2d');
+    R[f].forEach(q=>{x.fillStyle=q[2];x.fillRect(q[0],q[1],1,1)});SPR['h'+i+f]=c;PXL['h'+i+f]=R[f]}}
 /* ===== 英雄0: 剣士ホムラ ===== */
 mkH3(0,'D#7a1028,E#a85a40,F#3a4466,J#701030,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,k#14101f,h#e0443a,H#a8262e,i#ff7a45,I#ffb070,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#ffc020,U#d07800,x#7a1a20,a#d5dae6,b#7c859b,c#ffffff,r#d1303c,R#9c1c3c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8',[["D","hHiI"],["E","sSz"],["F","abc"],["J","rR"],["K","tT"],["L","o"],["M","lm"],["N","g"]],
 [

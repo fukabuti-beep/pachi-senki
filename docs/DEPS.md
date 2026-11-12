@@ -715,7 +715,7 @@
 - 98s-story.js: STH
 
 ## 98n-skin.js
-- 10-sprites.js: HGRP, SPR, PXL, SPW
+- 10-sprites.js: hBuild, PXL, SPR, SPW
 - 29d-resicon.js: resIcon
 - 70-show.js: banner
 - 77-se.js: fan

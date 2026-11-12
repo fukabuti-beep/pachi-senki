@@ -29,7 +29,8 @@ let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.error('FAIL: ' 
   g.eval('RK.last=-9999;rkUpd()'); await flush(); ok(JSON.parse(kv.get('b:stage')).find(r => r.name === 'テスト').score === 40 && g.eval('RK.wait') === 60, '回復したら送れる');
   g.advance(5, .05); ok(g.eval('FERR') === 0, 'ゲームのエラー');
   // 接続先が無い時は通信しない
-  const h = createGame({ seed: 2, globals: { fetch: () => { throw new Error('must not fetch') } } }); h.start(); h.advance(65, .05); ok(h.eval('rkProvider()') === '', '既定は通信しない');
+  const h = createGame({ seed: 2, globals: { fetch: () => { throw new Error('must not fetch') } } }); h.start(); h.advance(65, .05); ok(h.eval('rkProvider()') === '', '接続先が空なら通信しない');
+  ok(/workers\.dev/.test(g.eval('RANK_SERVER')), '本番の接続先が設定されている');
   if (fails) { console.error(fails + ' rankclient failure(s)'); process.exit(1); }
   console.log('RANKCLIENT OK');
 })();

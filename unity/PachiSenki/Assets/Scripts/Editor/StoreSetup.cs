@@ -9,7 +9,7 @@ using UnityEngine;
 
 static class StoreSetup
 {
-    const int Version = 2;
+    const int Version = 3;
     const string Key = "pachi_store_setup";
     const string Bundle = "com.fukabuchi.pachisenki";
     const string ScenePath = "Assets/Scenes/Main.unity";
@@ -40,8 +40,8 @@ static class StoreSetup
         // 起動画面の背景はゲームと同じ濃い紫
         PlayerSettings.SplashScreen.backgroundColor = new Color32(10, 7, 32, 255);
         PlayerSettings.statusBarHidden = true;
-        // 通信しない(フォントも HTML に内蔵)のでネット権限は付けない
-        PlayerSettings.Android.forceInternetPermission = false;
+        // オンラインランキング(97t-rank → Cloudflare Workers)のためにネット権限を付ける
+        PlayerSettings.Android.forceInternetPermission = true;
         // iOS: Xcode で「Team」を選ぶだけで署名できるよう自動署名にする(無料の Apple ID でも可)
         PlayerSettings.iOS.appleEnableAutomaticSigning = true;
         // アイコン(Web版 PWA と同じ絵を 1024px に拡大したもの)

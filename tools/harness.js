@@ -93,6 +93,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
   else sandbox.localStorage = lsObj;
   sandbox.window = sandbox;
   const M = Object.create(Math); M.random = rnd; sandbox.Math = M;
+  sandbox.PACHI_RANK_API = '';   // テストは既定でランキングサーバーに通信しない(globals で上書き可)
   Object.assign(sandbox, globals);
   const ctx = vm.createContext(sandbox);
   vm.runInContext(loadBundle(), ctx, { filename: 'bundle.js' });

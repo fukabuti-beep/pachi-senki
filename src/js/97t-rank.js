@@ -5,8 +5,8 @@
      1) ストア版: window.PachiNative.rank = { submit(board,score,name):Promise<bool>, top(board):Promise<[{name,score}]> }(Game Center/Play Games 等)
      2) 自前サーバー: RANK_API にURLを設定(server/ranking-worker.js = Cloudflare Workers の見本。手順は ONLINE.md)
    自己ベストが更新されたら送信待ちにし、最短60秒おきにまとめて送信する。セーブ: localStorage['pachi2_rank'] */
-const RANK_SERVER='';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は ONLINE.md)
-const RANK_API=(typeof window!=='undefined'&&typeof window.PACHI_RANK_API==='string'&&window.PACHI_RANK_API)||RANK_SERVER;   // テストでは window.PACHI_RANK_API で差し替え
+const RANK_SERVER='https://pachi-rank.okumosiroiro.workers.dev';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は ONLINE.md)
+const RANK_API=(typeof window!=='undefined'&&typeof window.PACHI_RANK_API==='string')?window.PACHI_RANK_API:RANK_SERVER;   // window.PACHI_RANK_API があればそれ(空文字=通信しない。テスト用)   // テストでは window.PACHI_RANK_API で差し替え
 const RKB=[['stage','最高到達ステージ','STAGE '],['chain','最高連チャン',''],['score','最高RUSHスコア',''],['hits','大当たり累計','']];
 let RK={name:'',id:'',best:{stage:0,chain:0,score:0,hits:0},pend:{},last:0,top:{},board:'stage',err:''};
 try{const j=JSON.parse(localStorage.getItem('pachi2_rank')||'null');if(j&&typeof j=='object'){RK.name=rkName(j.name||'');RK.id=typeof j.id=='string'&&/^[a-z0-9]{8,32}$/.test(j.id)?j.id:'';
@@ -50,5 +50,5 @@ FM.push({n:'ランキング',r:()=>{rkCheck();const p=rkProvider();
     if(me)h+='<div class="rkme">あなた: <b>'+me.rank+'位</b> <small>'+fmt(me.score)+'</small></div>';
     h+=RK.busy?'<div class="fxs">読み込み中…</div>':rows?'<div class="fxl">'+(rows.length?rows.map((r,i)=>'<div class="'+(r.me||(r.name==RK.name&&me&&me.rank==i+1)?'ok rkmine':'')+'"><span>'+(i+1)+'位 '+r.name+'</span><span>'+fmt(r.score)+'</span></div>').join(''):'<div><span>まだ記録がありません</span></div>')+'</div>':'';
     if(rows||RK.err)h+='<button class="fxb" onclick="rkFetch(RK.board)">更新</button>';
-    if(!RK.name)h+='<div class="fxs">名前を決めると記録を送信します</div>'}
+    h+='<div class="fxs">'+(RK.name?'名前と記録をランキングに送っています。':'名前を決めると、名前と記録がランキングに送られます(決めなければ送りません)。')+'本名など個人が分かる名前は使わないでね。</div>'}
   if(RK.err)h+='<div class="fxs" style="color:#ff8a8a">'+RK.err+'</div>';return h}});

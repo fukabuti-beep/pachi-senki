@@ -1,10 +1,5 @@
 {
  "undocumented": [],
- "unusedFunctions": [
-  "80-skillfx.js:aur",
-  "89f-ultjp.js:ujHue",
-  "98h-area.js:arName",
-  "98k-upmove.js:upOpen"
- ],
+ "unusedFunctions": [],
  "unknownIds": []
 }

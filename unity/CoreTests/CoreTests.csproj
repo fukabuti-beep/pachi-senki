@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Unity なしでコアロジック(Assets/Scripts/Core)をテストする。実行は UNITY.md 参照 -->
+  <!-- Unity なしでコアロジック(Assets/Scripts/Core)をテストする。実行は docs/UNITY.md 参照 -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>

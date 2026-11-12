@@ -9,10 +9,10 @@
 - BGM/SEは **8bit(WebAudioで生成)**。「キュインキュイン」等のパチンコ特有音が重要。
 - RUSH は長すぎない(約10秒弱)。強化項目は進行度で解放・増加してよい。ミニゲーム歓迎。
 - 日本語UI。ゲーム内通貨のみ(実マネーの賭け・換金は作らない)。
-- **収益化(ユーザー了承済み)**: 広告(リワードのみ)と「広告削除」の少額課金は `src/js/97-monet.js` の受け口(`window.PachiNative`)経由でのみ。Web版では出さない。強制広告・有料ガチャ(確率課金)は作らない。詳細は MONETIZE.md。
+- **収益化(ユーザー了承済み)**: 広告(リワードのみ)と「広告削除」の少額課金は `src/js/97-monet.js` の受け口(`window.PachiNative`)経由でのみ。Web版では出さない。強制広告・有料ガチャ(確率課金)は作らない。詳細は docs/MONETIZE.md。
 
 ## Unity 版(移行中)
-- `unity/PachiSenki`(Unity プロジェクト)と `unity/CoreTests`(dotnet テスト)。ロジックは `Assets/Scripts/Core` の純C#(Web版の移植)、表示は `Assets/Scripts/View`。計画と進み具合は UNITY.md。
+- `unity/PachiSenki`(Unity プロジェクト)と `unity/CoreTests`(dotnet テスト)。ロジックは `Assets/Scripts/Core` の純C#(Web版の移植)、表示は `Assets/Scripts/View`。計画と進み具合は docs/UNITY.md。
 - 現在の Unity アプリは **Web版の単一HTMLを WebView で表示**(`Assets/Scripts/Web/WebShell.cs`、HTML は build.js が `Assets/StreamingAssets/` に自動出力 → Web版を変えたらビルドして一緒にコミット)。C# の作り直し版はエディタのメニュー「パチ戦記」で切り替え。
 - Web版のロジックを変えたら、Unity版の Core にも同じ変更を入れて `dotnet run --project unity/CoreTests` を通す。
 
@@ -25,6 +25,29 @@ npm test                            # build + smoke
 ```
 ビルドは `src/js/*.js` を **ファイル名の昇順で連結して1つの <script>** にする。つまり全ファイルが**同一スコープ**(グローバル関数/`let`/`const`共有)。
 ロード時に実行される文は、そのファイルより**前**の番号のファイルの宣言にのみ依存してよい(実行時=ループ中の参照は順不同でOK)。
+
+
+## リポジトリの構成(ここに無いファイルは tools/audit.js が止める。ファイルを足す時はここに1行、消したらここからも消す)
+| 場所 | 中身 |
+|---|---|
+| CLAUDE.md / package.json / .gitignore / .github/workflows/pages.yml | この引き継ぎ書 / npm のコマンド / Git の除外 / GitHub Pages への自動公開 |
+| src/index.html, src/style.css, src/js/, src/css/ | ゲーム本体(上の表) |
+| src/font/ | 埋め込みフォント DotGothic16 の文字絞り込み版とライセンス(OFL.txt) |
+| src/img/ | 作り手提供のカットイン用イラスト(build.js が埋め込む) |
+| src/pwa/ | ホーム画面アイコン(tools/icons.py が作る) |
+| tests/ | 自動テスト(全部 npm test に入れる) |
+| tools/build.js, tools/harness.js, tools/audiorender.js | ビルド / テスト用の仮想ブラウザ / 音の数値レンダラ(harness が使う) |
+| tools/sim.js | バランス計測 |
+| tools/deps.js, tools/wraps.snapshot.json, tools/audit.js, tools/audit.baseline.json | 依存と導線のチェック(と、その基準) |
+| tools/booth.py, tools/store-shots.js, tools/store-pack.py, tools/promo.js, tools/promo.sh | BOOTH の zip / 商品ページの画像 / 紹介動画 |
+| tools/font-subset.py, tools/cutout.py, tools/icons.py, tools/export-sprites.js | フォント絞り込み / イラストの切り抜き / アイコン / Unity 用のドット絵書き出し |
+| docs/APP.md, docs/BOOTH.md, docs/MONETIZE.md, docs/ONLINE.md, docs/UNITY.md | 説明書: アプリ化 / BOOTH 配布 / 収益化 / オンラインランキング / Unity 版 |
+| docs/DEPS.md, docs/WRAPS.md | 自動生成(tools/deps.js --update): ファイル同士の依存 / 関数を包む順番 |
+| store/booth-page.md, store/privacy.html, store/shots/ | 配布用: 商品ページの文 / プライバシーポリシー / 商品ページの画像 |
+| booth/README.txt | BOOTH の zip に入れる説明書の元 |
+| server/ranking-worker.js | オンラインランキングのサーバー(Cloudflare Workers) |
+| unity/ | Unity 版(移行中) |
+生成物(dist/、store/promo/ など)はコミットしない(.gitignore)。作業用の一時ファイルはリポジトリに置かない。
 
 ## ファイル構成と担当(所有権)
 | ファイル | 内容 | 担当 |
@@ -46,7 +69,7 @@ npm test                            # build + smoke
 | 70-show.js | 大当たり/ジャックポット演出の流れ `bigHit` `jackpot` `banner` | balance(流れ) / fx(見た目) |
 | 75-audio.js | WebAudio: `beep` `tone` `noise` BGM `bgm()` `kyuin` `jara` `fan` | sound |
 | 79b-bonus.js | ボーナスタイム中だけのBGMアレンジ(通常曲をテンポx1.15・全音上・4つ打ち・種類別リード。優先 JACKPOT>緊張>RUSH>FEVER>ボーナス>ボス>通常、bgmState をラップ)と SE `seExp`(遠征)/`seBt`(ボーナスタイム)/`seHl`(ハイ&ロー)。98d/98e/98f から1行で呼ぶ。キュインの耳疲れ対策(差し替え/音量逓減)は 77 の kyuin(テスト: tests/audio2.js) | sound |
-| 80-skillfx.js | スキルエフェクト `fire` `bolt` `arrow` `drawFX` `aur` `jpShow` | fx |
+| 80-skillfx.js | スキルエフェクト `fire` `bolt` `arrow` `drawFX` `jpShow` | fx |
 | 83b-portrait.js | カットイン専用の等身イラスト(3人の胸像を図形で描画→2値化+輪郭でドット化)。`PORT(i)`、失敗時は null で SPR にフォールバック | fx |
 | 84-charfx.js | キャラクター演出: 英雄のジャンプ(`heroDY` を 35 の drawHeroes が y に加算=1行フック)、吹き出しセリフ、カットインのバリエーション(従来/3人そろい踏み/ドアップ) | fx |
 | 84b-atkfx.js | 攻撃モーションのバリエーション(heroAtk をラップ、剣士/魔法使い/弓使いの特殊モーション。`heroDX` を 35 に1行フック、heroDY を加算ラップ。見た目のみ) | fx |
@@ -57,7 +80,7 @@ npm test                            # build + smoke
 | 88-bannerfx.js / css/30-banner.css | 予告バナー(#bn)の文字強化(黒縁+押し出し/色の本体/上半分ハイライトの3層、熱い文言は虹色) | fx |
 | 89-horyu.js | 保留変化: 熱い保留の一部を低い色で表示→待機中に1段ずつ/消化直前に本来の色へ。消化時は必ず元の予告レベル | fx/feature |
 | 89d-title.js / 79c-titlebgm.js / css/41-title.css | 動くタイトル画面(#ov に JS で飾りを足す。id は不変): 背景キャンバス #ttbg(3px=1ドット)に回る光の筋・釘と風車を転がる銀玉(看板=ロゴ/ボタンに入ると「入賞」で下から出る)・左右の電飾・英雄3人の行進と敵撃破、ロゴは1文字ずつ落下→光が走る、#go は輪と光が脈打つ(ボタン本体は動かさない=自動操作の安定待ちを妨げない)、続きの人には STAGE/最高/転生回数。音: 最初のタップ(#go/#ttsnd 以外)で `ttBgmStart()`=AC を作ってタイトル曲 `SONGS.tt`(D major 136、16小節、bgmState をタイトル中だけ 'tt' にラップ)、右上 #ttsnd でサウンド切替。スタートは 99-main の #go.onclick の1行フック `ttGo()` → `ttBgmGo()`(タイトル曲を切ってジングル約1.3秒→ゲーム曲)+扉が上下に開くトランジション #ttx(reduced-motion はフェードのみ)。99-main は AC を作り直さない(`AC=AC||new`)(テスト: tests/title.js) | fx/sound |
-| 89c-layer.js / css/39-layer.css | 演出の交通整理(見せ方の順番/位置だけ、当否・報酬は不変): バナー(#bn)は全画面パネル/強化シート中は戦闘画面の下寄りへ小さめに(.bup)、熱いバナー直後1秒の普通のバナーは待たせる(待ち行列≤2)。ミニゲームは JACKPOT/押せ!!/全画面ルーレット中なら終わってから開始。カットイン/JACKPOT中はボーナス帯(98e)を引っ込め、数え中のRUSHリザルトは隠す(数え終わりなら下げる)、NEXT はリザルトより上。ミニルーレットは左上角へ移しコンボ/敵名を右へ(`lyNameX()` を 35 の敵名に1行フック)。コンボは吹き出しの上に。ピーク(JACKPOT合計/リザルト確定・ランク/超倍率)に局所の衝撃リング+短いヒットストップ、超倍率はルーレット背後に金の光の筋。ラップの一部は最初の update で入れる(後のファイルより外側)。比較画像 store/design/5,6(テスト: tests/layer.js) | fx |
+| 89c-layer.js / css/39-layer.css | 演出の交通整理(見せ方の順番/位置だけ、当否・報酬は不変): バナー(#bn)は全画面パネル/強化シート中は戦闘画面の下寄りへ小さめに(.bup)、熱いバナー直後1秒の普通のバナーは待たせる(待ち行列≤2)。ミニゲームは JACKPOT/押せ!!/全画面ルーレット中なら終わってから開始。カットイン/JACKPOT中はボーナス帯(98e)を引っ込め、数え中のRUSHリザルトは隠す(数え終わりなら下げる)、NEXT はリザルトより上。ミニルーレットは左上角へ移しコンボ/敵名を右へ(`lyNameX()` を 35 の敵名に1行フック)。コンボは吹き出しの上に。ピーク(JACKPOT合計/リザルト確定・ランク/超倍率)に局所の衝撃リング+短いヒットストップ、超倍率はルーレット背後に金の光の筋。ラップの一部は最初の update で入れる(後のファイルより外側)(テスト: tests/layer.js) | fx |
 | 93b-mission.js | デイリーミッション(日付で3つ、達成で宝石2+魔石、全達成で宝石5)。`localStorage['pachi2_mission']` | feature |
 | 94-prestige.js / css/38-busyfix.css | 転生(魂)。操作の置き場所は強化シートの魂の祭壇(98i、メニューの「転生」タブは 98i が外す)。魂 `soulGain(s)` = F(s)-(1-`BAL.soulRep`)xF(min(s,PREC)) x魂の収穫、F(s)=5x(s/30)^2.5: 最高記録を超えた分は満額・記録までは50%(`PREC`=周回開始時の最高記録、`localStorage['pachi2_prec']`。旧セーブは「転生済みで記録より手前なら X.best、他は0」で推定して保存)。転生画面の説明は `presInfo(s)`。転生で X.gps/fgb/fgt もリセット。「転生する!」は演出中でも即転生: `presAbort()` が進行中の演出(回転/カットイン/押せ!!/ルーレット/JACKPOT/ミニゲーム/RUSHリザルト等)を打ち切る。後から走る setTimeout は `presLater(fn,ms)`(転生の世代 `PGEN` が変わっていたら何もしない)で予約すること。38-busyfix.css は押せ!!(#push)をメニュー/設定の下に(テスト: tests/prestige.js) | feature |
 | 94b-soul.js | 魂の祭壇: 魂を使って永続強化(開始ステージ/初期G/自動強化/遺物ドロップ率/魂の器/魂の力=ダメージ+8%・魂の富=ゴールド+8%(この2つは上限なし))。コストは `SCOST(b,r)`=ceil(b·r^Lv) の指数で増える(作り手の指摘「魂が余る」対応、上限も 開始30/初期G20/遺物8/器25 に拡大)。開始ステージで再出発した直後は「再出発の勢い」(`SOUL_RUN`: STAGE+15 まで最長3分、1体≒20発になるよう SB.a を補正)で止まらない(テスト: tests/soulrun.js)。使っても X.souls(ボーナス)は減らない。`localStorage['pachi2_soul']`。presDo をラップ | feature |
@@ -66,10 +89,10 @@ npm test                            # build + smoke
 | 96t-kuji.js | 魔石くじ(魔石100/10連1000、確率はメニューに明記。ゲーム内通貨のみ) | feature |
 | 96r-relic.js | 遺物コレクション: ボス撃破でドロップ(初回確定/以降35%)、10種×Lv5、`localStorage['pachi2_relic']`、転生で残る。SB.a/SB.g・spAdd・bigHit をラップ(テスト: tests/content.js) | feature |
 | 92b-daily.js | ログインボーナス(連続日数で魔石/宝石、7日目は宝石5)。`localStorage['pachi2_daily']` | feature |
-| 97s-support.js | 開発者を応援(BOOTH 配布向け: BOOTH_URL で商品ページ/BOOST 案内、応援版のサポーターコード入力でパトロン登録=宝石30個+パトロン証+★。ストア版の purchaseTip 受け口も残す)。お礼は見た目のみ。`pachi2_sup`。配布は `python3 tools/booth.py`(BOOTH.md) | feature |
+| 97s-support.js | 開発者を応援(BOOTH 配布向け: BOOTH_URL で商品ページ/BOOST 案内、応援版のサポーターコード入力でパトロン登録=宝石30個+パトロン証+★。ストア版の purchaseTip 受け口も残す)。お礼は見た目のみ。`pachi2_sup`。配布は `python3 tools/booth.py`(docs/BOOTH.md) | feature |
 | 97u-app.js | Unity アプリ(WebView)との橋渡し `window.PachiApp`(WebShell.cs が注入): 振動(大当たり/JACKPOT/ボス撃破、設定で ON/OFF、ブラウザは navigator.vibrate がある端末のみ)とセーブの控え(pachi2* を PlayerPrefs へ、消えたら書き戻し)。`pachi2_vib`(テスト: tests/app.js) | feature |
 | 97v-ios.js / css/37-ios.css | iPhone(WKWebView/Safari/ホーム画面追加)向け: 筐体のバウンス・ピンチ拡大を touchmove で抑止(スクロール領域/入力欄は除く)、長押しメニュー/選択の抑止、AudioContext の復帰(pageshow/focus/touchstart/click、interrupted の保険)、Google Font の非ブロッキング読込(index.html の `#gf`)後に盤面/ルーレット文字を描き直し、重ね表示の safe-area と dvh。見た目・バランスは不変(テスト: tests/ios.js) | feature |
-| 97t-rank.js | ランキング: 自己ベスト/共有/プレイヤー名、オンラインは `RANK_SERVER`(テストは window.PACHI_RANK_API)か PachiNative.rank を設定した時だけ(既定は通信しない)。通信は8秒で打ち切り(`rkReq`)、送信失敗/連打防止は記録を残して間をあけて再送(最長10分)、自分の順位(`/me`)と上位50件、開いたら自動読み込み(テスト: tests/rankserver.js・tests/rankclient.js)。サーバー見本 server/ranking-worker.js、手順 ONLINE.md | feature |
+| 97t-rank.js | ランキング: 自己ベスト/共有/プレイヤー名、オンラインは `RANK_SERVER`(テストは window.PACHI_RANK_API)か PachiNative.rank を設定した時だけ(既定は通信しない)。通信は8秒で打ち切り(`rkReq`)、送信失敗/連打防止は記録を残して間をあけて再送(最長10分)、自分の順位(`/me`)と上位50件、開いたら自動読み込み(テスト: tests/rankserver.js・tests/rankclient.js)。サーバー見本 server/ranking-worker.js、手順 docs/ONLINE.md | feature |
 | css/37-fixes.css | 実機ブラウザ検証で見つけたレイアウト修正(トーストをメニューより前面に・長いメニュータブで「閉じる」を下端に固定)(テスト: tests/uifix.js) | ui |
 | 98-mgfx.js / css/32-minigame.css | ミニゲーム(BONUS STOP/宝箱くじ/コインラッシュ)の描画とパネルの強化。ルールは 85/95 のまま | fx |
 | 90-extra.js | 覚醒/黄金玉/ヒットストップ等 | balance |
@@ -79,7 +102,7 @@ npm test                            # build + smoke
 | 98g-party.js / css/39-party.css | 遠征隊の編成: 仲間(96-allies の3人+遠征専用ゴーレム STAGE80/ピクシー STAGE130、mk() の fa3/fa4)を2人まで連れて行く。行き先との相性(◎報酬+25%/大成功+6%・○+10%/+2%)と仲間Lv(遠征の経験値で成長、最大20)で報酬倍率(上限x1.8)・大成功率(上限35%)が上がる。帰還時のお土産(魔石少し/宝石1)、Lv UP 表示。後半の行き先「魔王城」(STAGE100,12h)「天空の神殿」(STAGE150,16h、遺物は未発見/低Lv優先)は 98d の EXD に追加。98d には `typeof pt*` のフック(ptDepart/ptBonus/ptReturn/ptHtml/ptMenu/ptAffTag/ptRelicLow)。帰還時はメニュー内の「遊ぶ」ボタンと「遠征」タブにも「!」(29c の1行フック `fmgMark`)。仲間タブに遠征での Lv を追記。実績 pt1/pt10/pt20/ex5。`localStorage['pachi2_party']`、転生で残る(テスト: tests/party.js) | feature |
 | 98e-bonustime.js | ボーナスタイム: プレイ6〜9分ごとに40秒(黄金タイム=G x2/魔石フィーバー=魔石 x3/討伐タイム=ダメージ x2)。毎日12時台・20〜21時台はゴールデンタイム(間隔半分)。SB.a/SB.g・resMs・update・drawB をラップ。当否は不変。`localStorage['pachi2_bt']`、転生で残る | feature |
 | 98f-hilo.js | ミニゲーム「ハイ&ロー」(STAGE30〜、95 の MGT ローテーションに追加、#fxg を共用)。最大3回 x2→x4→x8、外れても x1 は受け取れる、自動選択あり。mg2Start/mini/relicUpd をラップ | feature |
-| 98h-area.js | エリア(舞台)の変化: 25ステージごとに8エリア(草原→砂漠→氷原→火山→魔界→天空→宙域→虚空、201〜はII周目)。36 の drawBgB を置き換えてエリア別の背景(空/夕暮れ空/遠景/地面をエリアごとに1回だけオフスクリーン描画、エリア内は5ステージごとに夕暮れへ)+動く小物、到達/起動/転生時に「AREA n 名前」のタイトル帯(到達時は FINISH!! の後、FINISH 中は前エリアの背景)。敵: 草原以外は雑魚/ボス b0〜b3 をエリア色にパレット差し替え(図鑑は同種扱い=キーは enSpr のまま)、STAGE 25の倍数は新しいエリアの主 b4〜b11(図鑑に BOSS として追加、★基準 1/10/50、保存済みの撃破数はここで読む)。ボス: HP50%未満で「怒り状態!!」(赤オーラ)/エリアの主は「形態変化!!」(第2形態の色)、エリアの主は常にオーラ・撃破で光の柱+多重リング+AREA CLEAR!!。見た目のみ(HP/報酬/当否は不変)。フック無し: enSpr/drawEnemy(描画中だけ SPR を差し替え)/drawHP(エリアの主の名前)/deathFx/kill/update/drawB をラップ。見本 store/design/area-*.jpg(テスト: tests/area.js) | feature/fx |
+| 98h-area.js | エリア(舞台)の変化: 25ステージごとに8エリア(草原→砂漠→氷原→火山→魔界→天空→宙域→虚空、201〜はII周目)。36 の drawBgB を置き換えてエリア別の背景(空/夕暮れ空/遠景/地面をエリアごとに1回だけオフスクリーン描画、エリア内は5ステージごとに夕暮れへ)+動く小物、到達/起動/転生時に「AREA n 名前」のタイトル帯(到達時は FINISH!! の後、FINISH 中は前エリアの背景)。敵: 草原以外は雑魚/ボス b0〜b3 をエリア色にパレット差し替え(図鑑は同種扱い=キーは enSpr のまま)、STAGE 25の倍数は新しいエリアの主 b4〜b11(図鑑に BOSS として追加、★基準 1/10/50、保存済みの撃破数はここで読む)。ボス: HP50%未満で「怒り状態!!」(赤オーラ)/エリアの主は「形態変化!!」(第2形態の色)、エリアの主は常にオーラ・撃破で光の柱+多重リング+AREA CLEAR!!。見た目のみ(HP/報酬/当否は不変)。フック無し: enSpr/drawEnemy(描画中だけ SPR を差し替え)/drawHP(エリアの主の名前)/deathFx/kill/update/drawB をラップ(テスト: tests/area.js) | feature/fx |
 | 98s-story.js | 軽いストーリー: 剣士ホムラ/魔法使いシズク/弓使いコハク(オリジナル)が虚無の王(魔王)ニヒラを目指す旅。エリア到達(a0〜a7)/エリアの主撃破(b0〜b7)/初JACKPOT/初転生 で2〜4行の会話を戦闘画面の下寄りに重ねる(顔は PIMGI→PORT→SPR、敵は SPR)。タップで文字送り→次の行、放置で1行約3秒、「とばす」。演出中(lyBig/lyBusyB/#rl #mg #fxg/MG/エリアのタイトル帯・大爆発/メニュー)は隠して停止。メニュー「物語」(FMGRP の「集める」に実行時に追加)で読み返し/再生。進行は `localStorage['pachi2_tut']`(98t と共用: s/g/skip/off/old)、キーが無い旧セーブは通過済みシーンを既読に。kill/update をラップ、Math.random 不使用(テスト: tests/tutorial.js) | feature |
 | 98t-tutorial.js | チュートリアル: 序盤ガイド(玉→スロット→英雄→タップ→強化→RUSH)を対象(#pw/#slot/#bw/#hd/#ubt)のゆっくり光る枠(約0.7Hz、reduced-motion で停止)+英雄の吹き出しで順に。数秒で自動で消える/タップで次へ/スキップ。新機能ガイド(SP/ボス/☰/遠征/鍛冶屋/転生/魂の祭壇)は条件を満たした時に1回だけ。旧セーブは序盤+満たし済みを既読。物語シーン中は待つ。メニュー「遊び方」(その他)で一覧/もう一度/新機能ガイド ON・OFF。update をラップ | feature |
 | 98i-gemshop.js / css/39-gemshop.css | 宝石ショップ(メニュー「育てる」。29c の FMGRP へ実行時に '宝石' を追加): ブースト(魔石の加護=5分 魔石x2 宝石3・幸運の香=3分 大当たり約1.5倍 宝石4(hitRoll ラップ、RUSH/天井は不変)・重ねがけ上限あり、ゲーム時間で減る/ボーナスタイム招来 宝石3/遠征の早馬 -1時間 宝石2・今すぐ 30分ごと宝石1)、勲章(永続・逓増コスト: 戦神 ダメージ+4%/Lv・黄金 G+4%/Lv 各 10+5l MAX10、魔石 +10%/Lv 8+4l MAX10、遠征の羅針盤 -6%/Lv 12+6l MAX5、祭りの太鼓 ボーナスタイム+4秒/Lv 10+5l MAX5)、便利(ミッション入れ替え 1日1回 宝石3、自動強化ターボ=祭壇の自動強化を4倍速 宝石20)、見た目(玉の色/図柄の色/筐体テーマ body.gscN/称号=戦闘画面左下。性能不変)。`localStorage['pachi2_gemshop']`、すべて転生で残る。SB.a/SB.g・resMs・hitRoll・expGo・pxText・drawB・update をラップ。sim は `--gs=1` で勲章を自動購入(テスト: tests/gemshop.js) | feature |
@@ -88,9 +111,9 @@ npm test                            # build + smoke
 | 87d-roulquick.js / css/41-roulquick.css | ルーレットの画面占有を短く(作り手の指摘): updRoul に渡す時間を早める(回転 4.6→約3.1秒、結果 1.8→約1.2秒、超倍率の溜め 4.4→約3.4秒、合計 約6.4→4.4秒)、ルーレットの枠(.rb)をタップで早送り(`RQ.ff`、約1秒で閉じる)、暗幕を薄く(.45)。当否・倍率・報酬は 60 のまま(テスト: tests/upmove.js) | feature/fx |
 | 89h-pushhype.js / css/41-pushhype.css | 押せ!!ボタンを脳汁仕様に(作り手の指摘「インパクトが薄い」): 熱さ `heat` 1=赤/2=金/3=虹(777は必ず虹)。ルーレット行きは 87-hitev が超倍率を先に抽選(確率不変)して 当たり=虹60%/金40%・外れ=赤80%/金20% を渡す(信頼度)。登場は上から叩きつけ0.35秒+熱さ色のオーラ(約1.2Hz、ボタン周りのみ)、押下で光の放射+文字(GO!!/激アツ!!/確定!!)、SE を厚く(`phSnd`: 低音のドン+打撃ノイズ+熱さ別の和音、虹は上昇キュイーン+ベル)。全画面の点滅なし、reduced-motion で停止(テスト: tests/pushhype.js) | fx/sound |
 | 97w-save.js / css/41-save.css | セーブデータの整備: 引き継ぎコード `svCode()`=「PACHI2:<base64(UTF-8 JSON)>:<チェック値>」(localStorage の pachi2* を全部)、`svParse` で検証→ `svApply` で丸ごと差し替え+再読込(差し替え前は自動バックアップへ)。コピー/ファイルに保存/ファイルから読み込み。自動バックアップ: プレイ10分ごと+裏に回った時(最短2分)に3世代を `localStorage['pbak_pachi2']`(pachi2 で始めない=引き継ぎ/Unity控えに混ざらない)、一覧から戻せる。起動時に pachi2 が壊れていたら `SV.broken` で自動バックアップを止め、復元を案内。メニュー「セーブ」(その他)(テスト: tests/save.js) | feature |
-| css/38-polish.css | 全画面のデザイン統一(見た目のみ): 設定パネルを金ベゼル+LED+液晶数値の筐体デザインに、見出し下線を虹色に、メニューのタブ字間/入力欄(液晶風)/ログボのマス/ミッションのバー/強化タブの高さ44px/ヒント文字の拡大。比較画像は store/design/ | design |
+| css/38-polish.css | 全画面のデザイン統一(見た目のみ): 設定パネルを金ベゼル+LED+液晶数値の筐体デザインに、見出し下線を虹色に、メニューのタブ字間/入力欄(液晶風)/ログボのマス/ミッションのバー/強化タブの高さ44px/ヒント文字の拡大 | design |
 | 98i-altar.js / css/41-altar.css | 魂の祭壇に転生を統合: 強化シートの「魂の祭壇」を「① 転生で魂を集める(presAsk/presInfo/presGainShow を呼ぶだけ)→ ② 魂で永続強化(94b の SOULD/soulBuy)」の1画面に(`altarHtml`)。三本線メニューの「転生」タブは外し、「育てる」には案内の「育成」タブ(通常強化/鍛冶屋/魂の祭壇を `altOpen(g)` で開く)。presAsk の「やめる」はメニューを開かず閉じる、転生後は grpRefresh(テスト: tests/altar.js) | ui |
-| 01-edition.js / 98l-edition.js / css/41-edition.css | 体験版/完全版: `EDITION=free node tools/build.js` → dist/pachi-senki-free.html(`window.PACHI_EDITION='free'` を先頭に、**1行目に `@full` があるファイルは除外**)。既定ビルド(Pages/Unity/テスト)は完全版。`EDITION`/`IS_FULL`/`FREE_MAX`(=175)。98l: 体験版は kill をラップして STAGE 175 で止め「完全版のご案内」(`edFullHtml`、一覧 `FULL_FEATS`=完全版コンテンツを足したら追記)、メニュー「完全版」(その他)、タイトルに札 #edb。BOOTH zip は tools/booth.py が体験版/完全版の2つを作る(BOOTH.md)(テスト: tests/edition.js) | feature |
+| 01-edition.js / 98l-edition.js / css/41-edition.css | 体験版/完全版: `EDITION=free node tools/build.js` → dist/pachi-senki-free.html(`window.PACHI_EDITION='free'` を先頭に、**1行目に `@full` があるファイルは除外**)。既定ビルド(Pages/Unity/テスト)は完全版。`EDITION`/`IS_FULL`/`FREE_MAX`(=175)。98l: 体験版は kill をラップして STAGE 175 で止め「完全版のご案内」(`edFullHtml`、一覧 `FULL_FEATS`=完全版コンテンツを足したら追記)、メニュー「完全版」(その他)、タイトルに札 #edb。BOOTH zip は tools/booth.py が体験版/完全版の2つを作る(docs/BOOTH.md)(テスト: tests/edition.js) | feature |
 | 98z-tower.js / css/41-tower.css | **@full(完全版のみ)** 無限の塔: メニュー「遊ぶ」→「無限の塔」(X.best>=30)。今の敵をしまって塔のボスと連続バトル(いつものダメージがそのまま当たる)、1階20秒(`TWT`)、撃破で次の階・時間切れで結果画面→元の敵に戻る(ステージは進まない)。HP `twHp(f)`=STAGE 2f のボスの1.5倍(到達は だいたい (最高STAGE-8)/2 階)。記録を越えた階だけ 魔石4f・5階ごと宝石1(10階ごと3)・10階ごとに塔の加護 ダメージ+3%(SB.a)。見た目は描画中だけ G.stage を `twVs(f)` に差し替えて drawEnemy/drawHP/drawBgB(5階ごとエリアの主)。kill/spawn を一番外側でラップ(挑戦中の kill は塔だけ、spawn=転生などで打ち切り)。実績 tw10/tw30/tw60。`localStorage['pachi2_tower']`、転生で残る(テスト: tests/tower.js) | feature |
 | 94c-herohp.js / 98m-heroup.js / css/41-heroup.css | 英雄の体力と敵の攻撃(体験版にも入る。作り手の方針「序盤は順当、中盤以降はリソースを使って育てないと詰まる」「ボス戦だけ厳しく」): 3人それぞれ体力(`HB`x役割 1.4/0.8/1.0)、敵が一定間隔で攻撃(剣士が2倍狙われる)。敵の強さ `hvThr(s)`=0.25x1.08^(s-15)(STAGE 30 までは さらに 30%→100%)。雑魚戦は倒れても6秒で起き上がる(全滅なし)。ボス戦(STAGE 15〜のボスと無限の塔)は倒れたら戦闘終了まで起きず攻撃しない、3人とも倒れると全滅→**1つ前のステージへ**+リベンジ(攻撃+10%/回 最大3、そのボスを倒すまで)、塔は挑戦終了。STAGE 30 からボスに装甲(hurt ÷`hvBossK` 50で3/80で6/最大8、体力とゴールドは不変)=ボス戦が長くなる。元気ボーナス(体力が多いほど通常攻撃 最大+30%、heroAtk の m に掛ける)。英雄ごとの強化 `HUP`(体力 x1.18/Lv・防御 ÷1.12/Lv は上限なし コスト伸び1.9、回復 +20%/Lv MAX15、解放STAGE10/15/20、ゴールド、転生でリセット、`localStorage['pachi2_hero']`)は強化画面の「英雄」グループ(98m、通常強化の次。タブ6つは 3x2、次のボスで持つ秒数 `hvSurv` を表示)。魂の祭壇の自動強化と sim は `hupNeed()`(持つ秒数が `HVSAFE`=40秒未満の英雄がいる時だけ買う)。spawn/heroAtk/hurt/drawHeroes/drawB/presDo/SB.a をラップ(テスト: tests/herohp.js) | feature |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
@@ -152,11 +175,11 @@ npm test                            # build + smoke
 ## 保守・デバッグの手順(毎回必ず。作り手はコードを読まないので、確認は機械と手順で担保する)
 作業の前
 1. 触るファイルの依存を docs/DEPS.md(使っている他ファイルの名前)と docs/WRAPS.md(同じ関数を包む順番)で確認する。
-2. 既存の仕組みで済むなら新しい依存・新しいラップを作らない(同じ役目のものが既にないか先に探す)。
+2. 既存の仕組みで済むなら新しい依存・新しいラップ・新しいファイルを作らない(同じ役目のものが既にないか先に探す)。使い終わった物(関数・ファイル・一度きりのスクリプト)は残さず消す(Git に履歴が残るので戻せる)。作業用の一時ファイルはリポジトリの外(scratchpad)に置く。
 
 作業の後(`npm test` に全部入っている。どれか1つでも NG ならコミットしない)
 3. `node tools/deps.js` … 完全版だけの名前を typeof なしで使っていないか / ラップの並びが変わっていないか。
-4. `node tools/audit.js` … 導線の入れ忘れ: ファイルが CLAUDE.md にあるか・テストが npm test にあるか・セーブを書いて読んでいるか・呼ばれない関数・存在しない画面部品・@full の案内(`// FULL_FEAT:`)・全メニュー/強化画面が開けるか・タブの置き場所(FMGRP)・1分動かして例外0(完全版/体験版の両方)。
+4. `node tools/audit.js` … 散らかり(全ファイルが「リポジトリの構成」に載っているか・一時ファイルの置き忘れ)と導線の入れ忘れ: ファイルが CLAUDE.md にあるか・テストが npm test にあるか・セーブを書いて読んでいるか・呼ばれない関数・存在しない画面部品・@full の案内(`// FULL_FEAT:`)・全メニュー/強化画面が開けるか・タブの置き場所(FMGRP)・1分動かして例外0(完全版/体験版の両方)。
 5. 基準(tools/wraps.snapshot.json / tools/audit.baseline.json / docs/*.md)を `--update` で書き換えたら、**何が増えた/減ったかを最終報告に書く**。増やすのは意図した時だけ。
 6. テストが落ちたら、まず「ゲームの不具合」か「テストの前提が古い」かを切り分ける。前のコミットの版(git worktree)で同じテストを動かして比べ、根拠なしにテストを緩めない。
 7. バランスに触れたら sim を前後で3シード以上。新しい育成要素は「買う/買わない」の比較も取る(買わない方が得なら設計を見直す)。

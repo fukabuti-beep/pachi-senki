@@ -1,4 +1,4 @@
-// パチ戦記 オンラインランキング用サーバーの見本(Cloudflare Workers + KV)。手順は ONLINE.md。
+// パチ戦記 オンラインランキング用サーバーの見本(Cloudflare Workers + KV)。手順は docs/ONLINE.md。
 // エンドポイント:
 //   POST /submit {board,score,name,id} → {ok,rank}     自己ベスト更新時にゲームが送る(1プレイヤー1件=自己ベストのみ)
 //   GET  /top?board=stage              → [{name,score}] 上位50件

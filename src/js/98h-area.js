@@ -172,4 +172,3 @@ function arRageSnd(){try{if(sOK()){const t=sNow();tone(110,t,.5,'sawtooth',.05,5
   }catch(e){AR.title=null;AR.boom=null}return r}}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{bc.imageSmoothingEnabled=false;arBoomDraw(t);arTxtFx(t);arClearTxt(t);arTitleDraw(t)}catch(e){AR.title=null;AR.boom=null}return r}}
 /* 戦闘以外のUI向け: 現在のエリア名(他ファイルから使える) */
-function arName(st){st=st||G.stage;const L=arLap(st);return 'AREA '+(arIdx(st)+1)+' '+AREAS[arArea(st)].n+(L?' '+['','II','III','IV','V'][Math.min(4,L)]:'')}

@@ -2929,7 +2929,6 @@ const u=(p-.8)/.12;if(u>0){if(u<1){const x=-90+fxEo(u*.7+u*.3)*(EXX+110);bc.fill
 else{const a=(u-1)*.12;bc.globalAlpha=Math.max(0,1-a/.3);bc.fillStyle='#caffb0';bc.fillRect(EXX-14,0,28,125);bc.globalAlpha=1;fxWave(EXX,82,a/.5,'#9bff6b',9);fxWave(EXX,82,(a-.07)/.5,'#fff',4);fxFlash(.5*(1-a/.1),'#eaffdc')}}}
 function drawFX(t){for(let i=FX.length-1;i>=0;i--){const f=FX[i],p=t-f.t0;if(p>1.6){FX.splice(i,1);continue}[fire,bolt,arrow][f.k](p)}}
 function lines(c,t,n){bc.fillStyle=c;bc.globalAlpha=.55;for(let i=0;i<n;i++){bc.fillRect(Math.round(360-((t*700+i*131)%460)),(i*53+7)%150,60+(i%3)*30,2)}bc.globalAlpha=1}
-function aur(t){lines('#fff',t,10)}
 /* JACKPOT: 金のコイン雨 + ドット極太ロゴ(虹色・波打ち) */
 function jpShow(t){if(G.jp<=0)return;for(let i=0;i<5;i++)if(PT.length<1200)PT.push({x:Math.random()*360,y:-4,vx:0,vy:2+Math.random()*3,l:1.5,c:Math.random()<.5?'#ffd400':'#fff3a0'});
 const s='JACKPOT',sc=7,x0=180-pxW(s,sc)/2,pop=Math.max(0,1-(5-G.jp)*3);for(let i=0;i<s.length;i++){const h=(Math.floor((t*4+i*1.2))%12)*30,c1='hsl('+h+',100%,66%)',c2='hsl('+h+',100%,46%)';pxText(bc,s[i],x0+i*6*sc,50+Math.round(Math.sin(t*6+i*.8)*5)-Math.round(pop*14),sc,c1,c2,'l')}
@@ -3882,7 +3881,6 @@ function ujUpd(dt){const U=UJ.s;if(!U)return;if(U.g!==PGEN){UJ.s=null;UJ.pp.leng
   if(!U.fail){if(p>=2.95&&!U.jp){ujJP();seHy('hit');try{lyImpact('b',ex,ey,'#ffd400',1);lyImpact('b',ex,ey,UJC[U.h],0);lyStop(.15)}catch(e){}burst(ex,ey,hyLite()?12:40,UJC[U.h]);if(!hyLite())shake()}
     if(p>=3.75)UJ.s=null}
   else{if(p>=3.25&&!U.jp){ujJP();seHy('bigwin');try{lyImpact('b',180,80,'#ffd400',1)}catch(e){}}if(p>=3.7)UJ.s=null}}
-function ujHue(t,o){return 'hsl('+Math.floor(t*(hyLite()?60:220)+(o||0))%360+',100%,62%)'}
 function ujDraw(t){const U=UJ.s;if(!U)return;const p=t-U.t0,h=U.h,col=UJC[h],hxp=6+h*46+32,hyp=52+36,lite=hyLite();
   // 暗さ(ゆっくり上下するだけ)
   const dk=p<1.1?p/1.1*.6:p<1.35?.6+(p-1.1)/.25*.32:U.fail?(p<2.25?.92:p<3.25?Math.max(.55,.92-(p-2.25)*.6):Math.max(0,.55-(p-3.25)*1.3)):(p<2.95?.92:Math.max(0,.92-(p-2.95)*1.3));
@@ -4777,9 +4775,9 @@ FM.push(SUPTAB);
    共有: navigator.share(使えない時はクリップボードにコピー)で記録をテキスト共有。
    オンライン: 接続先が設定された時だけ有効(既定はオフ=通信しない)。
      1) ストア版: window.PachiNative.rank = { submit(board,score,name):Promise<bool>, top(board):Promise<[{name,score}]> }(Game Center/Play Games 等)
-     2) 自前サーバー: RANK_API にURLを設定(server/ranking-worker.js = Cloudflare Workers の見本。手順は ONLINE.md)
+     2) 自前サーバー: RANK_API にURLを設定(server/ranking-worker.js = Cloudflare Workers の見本。手順は docs/ONLINE.md)
    自己ベストが更新されたら送信待ちにし、最短60秒おきにまとめて送信する。セーブ: localStorage['pachi2_rank'] */
-const RANK_SERVER='https://pachi-rank.okumosiroiro.workers.dev';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は ONLINE.md)
+const RANK_SERVER='https://pachi-rank.okumosiroiro.workers.dev';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は docs/ONLINE.md)
 const RANK_API=(typeof window!=='undefined'&&typeof window.PACHI_RANK_API==='string')?window.PACHI_RANK_API:RANK_SERVER;   // window.PACHI_RANK_API があればそれ(空文字=通信しない。テスト用)   // テストでは window.PACHI_RANK_API で差し替え
 const RKB=[['stage','最高到達ステージ','STAGE '],['chain','最高連チャン',''],['score','最高RUSHスコア',''],['hits','大当たり累計','']];
 let RK={name:'',id:'',best:{stage:0,chain:0,score:0,hits:0},pend:{},last:0,top:{},board:'stage',err:''};
@@ -5615,7 +5613,6 @@ function arRageSnd(){try{if(sOK()){const t=sNow();tone(110,t,.5,'sawtooth',.05,5
   }catch(e){AR.title=null;AR.boom=null}return r}}
 {const _d=drawB;drawB=function(t){const r=_d.apply(this,arguments);try{bc.imageSmoothingEnabled=false;arBoomDraw(t);arTxtFx(t);arClearTxt(t);arTitleDraw(t)}catch(e){AR.title=null;AR.boom=null}return r}}
 /* 戦闘以外のUI向け: 現在のエリア名(他ファイルから使える) */
-function arName(st){st=st||G.stage;const L=arLap(st);return 'AREA '+(arIdx(st)+1)+' '+AREAS[arArea(st)].n+(L?' '+['','II','III','IV','V'][Math.min(4,L)]:'')}
 
 /* ---------- ui: 魂の祭壇に転生をまとめる ----------
    強化シート(98c)の「魂の祭壇」を「① 転生で魂を集める → ② 魂で永続強化」の1画面にする。

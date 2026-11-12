@@ -24,7 +24,6 @@ function ujUpd(dt){const U=UJ.s;if(!U)return;if(U.g!==PGEN){UJ.s=null;UJ.pp.leng
   if(!U.fail){if(p>=2.95&&!U.jp){ujJP();seHy('hit');try{lyImpact('b',ex,ey,'#ffd400',1);lyImpact('b',ex,ey,UJC[U.h],0);lyStop(.15)}catch(e){}burst(ex,ey,hyLite()?12:40,UJC[U.h]);if(!hyLite())shake()}
     if(p>=3.75)UJ.s=null}
   else{if(p>=3.25&&!U.jp){ujJP();seHy('bigwin');try{lyImpact('b',180,80,'#ffd400',1)}catch(e){}}if(p>=3.7)UJ.s=null}}
-function ujHue(t,o){return 'hsl('+Math.floor(t*(hyLite()?60:220)+(o||0))%360+',100%,62%)'}
 function ujDraw(t){const U=UJ.s;if(!U)return;const p=t-U.t0,h=U.h,col=UJC[h],hxp=6+h*46+32,hyp=52+36,lite=hyLite();
   // 暗さ(ゆっくり上下するだけ)
   const dk=p<1.1?p/1.1*.6:p<1.35?.6+(p-1.1)/.25*.32:U.fail?(p<2.25?.92:p<3.25?Math.max(.55,.92-(p-2.25)*.6):Math.max(0,.55-(p-3.25)*1.3)):(p<2.95?.92:Math.max(0,.92-(p-2.95)*1.3));

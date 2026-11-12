@@ -3,9 +3,9 @@
    共有: navigator.share(使えない時はクリップボードにコピー)で記録をテキスト共有。
    オンライン: 接続先が設定された時だけ有効(既定はオフ=通信しない)。
      1) ストア版: window.PachiNative.rank = { submit(board,score,name):Promise<bool>, top(board):Promise<[{name,score}]> }(Game Center/Play Games 等)
-     2) 自前サーバー: RANK_API にURLを設定(server/ranking-worker.js = Cloudflare Workers の見本。手順は ONLINE.md)
+     2) 自前サーバー: RANK_API にURLを設定(server/ranking-worker.js = Cloudflare Workers の見本。手順は docs/ONLINE.md)
    自己ベストが更新されたら送信待ちにし、最短60秒おきにまとめて送信する。セーブ: localStorage['pachi2_rank'] */
-const RANK_SERVER='https://pachi-rank.okumosiroiro.workers.dev';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は ONLINE.md)
+const RANK_SERVER='https://pachi-rank.okumosiroiro.workers.dev';   // ← 自前ランキングサーバーのURL(例: 'https://pachi-rank.xxxx.workers.dev')。空なら通信しない(手順は docs/ONLINE.md)
 const RANK_API=(typeof window!=='undefined'&&typeof window.PACHI_RANK_API==='string')?window.PACHI_RANK_API:RANK_SERVER;   // window.PACHI_RANK_API があればそれ(空文字=通信しない。テスト用)   // テストでは window.PACHI_RANK_API で差し替え
 const RKB=[['stage','最高到達ステージ','STAGE '],['chain','最高連チャン',''],['score','最高RUSHスコア',''],['hits','大当たり累計','']];
 let RK={name:'',id:'',best:{stage:0,chain:0,score:0,hits:0},pend:{},last:0,top:{},board:'stage',err:''};

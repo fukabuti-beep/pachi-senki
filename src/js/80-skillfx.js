@@ -42,7 +42,6 @@ const u=(p-.8)/.12;if(u>0){if(u<1){const x=-90+fxEo(u*.7+u*.3)*(EXX+110);bc.fill
 else{const a=(u-1)*.12;bc.globalAlpha=Math.max(0,1-a/.3);bc.fillStyle='#caffb0';bc.fillRect(EXX-14,0,28,125);bc.globalAlpha=1;fxWave(EXX,82,a/.5,'#9bff6b',9);fxWave(EXX,82,(a-.07)/.5,'#fff',4);fxFlash(.5*(1-a/.1),'#eaffdc')}}}
 function drawFX(t){for(let i=FX.length-1;i>=0;i--){const f=FX[i],p=t-f.t0;if(p>1.6){FX.splice(i,1);continue}[fire,bolt,arrow][f.k](p)}}
 function lines(c,t,n){bc.fillStyle=c;bc.globalAlpha=.55;for(let i=0;i<n;i++){bc.fillRect(Math.round(360-((t*700+i*131)%460)),(i*53+7)%150,60+(i%3)*30,2)}bc.globalAlpha=1}
-function aur(t){lines('#fff',t,10)}
 /* JACKPOT: 金のコイン雨 + ドット極太ロゴ(虹色・波打ち) */
 function jpShow(t){if(G.jp<=0)return;for(let i=0;i<5;i++)if(PT.length<1200)PT.push({x:Math.random()*360,y:-4,vx:0,vy:2+Math.random()*3,l:1.5,c:Math.random()<.5?'#ffd400':'#fff3a0'});
 const s='JACKPOT',sc=7,x0=180-pxW(s,sc)/2,pop=Math.max(0,1-(5-G.jp)*3);for(let i=0;i<s.length;i++){const h=(Math.floor((t*4+i*1.2))%12)*30,c1='hsl('+h+',100%,66%)',c2='hsl('+h+',100%,46%)';pxText(bc,s[i],x0+i*6*sc,50+Math.round(Math.sin(t*6+i*.8)*5)-Math.round(pop*14),sc,c1,c2,'l')}

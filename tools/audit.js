@@ -4,6 +4,7 @@
 //  静的(ソースを読むだけ)
 //   1) 説明書: src/js・src/css の各ファイルが CLAUDE.md に書かれているか(誰が何のために作ったか分からないファイルを増やさない)
 //   2) テスト: tests/*.js が npm test に入っているか(作ったテストが走っていない、を防ぐ)
+//   2b) 散らかり: 全ファイルが CLAUDE.md の「リポジトリの構成」に載っているか・一時ファイルらしい名前が無いか
 //   3) セーブ: localStorage のキー(pachi2_*)が 書く と 読む の両方あるか(保存したのに読まない/読むのに保存しない)
 //   4) 使われていない関数: どこからも呼ばれない関数(作りかけ・消し忘れ)
 //   5) 画面の部品: $('id') で探している id が、HTML か JS のどこかで作られているか(名前の打ち間違い・作り忘れ)
@@ -41,6 +42,20 @@ ratchet('undocumented', [...jsFiles, ...cssFiles.map(f => 'css/' + f)].filter(f 
 const testCmd = (pkg.scripts && pkg.scripts.test) || '';
 for (const f of fs.readdirSync(path.join(root, 'tests')).filter(f => f.endsWith('.js'))) if (!testCmd.includes('tests/' + f)) ng(`tests/${f} が npm test に入っていない(作ったテストが走らない)`);
 
+// 2b) ファイルの散らかり: リポジトリの全ファイル(コミット済み+まだコミットしていない新しいファイル)が CLAUDE.md の「リポジトリの構成」に載っているか、
+//     一時ファイルらしい名前が無いか(作業の残りを置き忘れない)
+{ const cp = require('child_process'); let files = [];
+  try { files = cp.execSync('git ls-files -co --exclude-standard', { cwd: root }).toString().split('\n').filter(Boolean); } catch (e) { warn('git が使えないのでファイルの散らかりは見ていない'); }
+  const sec = (claude.split('## リポジトリの構成')[1] || '').split('\n## ')[0];
+  const listed = f => { if (/^(src\/js|src\/css|tests|unity)\//.test(f) || f === 'src/index.html' || f === 'src/style.css') return true;
+    if (sec.includes(f)) return true; const parts = f.split('/'); for (let i = parts.length - 1; i > 0; i--) { const d = parts.slice(0, i).join('/') + '/';   // フォルダ丸ごとの許可は「store/shots/」のように単独で書いた時だけ
+      if (new RegExp('(^|[\\s,|])' + d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=[\\s,|(]|$)', 'm').test(sec)) return true; }
+    return false; };
+  for (const f of files) {
+    if (!fs.existsSync(path.join(root, f))) continue;   // 消したばかり(まだコミットしていない)
+    if (/(^|[\/._-])(tmp|temp|old|bak|backup|copy|untitled|scratch|wip)([\/._-]|\d|$)|~$|\.orig$|\.rej$|\.swp$|\.log$/i.test(f)) ng(`一時ファイルらしい ${f} がある(作業の残りなら消す)`);
+    else if (!listed(f)) ng(`${f} が CLAUDE.md の「リポジトリの構成」に無い(必要なら1行書く、不要なら消す)`); } }
+
 // 3) セーブのキー(書く/読む の対)
 const keysOf = re => { const s = new Set(); let m; while ((m = re.exec(allJs))) s.add(m[1]); return s; };
 const wr = keysOf(/setItem\(\s*['"](pachi2[\w]*)['"]/g), rd = keysOf(/getItem\(\s*['"](pachi2[\w]*)['"]/g);
@@ -50,7 +65,7 @@ for (const k of rd) if (!wr.has(k) && !constKeys.has(k) && k !== 'pachi2') warn(
 
 // 4) 使われていない関数(名前が定義の1回しか出てこない。HTML の onclick 文字列も数える)
 // tools/ と tests/ から呼ばれる関数(sim・テスト用の入口)も「使われている」に数える
-const extra = ['tools', 'tests'].flatMap(d => fs.readdirSync(path.join(root, d)).filter(f => f.endsWith('.js') && f !== 'audit.js').map(f => fs.readFileSync(path.join(root, d, f), 'utf8'))).join('\n');
+const extra = ['tools', 'tests'].flatMap(d => fs.readdirSync(path.join(root, d)).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(root, d, f), 'utf8'))).join('\n');
 const everything = allJs + '\n' + html + '\n' + extra;
 const unused = [];
 for (const f of jsFiles) { const re = /^function\s+([A-Za-z_$][\w$]*)/gm; let m; while ((m = re.exec(src[f]))) { const n = m[1];

@@ -1,0 +1,18 @@
+/* 次の目標とおみくじ(98o-goals)、音楽室(98ya-music) */
+#fxm .glo{display:flex;align-items:center;gap:12px;justify-content:center;margin:6px 0;padding:8px;border:2px solid #000;box-shadow:0 0 0 2px var(--oc),0 3px 0 2px #000;background:linear-gradient(#2a1e5c,#170f38)}
+#fxm .glo b{font-size:28px;color:var(--oc);text-shadow:2px 2px 0 #000}
+#fxm .glo span{font-size:14px;text-align:left}
+#fxm .glo small{font-size:11px;color:#cfc6ff}
+#fxm .gll{display:flex;flex-direction:column;gap:6px;margin-top:6px;text-align:left}
+#fxm .glr{padding:5px 6px;background:#140e3a;box-shadow:0 0 0 2px #000,inset 0 0 0 1px #4a3aa8}
+#fxm .glt{display:flex;justify-content:space-between;gap:6px;font-size:12px}
+#fxm .glt b{color:#fff;font-weight:normal}
+#fxm .glt i{font-style:normal;color:#7ff3ff;white-space:nowrap}
+#fxm .glb{height:6px;background:#2a2040;border:1px solid #000;margin:3px 0 2px}
+#fxm .glb u{display:block;height:100%;background:linear-gradient(#ffe56a,#e0a800)}
+#fxm .glr small{font-size:10px;color:#bfb6f0}
+#fxm .mrl{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+#fxm .mrb{font:inherit;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px;border:0;color:#fff;background:linear-gradient(#2a1e5c,#170f38);box-shadow:inset 2px 2px 0 #4a3aa8,inset -2px -2px 0 #0c0628,0 0 0 2px #000;font-size:13px;min-height:40px}
+#fxm .mrb small{font-size:10px;color:#ffd400}
+#fxm .mrb.on{box-shadow:inset 2px 2px 0 #ffe56a,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 0 8px rgba(255,212,0,.5)}
+#fxm .mrb.lk{opacity:.5}

@@ -121,6 +121,8 @@ npm test                            # build + smoke
 | 94c-herohp.js / 98m-heroup.js / css/41-heroup.css | 英雄の体力と敵の攻撃(体験版にも入る。作り手の方針「序盤は順当、中盤以降はリソースを使って育てないと詰まる」「ボス戦だけ厳しく」): 3人それぞれ体力(`HB`x役割 1.4/0.8/1.0)、敵が一定間隔で攻撃(剣士が2倍狙われる)。敵の強さ `hvThr(s)`=0.25x1.08^(s-15)(STAGE 30 までは さらに 30%→100%)。雑魚戦は倒れても6秒で起き上がる(全滅なし)。ボス戦(STAGE 15〜のボスと無限の塔)は倒れたら戦闘終了まで起きず攻撃しない、3人とも倒れると全滅→**1つ前のステージへ**+リベンジ(攻撃+10%/回 最大3、そのボスを倒すまで)、塔は挑戦終了。STAGE 30 からボスに装甲(hurt ÷`hvBossK` 50で3/80で6/最大8、体力とゴールドは不変)=ボス戦が長くなる。元気ボーナス(体力が多いほど通常攻撃 最大+30%、heroAtk の m に掛ける)。英雄ごとの強化 `HUP`(体力 x1.18/Lv・防御 ÷1.12/Lv は上限なし コスト伸び1.9、回復 +20%/Lv MAX15、解放STAGE10/15/20、ゴールド、転生でリセット、`localStorage['pachi2_hero']`)は強化画面の「英雄」グループ(98m、通常強化の次。タブ6つは 3x2、次のボスで持つ秒数 `hvSurv` を表示)。魂の祭壇の自動強化と sim は `hupNeed()`(持つ秒数が `HVSAFE`=40秒未満の英雄がいる時だけ買う)。spawn/heroAtk/hurt/drawHeroes/drawB/presDo/SB.a をラップ(テスト: tests/herohp.js) | feature |
 | 98n-skin.js / css/41-skin.css | 衣装(スキン、体験版にも入る): 英雄のコマ(h0〜 の ''/b/w/s)を元の色一覧(PXL の控え `SKO`)から色の置きかえ表で**同じキャンバスに**塗り直す(SPR を使う所は全部変わる。SPW/HVDK/HUPF のキャッシュは消す。PIMG のイラストは不変)。`SKD[英雄]`=[{id,n,gem|lb+pr,m}]、宝石で買う(`SKGEM`=400、条件つきも JACKPOT50/転生20/大当たり3000/塔50。やり込み要素なので高め。条件達成の瞬間にお知らせ) or 条件(進み具合を表示、満たせば自動で所持)。`skSet(i,id)` `skAdd(i,list)`(@full が衣装を足す)。強化画面「英雄」の下に `skMenu`(UPG の英雄の描画関数を包む、`<!--sk-->` の印)。`localStorage['pachi2_skin']`、転生で残る(テスト: tests/skin.js) | feature |
 | 98yb-lancer.js | **@full(完全版のみ)** 4人目の英雄 槍使いツララ(設定 docs/STORY.md): X.best>75 で加入(転生で残る)、STH[3]/SPR.h3(mkH)。後衛=狙われない(HV の3人配列に入れない)。1.4秒ごとに突き `lnHit`=atk x1.5 x槍術、ボスの装甲 hvBossK を無視(先に×k)。強化「槍術」+20%/Lv(ゴールド、上限なし、`pachi2_lancer`、転生=PGEN の変化でリセット)、強化画面「英雄」に4枚目のカード(`<!--sk-->` の前に差し込む)。物語: 加入 j4 と a3/a5/a6/f1 に一言(98s は styFace の who を 3 まで許す1行変更)。衣装: ツララ2着+3人の「光の衣」(エンディング後)。drawHeroes をラップ。実績 ln1(テスト: tests/skin.js・tests/story.js) | feature |
+| 98o-goals.js / css/41-goals.css | 次の目標とおみくじ(体験版にも入る。docs/DESIGN.md「また遊びたくなる」): メニュー「遊ぶ」→「目標」。おみくじ=1日1回 自分で引く(`omDraw`、大吉+30%/中吉+20%/小吉+10% を ダメージ/ゴールド/魔石/SP のどれかに、その日いっぱい。引くまで効果なし=テスト/sim は不変、引かなくても損なし)、起動12秒後に1回だけ案内。次の目標=`glList()` が 仲間/エリアの主/転生/ツララ/塔の加護/エンディング/衣装/実績 の進み具合を集めて近い順に6つ(他機能は typeof で確かめて読むだけ)。SB.a/SB.g/resMs/spAdd をラップ。`pachi2_omi`(テスト: tests/goals.js) | feature |
+| 98ya-music.js | **@full(完全版のみ)** 音楽室: メニュー「集める」→「音楽室」(曲を集める=図鑑の仲間。「その他」は5つで満杯にしない)。進み具合で解放された曲(`MRL`)から通常時の BGM を選ぶ(bgmState を一番外側でラップし、通常曲 n/n2/n3/n4 の時だけ差し替え。ボス/RUSH/JACKPOT/ボーナス/タイトルは不変)。`pachi2_music`(テスト: tests/goals.js) | feature |
 | 98y-finale.js | **@full(完全版のみ)** 物語の最終章とエンディング(設定は docs/STORY.md): 98s の SCN に最終章 f1「解き放たれる光」を足し、b7(STAGE 200)を見たら待ち行列へ。f1 が終わって演出が落ち着いたら全画面のエンディング #edg(星空に光の玉が8方向へ・3人の行進・スタッフロール=英雄/取り戻した8つの土地/正気に戻った者/ありがとう、タップで早送り、最後に「2周目へ」、放置でも約45秒で閉じる。ゲームは裏で進行)。初回だけ宝石10+実績 end1。`localStorage['pachi2_end']`={n}。ラップなし(FU で見張る)(テスト: tests/finale.js) | feature/fx |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
 
@@ -166,6 +168,45 @@ npm test                            # build + smoke
 - ネットワーク依存禁止(例外: オンラインランキング 97t のみ。接続先 `RANK_SERVER`=https://pachi-rank.okumosiroiro.workers.dev(作り手の Cloudflare Workers+KV、変数名 RANK)。名前を決めた人だけ自己ベストを送信、ランキング画面を開いた時だけ一覧を取得。通信できなくてもゲームは普通に動くこと。テストは harness が PACHI_RANK_API='' で通信しない)。フォント `DotGothic16`(SIL OFL)は使う文字だけに絞った `src/font/DotGothic16-subset.woff2` を build.js が埋め込む(Google Fonts は読まない)。**新しい漢字を UI に足したら `python3 tools/font-subset.py <TTF>` で作り直す**(無い文字は等幅フォントで出る)。画像/音声ファイルは作らず、すべて**コード生成**。
   - 例外(作り手の指示): カットイン用キャラクターイラストは作り手提供の画像を `src/img/*.webp` に置き、`tools/build.js` が data URI として `PIMG` に埋め込む(単一HTMLのまま)。切り抜き/縮小は `python3 tools/cutout.py <元画像フォルダ>`。テスト(ハーネス)には入らないので、使う側は `typeof PIMG`/`PIMGI` を確認してコード描画(83b)にフォールバックする。
 - セーブは `localStorage['pachi2']`(`{gold,stage,lv}`)。形式を変える時は**旧セーブを壊さず**読めるようにする。
+
+
+## セーブのキー一覧(localStorage。足したら必ずここに1行=tools/audit.js が確かめる。壊れた値でも起動できることは tests/savekeys.js が全キーで確かめる)
+引き継ぎコード(97w)と Unity の控え(97u)は `pachi2` で始まるキーを全部運ぶ。新しいキーも `pachi2_名前` にする。
+| キー | ファイル | 中身 | 転生 |
+|---|---|---|---|
+| `pachi2` | 00-core | 本体 {gold,stage,lv[]} | リセット |
+| `pachi2x` | 91-meta | 記録 X(best/souls/pres/統計 st/実績 ach/最終プレイ時刻) | 残る |
+| `pachi2ui` | 26-dots | UI 設定(フラッシュ強度など) | 残る |
+| `pachi2snd` | 75-audio | 音量・ミュート | 残る |
+| `pachi2app` | 97-app | PWA の案内を出したか | 残る |
+| `pachi2mon` | 97-monet | 広告削除などの状態(ストア版用) | 残る |
+| `pachi2_bt` | 98e | ボーナスタイムの予定 | 残る |
+| `pachi2_daily` | 92b | ログインボーナス(連続日数) | 残る |
+| `pachi2_end` | 98y | エンディングを見た回数 | 残る |
+| `pachi2_exp` | 98d | 遠征の行き先と出発時刻 | 残る |
+| `pachi2_gemshop` | 98i-gemshop | 宝石ショップ(勲章/ブースト/見た目) | 残る |
+| `pachi2_gk` | 86 | RUSH の最高記録 | 残る |
+| `pachi2_hero` | 94c | 英雄ごとの強化 Lv | リセット |
+| `pachi2_hp` | 94c | 全滅の説明を出したか | 残る |
+| `pachi2_lancer` | 98yb | ツララの槍術 Lv | リセット |
+| `pachi2_menu` | 29c | 最後に開いたメニューのタブ | 残る |
+| `pachi2_mission` | 93b | デイリーミッション | 残る |
+| `pachi2_music` | 98ya | 音楽室で選んだ曲 | 残る |
+| `pachi2_omi` | 98o | 今日のおみくじ {日付,種類,ランク} | 残る |
+| `pachi2_party` | 98g | 遠征隊(編成/仲間Lv) | 残る |
+| `pachi2_prec` | 94 | 周回開始時の最高記録(魂の計算) | 残る |
+| `pachi2_rank` | 97t | ランキング(名前/自己ベスト/送信待ち) | 残る |
+| `pachi2_relic` | 96r | 遺物 | 残る |
+| `pachi2_res` | 96s | 魔石・宝石・武器 Lv・護符 | 残る |
+| `pachi2_skin` | 98n | 衣装(持っている/着ている) | 残る |
+| `pachi2_soul` | 94b | 魂の祭壇 | 残る |
+| `pachi2_srun` | 94b | 再出発の勢いの状態 | 残る |
+| `pachi2_sup` | 97s | パトロン登録 | 残る |
+| `pachi2_tower` | 98z | 無限の塔の記録 | 残る |
+| `pachi2_tut` | 98s/98t | 物語とガイドの既読 | 残る |
+| `pachi2_vib` | 97u | 振動の ON/OFF | 残る |
+| `pachi2_zukan` | 96b/98h | 図鑑の撃破数 | 残る |
+| `pbak_pachi2` | 97w | 自動バックアップ3世代(引き継ぎには入れない) | 残る |
 
 ## 検証ルール(全担当共通)
 1. 作業後に必ず `npm test`(=build+smoke)が**通る**こと。通らない状態でコミットしない。

@@ -47,7 +47,7 @@ const localNames = t => { const s = new Set(); let m;   // そのファイルの
   const r5 = /catch\s*\(\s*([A-Za-z_$][\w$]*)/g; while ((m = r5.exec(t))) s.add(m[1]);
   const r6 = /for\s*\(\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g; while ((m = r6.exec(t))) s.add(m[1]);
   return s; };
-const usesOf = f => { const used = new Map(); const ids = code[f].replace(/\.[A-Za-z_$][\w$]*/g, '').match(/[A-Za-z_$][\w$]*/g) || []; const mine = localNames(code[f]);
+const usesOf = f => { const used = new Map(); const ids = code[f].replace(/\.[A-Za-z_$][\w$]*/g, '').replace(/([{,]\s*)[A-Za-z_$][\w$]*\s*:(?!:)/g, '$1').match(/[A-Za-z_$][\w$]*/g) || []; const mine = localNames(code[f]);
   for (const id of new Set(ids)) { if (/^[a-z][a-z0-9]?$/.test(id)) continue;   // 1〜2文字の小文字は一時変数がほとんど(誤検出を避ける)
     const o = owner.get(id); if (!o || o === f || mine.has(id)) continue; if (!used.has(o)) used.set(o, []); used.get(o).push(id); }
   return [...used.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1); };

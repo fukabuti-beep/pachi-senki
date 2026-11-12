@@ -3,9 +3,6 @@
 各ファイルが使っている「他のファイルで宣言された名前」。新しく増えた依存はコミットの差分で確認する(不要な依存を作らない)。
 00-core(G など共通の土台)と 20-upgrades(BAL/atk など)への依存は省略。
 
-## 00-core.js
-- 27-cabinet.js: rush
-
 ## 20-upgrades.js
 - 25-ui.js: refresh
 - 75-audio.js: beep
@@ -22,9 +19,6 @@
 - 26-dots.js: UX
 - 30-battle.js: isBoss
 - 90-extra.js: QL
-
-## 26-dots.js
-- 76-bgm.js: bgm
 
 ## 27-cabinet.js
 - 26-dots.js: UX
@@ -76,7 +70,6 @@
 - 89c-layer.js: lyNameX
 
 ## 36-battle-bg.js
-- 27-cabinet.js: rush
 - 30-battle.js: isBoss
 - 80-skillfx.js: lines
 - 81-pxfont.js: pxW, pxText
@@ -122,7 +115,7 @@
 - 77-se.js: kyuin, jara
 - 79-se2.js: seRoulResult
 - 86-gekiatsu.js: thickTxt
-- 99-main.js: T, last
+- 99-main.js: T
 
 ## 70-show.js
 - 25-ui.js: showMsg, flash, shake
@@ -133,7 +126,6 @@
 
 ## 76-bgm.js
 - 29-push.js: PUSH
-- 29d-resicon.js: M
 - 30-battle.js: isBoss
 - 75-audio.js: sVo, sNs, SND, SGR, BG, bgNewBus, AC, sndResume, sGr, sndUnlock
 
@@ -198,7 +190,6 @@
 
 ## 84-charfx.js
 - 10-sprites.js: SPR
-- 27-cabinet.js: rush
 - 30-battle.js: kill, isBoss, spawn
 - 35-battle-draw.js: drawB
 - 36-battle-bg.js: L
@@ -221,7 +212,6 @@
 
 ## 85-pachifx.js
 - 25-ui.js: flash
-- 27-cabinet.js: rush
 - 36-battle-bg.js: modeB, MC
 - 75-audio.js: beep
 - 77-se.js: kyuin
@@ -236,11 +226,9 @@
 - 70-show.js: banner, bigHit
 - 75-audio.js: tone, noise
 - 77-se.js: sOK, sNow, seReelStop, kyuin, seSpin, jara
-- 80-skillfx.js: pop
 - 99-main.js: T, update
 
 ## 87-hitev.js
-- 21-pacing.js: heat
 - 23-upgrades2.js: UPX
 - 25-ui.js: showMsg, shake, flash
 - 26-dots.js: UX
@@ -254,7 +242,7 @@
 - 77-se.js: sOK, sNow, kyuin, fan, jara
 - 79-se2.js: seRoulResult
 - 86-gekiatsu.js: thickTxt, gkPick
-- 99-main.js: last, T, update
+- 99-main.js: T, update
 
 ## 87b-jpfx.js
 - 25-ui.js: shake
@@ -284,7 +272,7 @@
 - 77-se.js: kyuin
 - 79-se2.js: sePipo
 - 90-extra.js: QL
-- 99-main.js: last, T, update
+- 99-main.js: T, update
 
 ## 89c-layer.js
 - 26-dots.js: UX
@@ -319,21 +307,17 @@
 ## 89d-title.js
 - 10-sprites.js: PXL, SPR, spw
 - 26-dots.js: S, rows
-- 30-battle.js: F
-- 40-pachinko.js: balls
 - 75-audio.js: AC, BG, SND, setMute
 - 79c-titlebgm.js: ttBgmStart, ttBgmGo
 - 91-meta.js: X
-- 99-main.js: last
 
 ## 89e-bigslot.js
 - 25-ui.js: showMsg, shake
 - 26-dots.js: reelShow, UX
 - 79c-hypese.js: seHy
-- 85-pachifx.js: res
 - 89d-blackout.js: hyLite, hyLay, hyTxt, HYD
 - 94-prestige.js: presLater, PGEN
-- 99-main.js: T, last, update
+- 99-main.js: T, update
 
 ## 89f-ultjp.js
 - 10-sprites.js: SPR
@@ -390,7 +374,7 @@
 - 77-se.js: kyuin, jara
 - 91-meta.js: fxShow, fxClose, fxOpen
 - 96s-smith.js: RES
-- 99-main.js: last, update, run
+- 99-main.js: update, run
 
 ## 93-achieve.js
 - 29d-resicon.js: resAmt
@@ -468,7 +452,7 @@
 - 25-ui.js: flash
 - 75-audio.js: beep
 - 77-se.js: kyuin
-- 85-pachifx.js: mini, MG, stopMG, res
+- 85-pachifx.js: mini, MG, stopMG
 - 91-meta.js: fxEl, X, addGold, FU, FM
 - 93-achieve.js: sbg
 
@@ -515,7 +499,6 @@
 - 35-battle-draw.js: drawB
 - 70-show.js: jackpot, banner
 - 77-se.js: kyuin
-- 80-skillfx.js: pop
 - 84-charfx.js: chJump
 - 86-gekiatsu.js: GK, thickTxt
 - 91-meta.js: fxToast, FM
@@ -556,7 +539,7 @@
 ## 97t-rank.js
 - 86-gekiatsu.js: GK
 - 91-meta.js: X, fxToast, fxMenu, FM
-- 99-main.js: last, T, update
+- 99-main.js: T, update
 
 ## 97u-app.js
 - 30-battle.js: kill, isBoss
@@ -572,7 +555,7 @@
 - 29c-menugrp.js: FMGRP
 - 91-meta.js: X, fxShow, fxMenu, FU, fxToast, FM
 - 97u-app.js: appSend, UAPP
-- 99-main.js: last, T, run
+- 99-main.js: T, run
 
 ## 98-mgfx.js
 - 10-sprites.js: SPR
@@ -618,7 +601,6 @@
 
 ## 98e-bonustime.js
 - 25-ui.js: showMsg
-- 26-dots.js: cur
 - 35-battle-draw.js: drawB
 - 70-show.js: banner
 - 77-se.js: kyuin, fan
@@ -639,7 +621,7 @@
 - 70-show.js: banner
 - 77-se.js: kyuin, fan
 - 79b-bonus.js: seHl
-- 85-pachifx.js: res, mini
+- 85-pachifx.js: mini
 - 91-meta.js: addGold, X, FU
 - 93-achieve.js: sbg
 - 95-minigames.js: MGT, mg2e, mg2Start, mg2c
@@ -661,8 +643,6 @@
 
 ## 98h-area.js
 - 10-sprites.js: SPR, PXL, enSpr, BOSSN
-- 26-dots.js: cur
-- 27-cabinet.js: title
 - 30-battle.js: isBoss, kill
 - 35-battle-draw.js: drawEnemy, drawHP, drawB
 - 36-battle-bg.js: drawBgB
@@ -687,8 +667,7 @@
 ## 98i-gemshop.js
 - 21-pacing.js: hitRoll, DRY
 - 25-ui.js: showMsg
-- 26-dots.js: reel, S
-- 27-cabinet.js: title
+- 26-dots.js: S
 - 29c-menugrp.js: FMGRP
 - 29d-resicon.js: resIcon
 - 35-battle-draw.js: drawB
@@ -711,7 +690,6 @@
 - 26-dots.js: UX
 - 91-meta.js: FM, fxTab, fxMenu, FU
 - 98d-expedition.js: EXP, expOpen, expDone, expLeft
-- 99-main.js: last
 
 ## 98k-upmove.js
 - 91-meta.js: FM, fxClose, fxOpen
@@ -738,24 +716,42 @@
 
 ## 98n-skin.js
 - 10-sprites.js: SPR, PXL, SPW
-- 26-dots.js: cur
 - 29d-resicon.js: resIcon
 - 70-show.js: banner
 - 77-se.js: fan
-- 91-meta.js: X, fxToast
+- 84-charfx.js: chJumpAll
+- 91-meta.js: X, fxToast, FU
 - 94c-herohp.js: HVDK
 - 96s-smith.js: RES
 - 98c-upgroups.js: grpRefresh, UPG
 - 98m-heroup.js: HUPF
 - 98s-story.js: STH
 - 98yb-lancer.js: lnOn
+- 99-main.js: run
+
+## 98o-goals.js
+- 21-pacing.js: spAdd
+- 29c-menugrp.js: FMGRP
+- 70-show.js: banner
+- 77-se.js: kyuin, fan
+- 84-charfx.js: chJumpAll
+- 91-meta.js: fxToast, fxOpen, fxMenu, FU, X, FM
+- 92b-daily.js: dailyToday
+- 93-achieve.js: AC_
+- 94-prestige.js: SB
+- 96-allies.js: ALY
+- 96s-smith.js: resMs
+- 98h-area.js: AREAS
+- 98n-skin.js: SKD, skHas, skName
+- 98y-finale.js: END
+- 98yb-lancer.js: lnOn
+- 98z-tower.js: TW
+- 99-main.js: run
 
 ## 98s-story.js
 - 10-sprites.js: SPR
-- 26-dots.js: cur
 - 29-push.js: PUSH
 - 30-battle.js: kill, isBoss
-- 36-battle-bg.js: off
 - 83b-portrait.js: PIMGI, PIMGF, PORT
 - 85-pachifx.js: MG
 - 89c-layer.js: lyBig, lyBusyB
@@ -766,11 +762,9 @@
 
 ## 98t-tutorial.js
 - 10-sprites.js: SPR
-- 26-dots.js: cur
 - 29-push.js: PUSH
 - 29c-menugrp.js: FMGRP
 - 30-battle.js: isBoss
-- 60-roulette.js: ring
 - 89c-layer.js: lyBig
 - 91-meta.js: FM, X, fxOpen, fxClose, fxToast, fxMenu
 - 98s-story.js: TS, TS_NEW, tsSave, STY, STH
@@ -779,7 +773,6 @@
 ## 98y-finale.js(完全版のみ)
 - 10-sprites.js: SPR
 - 29d-resicon.js: resIcon
-- 36-battle-bg.js: L
 - 75-audio.js: tone
 - 77-se.js: sOK, sNow
 - 91-meta.js: FU, fxToast
@@ -789,13 +782,17 @@
 - 98s-story.js: SCN, TS, styQueue, STY, styBusy
 - 99-main.js: run, T
 
+## 98ya-music.js(完全版のみ)
+- 29c-menugrp.js: FMGRP
+- 76-bgm.js: SONGS, bgmState
+- 91-meta.js: X, fxToast, fxOpen, fxMenu, FM
+
 ## 98yb-lancer.js(完全版のみ)
 - 10-sprites.js: mkH, SPR
 - 25-ui.js: refresh
 - 29d-resicon.js: resIcon
 - 30-battle.js: isBoss, hurt
 - 35-battle-draw.js: drawHeroes
-- 36-battle-bg.js: L
 - 70-show.js: banner
 - 75-audio.js: beep, tone
 - 77-se.js: sOK, sNow, fan
@@ -806,7 +803,7 @@
 - 94c-herohp.js: hvBossK, HV
 - 98c-upgroups.js: grpRefresh, UPG
 - 98m-heroup.js: hupFace
-- 98n-skin.js: skAdd
+- 98n-skin.js: skAdd, SKGEM
 - 98s-story.js: STH, TS, styQueue, STY, SCN, scnOf
 - 98y-finale.js: END
 - 98z-tower.js: TW
@@ -822,7 +819,6 @@
 - 70-show.js: banner
 - 75-audio.js: tone
 - 77-se.js: sOK, sNow, kyuin
-- 80-skillfx.js: pop
 - 81-pxfont.js: pxText
 - 82-hitfx.js: deathFx, ringFx
 - 89c-layer.js: lyBusyB

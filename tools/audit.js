@@ -6,6 +6,7 @@
 //   2) テスト: tests/*.js が npm test に入っているか(作ったテストが走っていない、を防ぐ)
 //   2b) 散らかり: 全ファイルが CLAUDE.md の「リポジトリの構成」に載っているか・一時ファイルらしい名前が無いか
 //   3) セーブ: localStorage のキー(pachi2_*)が 書く と 読む の両方あるか(保存したのに読まない/読むのに保存しない)
+//   3b) セーブのキーが CLAUDE.md の「セーブのキー一覧」に全部あるか
 //   4) 使われていない関数: どこからも呼ばれない関数(作りかけ・消し忘れ)
 //   5) 画面の部品: $('id') で探している id が、HTML か JS のどこかで作られているか(名前の打ち間違い・作り忘れ)
 //   6) 完全版の案内: @full のファイルに「// FULL_FEAT: 名前」があり、98l の FULL_FEATS に同じ名前があるか
@@ -62,6 +63,11 @@ const wr = keysOf(/setItem\(\s*['"](pachi2[\w]*)['"]/g), rd = keysOf(/getItem\(\
 const constKeys = keysOf(/(?:const|let)\s+\w+\s*=\s*['"](pachi2[\w]*)['"]/g);   // キーを定数に入れて使う書き方
 for (const k of wr) if (!rd.has(k) && !constKeys.has(k)) ng(`セーブ ${k} を書いているのに読んでいない(次回起動で消える)`);
 for (const k of rd) if (!wr.has(k) && !constKeys.has(k) && k !== 'pachi2') warn(`セーブ ${k} を読んでいるが書く所が見つからない(古いキーなら問題なし)`);
+
+// 3b) セーブのキーの一覧: ソースに出てくる 'pachi2…' / 'pbak_…' が、CLAUDE.md の「セーブのキー一覧」に全部あるか(増やしたら書く=引き継ぎ・転生・体験版で壊さないための台帳)
+{ const sec = (claude.split('## セーブのキー一覧')[1] || '').split('\n## ')[0]; const all = new Set(); let m; const re = /['"]((?:pachi2|pbak_)[a-z0-9_]*)['"]/g; while ((m = re.exec(allJs))) all.add(m[1]);
+  for (const k of all) if (!new RegExp('`' + k + '`').test(sec)) ng(`セーブのキー ${k} が CLAUDE.md の「セーブのキー一覧」に無い`);
+  const listed = [...sec.matchAll(/^\| `((?:pachi2|pbak_)[a-z0-9_]*)`/gm)].map(x => x[1]); for (const k of listed) if (!all.has(k)) ng(`セーブのキー一覧の ${k} は、もうソースに無い(表から消す)`); }
 
 // 4) 使われていない関数(名前が定義の1回しか出てこない。HTML の onclick 文字列も数える)
 // tools/ と tests/ から呼ばれる関数(sim・テスト用の入口)も「使われている」に数える

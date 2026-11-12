@@ -5,12 +5,12 @@
 
 | 関数 | ファイル(内側 → 外側) |
 |---|---|
-| `SB.a` | 94b-soul.js → 94c-herohp.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 98e-bonustime.js → 98i-gemshop.js → 98z-tower.js |
+| `SB.a` | 94b-soul.js → 94c-herohp.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 98e-bonustime.js → 98i-gemshop.js → 98o-goals.js → 98z-tower.js |
 | `actCatch` | 93b-mission.js → 96s-smith.js |
 | `actTap` | 93b-mission.js |
 | `altOpen` | 98m-heroup.js |
 | `banner` | 88-bannerfx.js → 89c-layer.js |
-| `bgmState` | 79b-bonus.js → 79c-titlebgm.js |
+| `bgmState` | 79b-bonus.js → 79c-titlebgm.js → 98ya-music.js |
 | `bigHit` | 46-board-fx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96r-relic.js → 97u-app.js |
 | `btDraw` | 89c-layer.js |
 | `cbPress` | 89g-btnfx.js |
@@ -50,9 +50,9 @@
 | `pxText` | 98i-gemshop.js |
 | `reelShow` | 89e-bigslot.js |
 | `relicUpd` | 98f-hilo.js |
-| `resMs` | 98e-bonustime.js → 98i-gemshop.js |
+| `resMs` | 98e-bonustime.js → 98i-gemshop.js → 98o-goals.js |
 | `roulSuper` | 89c-layer.js |
-| `spAdd` | 96r-relic.js |
+| `spAdd` | 96r-relic.js → 98o-goals.js |
 | `spawn` | 84-charfx.js → 94c-herohp.js → 98b-active.js → 98z-tower.js |
 | `startRoul` | 87d-roulquick.js |
 | `startSpin` | 86-gekiatsu.js → 89-horyu.js → 89d-blackout.js |

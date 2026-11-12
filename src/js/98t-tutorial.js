@@ -101,3 +101,4 @@ function tutOff(){TS.off=TS.off?0:1;tsSave();try{fxMenu()}catch(e){}}
 FM.push({n:'遊び方',r:()=>'<div class="fxh">遊び方</div><div class="fxs">玉がスタート口に入るとスロットが回り、そろえば大当たり。英雄は自動で戦うので、放置でも進みます。</div><div class="tutL">'+
   TG.map(g=>TS.g[g.id]?'<p>'+g.tx+'</p>':'<p class="no">??? (まだ出ていないガイド)</p>').join('')+'</div>'+
   '<button class="fxb" type="button" onclick="tutReset()">はじめのガイドをもう一度</button><button class="fxb g" type="button" onclick="tutOff()">新機能のガイド: '+(TS.off?'OFF':'ON')+'</button>'});
+try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='その他');if(g&&g.t.indexOf('遊び方')<0)g.t.push('遊び方')}}catch(e){}   // 置き場所を「その他」に登録(自動で入るだけだと tools/audit.js が入れ忘れとして止める)

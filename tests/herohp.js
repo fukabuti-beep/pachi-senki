@@ -4,6 +4,7 @@ let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.log('FAIL: ' + 
 const g = createGame({ seed: 5 }); g.start(); g.advance(1, .05);
 ok(g.eval('UP.length') === 17, '通常強化は増やさない(英雄ごとの強化へ)');
 ok(g.eval('UPG.list[1][0]') === '英雄' && g.eval('typeof hupMenu()') === 'string', '強化画面に「英雄」グループ');
+ok(g.eval('typeof hvSurv(0,50)') === 'number' && g.eval('hvSurv(0,100)') < g.eval('hvSurv(0,30)') && (g.eval('hupNeed(200)') === null || Array.isArray(g.eval('hupNeed(200)'))), '持ちこたえる時間と 必要な時だけ買う');
 g.eval('G.stage=25;X.best=Math.max(X.best,25)'); const m0 = g.eval('hvMax(0)'), m1 = g.eval('hvMax(1)'); g.eval('G.gold=1e12');
 ok(g.eval('hupBuy(0,0)') === true && g.eval('HUP.lv[0][0]') === 2, '剣士の体力を買える');
 ok(g.eval('hvMax(0)') > m0 && g.eval('hvMax(1)') === m1, '買った英雄だけ体力が増える');

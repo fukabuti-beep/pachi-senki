@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # BOOTH 配布用の zip を作る。
 #   SUPPORT_CODE=PACHI-XXXX-XXXX python3 tools/booth.py [版番号]
-#     → dist/booth/pachi-senki-<版>-体験版.zip(無料: STAGE 75 まで)と pachi-senki-<版>-完全版.zip(有料: 全部 + サポーターコード)
+#     → dist/booth/pachi-senki-<版>-体験版.zip(無料: STAGE 175 まで)と pachi-senki-<版>-完全版.zip(有料: 全部 + サポーターコード)
 #   体験版は EDITION=free で書き出す(01-edition.js)。
 # 先に node tools/build.js を実行しておくこと(このスクリプトが自動で実行もする)。コードはリポジトリに置かない(環境変数で渡す)。
 import os, sys, subprocess, zipfile, datetime
@@ -20,8 +20,8 @@ def mk(name, extra=None):
     print('built', os.path.relpath(p, root), os.path.getsize(p) // 1024, 'KB')
 # 体験版(無料)と完全版(有料)の2つを作る。完全版はサポーターコード(SUPPORT_CODE)があれば同梱(お礼の宝石30個など)
 FREE_SEC = """■ 体験版について
- この体験版は STAGE 75(エリア3)まで遊べます。
- 完全版では、エリア4〜8・残りのエリアの主・物語の続きと決着・遠征の新しい行き先など、
+ この体験版は STAGE 175(エリア7)まで遊べます。
+ 完全版では、最後のエリア・魔王との決着・物語の最終章・2周目・追加コンテンツなど、
  この続きが全部遊べます。体験版のセーブは引き継ぎコードでそのまま完全版へ持っていけます。
  BOOTH: https://fukabuchi.booth.pm/
 """

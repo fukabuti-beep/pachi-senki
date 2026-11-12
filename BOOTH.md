@@ -5,7 +5,7 @@
 SUPPORT_CODE=PACHI-XXXX-XXXX python3 tools/booth.py 1.1.0
 ```
 → `dist/booth/` に2つできる(サポーターコードはリポジトリに置かず、環境変数で渡す)
-- `pachi-senki-1.1.0-体験版.zip` … `EDITION=free` でビルドした HTML。STAGE 75(エリア3)まで。先頭行に `@full` と書いたファイルは入らない
+- `pachi-senki-1.1.0-体験版.zip` … `EDITION=free` でビルドした HTML。STAGE 175(エリア7)まで。先頭行に `@full` と書いたファイルは入らない
 - `pachi-senki-1.1.0-完全版.zip` … 全部入り HTML + `サポーターコード.txt`(SUPPORT_CODE を渡した時)
 
 体験版だけ手で作る: `EDITION=free node tools/build.js` → `dist/pachi-senki-free.html`

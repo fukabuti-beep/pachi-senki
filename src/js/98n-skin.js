@@ -6,15 +6,16 @@
    ・手に入れ方(docs/DESIGN.md: 目標とごほうび・進み具合が見える): 宝石で買う / 条件を満たす(進み具合 7/10 を表示)。
    ・完全版だけの衣装や4人目の衣装は、@full のファイルが SKD に足す(skAdd)。
    セーブ: localStorage['pachi2_skin'] = {own:{'英雄:衣装':1}, cur:[衣装id,...]}。転生で残る。 */
+const SKGEM=150;   // 宝石で買う衣装の値段。やり込み要素なので高め(作り手の方針。sim の宝石収入は 1時間に約75個=1着 約2時間ぶん)
 const SKD={
  0:[{id:'d',n:'いつもの'},
-    {id:'blue',n:'蒼炎の剣士',gem:15,m:{'#e0443a':'#3a8cff','#a8262e':'#1f56b8','#d1303c':'#3a8cff'}},
+    {id:'blue',n:'蒼炎の剣士',gem:SKGEM,m:{'#e0443a':'#3a8cff','#a8262e':'#1f56b8','#d1303c':'#3a8cff'}},
     {id:'gold',n:'黄金の鎧',lb:'JACKPOT 10回',pr:()=>[X.st.jp||0,10],m:{'#d5dae6':'#ffd24d','#7c859b':'#b98300'}}],
  1:[{id:'d',n:'いつもの'},
-    {id:'red',n:'紅の魔女',gem:15,m:{'#7a4dff':'#e0443a','#4d2fb8':'#a8262e','#5b6cff':'#c8324a','#3a45b8':'#8a1c30','#c8b8ff':'#ffc0c8'}},
+    {id:'red',n:'紅の魔女',gem:SKGEM,m:{'#7a4dff':'#e0443a','#4d2fb8':'#a8262e','#5b6cff':'#c8324a','#3a45b8':'#8a1c30','#c8b8ff':'#ffc0c8'}},
     {id:'white',n:'白の賢者',lb:'転生 5回',pr:()=>[X.pres||0,5],m:{'#7a4dff':'#cfd6ff','#4d2fb8':'#8f98c8','#5b6cff':'#eef1ff','#3a45b8':'#a8b0d8'}}],
  2:[{id:'d',n:'いつもの'},
-    {id:'sun',n:'夕焼けの狩人',gem:15,m:{'#3dd27f':'#ff9a3d','#1b7a47':'#b8621a','#2fb36b':'#e07a2a','#caffb0':'#ffe0b0'}},
+    {id:'sun',n:'夕焼けの狩人',gem:SKGEM,m:{'#3dd27f':'#ff9a3d','#1b7a47':'#b8621a','#2fb36b':'#e07a2a','#caffb0':'#ffe0b0'}},
     {id:'night',n:'夜の狩人',lb:'大当たり 300回',pr:()=>[X.st.hit||0,300],m:{'#3dd27f':'#4a5a9a','#1b7a47':'#27306a','#2fb36b':'#343c78','#caffb0':'#b8c4ff'}}]};
 const SK={own:{},cur:[]};
 try{const d=JSON.parse(localStorage.getItem('pachi2_skin')||'{}');if(d.own&&typeof d.own==='object')for(const k in d.own)if(d.own[k]&&/^\d:[a-z0-9]{1,10}$/.test(k))SK.own[k]=1;

@@ -7,7 +7,7 @@ ok(g.eval('SKD[0].length>=3&&SKD[1].length>=3&&SKD[2].length>=3'), '3人に衣�
 ok(g.eval("skMenu().indexOf('衣装')>0") && g.eval("UPG.list.find(x=>x[0]==='英雄')[1]().indexOf('<!--sk-->')>0"), '強化画面「英雄」に衣装');
 const col0 = g.eval("JSON.stringify(PXL.h0.map(q=>q[2]))");
 g.eval('RES.gem=0'); ok(g.eval("skSet(0,'blue')") === false && g.eval('skCur(0).id') === 'd', '宝石が無いと買えない');
-g.eval('RES.gem=20'); ok(g.eval("skSet(0,'blue')") === true && g.eval('RES.gem') === 5 && g.eval('skCur(0).id') === 'blue', '宝石で買って着る');
+g.eval('RES.gem=SKGEM+5'); ok(g.eval("skSet(0,'blue')") === true && g.eval('RES.gem') === 5 && g.eval('skCur(0).id') === 'blue', '宝石で買って着る');
 ok(g.eval("JSON.stringify(PXL.h0.map(q=>q[2]))") !== col0 && g.eval("PXL.h0.some(q=>q[2]==='#3a8cff')"), '色が塗り変わる');
 ok(g.eval("PXL.h0s.some(q=>q[2]==='#3a8cff')"), '攻撃のコマも変わる');
 ok(g.eval("skSet(0,'gold')") === false, '条件つきは満たすまで着られない'); g.eval('X.st.jp=10'); ok(g.eval("skSet(0,'gold')") === true, '条件を満たすと着られる');

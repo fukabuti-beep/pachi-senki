@@ -92,6 +92,7 @@ npm test                            # build + smoke
 | 98i-altar.js / css/41-altar.css | 魂の祭壇に転生を統合: 強化シートの「魂の祭壇」を「① 転生で魂を集める(presAsk/presInfo/presGainShow を呼ぶだけ)→ ② 魂で永続強化(94b の SOULD/soulBuy)」の1画面に(`altarHtml`)。三本線メニューの「転生」タブは外し、「育てる」には案内の「育成」タブ(通常強化/鍛冶屋/魂の祭壇を `altOpen(g)` で開く)。presAsk の「やめる」はメニューを開かず閉じる、転生後は grpRefresh(テスト: tests/altar.js) | ui |
 | 01-edition.js / 98l-edition.js / css/41-edition.css | 体験版/完全版: `EDITION=free node tools/build.js` → dist/pachi-senki-free.html(`window.PACHI_EDITION='free'` を先頭に、**1行目に `@full` があるファイルは除外**)。既定ビルド(Pages/Unity/テスト)は完全版。`EDITION`/`IS_FULL`/`FREE_MAX`(=175)。98l: 体験版は kill をラップして STAGE 175 で止め「完全版のご案内」(`edFullHtml`、一覧 `FULL_FEATS`=完全版コンテンツを足したら追記)、メニュー「完全版」(その他)、タイトルに札 #edb。BOOTH zip は tools/booth.py が体験版/完全版の2つを作る(BOOTH.md)(テスト: tests/edition.js) | feature |
 | 98z-tower.js / css/41-tower.css | **@full(完全版のみ)** 無限の塔: メニュー「遊ぶ」→「無限の塔」(X.best>=30)。今の敵をしまって塔のボスと連続バトル(いつものダメージがそのまま当たる)、1階20秒(`TWT`)、撃破で次の階・時間切れで結果画面→元の敵に戻る(ステージは進まない)。HP `twHp(f)`=STAGE 2f のボスの1.5倍(到達は だいたい (最高STAGE-8)/2 階)。記録を越えた階だけ 魔石4f・5階ごと宝石1(10階ごと3)・10階ごとに塔の加護 ダメージ+3%(SB.a)。見た目は描画中だけ G.stage を `twVs(f)` に差し替えて drawEnemy/drawHP/drawBgB(5階ごとエリアの主)。kill/spawn を一番外側でラップ(挑戦中の kill は塔だけ、spawn=転生などで打ち切り)。実績 tw10/tw30/tw60。`localStorage['pachi2_tower']`、転生で残る(テスト: tests/tower.js) | feature |
+| 94c-herohp.js / 98m-heroup.js / css/41-heroup.css | 英雄の体力と敵の攻撃(体験版にも入る): 3人それぞれ体力(`HB`x役割 1.4/0.8/1.0)、敵が一定間隔で攻撃(剣士が2倍狙われる、弾が飛んで当たる)。ダメージは基準体力に対する割合(ステージで強くならない=ボス戦が長引くほど危ない)。雑魚戦は倒れても6秒で起き上がる。ボス戦(STAGE 15〜のボスと無限の塔)は倒れたら戦闘終了まで起きず攻撃しない(heroAtk をスキップ)、3人とも倒れると全滅→ボス全快で挑み直し+リベンジ(攻撃+25%/回 最大5、SB.a)、塔は挑戦終了。序盤ボスはやさしく(`hvRamp` STAGE15 40%→60 100%)。英雄ごとの強化 `HUP`(体力+15%/防御-7%/回復+20%、MAX25/20/15、解放STAGE10/15/20、ゴールド、転生でリセット、`localStorage['pachi2_hero']`)は強化画面の「英雄」グループ(98m、通常強化の次。タブ6つは 3x2)。魂の祭壇の自動強化と sim の自動購入は `hupCheapest()` も見る。spawn/heroAtk/drawHeroes/drawB/presDo/SB.a をラップ(テスト: tests/herohp.js) | feature |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
 
 新機能は **自分の番号帯の新規ファイル**として追加するのを推奨(衝突回避): fx=`81-89`の空き/`36` `46`、sound=`76-79`、feature=`91-98`、ui=`26-29`、balance=`21-24`。
@@ -117,7 +118,11 @@ npm test                            # build + smoke
 1. 作業後に必ず `npm test`(=build+smoke)が**通る**こと。通らない状態でコミットしない。
 2. バランスに影響する変更は `node tools/sim.js` の前後比較を最終報告に載せる。
 3. 見た目/音は実機確認できないので、「何をどう変えたか」と「確認できていないこと」を**正直に**報告する。
-4. 既存のテストが足りなければ `tests/` に追加してよい(`tools/harness.js` のDOM/Audio/Canvasスタブと仮想時計を使う)。
+4. 既存のテストが足りなければ `tests/` に追加してよい(`tools/harness.js` のDOM/Audio/Canvasスタブと仮想時計を使う。`createGame({globals:{PACHI_EDITION:'free'}})` で体験版=@full を外した状態)。
+5. **依存関係のチェック `node tools/deps.js`(npm test に入っている)**:
+   - 完全版だけのファイル(1行目 `@full`)で宣言した名前を、他のファイルで使う行には必ず `typeof 名前` の確認を入れる(体験版で ReferenceError になる)。tests/edition-smoke.js が体験版で10分動かして確かめる。
+   - 同じ関数(kill/spawn/hurt/drawB/update/SB.a など)を包む順番を tools/wraps.snapshot.json と比べる。新しくラップした・ファイル番号を変えた時は docs/WRAPS.md の前後を見て、意図どおりなら `node tools/deps.js --update` で記録し直してコミット(レビューで差分が見える)。挙動を止める/横取りするラップ(例: 98z の kill)は一番外側に置く。
+   - ロード時に別ファイルの値を使う文は、そのファイルより前の番号にしか依存しない(例: SB は 94-prestige で作られるので、SB.a を包むのは 94 より後)。
 
 ## 既知の課題(2026-11 balance 第2弾で再計測。`node tools/sim.js`、転生込みは `--pres=auto|recN --meta=1`、並列は `--seed0=K`。ボーナスタイム(98e)・遠征(98d)・ハイ&ロー(98f)込み、遠征隊(98g)は未計測)
 - 放置+自動購入で 30分 stage 約42、2時間 約93(転生なし)。転生(auto)込みだと 2時間で最高 約140〜150、2.5時間で 約175〜185。

@@ -46,10 +46,11 @@ SC.forEach(([name, code, wait, extra], i) => {
   ok(g.eval('LY.bnQ.every(b=>b.g===PGEN)'), name + ': 古い周回のバナーが待ち行列に残る');
   g.eval('__m=0;{const o=mini;mini=function(){__m++;return o.apply(this,arguments)}}');
   g.eval('G.q=0;QL.length=0;hitRoll=()=>0');
+  // 曲: FEVER/RUSH/JACKPOT など ボーナス曲より上の曲は優先(79b の仕様)なので、それも正解
   g.advance(10);
   ok(g.eval('__m') === 0, name + ': 転生後に前の周回のミニゲームが始まった');
   ok(g.eval('!HL&&!MG&&!MG2'), name + ': 転生後にミニゲームが残る');
-  ok(g.eval('typeof bgmState==="function"?/^bt/.test(bgmState())||!BT.cur:true'), name + ': ボーナスタイム中なのにボーナス曲に戻らない ' + g.eval('bgmState()'));
+  ok(g.eval('typeof bgmState==="function"?(()=>{const s=bgmState();return /^bt/.test(s)||!BT.cur||s==="tn"||(SRANK[s]||0)>=BT_RANK})():true'), name + ': ボーナスタイム中なのにボーナス曲に戻らない ' + g.eval('bgmState()'));
   ok(g.eval('FERR') === f0, name + ': 例外 FERR=' + g.eval('FERR'));
   const s = g.eval('JSON.stringify([G.gold,G.stage,G.hp,G.mx])'); ok(!/null|NaN/.test(s), name + ': NaN ' + s);
 });

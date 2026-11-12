@@ -49,7 +49,7 @@ const st = (o, x, extra) => Object.assign({ pachi2: JSON.stringify(Object.assign
 // (d) 新強化: 旧セーブ(10/15個)は Lv1、新セーブは復元。ボス特効はボス戦だけ、魂の収穫は魂に掛かる
 {
   const g = createGame({ seed: 4, storage: st({ lv: [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2] }) });
-  ok(g.eval('G.lv.length') === 17 && g.eval('G.lv[15]') === 1 && g.eval('G.lv[16]') === 1 && g.eval('G.lv[14]') === 2, '旧セーブ15個: ' + g.eval('JSON.stringify(G.lv)'));
+  ok(g.eval('G.lv.length') === g.eval('UP.length') && g.eval('G.lv[15]') === 1 && g.eval('G.lv[16]') === 1 && g.eval('G.lv[14]') === 2, '旧セーブ15個: ' + g.eval('JSON.stringify(G.lv)'));
   const g2 = createGame({ seed: 4, storage: st({ lv: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 3] }) });
   ok(g2.eval('G.lv[15]') === 4 && g2.eval('G.lv[16]') === 3, '新セーブの復元: ' + g2.eval('JSON.stringify(G.lv)'));
   g2.start(); g2.advance(1);
@@ -58,7 +58,7 @@ const st = (o, x, extra) => Object.assign({ pachi2: JSON.stringify(Object.assign
   ok(g2.eval('soulGain(60)') === Math.floor(F(60) * 1.12), '魂の収穫 Lv3: ' + g2.eval('soulGain(60)'));
   ok(g2.eval('UP[15][4]') === 30 && g2.eval('UP[16][4]') === 40, '解放ステージ');
   g2.eval('G.lv[16]=1;G.stage=45;G.gold=1e15;for(let i=0;i<20;i++)buy(16)'); ok(g2.eval('G.lv[16]') === 10, '魂の収穫 MAX10: ' + g2.eval('G.lv[16]'));
-  g2.advance(5); ok(JSON.parse(g2.store.pachi2).lv.length === 17, 'セーブに新強化');
+  g2.advance(5); ok(JSON.parse(g2.store.pachi2).lv.length === g2.eval('UP.length'), 'セーブに新強化');
   // 22-migrate(v<2 の旧セーブ)が読み込み時に atk() を呼んでも壊れない
   const g3 = createGame({ seed: 5, storage: { pachi2: JSON.stringify({ gold: 5, stage: 60, lv: [10, 1, 1, 1, 1, 1, 1, 1, 1, 1] }) } });
   ok(g3.eval('G.stage') >= 1 && g3.eval('G.stage') < 60 && Number.isFinite(g3.eval('G.hp')), 'v1 移行: ' + g3.eval('G.stage'));

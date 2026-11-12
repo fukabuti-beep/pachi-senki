@@ -10,9 +10,9 @@ const alt = g => g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()");
   g.eval('if(fxOpen)fxClose()');
   ok(g.eval("FM.every(m=>m.n!=='転生')"), 'メニューに転生タブが残っている');
   ok(g.eval("FM.every(m=>m.n!=='育成')"), '育成タブはメニューから外す(リソース消費系は強化ボタンへ集約=98k)');
-  ok(g.eval("UPG.list.map(x=>x[0]).join()").indexOf('通常強化,鍛冶屋,魂の祭壇') === 0, 'グループ: ' + g.eval("UPG.list.map(x=>x[0]).join()"));
+  ok(g.eval("UPG.list.map(x=>x[0]).join()").indexOf('通常強化') === 0 && g.eval("['鍛冶屋','魂の祭壇'].every(n=>UPG.list.some(x=>x[0]===n))"), 'グループ: ' + g.eval("UPG.list.map(x=>x[0]).join()"));
   g.eval('altOpen(2)');
-  ok(g.eval('fxOpen') === false && g.eval('so') === true && g.eval('UPG.g') === 2 && /転生する/.test(g.eval("$('upx').innerHTML")), '開く → 魂の祭壇');
+  ok(g.eval('fxOpen') === false && g.eval('so') === true && g.eval('UPG.g') === g.eval("UPG.list.findIndex(x=>x[0]==='魂の祭壇')") && /転生する/.test(g.eval("$('upx').innerHTML")), '開く → 魂の祭壇(番号で呼んでも、グループが増えても同じ画面)');
   ok(g.eval('FERR') === 0, 'FERR ' + g.eval('FERR'));
 }
 { // 2)
@@ -25,7 +25,7 @@ const alt = g => g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()");
   ok(/class="fxb altgo"/.test(h) && h.indexOf('+' + gn) >= 0, '祭壇に獲得予定の魂: ' + gn);
   ok(/onclick="presAsk\(\)"/.test(h) && /onclick="soulBuy\('start'\)"/.test(h), '転生ボタンと永続強化が同じ画面に');
   g.eval('presAsk()'); ok(g.eval('fxOpen') === true, '確認が開かない');
-  g.eval('FB[1][1]()'); ok(g.eval('fxOpen') === false && g.eval('G.stage') === 45 && g.eval('UPG.g') === 2, 'やめる → 祭壇に戻る(メニューを開かない)');
+  g.eval('FB[1][1]()'); ok(g.eval('fxOpen') === false && g.eval('G.stage') === 45 && g.eval("UPG.list[UPG.g][0]") === '魂の祭壇', 'やめる → 祭壇に戻る(メニューを開かない)');
   g.eval('__rf=0;{const o=grpRefresh;grpRefresh=function(){__rf++;return o.apply(this,arguments)}}');
   g.eval('presAsk()'); g.eval('FB[0][1]()');
   ok(g.eval('G.stage') === 1 && g.eval('X.pres') === 1 && g.eval('X.souls') === gn, '祭壇から転生できない: souls=' + g.eval('X.souls'));
@@ -49,7 +49,7 @@ const alt = g => g.eval("UPG.list.find(m=>m[0]==='魂の祭壇')[1]()");
     if (fs.existsSync(d)) { const t = fs.readFileSync(d, 'utf8'); ok(t.includes('.ri{') && t.includes('.altsoul') && t.includes('#hud .coin.ri'), 'アイコン/祭壇の CSS が成果物に無い') } }
   const has = (html, k, tag) => ok(html.indexOf('ri-' + k) >= 0, tag + ' に ' + k + ' のアイコンが無い');
   const tab = n => g.eval(`(FM.find(m=>m.n==='${n}')||{r:(UPG.list.find(x=>x[0]==='${n}')||[0,()=>''])[1]}).r()`);   // くじ等は強化画面(UPG)へ移動済み
-  has(g.eval("UPG.list[1][1]()"), 'ms', '鍛冶屋'); has(g.eval("UPG.list[1][1]()"), 'gem', '鍛冶屋');
+  has(g.eval("UPG.list.find(x=>x[0]==='鍛冶屋')[1]()"), 'ms', '鍛冶屋'); has(g.eval("UPG.list.find(x=>x[0]==='鍛冶屋')[1]()"), 'gem', '鍛冶屋');
   has(alt(g), 'soul', '魂の祭壇');
   has(tab('くじ'), 'ms', 'くじ'); has(tab('くじ'), 'gem', 'くじ'); has(tab('くじ'), 'gold', 'くじ');
   has(tab('ミッション'), 'gem', 'ミッション'); has(tab('遠征'), 'ms', '遠征'); has(tab('実績'), 'gold', '実績');

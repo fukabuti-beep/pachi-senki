@@ -1,0 +1,21 @@
+/* 強化画面「英雄」グループ(98m-heroup)とタブ6つの折り返し */
+#upg.upg6{flex-wrap:wrap;gap:4px;padding:6px 6px 0}
+#upg.upg6 button{flex:0 0 calc(33.333% - 3px);font-size:12px;letter-spacing:0;padding:6px 1px;min-height:36px}
+#upx .hupl{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+#upx .hupc{border:2px solid #000;box-shadow:0 0 0 2px var(--hc),0 3px 0 2px #000;background:linear-gradient(#2a1e5c,#170f38);padding:6px 6px 8px}
+#upx .huph{display:flex;align-items:center;gap:6px;font-size:13px}
+#upx .huph b{color:var(--hc)}
+#upx .hupf{width:28px;height:28px;image-rendering:pixelated}
+#upx .hupv{margin-left:auto;font-size:11px;color:#e6e0ff}
+#upx .hupv em{color:#ff9a9a;font-style:normal}
+#upx .hupbar{height:6px;background:#2a2040;border:1px solid #000;margin:4px 0 6px}
+#upx .hupbar i{display:block;height:100%;background:linear-gradient(#7dffa0,#2ecc5a)}
+#upx .hupr{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+#upx .hupb{font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 2px;border:0;color:#d8d0ff;background:linear-gradient(#3a2a8a,#22145a);box-shadow:inset 2px 2px 0 #6a58c8,inset -2px -2px 0 #120a38,0 0 0 2px #000;min-height:44px}
+#upx .hupb.ok{background:linear-gradient(#4a3aa8,#2a1a78);box-shadow:inset 2px 2px 0 #ffe56a,inset -2px -2px 0 #120a38,0 0 0 2px #000,0 0 8px rgba(255,212,0,.45)}
+#upx .hupb.mx,#upx .hupb.lk{opacity:.55}
+#upx .hupn{font-size:12px;color:#fff}
+#upx .hupn small{font-size:10px;color:#cfc6ff}
+#upx .hupd{font-size:10px;line-height:1.2;color:#bfb6f0;text-align:center}
+#upx .hupp{font-size:11px;color:#ffd400}
+#upx .hupi{image-rendering:pixelated}

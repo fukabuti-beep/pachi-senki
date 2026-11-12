@@ -1,0 +1,64 @@
+# ラップの並び(自動生成: node tools/deps.js --update)
+
+同じ関数を包んでいるファイルを **読み込み順(内側 → 外側)** に並べたもの。外側ほど先に呼ばれる。
+挙動を変えるラップ(kill/spawn/hurt など)を足す時は、ここで前後のファイルを確認すること。
+
+| 関数 | ファイル(内側 → 外側) |
+|---|---|
+| `SB.a` | 94b-soul.js → 94c-herohp.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 98e-bonustime.js → 98i-gemshop.js → 98z-tower.js |
+| `actCatch` | 93b-mission.js → 96s-smith.js |
+| `actTap` | 93b-mission.js |
+| `altOpen` | 98m-heroup.js |
+| `banner` | 88-bannerfx.js → 89c-layer.js |
+| `bgmState` | 79b-bonus.js → 79c-titlebgm.js |
+| `bigHit` | 46-board-fx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96r-relic.js → 97u-app.js |
+| `btDraw` | 89c-layer.js |
+| `cbPress` | 89g-btnfx.js |
+| `cbShow` | 89g-btnfx.js |
+| `chDrawSB` | 89c-layer.js |
+| `deathFx` | 98h-area.js |
+| `drawB` | 84-charfx.js → 84b-atkfx.js → 86-gekiatsu.js → 87-hitev.js → 89c-layer.js → 89d-blackout.js → 89f-ultjp.js → 94c-herohp.js → 96-allies.js → 96r-relic.js → 96s-smith.js → 98b-active.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98z-tower.js |
+| `drawBgB` | 98h-area.js → 98z-tower.js |
+| `drawCut` | 84-charfx.js |
+| `drawEnemy` | 98h-area.js → 98z-tower.js |
+| `drawHP` | 98h-area.js → 98z-tower.js |
+| `drawHeroes` | 94c-herohp.js |
+| `drawP` | 87b-jpfx.js → 89c-layer.js |
+| `enSpr` | 98h-area.js |
+| `expGo` | 98i-gemshop.js |
+| `gkDraw` | 89c-layer.js |
+| `gsRe` | 98k-upmove.js |
+| `heroAtk` | 84b-atkfx.js → 94c-herohp.js → 96s-smith.js |
+| `heroDY` | 84b-atkfx.js |
+| `hitRoll` | 98i-gemshop.js |
+| `hurt` | 82-hitfx.js → 94-prestige.js |
+| `jackpot` | 87b-jpfx.js → 96s-smith.js → 97u-app.js |
+| `jpRush` | 89f-ultjp.js |
+| `kill` | 82-hitfx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 97u-app.js → 98b-active.js → 98h-area.js → 98l-edition.js → 98s-story.js → 98z-tower.js |
+| `lyBig` | 89f-ultjp.js |
+| `lyBusyB` | 89f-ultjp.js |
+| `mg2Start` | 98f-hilo.js |
+| `mini` | 89c-layer.js → 95-minigames.js → 98f-hilo.js |
+| `mrDraw` | 89c-layer.js |
+| `onAtk` | 46-board-fx.js |
+| `onChucker` | 46-board-fx.js → 89-horyu.js |
+| `onSide` | 46-board-fx.js |
+| `presAsk` | 98i-altar.js |
+| `presDo` | 94b-soul.js → 94c-herohp.js → 98i-altar.js |
+| `pushPress` | 89g-btnfx.js → 89h-pushhype.js |
+| `pushPrompt` | 87b-jpfx.js → 89g-btnfx.js → 89h-pushhype.js |
+| `pxText` | 98i-gemshop.js |
+| `reelShow` | 89e-bigslot.js |
+| `relicUpd` | 98f-hilo.js |
+| `resMs` | 98e-bonustime.js → 98i-gemshop.js |
+| `roulSuper` | 89c-layer.js |
+| `spAdd` | 96r-relic.js |
+| `spawn` | 84-charfx.js → 94c-herohp.js → 98b-active.js → 98z-tower.js |
+| `startRoul` | 87d-roulquick.js |
+| `startSpin` | 86-gekiatsu.js → 89-horyu.js → 89d-blackout.js |
+| `stopMG` | 95-minigames.js |
+| `ult` | 93b-mission.js |
+| `updMG` | 98-mgfx.js |
+| `updRoul` | 87d-roulquick.js |
+| `updSpin` | 86-gekiatsu.js |
+| `update` | 84-charfx.js → 86-gekiatsu.js → 87-hitev.js → 87b-jpfx.js → 89-horyu.js → 89c-layer.js → 89d-blackout.js → 89e-bigslot.js → 89f-ultjp.js → 92b-daily.js → 93b-mission.js → 96r-relic.js → 96s-smith.js → 97t-rank.js → 98b-active.js → 98c-upgroups.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98s-story.js → 98t-tutorial.js |

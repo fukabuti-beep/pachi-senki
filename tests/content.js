@@ -181,10 +181,10 @@ const tick = () => new Promise(r => setImmediate(r));
 // (l) 強化画面のグループ(鍛冶屋/魂の祭壇はメニューから移動)/ 押せ!! の文字分割
 {
   const g = createGame({ seed: 14 }); g.start(); g.advance(1);
-  ok(g.eval("FM.every(m=>m.n!=='鍛冶屋'&&m.n!=='魂の祭壇')") && g.eval('UPG.list.map(x=>x[0]).join()').indexOf('通常強化,鍛冶屋,魂の祭壇') === 0, 'グループの移動: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
-  g.eval('grpSet(1)'); ok(g.eval('UPG.g') === 1 && /鍛冶屋/.test(g.eval("$('upx').innerHTML")), '鍛冶屋が強化画面に出ない');
+  ok(g.eval("FM.every(m=>m.n!=='鍛冶屋'&&m.n!=='魂の祭壇')") && g.eval('UPG.list.map(x=>x[0]).join()').indexOf('通常強化') === 0 && ['鍛冶屋','魂の祭壇'].every(n=>g.eval('UPG.list.some(x=>x[0]==="'+n+'")')), 'グループの移動: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
+  const gi = n => g.eval('UPG.list.findIndex(x=>x[0]==="' + n + '")'); g.eval('grpSet(' + gi('鍛冶屋') + ')'); ok(g.eval('UPG.g') === gi('鍛冶屋') && /鍛冶屋/.test(g.eval("$('upx').innerHTML")), '鍛冶屋が強化画面に出ない');
   g.eval('RES.ms=1e6;fxOpen=false;smithUp(0)'); ok(g.eval('RES.w[0]') === 1 && g.eval('fxOpen') === false, '強化画面から買うとメニューが開く');
-  g.eval('grpSet(2)'); ok(/魂の祭壇/.test(g.eval("$('upx').innerHTML")), '魂の祭壇が強化画面に出ない');
+  g.eval('grpSet(' + gi('魂の祭壇') + ')'); ok(/魂の祭壇/.test(g.eval("$('upx').innerHTML")), '魂の祭壇が強化画面に出ない');
   g.eval('grpSet(0)'); ok(g.eval('UPG.g') === 0, '通常強化に戻れない');
   g.eval("PUSH=null;pushPrompt(()=>{},{jp:1,ms:20000})"); ok(/class="ch"/.test(g.eval("$('pkT').innerHTML")) && /押/.test(g.eval("$('pkT').innerHTML")), '押せ!! の文字分割: ' + g.eval("$('pkT').innerHTML"));
 }

@@ -3,9 +3,9 @@ const { createGame } = require('../tools/harness');
 let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.error('FAIL: ' + m); } };
 (async () => {
   const g = createGame({ seed: 1 }); g.start(); g.advance(1);
-  ok(g.eval('UPG.list.map(x=>x[0]).join()') === '通常強化,鍛冶屋,魂の祭壇,宝石屋,くじ', '強化画面のグループ: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
+  ok(g.eval('UPG.list.map(x=>x[0]).join()') === '通常強化,英雄,鍛冶屋,魂の祭壇,宝石屋,くじ', '強化画面のグループ: ' + g.eval('UPG.list.map(x=>x[0]).join()'));
   ok(g.eval('!FM.some(m=>["くじ","宝石ショップ","育成","鍛冶屋","魂の祭壇","転生"].includes(m.n))'), 'メニューに消費系タブが残っている: ' + g.eval('FM.map(m=>m.n).join()'));
-  for (let i = 1; i < 5; i++) { const h = g.eval(`grpSet(${i});$('upx').innerHTML`); ok(typeof h === 'string' && h.length > 50, 'グループ ' + i + ' が描けない'); }
+  for (let i = 1; i < g.eval('UPG.list.length'); i++) { const h = g.eval(`grpSet(${i});$('upx').innerHTML`); ok(typeof h === 'string' && h.length > 50, 'グループ ' + i + ' が描けない'); }
   // 魂の祭壇: コストは Lv で増える・上限なしの項目がある・効果が乗る
   ok(g.eval("SOULD.find(d=>d.k==='start').c(10)") > g.eval("SOULD.find(d=>d.k==='start').c(0)") * 10, 'コストが増えていない');
   ok(g.eval("SOULD.filter(d=>!isFinite(d.max)).length") >= 2, '上限なしの項目が無い');

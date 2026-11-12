@@ -5,9 +5,9 @@ const root = path.join(__dirname, '..');
 
 function mulberry(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-function loadBundle() {
+function loadBundle(free) {   // free=体験版: build.js と同じく 1行目に @full があるファイルを外す
   const jsDir = path.join(root, 'src/js');
-  return fs.readdirSync(jsDir).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n');
+  return fs.readdirSync(jsDir).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(jsDir, f), 'utf8')).filter(t => !(free && /@full/.test(t.split('\n')[0]))).join('\n');
 }
 
 // ls: 'ok'(既定) | 'throw'(localStorage への参照自体が例外=一部のプライベートモード) | 'setthrow'(setItem だけ例外=容量超過)
@@ -96,7 +96,7 @@ function createGame({ seed = 1, storage = {}, audio: audioMode = 'ok', ls = 'ok'
   sandbox.PACHI_RANK_API = '';   // テストは既定でランキングサーバーに通信しない(globals で上書き可)
   Object.assign(sandbox, globals);
   const ctx = vm.createContext(sandbox);
-  vm.runInContext(loadBundle(), ctx, { filename: 'bundle.js' });
+  vm.runInContext(loadBundle(globals.PACHI_EDITION === 'free'), ctx, { filename: 'bundle.js' });
 
   const runTimers = () => {
     for (;;) {

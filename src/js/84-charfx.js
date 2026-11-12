@@ -65,7 +65,7 @@ function cutChar(i,x,y,sc,fx){if(cutImg('hero'+i,x,y,sc,fx))return;const P=typeo
   bc.drawImage(P,X,Y,w,h);
   if(fx){// 目の光(フレア)
     const p=cut?t-cut.t0:1,a=p>.22&&p<.62?Math.sin((p-.22)/.4*Math.PI):0;if(a>0){bc.save();bc.globalAlpha*=a;bc.fillStyle='#fff';for(const ex of [27,37]){const fx2=X+ex*sc,fy=Y+31.5*sc,L=sc*9;bc.fillRect(Math.round(fx2-L),Math.round(fy),Math.round(L*2),Math.max(1,Math.round(sc*.6)));bc.fillRect(Math.round(fx2),Math.round(fy-L*.5),Math.max(1,Math.round(sc*.6)),Math.round(L))}bc.restore()}}
-  return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(64*sc),Math.round(64*sc))}
+  return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(spr.width*2*sc),Math.round(64*sc))}
 function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   if(p>.65&&!cut.f){cut.f=1;cut.cb()}
   const open=Math.min(1,p/.1),close=p>D-.12?Math.max(0,(D-p)/.12):1,h=Math.round(88*open*close),y0=76-(h>>1),col=cut.c;

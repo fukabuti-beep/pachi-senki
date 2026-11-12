@@ -55,7 +55,7 @@ mkH3(3,'D#2a5a9a,E#a85a40,F#5a7aa8,K#14143c,L#1c1a44,M#4a6a9a,N#8a5a00,k#14101f,
  ".....kooTk.........kooTk",
  "....kooook........kooook",
  "....kkkkkk........kkkkkk"],
-{"i":[0,0,[[27,0,".l"],[26,1,".klk"],[26,2,"klilk"],[26,3,"klilk"],[26,4,".klk"],[25,5,"gkgkgkg"],[26,6,"kgggk"],[27,7,"kgk"],[27,8,"kmk"],[27,9,"kmk"],[27,10,"kmk"],[27,11,"kmk"],[27,12,"kmk"],[27,13,"kmk"],[27,14,"kmk"],[27,15,"kmk"],[27,16,"kmk"],[27,17,"kmk"],[27,18,"kmk"],[27,19,"kmk"],[27,20,"kmk"],[26,21,"kkmk"],[26,22,"kkmk"],[27,23,"kmk"],[27,24,"kmk"],[27,25,"kmk"],[27,26,"kmk"],[27,27,"kmk"],[27,28,"kmk"],[27,29,"kk"]]],"w":[-2,1,[[6,20,"kkkkkkkkkkkkkkkkkkk"],[5,21,"kmmmksskmmmmmmmgklilk"],[6,22,"kkkkksskkkkkkkgkkllk"],[20,19,"g"],[20,23,"g"]]],"s":[3,1,[[12,20,"kkkkkkkkkkkkkkkkkkkk"],[11,21,"kmmksskmmmmmmmgklilll"],[12,22,"kkksskkkkkkkkgkkllll"],[25,19,"g"],[25,23,"g"],[30,19,"ii"],[30,23,"ii"],[29,18,"i"],[29,24,"i"]]]});
+{"i":[0,0,[[27,0,".l"],[26,1,".klk"],[26,2,"klilk"],[26,3,"klilk"],[26,4,".klk"],[25,5,"gkgkgkg"],[26,6,"kgggk"],[27,7,"kgk"],[27,8,"kmk"],[27,9,"kmk"],[27,10,"kmk"],[27,11,"kmk"],[27,12,"kmk"],[27,13,"kmk"],[27,14,"kmk"],[27,15,"kmk"],[27,16,"kmk"],[27,17,"kmk"],[27,18,"kmk"],[27,19,"kmk"],[27,20,"kmk"],[27,21,"kmk"],[27,22,"kmk"],[27,23,"kmk"],[27,24,"kmk"],[27,25,"kmk"],[27,26,"kmk"],[27,27,"kmk"],[27,28,"kmk"],[27,29,"kk"]],0],"w":[-2,1,[[0,22,"kkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[0,23,"mmksskmmmmmmmmmmmmmksskmmmmgk"],[0,24,"kkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[27,21,"g"],[27,25,"g"],[28,22,"kkkkkk"],[28,23,"lillllk"],[28,24,"kkkkkk"]],1],"s":[3,1,[[25,21,"______"],[25,22,"______"],[25,23,"______"],[25,24,"______"],[24,21,"k"],[24,22,"k"],[24,23,"k"],[25,21,"kkkkk"],[25,22,"tttttk"],[25,23,"ggTTTk"],[25,24,"kkkkk"],[6,22,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[5,23,"kmmmksskmmmmmmmmmmmmmmmmmmksskmmmmgk"],[6,24,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[39,21,"g"],[39,25,"g"],[40,22,"kkkkkk"],[40,23,"lilllllk"],[40,24,"kkkkkk"],[46,21,"i"],[47,23,"i"],[46,25,"i"],[44,20,"i"],[44,26,"i"]],1]});
 const LN={lv:1,at:.7,h:-9,gen:0,ann:0};
 try{const v=Math.floor(+(JSON.parse(localStorage.getItem('pachi2_lancer')||'{}').lv));if(Number.isFinite(v)&&v>=1)LN.lv=Math.min(v,1e6)}catch(e){}
 function lnSave(){try{localStorage.setItem('pachi2_lancer',JSON.stringify({lv:LN.lv}))}catch(e){}}
@@ -79,11 +79,11 @@ FU.push(dt=>{if(!run)return;
   if(typeof soulLv==='function'&&soulLv('auto')&&SOUL.auto){LN.bt=(LN.bt||0)-dt;if(LN.bt<=0){LN.bt=3;if(G.gold>=lnCost()*4)lnBuy()}}});
 /* 描画: 3人のすぐ右うしろ。突く時は前へ出る */
 {const _dh=drawHeroes;drawHeroes=function(t){const r=_dh.apply(this,arguments);try{if(lnOn())lnDraw(t)}catch(e){}return r}}
-function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-8+lg,y=52+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.13?'s':'w'):(Math.floor(t*2.6+2.1)%2?'b':''));
+function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-8+lg,y=52+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.08?'w':'s'):(Math.floor(t*2.6+2.1)%2?'b':''));
   bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(3)+2,114,40,4);
-  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,64,64);bc.globalAlpha=1}
-  bc.drawImage(SPR[n],x,y,64,64);
-  if(d>=0&&d<.14){const q=d/.14;bc.globalAlpha=1-q;bc.fillStyle='#fff';bc.fillRect(x+58,y+34,Math.round(30+q*30),2);bc.fillStyle='#8fd8ff';bc.fillRect(x+58,y+37,Math.round(20+q*24),1);bc.globalAlpha=1}}
+  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,SPR[n].width*2,64);bc.globalAlpha=1}
+  bc.drawImage(SPR[n],x,y,SPR[n].width*2,64);
+  if(d>=.08&&d<.22){const q=(d-.08)/.14;bc.globalAlpha=1-q;bc.fillStyle='#fff';bc.fillRect(x+94,y+46,Math.round(20+q*30),2);bc.fillStyle='#8fd8ff';bc.fillRect(x+94,y+49,Math.round(14+q*24),1);bc.globalAlpha=1}}
 /* カットインと吹き出し(docs/STORY.md の口調: マイペースで眠たがり)。大当たりのカットインは 加入後 4回に1回くらいツララ。
    絵は src/img/hero3.webp があればそれ(build.js が PIMG に入れる)、無ければ 83b のコード描画 PORT(3)、それも無ければドット絵 */
 CUTL[3]=['つらぬくよー','ねむいけど…本気','氷槍、いくよー'];

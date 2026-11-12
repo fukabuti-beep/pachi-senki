@@ -1178,23 +1178,25 @@ function mk(n,pal,rows,full){const p={};pal.split(',').forEach(s=>p[s[0]]=s.slic
 function spw(n){if(SPW[n])return SPW[n];const s=SPR[n],c=document.createElement('canvas');c.width=s.width;c.height=s.height;const x=c.getContext('2d');x.drawImage(s,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#fff';x.fillRect(0,0,s.width,s.height);return SPW[n]=c}
 /* 英雄: 32x32(戦闘画面では2倍=64px)。作りは docs/DESIGN.md「ドット絵の考え方」(dotartplay の32x32アクション風に学ぶ):
    頭16行・胴8行・足8行 / 目は3x4(まつ毛+白目+瞳の濃淡)/ 輪郭は黒でなく素材の暗い色(k を自動で塗り分け。目のふちだけ濃いまま)/ 光は左上 /
-   攻撃は体ごと踏み込む(コマごとに 上半身の傾き lean と 足の形 を変える)。
+   攻撃は体ごと動かす: 構え(武器を引く・腰を落とす)→ 攻撃(踏み込んで腕を伸ばし、武器は必ず手の先から出る)。構え/攻撃のコマは横48(右に16の余白=伸ばした腕と武器と軌跡のぶん)。
    mkH3(i,pal,mat,head,body,legs,legsS,fr): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
-     fr={i:待機,w:構え,s:攻撃} それぞれ [上半身を横にずらすpx, 足(0=legs/1=legsS), 武器などの重ね描き [x,y,文字列]…]。待機Bは頭を1px沈める。
+     fr={i:待機,w:構え,s:攻撃} それぞれ [上半身を横にずらすpx, 足(0=legs/1=legsS), 重ね描き [x,y,文字列]…, 腰を落とすpx]。
+     重ね描きの '_' は消す(下ろした腕を消して、肩から腕を描き直す)。待機Bは頭を1px沈める。描く側は必ず SPR[n].width を見る(64 決め打ちにしない)。
    見た目は作り手提供のイラスト(src/img)に合わせる。HGRP[i]=色のまとまり(衣装 98n が、基本色の置きかえから影や輪郭の色も自動で作る) */
 const HGRP={};
-function mkH3(i,pal,mat,head,body,legs,legsS,fr){const W=32,M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
+function mkH3(i,pal,mat,head,body,legs,legsS,fr){const M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
   HGRP[i]=mat.map(m=>[P[m[1][0]],[P[m[0]],...[...m[1]].slice(1).map(c=>P[c])]]);
-  const pad=r=>(r+'.'.repeat(W)).slice(0,W),sh=(r,dx)=>dx>=0?('.'.repeat(dx)+r).slice(0,W):r.slice(-dx)+'.'.repeat(-dx);
-  const build=(f,bob)=>{let g=[...head,...body].map(r=>[...sh(pad(r),f[0])]).concat((f[1]?legsS:legs).map(r=>[...pad(r)]));
+  const build=(f,bob,W)=>{const pad=r=>(r+'.'.repeat(W)).slice(0,W),sh=(r,dx)=>dx>=0?('.'.repeat(dx)+r).slice(0,W):r.slice(-dx)+'.'.repeat(-dx),dp=f[3]||0;
+    let g=[];for(let k=0;k<dp;k++)g.push([...'.'.repeat(W)]);
+    g=g.concat([...head,...body].map(r=>[...sh(pad(r),f[0])]),(f[1]?legsS:legs).slice(dp).map(r=>[...pad(r)]));
     if(bob)g=[[...'.'.repeat(W)],...g.slice(0,16),...g.slice(17)];
-    f[2].forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+(bob?1:0);if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch}));
+    f[2].forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+(bob?1:0);if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch=='_'?'.':ch}));
     const at=(x,y)=>(g[y]&&g[y][x])||'.',out=g.map(r=>r.slice());
     for(let y=0;y<32;y++)for(let x=0;x<W;x++){if(g[y][x]!='k')continue;const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(n.some(c=>'wuUe'.includes(c)))continue;
       let c=n.filter(q=>M[q]).map(q=>M[q]);if(!c.length)c=[at(x-1,y-1),at(x+1,y-1),at(x-1,y+1),at(x+1,y+1)].filter(q=>M[q]).map(q=>M[q]);
       if(c.length)out[y][x]=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}
     return out.map(r=>r.join(''))};
-  mk('h'+i,pal,build(fr.i,0),1);mk('h'+i+'b',pal,build(fr.i,1),1);mk('h'+i+'w',pal,build(fr.w,0),1);mk('h'+i+'s',pal,build(fr.s,0),1)}
+  mk('h'+i,pal,build(fr.i,0,32),1);mk('h'+i+'b',pal,build(fr.i,1,32),1);mk('h'+i+'w',pal,build(fr.w,0,48),1);mk('h'+i+'s',pal,build(fr.s,0,48),1)}
 /* ===== 英雄0: 剣士ホムラ ===== */
 mkH3(0,'D#7a1028,E#a85a40,F#3a4466,J#701030,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,k#14101f,h#e0443a,H#a8262e,i#ff7a45,I#ffb070,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#ffc020,U#d07800,x#7a1a20,a#d5dae6,b#7c859b,c#ffffff,r#d1303c,R#9c1c3c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8',[["D","hHiI"],["E","sSz"],["F","abc"],["J","rR"],["K","tT"],["L","o"],["M","lm"],["N","g"]],
 [
@@ -1241,7 +1243,7 @@ mkH3(0,'D#7a1028,E#a85a40,F#3a4466,J#701030,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,
  ".....kaabk.........kaabk",
  "....kooook........kooook",
  "....kkkkkk........kkkkkk"],
-{"i":[0,0,[[23,6,"..l"],[23,7,".klk"],[23,8,".klmk"],[23,9,".klmk"],[23,10,".klmk"],[23,11,".klmk"],[23,12,".klmk"],[23,13,".klmk"],[23,14,".klmk"],[23,15,".klmk"],[23,16,".klmk"],[23,17,".klmk"],[23,18,".klmk"],[22,19,"kgggggk"],[23,20,".kook"],[23,21,".kok"]]],"w":[-1,0,[[4,0,"....kk"],[3,1,"...klmk"],[3,2,"..klmk"],[2,3,"..klmk"],[2,4,".klmk"],[1,5,".klmk"],[1,6,"klmk"],[0,7,"klmk"],[0,8,"kmk"],[3,9,"g"],[20,9,"kk"],[19,10,"kssk"],[4,10,"kgggk"],[19,11,"kcak"]]],"s":[3,1,[[24,17,"kkkkkkkk"],[23,18,"kgklllllll"],[22,19,"ksskgkmmmmmmmm"],[23,20,"kgkkkkkkkk"],[24,16,"g"],[24,21,"g"],[26,4,"mm"],[27,5,"mlm"],[28,6,"mlm"],[29,7,"mlm"],[29,8,"mlwm"],[30,9,"lwm"],[30,10,"lw"],[30,11,"lw"],[30,12,"lw"],[30,13,"lw"],[29,14,"mlw"],[29,15,"mlm"],[28,23,"mlm"],[29,22,"mlm"],[30,21,"ml"]]]});
+{"i":[0,0,[[24,7,"l"],[23,8,"klk"],[23,9,"klmk"],[23,10,"klmk"],[23,11,"klmk"],[23,12,"klmk"],[23,13,"klmk"],[23,14,"klmk"],[23,15,"klmk"],[23,16,"klmk"],[23,17,"klmk"],[23,18,"klmk"],[22,19,"kggggk"],[24,20,"kok"],[24,21,"kok"],[25,22,"k"]],0],"w":[-1,0,[[20,18,"______"],[20,19,"______"],[20,20,"______"],[20,21,"______"],[19,18,"k"],[19,19,"k"],[19,20,"k"],[20,16,"kak"],[21,15,"kak"],[22,14,"kbk"],[23,13,"kak"],[23,12,"ksk"],[23,11,"ksk"],[24,10,"k"],[21,9,"kgggggk"],[15,0,"klmk"],[16,1,"klmk"],[17,2,"klmk"],[18,3,"klmk"],[19,4,"klmk"],[20,5,"klmk"],[21,6,"klmk"],[22,7,"klmk"],[23,8,"klmk"]],0],"s":[3,1,[[23,19,"______"],[23,20,"______"],[23,21,"______"],[23,22,"______"],[23,18,"kkkkk"],[23,19,"aaaaak"],[23,20,"bbbbbk"],[23,21,"kkkkk"],[28,19,"ssk"],[28,20,"ssk"],[28,18,"kk"],[28,21,"kk"],[30,16,"k"],[30,17,"g"],[30,18,"g"],[30,19,"g"],[30,20,"g"],[30,21,"g"],[30,22,"g"],[30,23,"k"],[31,18,"kkkkkkkkkkkk"],[31,19,"llllllllllllk"],[31,20,"mmmmmmmmmmmk"],[31,21,"kkkkkkkkkkk"],[30,4,"mm"],[32,5,"mlm"],[34,6,"mllm"],[37,7,"mllm"],[39,8,"mlwm"],[41,9,"mlwm"],[42,10,"lwm"],[43,11,"lwm"],[44,12,"lwm"],[44,13,"lw"],[45,14,"lw"],[45,15,"lw"],[45,16,"lw"],[44,17,"mlw"]],1]});
 /* ===== 英雄1: 魔法使いシズク ===== */
 mkH3(1,'D#2e1a78,E#a85a40,F#6a70a8,G#1e2670,N#8a5a00,L#3a2410,Q#1a7a9a,k#14101f,h#7a4dff,H#4d2fb8,j#a584ff,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#c070ff,U#7a30c0,x#a03050,p#5b6cff,P#3a45b8,c#8f9cff,y#ffd24d,Y#b98300,o#8a5a2b,q#7ff3ff,v#f2f4ff,V#aab0d8',[["D","hHj"],["E","sSz"],["F","vV"],["G","pPc"],["N","yY"],["L","o"],["Q","q"]],
 [
@@ -1288,7 +1290,7 @@ mkH3(1,'D#2e1a78,E#a85a40,F#6a70a8,G#1e2670,N#8a5a00,L#3a2410,Q#1a7a9a,k#14101f,
  "........koook...koook",
  ".......kooook..kooook",
  ".......kkkkkk..kkkkkk"],
-{"i":[0,0,[[24,5,".kqk"],[24,6,"kqwqk"],[24,7,"kqqqk"],[24,8,".kyk"],[24,9,".kok"],[24,10,".kok"],[24,11,".kok"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[24,18,".kok"],[24,19,".kok"],[23,20,"kssok"],[24,21,".kok"],[24,22,".kok"],[24,23,".kok"],[24,24,".kok"],[24,25,".kok"],[24,26,".kk"]]],"w":[-1,0,[[24,1,".kqk"],[24,2,"kqwqk"],[24,3,"kqqqk"],[24,4,".kyk"],[24,5,".kok"],[24,6,".kok"],[24,7,".kok"],[24,8,".kok"],[24,9,".kok"],[24,10,".kok"],[24,11,".kok"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[23,18,"kssok"],[22,19,"kppk"],[24,19,"kok"],[25,20,"kk"],[22,0,"q"],[29,1,"q"],[30,4,"c"],[21,3,"c"],[28,6,"q"]]],"s":[2,1,[[22,18,"kkkkkkkkk"],[21,19,"kssooooykqk"],[21,20,"kssooooykqwq"],[22,21,"kkkkkkkkqqq"],[30,17,"q"],[31,20,"w"],[29,15,"q"],[27,13,"c"],[30,23,"q"],[28,25,"c"],[31,12,"q"]]]});
+{"i":[0,0,[[24,5,".kqk"],[24,6,"kqwqk"],[24,7,"kqqqk"],[24,8,".kyk"],[25,9,"kok"],[25,10,"kok"],[25,11,"kok"],[25,12,"kok"],[25,13,"kok"],[25,14,"kok"],[25,15,"kok"],[25,16,"kok"],[25,17,"kok"],[25,18,"kok"],[25,19,"kok"],[25,20,"kok"],[25,21,"kok"],[25,22,"kok"],[25,23,"kok"],[25,24,"kok"],[25,25,"kok"],[25,26,"kok"],[25,27,"kk"]],0],"w":[-1,0,[[19,18,"______"],[19,19,"______"],[19,20,"______"],[19,21,"______"],[18,18,"k"],[18,19,"k"],[18,20,"k"],[20,16,"kpk"],[21,15,"kpk"],[22,14,"kPk"],[23,13,"kpk"],[23,12,"ksk"],[23,11,"ksk"],[26,0,".kqk"],[26,1,"kqwqk"],[26,2,"kqqqk"],[26,3,".kyk"],[27,4,"kok"],[27,5,"kok"],[27,6,"kok"],[27,7,"kok"],[27,8,"kok"],[27,9,"kok"],[27,10,"kok"],[27,11,"kok"],[27,12,"kok"],[27,13,"kok"],[27,14,"kok"],[27,15,"kok"],[27,16,"kok"],[27,17,"kok"],[27,18,"kk"],[25,11,"kk"],[25,12,"kk"],[24,0,"q"],[32,1,"q"],[33,4,"c"],[23,3,"c"],[31,6,"q"],[30,-1,"w"]],0],"s":[2,1,[[21,18,"______"],[21,19,"______"],[21,20,"______"],[21,21,"______"],[21,17,"kkkkk"],[21,18,"pppppk"],[21,19,"PPPPPk"],[21,20,"kkkkk"],[27,18,"ssk"],[27,19,"ssk"],[27,17,"kk"],[27,20,"kk"],[24,16,"kkkkk"],[30,17,"kkkkkkk"],[23,17,"k"],[30,18,"oooooooyk"],[30,19,"kkkkkkkk"],[38,15,".kqk"],[38,16,"kqwqk"],[38,17,"kqwwqk"],[38,18,"kqwwqk"],[38,19,"kqwqk"],[38,20,".kqk"],[43,13,"q"],[45,15,"qc"],[44,18,"qqwc"],[45,21,"qc"],[43,23,"q"],[41,12,"c"],[41,24,"c"],[47,18,"c"]],0]});
 /* ===== 英雄2: 弓使いコハク ===== */
 mkH3(2,'D#0e4a2c,E#a85a40,F#3a2008,L#3a2410,N#8a5a00,X#8a8468,J#8a1c28,k#14101f,h#2fb36b,H#1b7a47,c#7fe8a0,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#50f090,U#18a050,g#3dd27f,d#1b7a47,b#8a5a2b,B#5a3818,n#a86a34,N#6a3c14,y#ffd24d,x#e8e0c0,r#ff4a4a',[["D","hHcgd"],["E","sSz"],["F","nN"],["L","bB"],["N","y"],["X","x"],["J","r"]],
 [
@@ -1335,7 +1337,7 @@ mkH3(2,'D#0e4a2c,E#a85a40,F#3a2008,L#3a2410,N#8a5a00,X#8a8468,J#8a1c28,k#14101f,
  ".....kbBBk.........kbBBk",
  "....kBBBBk........kBBBBk",
  "....kkkkkk........kkkkkk"],
-{"i":[0,0,[[2,13,".rr"],[2,14,".xx"],[2,15,"kxxk"],[2,16,"kbbk"],[2,17,"kbBk"],[2,18,"kbBk"],[3,19,"kk"],[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x.kbk"],[26,13,"x..kb"],[26,14,"x..kb"],[26,15,"x..kb"],[26,16,"x..kb"],[26,17,"x..kb"],[26,18,"x..kb"],[26,19,"x.kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"]]],"w":[-1,1,[[1,13,".rr"],[1,14,".xx"],[1,15,"kxxk"],[1,16,"kbbk"],[1,17,"kbBk"],[1,18,"kbBk"],[2,19,"kk"],[25,7,"kk"],[24,8,"kbbk"],[25,9,".kbk"],[26,10,".kbk"],[23,11,"x...kbk"],[22,12,"x.....kb"],[21,13,"x......kb"],[20,14,"x.......kb"],[16,15,"kkkkkkkkkkkkkbrr"],[15,16,"ksskxxxxxxxxxkbk"],[16,17,"kkkkx.......kb"],[21,18,"x......kb"],[22,19,"x.....kb"],[23,20,"x...kbk"],[26,21,".kbk"],[25,22,".kbk"],[24,23,"kbbk"],[25,24,"kk"]]],"s":[1,1,[[3,13,".rr"],[3,14,".xx"],[3,15,"kxxk"],[3,16,"kbbk"],[3,17,"kbBk"],[3,18,"kbBk"],[4,19,"kk"],[26,6,"kk"],[25,7,"kbbk"],[26,8,".kbk"],[27,9,".kbk"],[27,10,"x.kb"],[27,11,"x.kb"],[27,12,"x.kb"],[27,13,"x.kb"],[27,14,"x.kb"],[27,15,"x.kb"],[27,16,"x.kb"],[27,17,"x.kb"],[27,18,"x.kb"],[27,19,"x.kb"],[27,20,"x.kb"],[27,21,"x.kb"],[27,22,".kbk"],[26,23,".kbk"],[25,24,"kbbk"],[26,25,"kk"],[22,15,"cc"],[21,16,"ccc"],[22,17,"cc"],[29,16,"xxr"]]]});
+{"i":[0,0,[[2,13,".rr"],[2,14,".xx"],[2,15,"kxxk"],[2,16,"kbbk"],[2,17,"kbBk"],[2,18,"kbBk"],[3,19,"kk"],[26,12,"kk"],[25,13,"kbbk"],[26,14,".kbk"],[27,15,".kbk"],[26,16,"x.kbk"],[26,17,"x.kbk"],[26,18,"x.kbk"],[26,19,"x.kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,"x.kbk"],[26,23,"x.kbk"],[26,24,"x.kbk"],[27,25,".kbk"],[26,26,".kbk"],[25,27,"kbbk"],[26,28,"kk"]],0],"w":[0,1,[[2,13,".rr"],[2,14,".xx"],[2,15,"kxxk"],[2,16,"kbbk"],[2,17,"kbBk"],[2,18,"kbBk"],[3,19,"kk"],[20,19,"______"],[20,20,"______"],[20,21,"______"],[20,22,"______"],[4,19,"______"],[4,20,"______"],[4,21,"______"],[4,22,"______"],[19,19,"k"],[19,20,"k"],[9,19,"k"],[9,20,"k"],[20,18,"kkkkkkk"],[20,19,"ggggggk"],[20,20,"ddddddk"],[20,21,"kkkkkkk"],[27,19,"ssk"],[27,20,"ssk"],[27,18,"kk"],[27,21,"kk"],[30,10,"kk"],[29,11,"kbbk"],[30,12,".kbk"],[31,13,".kbk"],[32,14,"kbk"],[32,15,"kbk"],[32,16,"kbk"],[32,17,"kbk"],[32,18,"kbk"],[32,19,"kbk"],[32,20,"kbk"],[32,21,"kbk"],[32,22,"kbk"],[32,23,"kbk"],[32,24,"kbk"],[32,25,"kbk"],[31,26,".kbk"],[30,27,".kbk"],[29,28,"kbbk"],[30,29,"kk"],[29,12,"x"],[27,13,"xx"],[25,14,"xx"],[23,15,"xx"],[21,16,"xx"],[19,17,"xx"],[18,18,"x"],[18,21,"x"],[19,22,"xx"],[21,23,"xx"],[23,24,"xx"],[25,25,"xx"],[27,26,"xx"],[29,27,"x"],[15,18,"kkkk"],[14,19,"kssk"],[14,20,"kssk"],[15,21,"kkkk"],[8,18,"kkkkkkk"],[7,19,"kgggggg"],[7,20,"kdddddd"],[8,21,"kkkkkkk"],[18,19,"xxxxxxxxxxxxxxxxxx"],[36,18,"r"],[36,19,"rr"],[36,20,"r"]],1],"s":[1,1,[[3,13,".rr"],[3,14,".xx"],[3,15,"kxxk"],[3,16,"kbbk"],[3,17,"kbBk"],[3,18,"kbBk"],[4,19,"kk"],[21,19,"______"],[21,20,"______"],[21,21,"______"],[21,22,"______"],[5,19,"______"],[5,20,"______"],[5,21,"______"],[5,22,"______"],[20,19,"k"],[20,20,"k"],[10,19,"k"],[10,20,"k"],[21,18,"kkkkkkk"],[21,19,"ggggggk"],[21,20,"ddddddk"],[21,21,"kkkkkkk"],[28,19,"ssk"],[28,20,"ssk"],[28,18,"kk"],[28,21,"kk"],[31,10,"kk"],[30,11,"kbbk"],[31,12,".kbk"],[32,13,".kbk"],[33,14,"kbk"],[33,15,"kbk"],[33,16,"kbk"],[33,17,"kbk"],[33,18,"kbk"],[33,19,"kbk"],[33,20,"kbk"],[33,21,"kbk"],[33,22,"kbk"],[33,23,"kbk"],[33,24,"kbk"],[33,25,"kbk"],[32,26,".kbk"],[31,27,".kbk"],[30,28,"kbbk"],[31,29,"kk"],[31,13,"x"],[31,14,"x"],[31,15,"x"],[31,16,"x"],[31,17,"x"],[31,18,"x"],[31,19,"x"],[31,20,"x"],[31,21,"x"],[31,22,"x"],[31,23,"x"],[31,24,"x"],[31,25,"x"],[31,26,"x"],[5,17,"kkkk"],[4,18,"kssk"],[4,19,"kssgk"],[5,20,"kkggk"],[6,21,"kkk"],[36,19,"cccc"],[40,18,"kkkkkk"],[40,19,"xxxxxrr"],[40,20,"kkkkkk"],[35,17,"c"],[35,21,"c"]],1]});
 /* ===== 雑魚(16x16, 左半分) ===== */
 /* m0 スライム(青) */
 mk('m0','k#14101f,a#3fb6ff,b#1f6fd1,c#b8ecff,w#fff,e#14101f',
@@ -1806,14 +1808,15 @@ function ult(){LU=T;const h=Math.floor(Math.random()*3);G.sp=0;cutin(h,['烈火�
 /* ---------- battle: rendering (drawB) ----------
    構成: 背景(36) → 状態オーバーレイ(36) → 英雄 → 敵 → スキルFX(80) → 弾 → 被弾/撃破(82) → 粒子 → [カメラ終了] → ビネット/枠/チップ(36) → HP/数字(81)/カットイン */
 let eLag=1,hFl=-9,hFlD=.09,pHit=0;const hx=i=>6+i*46,FLT=['m1','m2','m5','m7','m8'],HCOL=['#ff7a45','#6fe3ff','#9bff6b'];
-function drawHeroes(t){for(let i=0;i<3;i++){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.14?'s':'w'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg)+(typeof heroDX==='function'?heroDX(i,t):0),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2))+(typeof heroDY==='function'?heroDY(i,t):0),n='h'+i+fr;
+/* 攻撃中の英雄は手前(後)に描く: 伸ばした武器が隣の英雄に隠れないように */
+function drawHeroes(t){const o=[0,1,2].sort((a,b)=>((t-HA[a]>=0&&t-HA[a]<.3)?1:0)-((t-HA[b]>=0&&t-HA[b]<.3)?1:0)||a-b);for(const i of o){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.08?'w':'s'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg)+(typeof heroDX==='function'?heroDX(i,t):0),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2))+(typeof heroDY==='function'?heroDY(i,t):0),n='h'+i+fr;
 bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(i)+10,114,44,4);bc.fillRect(hx(i)+14,112,36,2);
 if(G.aw>0){const r=34+Math.sin(t*9+i)*3;bc.fillStyle='rgba(181,123,255,.28)';bc.beginPath();bc.arc(x+32,y+38,r,0,TAU);bc.fill();bc.fillStyle='rgba(255,225,77,.22)';bc.beginPath();bc.arc(x+32,y+38,r*.7,0,TAU);bc.fill();for(let k=0;k<5;k++){bc.fillStyle=k%2?'#ffe14d':'#e0c8ff';bc.fillRect(Math.round(x+10+k*11+Math.sin(t*4+k)*3),Math.round(y+62-((t*40+k*17)%64)),3,3)}}
-if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,64,64)}bc.globalAlpha=1;
-bc.drawImage(SPR[n],x,y,64,64);
-if(d>=0&&d<.16){const q=d/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=5;bc.beginPath();bc.arc(x+34,y+32,26+q*10,-1.2,1.2);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=3;bc.beginPath();bc.arc(x+34,y+32,32+q*10,-1.1,1.1);bc.stroke()}
-else if(i==1){bc.fillStyle='#fff';bc.fillRect(x+56,y+28,12,2);bc.fillRect(x+61,y+23,2,12);bc.fillStyle='#7ff3ff';bc.fillRect(x+53,y+25,4,4);bc.fillRect(x+66,y+35,4,4)}
-else{bc.fillStyle='#caffb0';bc.fillRect(x+58,y+34,28*(1-q*.5),2);bc.fillStyle='#fff';bc.fillRect(x+58,y+34,10,2)}bc.globalAlpha=1}}}
+if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,SPR[n].width*2,64)}bc.globalAlpha=1;
+bc.drawImage(SPR[n],x,y,SPR[n].width*2,64);
+if(d>=.08&&d<.24){const q=(d-.08)/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=3;bc.beginPath();bc.arc(x+58,y+40,38+q*8,-1.35,.15);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=2;bc.beginPath();bc.arc(x+58,y+40,43+q*8,-1.2,0);bc.stroke()}
+else if(i==1){bc.fillStyle='#fff';bc.fillRect(x+78,y+35,14,2);bc.fillRect(x+84,y+29,2,14);bc.fillStyle='#7ff3ff';bc.fillRect(x+75,y+27,4,4);bc.fillRect(x+90,y+41,4,4)}
+else{bc.fillStyle='#caffb0';bc.fillRect(x+94,y+38,28*(1-q*.5),2);bc.fillStyle='#fff';bc.fillRect(x+94,y+38,10,2)}bc.globalAlpha=1}}}
 function drawEnemy(t){const sn=enSpr(),boss=isBoss(),S=SPR[sn],sc=boss?4:5,age=t-ENT,dl=boss?.35:.18;if(age>=0&&age<dl)return;const ia=age-dl,iw=boss?.5:.32;
 const fl=!boss&&FLT.includes(sn),ph=Math.sin(t*3.1),sx=1+(boss?.015:.035)*ph*(fl?.4:1),sy=1-(boss?.015:.04)*ph*(fl?.4:1),dw=Math.round(S.width*sc*sx),dh=Math.round(S.height*sc*sy);
 const hov=fl?Math.round(10+Math.sin(t*3)*4):0,drop=ia>=0&&ia<iw?-Math.round((1-fxEo(ia/iw))*(boss?110:80)):0,sh=G.hit*3,jx=Math.round((Math.random()-.5)*sh),jy=Math.round((Math.random()-.5)*sh);
@@ -3148,7 +3151,7 @@ function drawCut(t){if(!cut)return;const p=t-cut.t0,D=1.0;if(p>D){cut=null;retur
  bc.fillStyle='rgba(255,255,255,.07)';for(let yy=0;yy<150;yy+=8)for(let xx=((yy/8)%2)*4;xx<360;xx+=8)bc.fillRect(xx,yy,2,2);
  bc.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<14;i++){const x=360-((t*(500+(i%4)*160)+i*97)%520);bc.fillRect(x,y0+((i*29)%88),70+(i%3)*40,2)}
  const e=Math.min(1,p/.22),ex=1-Math.pow(1-e,3),hx=Math.round(26-(1-ex)*180),spr=SPR['h'+cut.h+'s'];
- if(spr){for(let k=3;k>=1;k--){bc.globalAlpha=.18*(4-k)*(1-ex*.7);bc.drawImage(spr,Math.round(hx-k*14*(1-ex)),y0-4,96,96)}bc.globalAlpha=1;bc.drawImage(spr,hx,y0-4+Math.round(Math.sin(t*14)),96,96)}
+ if(spr){for(let k=3;k>=1;k--){bc.globalAlpha=.18*(4-k)*(1-ex*.7);bc.drawImage(spr,Math.round(hx-k*14*(1-ex)),y0-4,spr.width*3,96)}bc.globalAlpha=1;bc.drawImage(spr,hx,y0-4+Math.round(Math.sin(t*14)),spr.width*3,96)}
  const tx=Math.round(350-(1-ex)*220+(p>.45?Math.sin(t*60)*1.5:0)),ty=y0+60;
  bc.font='40px '+FN;bc.textAlign='right';bc.lineJoin='round';bc.lineWidth=9;bc.strokeStyle='#000';
  bc.strokeText(cut.txt,tx+3,ty+3);bc.fillStyle=col;bc.fillText(cut.txt,tx+3,ty+3);
@@ -3309,7 +3312,7 @@ function cutChar(i,x,y,sc,fx){if(cutImg('hero'+i,x,y,sc,fx))return;const P=typeo
   bc.drawImage(P,X,Y,w,h);
   if(fx){// 目の光(フレア)
     const p=cut?t-cut.t0:1,a=p>.22&&p<.62?Math.sin((p-.22)/.4*Math.PI):0;if(a>0){bc.save();bc.globalAlpha*=a;bc.fillStyle='#fff';for(const ex of [27,37]){const fx2=X+ex*sc,fy=Y+31.5*sc,L=sc*9;bc.fillRect(Math.round(fx2-L),Math.round(fy),Math.round(L*2),Math.max(1,Math.round(sc*.6)));bc.fillRect(Math.round(fx2),Math.round(fy-L*.5),Math.max(1,Math.round(sc*.6)),Math.round(L))}bc.restore()}}
-  return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(64*sc),Math.round(64*sc))}
+  return}const spr=SPR['h'+i+'s'];if(spr)bc.drawImage(spr,Math.round(x),Math.round(y+20*sc),Math.round(spr.width*2*sc),Math.round(64*sc))}
 function drawCutV(t){const p=t-cut.t0,D=1.0;if(p>D){cut=null;return}
   if(p>.65&&!cut.f){cut.f=1;cut.cb()}
   const open=Math.min(1,p/.1),close=p>D-.12?Math.max(0,(D-p)/.12):1,h=Math.round(88*open*close),y0=76-(h>>1),col=cut.c;
@@ -3914,8 +3917,8 @@ function ttDraw(){
   if(gy>B.b-2){
     x.fillStyle='#2a1c4a';x.fillRect(0,gy,W,2);x.fillStyle='#4a3478';for(let gx=-sc;gx<W;gx+=8)x.fillRect(gx,gy,4,1);
     x.fillStyle='rgba(0,0,0,.35)';for(let i=0;i<3;i++)x.fillRect(ttHX(i)+3,gy-1,10,1);
-    for(let i=0;i<3;i++){const d=t-L.ht[i],at=d>=0&&d<.22,fr=at?'s':rm?'':(Math.floor(t*5+i)%2?'w':'b'),s=SPR['h'+i+fr]||SPR['h'+i];
-      if(s)x.drawImage(s,ttHX(i)+(at?3:0),gy-16-(rm?0:(Math.floor(t*5+i)%2)),16,16)}
+    for(let i=0;i<3;i++){const d=t-L.ht[i],at=d>=0&&d<.22,fr=at?'s':rm?'':(Math.floor(t*5+i)%2?'':'b'),s=SPR['h'+i+fr]||SPR['h'+i];
+      if(s)x.drawImage(s,ttHX(i)+(at?3:0),gy-16-(rm?0:(Math.floor(t*5+i)%2)),s.width/2,16)}
     const e=L.en;if(e&&SPR[e.n]){x.drawImage(SPR[e.n],Math.round(e.x),gy-16,16,16);if(e.fl>0&&typeof spw==='function'){x.globalAlpha=.8;x.drawImage(spw(e.n),Math.round(e.x),gy-16,16,16);x.globalAlpha=1}}
   }
   for(const p of L.P){x.fillStyle=p.c;x.globalAlpha=Math.max(0,1-p.t/p.l);x.fillRect(Math.round(p.x),Math.round(p.y),1,1)}x.globalAlpha=1;
@@ -6654,7 +6657,7 @@ mkH3(3,'D#2a5a9a,E#a85a40,F#5a7aa8,K#14143c,L#1c1a44,M#4a6a9a,N#8a5a00,k#14101f,
  ".....kooTk.........kooTk",
  "....kooook........kooook",
  "....kkkkkk........kkkkkk"],
-{"i":[0,0,[[27,0,".l"],[26,1,".klk"],[26,2,"klilk"],[26,3,"klilk"],[26,4,".klk"],[25,5,"gkgkgkg"],[26,6,"kgggk"],[27,7,"kgk"],[27,8,"kmk"],[27,9,"kmk"],[27,10,"kmk"],[27,11,"kmk"],[27,12,"kmk"],[27,13,"kmk"],[27,14,"kmk"],[27,15,"kmk"],[27,16,"kmk"],[27,17,"kmk"],[27,18,"kmk"],[27,19,"kmk"],[27,20,"kmk"],[26,21,"kkmk"],[26,22,"kkmk"],[27,23,"kmk"],[27,24,"kmk"],[27,25,"kmk"],[27,26,"kmk"],[27,27,"kmk"],[27,28,"kmk"],[27,29,"kk"]]],"w":[-2,1,[[6,20,"kkkkkkkkkkkkkkkkkkk"],[5,21,"kmmmksskmmmmmmmgklilk"],[6,22,"kkkkksskkkkkkkgkkllk"],[20,19,"g"],[20,23,"g"]]],"s":[3,1,[[12,20,"kkkkkkkkkkkkkkkkkkkk"],[11,21,"kmmksskmmmmmmmgklilll"],[12,22,"kkksskkkkkkkkgkkllll"],[25,19,"g"],[25,23,"g"],[30,19,"ii"],[30,23,"ii"],[29,18,"i"],[29,24,"i"]]]});
+{"i":[0,0,[[27,0,".l"],[26,1,".klk"],[26,2,"klilk"],[26,3,"klilk"],[26,4,".klk"],[25,5,"gkgkgkg"],[26,6,"kgggk"],[27,7,"kgk"],[27,8,"kmk"],[27,9,"kmk"],[27,10,"kmk"],[27,11,"kmk"],[27,12,"kmk"],[27,13,"kmk"],[27,14,"kmk"],[27,15,"kmk"],[27,16,"kmk"],[27,17,"kmk"],[27,18,"kmk"],[27,19,"kmk"],[27,20,"kmk"],[27,21,"kmk"],[27,22,"kmk"],[27,23,"kmk"],[27,24,"kmk"],[27,25,"kmk"],[27,26,"kmk"],[27,27,"kmk"],[27,28,"kmk"],[27,29,"kk"]],0],"w":[-2,1,[[0,22,"kkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[0,23,"mmksskmmmmmmmmmmmmmksskmmmmgk"],[0,24,"kkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[27,21,"g"],[27,25,"g"],[28,22,"kkkkkk"],[28,23,"lillllk"],[28,24,"kkkkkk"]],1],"s":[3,1,[[25,21,"______"],[25,22,"______"],[25,23,"______"],[25,24,"______"],[24,21,"k"],[24,22,"k"],[24,23,"k"],[25,21,"kkkkk"],[25,22,"tttttk"],[25,23,"ggTTTk"],[25,24,"kkkkk"],[6,22,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[5,23,"kmmmksskmmmmmmmmmmmmmmmmmmksskmmmmgk"],[6,24,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"],[39,21,"g"],[39,25,"g"],[40,22,"kkkkkk"],[40,23,"lilllllk"],[40,24,"kkkkkk"],[46,21,"i"],[47,23,"i"],[46,25,"i"],[44,20,"i"],[44,26,"i"]],1]});
 const LN={lv:1,at:.7,h:-9,gen:0,ann:0};
 try{const v=Math.floor(+(JSON.parse(localStorage.getItem('pachi2_lancer')||'{}').lv));if(Number.isFinite(v)&&v>=1)LN.lv=Math.min(v,1e6)}catch(e){}
 function lnSave(){try{localStorage.setItem('pachi2_lancer',JSON.stringify({lv:LN.lv}))}catch(e){}}
@@ -6678,11 +6681,11 @@ FU.push(dt=>{if(!run)return;
   if(typeof soulLv==='function'&&soulLv('auto')&&SOUL.auto){LN.bt=(LN.bt||0)-dt;if(LN.bt<=0){LN.bt=3;if(G.gold>=lnCost()*4)lnBuy()}}});
 /* 描画: 3人のすぐ右うしろ。突く時は前へ出る */
 {const _dh=drawHeroes;drawHeroes=function(t){const r=_dh.apply(this,arguments);try{if(lnOn())lnDraw(t)}catch(e){}return r}}
-function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-8+lg,y=52+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.13?'s':'w'):(Math.floor(t*2.6+2.1)%2?'b':''));
+function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-8+lg,y=52+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.08?'w':'s'):(Math.floor(t*2.6+2.1)%2?'b':''));
   bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(3)+2,114,40,4);
-  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,64,64);bc.globalAlpha=1}
-  bc.drawImage(SPR[n],x,y,64,64);
-  if(d>=0&&d<.14){const q=d/.14;bc.globalAlpha=1-q;bc.fillStyle='#fff';bc.fillRect(x+58,y+34,Math.round(30+q*30),2);bc.fillStyle='#8fd8ff';bc.fillRect(x+58,y+37,Math.round(20+q*24),1);bc.globalAlpha=1}}
+  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,SPR[n].width*2,64);bc.globalAlpha=1}
+  bc.drawImage(SPR[n],x,y,SPR[n].width*2,64);
+  if(d>=.08&&d<.22){const q=(d-.08)/.14;bc.globalAlpha=1-q;bc.fillStyle='#fff';bc.fillRect(x+94,y+46,Math.round(20+q*30),2);bc.fillStyle='#8fd8ff';bc.fillRect(x+94,y+49,Math.round(14+q*24),1);bc.globalAlpha=1}}
 /* カットインと吹き出し(docs/STORY.md の口調: マイペースで眠たがり)。大当たりのカットインは 加入後 4回に1回くらいツララ。
    絵は src/img/hero3.webp があればそれ(build.js が PIMG に入れる)、無ければ 83b のコード描画 PORT(3)、それも無ければドット絵 */
 CUTL[3]=['つらぬくよー','ねむいけど…本気','氷槍、いくよー'];

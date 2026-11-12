@@ -1,14 +1,15 @@
 /* ---------- battle: rendering (drawB) ----------
    構成: 背景(36) → 状態オーバーレイ(36) → 英雄 → 敵 → スキルFX(80) → 弾 → 被弾/撃破(82) → 粒子 → [カメラ終了] → ビネット/枠/チップ(36) → HP/数字(81)/カットイン */
 let eLag=1,hFl=-9,hFlD=.09,pHit=0;const hx=i=>6+i*46,FLT=['m1','m2','m5','m7','m8'],HCOL=['#ff7a45','#6fe3ff','#9bff6b'];
-function drawHeroes(t){for(let i=0;i<3;i++){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.14?'s':'w'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg)+(typeof heroDX==='function'?heroDX(i,t):0),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2))+(typeof heroDY==='function'?heroDY(i,t):0),n='h'+i+fr;
+/* 攻撃中の英雄は手前(後)に描く: 伸ばした武器が隣の英雄に隠れないように */
+function drawHeroes(t){const o=[0,1,2].sort((a,b)=>((t-HA[a]>=0&&t-HA[a]<.3)?1:0)-((t-HA[b]>=0&&t-HA[b]<.3)?1:0)||a-b);for(const i of o){const d=t-HA[i],at=d>=0&&d<.3,lgA=[40,10,-6][i],lg=at?Math.sin(d/.3*Math.PI)*lgA:0,fr=at?(d<.08?'w':'s'):(Math.floor(t*2.6+i*.7)%2?'b':''),x=hx(i)+Math.round(lg)+(typeof heroDX==='function'?heroDX(i,t):0),y=52+(at?0:Math.round(Math.sin(t*3+i)*1.2))+(typeof heroDY==='function'?heroDY(i,t):0),n='h'+i+fr;
 bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(i)+10,114,44,4);bc.fillRect(hx(i)+14,112,36,2);
 if(G.aw>0){const r=34+Math.sin(t*9+i)*3;bc.fillStyle='rgba(181,123,255,.28)';bc.beginPath();bc.arc(x+32,y+38,r,0,TAU);bc.fill();bc.fillStyle='rgba(255,225,77,.22)';bc.beginPath();bc.arc(x+32,y+38,r*.7,0,TAU);bc.fill();for(let k=0;k<5;k++){bc.fillStyle=k%2?'#ffe14d':'#e0c8ff';bc.fillRect(Math.round(x+10+k*11+Math.sin(t*4+k)*3),Math.round(y+62-((t*40+k*17)%64)),3,3)}}
-if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,64,64)}bc.globalAlpha=1;
-bc.drawImage(SPR[n],x,y,64,64);
-if(d>=0&&d<.16){const q=d/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=5;bc.beginPath();bc.arc(x+34,y+32,26+q*10,-1.2,1.2);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=3;bc.beginPath();bc.arc(x+34,y+32,32+q*10,-1.1,1.1);bc.stroke()}
-else if(i==1){bc.fillStyle='#fff';bc.fillRect(x+56,y+28,12,2);bc.fillRect(x+61,y+23,2,12);bc.fillStyle='#7ff3ff';bc.fillRect(x+53,y+25,4,4);bc.fillRect(x+66,y+35,4,4)}
-else{bc.fillStyle='#caffb0';bc.fillRect(x+58,y+34,28*(1-q*.5),2);bc.fillStyle='#fff';bc.fillRect(x+58,y+34,10,2)}bc.globalAlpha=1}}}
+if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,SPR[n].width*2,64)}bc.globalAlpha=1;
+bc.drawImage(SPR[n],x,y,SPR[n].width*2,64);
+if(d>=.08&&d<.24){const q=(d-.08)/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=3;bc.beginPath();bc.arc(x+58,y+40,38+q*8,-1.35,.15);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=2;bc.beginPath();bc.arc(x+58,y+40,43+q*8,-1.2,0);bc.stroke()}
+else if(i==1){bc.fillStyle='#fff';bc.fillRect(x+78,y+35,14,2);bc.fillRect(x+84,y+29,2,14);bc.fillStyle='#7ff3ff';bc.fillRect(x+75,y+27,4,4);bc.fillRect(x+90,y+41,4,4)}
+else{bc.fillStyle='#caffb0';bc.fillRect(x+94,y+38,28*(1-q*.5),2);bc.fillStyle='#fff';bc.fillRect(x+94,y+38,10,2)}bc.globalAlpha=1}}}
 function drawEnemy(t){const sn=enSpr(),boss=isBoss(),S=SPR[sn],sc=boss?4:5,age=t-ENT,dl=boss?.35:.18;if(age>=0&&age<dl)return;const ia=age-dl,iw=boss?.5:.32;
 const fl=!boss&&FLT.includes(sn),ph=Math.sin(t*3.1),sx=1+(boss?.015:.035)*ph*(fl?.4:1),sy=1-(boss?.015:.04)*ph*(fl?.4:1),dw=Math.round(S.width*sc*sx),dh=Math.round(S.height*sc*sy);
 const hov=fl?Math.round(10+Math.sin(t*3)*4):0,drop=ia>=0&&ia<iw?-Math.round((1-fxEo(ia/iw))*(boss?110:80)):0,sh=G.hit*3,jx=Math.round((Math.random()-.5)*sh),jy=Math.round((Math.random()-.5)*sh);

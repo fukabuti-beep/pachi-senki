@@ -165,8 +165,8 @@ function ttDraw(){
   if(gy>B.b-2){
     x.fillStyle='#2a1c4a';x.fillRect(0,gy,W,2);x.fillStyle='#4a3478';for(let gx=-sc;gx<W;gx+=8)x.fillRect(gx,gy,4,1);
     x.fillStyle='rgba(0,0,0,.35)';for(let i=0;i<3;i++)x.fillRect(ttHX(i)+3,gy-1,10,1);
-    for(let i=0;i<3;i++){const d=t-L.ht[i],at=d>=0&&d<.22,fr=at?'s':rm?'':(Math.floor(t*5+i)%2?'w':'b'),s=SPR['h'+i+fr]||SPR['h'+i];
-      if(s)x.drawImage(s,ttHX(i)+(at?3:0),gy-16-(rm?0:(Math.floor(t*5+i)%2)),16,16)}
+    for(let i=0;i<3;i++){const d=t-L.ht[i],at=d>=0&&d<.22,fr=at?'s':rm?'':(Math.floor(t*5+i)%2?'':'b'),s=SPR['h'+i+fr]||SPR['h'+i];
+      if(s)x.drawImage(s,ttHX(i)+(at?3:0),gy-16-(rm?0:(Math.floor(t*5+i)%2)),s.width/2,16)}
     const e=L.en;if(e&&SPR[e.n]){x.drawImage(SPR[e.n],Math.round(e.x),gy-16,16,16);if(e.fl>0&&typeof spw==='function'){x.globalAlpha=.8;x.drawImage(spw(e.n),Math.round(e.x),gy-16,16,16);x.globalAlpha=1}}
   }
   for(const p of L.P){x.fillStyle=p.c;x.globalAlpha=Math.max(0,1-p.t/p.l);x.fillRect(Math.round(p.x),Math.round(p.y),1,1)}x.globalAlpha=1;

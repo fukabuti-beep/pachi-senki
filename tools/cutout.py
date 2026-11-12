@@ -1,12 +1,13 @@
 import sys
 from PIL import Image
 from collections import deque
-# 使い方: python3 tools/cutout.py <元画像フォルダ>  (1.webp=3人並び, 2/3/4.webp=剣士/魔法使い/弓使い)
+# 使い方: python3 tools/cutout.py <元画像フォルダ>  (1.webp=3人並び, 2/3/4.webp=剣士/魔法使い/弓使い, 5.png か 5.webp=槍使いツララ。無いファイルは飛ばす)
 # 背景(外周の色)を透明にして縮小し src/img/ に書き出す。build.js が data URI として埋め込む
 import os
 src=sys.argv[1].rstrip('/')+'/'
 out=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','src','img')+'/'
 def proc(fn,size,name,tol=26,holes=False):
+    if not os.path.exists(src+fn): return
     im=Image.open(src+fn).convert('RGB');im=im.resize(size,Image.LANCZOS);W,H=im.size;px=im.load()
     a=Image.new('L',(W,H),255);ap=a.load()
     # 背景の基準色 = 外周の中央値
@@ -51,3 +52,5 @@ proc('2.webp',(320,320),'hero0')
 proc('3.webp',(320,320),'hero1')
 proc('4.webp',(320,320),'hero2',holes=True)
 proc('1.webp',(720,271),'trio')
+proc('5.png',(320,320),'hero3',tol=20,holes=True)
+proc('5.webp',(320,320),'hero3',tol=20,holes=True)

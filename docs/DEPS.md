@@ -3,9 +3,6 @@
 各ファイルが使っている「他のファイルで宣言された名前」。新しく増えた依存はコミットの差分で確認する(不要な依存を作らない)。
 00-core(G など共通の土台)と 20-upgrades(BAL/atk など)への依存は省略。
 
-## 10-sprites.js
-- 29d-resicon.js: M
-
 ## 20-upgrades.js
 - 25-ui.js: refresh
 - 75-audio.js: beep
@@ -798,7 +795,7 @@
 - 91-meta.js: X, fxToast, fxOpen, fxMenu, FM
 
 ## 98yb-lancer.js(完全版のみ)
-- 10-sprites.js: mkH2, SPR
+- 10-sprites.js: mkH3, SPR
 - 25-ui.js: refresh
 - 29d-resicon.js: resIcon
 - 30-battle.js: isBoss, hurt, cutin

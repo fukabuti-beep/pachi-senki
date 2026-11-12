@@ -76,7 +76,7 @@ const PORTR={};
 function PORTRim(i,col){const k=i+col;if(PORTR[k]!==undefined)return PORTR[k];let r=null;try{const P=PORT(i);if(P){r=document.createElement('canvas');r.width=64;r.height=72;const x=r.getContext('2d');x.drawImage(P,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,64,72)}}catch(e){r=null}return PORTR[k]=r}
 /* ---------- 作り手提供のイラスト(src/img → build.js が PIMG に埋め込む) ----------
    読み込めたらカットインはこちらを優先。fx/fy = 画像内の顔の中心(0〜1)。テスト(ハーネス)では PIMG が無いので上のコード描画を使う。 */
-const PIMGI={},PIMGF={hero0:[.39,.30],hero1:[.50,.43],hero2:[.37,.38],hero3:[.5,.35],trio:[.5,.43]};   // hero3=ツララ(src/img/hero3.webp を置けば使われる)
+const PIMGI={},PIMGF={hero0:[.39,.30],hero1:[.50,.43],hero2:[.37,.38],hero3:[.5,.28],trio:[.5,.43]};   // hero3=ツララ
 try{if(typeof PIMG!=='undefined'&&typeof Image!=='undefined')for(const k in PIMG){const im=new Image();im.onload=()=>{PIMGI[k]=im};im.src=PIMG[k]}}catch(e){}
 const PIMGR={};
 function PIMGRim(k,col){const key=k+col;if(PIMGR[key]!==undefined)return PIMGR[key];let r=null;try{const im=PIMGI[k];if(im){r=document.createElement('canvas');r.width=im.width;r.height=im.height;const x=r.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,r.width,r.height)}}catch(e){r=null}return PIMGR[key]=r}

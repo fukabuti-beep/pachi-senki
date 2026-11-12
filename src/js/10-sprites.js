@@ -6,130 +6,166 @@ const SPR={},PXL={},SPW={};
 function mk(n,pal,rows,full){const p={};pal.split(',').forEach(s=>p[s[0]]=s.slice(1));const R=rows.map(r=>full?r:r+[...r].reverse().join('')),w=R[0].length,h=R.length;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),L=[];R.forEach((r,y)=>[...r].forEach((ch,i)=>{if(p[ch]){x.fillStyle=p[ch];x.fillRect(i,y,1,1);L.push([i,y,p[ch]])}}));SPR[n]=c;PXL[n]=L}
 /* 白シルエット(被弾フラッシュ用)。初回に生成してキャッシュ */
 function spw(n){if(SPW[n])return SPW[n];const s=SPR[n],c=document.createElement('canvas');c.width=s.width;c.height=s.height;const x=c.getContext('2d');x.drawImage(s,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#fff';x.fillRect(0,0,s.width,s.height);return SPW[n]=c}
-/* 英雄: 32x32(戦闘画面では2倍=64px)。体の絵(body)に、コマごとの武器の絵(ov=[待機,構え,攻撃]、[x,y,文字列] の重ね描き)を足して4コマ作る。待機Bは上半身を1px沈める。
-   描き方は docs/DESIGN.md「ドット絵の考え方」: 光は左上 / 素材ごとに 輪郭・影・基本・光 の色のまとまり(影は青紫寄り、光は黄寄りに色相をずらす)/
-   輪郭 k は自動で「となりの素材の暗い色」に塗る(選択的な輪郭。外側で右・下に面した所と目のふちだけ濃い色のまま)= mat [[輪郭の文字,'素材の文字(先頭が基本色)'],…]。
-   見た目は作り手提供のカットイン用イラスト(src/img)に合わせる。HGRP[i]=色のまとまり(衣装 98n が、基本色の置きかえから影や輪郭の色も自動で作る) */
+/* 英雄: 32x32(戦闘画面では2倍=64px)。作りは docs/DESIGN.md「ドット絵の考え方」(dotartplay の32x32アクション風に学ぶ):
+   頭16行・胴8行・足8行 / 目は3x4(まつ毛+白目+瞳の濃淡)/ 輪郭は黒でなく素材の暗い色(k を自動で塗り分け。目のふちだけ濃いまま)/ 光は左上 /
+   攻撃は体ごと踏み込む(コマごとに 上半身の傾き lean と 足の形 を変える)。
+   mkH3(i,pal,mat,head,body,legs,legsS,fr): mat=[[輪郭の文字,'素材の文字(先頭が基本色)'],…]、legsS=踏み込みの足、
+     fr={i:待機,w:構え,s:攻撃} それぞれ [上半身を横にずらすpx, 足(0=legs/1=legsS), 武器などの重ね描き [x,y,文字列]…]。待機Bは頭を1px沈める。
+   見た目は作り手提供のイラスト(src/img)に合わせる。HGRP[i]=色のまとまり(衣装 98n が、基本色の置きかえから影や輪郭の色も自動で作る) */
 const HGRP={};
-function mkH2(i,pal,body,ov,mat){const W=body[0].length,Hh=body.length,M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));(mat||[]).forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
-  HGRP[i]=(mat||[]).map(m=>[P[m[1][0]],[P[m[0]],...[...m[1]].slice(1).map(c=>P[c])]]);
-  const put=(rows,o,dy)=>{const g=rows.map(r=>[...r]);o.forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+dy;if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch}));
+function mkH3(i,pal,mat,head,body,legs,legsS,fr){const W=32,M={},P={};pal.split(',').forEach(s=>P[s[0]]=s.slice(1));mat.forEach(m=>[...m[1]].forEach(c=>M[c]=m[0]));
+  HGRP[i]=mat.map(m=>[P[m[1][0]],[P[m[0]],...[...m[1]].slice(1).map(c=>P[c])]]);
+  const pad=r=>(r+'.'.repeat(W)).slice(0,W),sh=(r,dx)=>dx>=0?('.'.repeat(dx)+r).slice(0,W):r.slice(-dx)+'.'.repeat(-dx);
+  const build=(f,bob)=>{let g=[...head,...body].map(r=>[...sh(pad(r),f[0])]).concat((f[1]?legsS:legs).map(r=>[...pad(r)]));
+    if(bob)g=[[...'.'.repeat(W)],...g.slice(0,16),...g.slice(17)];
+    f[2].forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+(bob?1:0);if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch}));
     const at=(x,y)=>(g[y]&&g[y][x])||'.',out=g.map(r=>r.slice());
-    for(let y=0;y<Hh;y++)for(let x=0;x<W;x++){if(g[y][x]!='k')continue;const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];
-      if(n.some(c=>'wyue'.includes(c))||n[2]=='.'||n[3]=='.')continue;
+    for(let y=0;y<32;y++)for(let x=0;x<W;x++){if(g[y][x]!='k')continue;const n=[at(x-1,y),at(x,y-1),at(x+1,y),at(x,y+1)];if(n.some(c=>'wuUe'.includes(c)))continue;
       let c=n.filter(q=>M[q]).map(q=>M[q]);if(!c.length)c=[at(x-1,y-1),at(x+1,y-1),at(x-1,y+1),at(x+1,y+1)].filter(q=>M[q]).map(q=>M[q]);
-      if(c.length)out[y][x]=c.sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}
-    return out.map(r=>r.join(''))},
-  bob=['.'.repeat(W),...body.slice(0,27),...body.slice(28)];
-  mk('h'+i,pal,put(body,ov[0],0),1);mk('h'+i+'b',pal,put(bob,ov[0],1),1);mk('h'+i+'w',pal,put(body,ov[1],0),1);mk('h'+i+'s',pal,put(body,ov[2],0),1)}
+      if(c.length)out[y][x]=c.slice().sort((a,b)=>c.filter(v=>v==b).length-c.filter(v=>v==a).length)[0]}
+    return out.map(r=>r.join(''))};
+  mk('h'+i,pal,build(fr.i,0),1);mk('h'+i+'b',pal,build(fr.i,1),1);mk('h'+i+'w',pal,build(fr.w,0),1);mk('h'+i+'s',pal,build(fr.s,0),1)}
 /* ===== 英雄0: 剣士ホムラ ===== */
-mkH2(0,'D#6e1030,E#9a5038,F#3a4466,J#701030,R#9c1c3c,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,k#14101f,h#e0443a,H#a8262e,i#ff8a5a,s#ffd2a6,S#e0957a,e#14101f,w#ffffff,y#ffc020,a#d5dae6,b#7c859b,c#f4f8ff,r#d1303c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8,n#5a6a88',
-["............k....k.....k........",
- "...........khk..khk...khk.......",
- "......k...khhk.khhhk.khhk.......",
- ".....khk.khhhkkhhhhkkhhhk..k....",
- ".....khhkhhihhhhhihhhhhhkkhk....",
- "......khhhhihhhhhihhhhhhhhhk....",
- ".....khiihhhhhhhhhhhhhhHHhk.....",
- "....khiihhhhhhhhhhhhhHHHHhk.....",
- "...khhhhhhhhhhhhhhhhhHHHHhk.....",
- "....khhhhhhhhhhhhhhhhHHHHk......",
- "....khhhhhsshhhhhhsshHHHHk......",
- ".....khhhsssshhhhsssshHHHk......",
- ".....khhSSssSSSSssSSSshhk.......",
- ".....khskkkksssskkkksshk........",
- ".....kssswyessssswyessk.........",
- ".....kssswyesssSswyesSk.........",
- ".....ksssssssssssssssSk.........",
- "......kssssskkkssssSSk..........",
- ".......ksssssssssSSSk...........",
- "......krkkssssssskkrk...........",
- ".....krrrrkkkkkkkrrRRkk.........",
- "....kcakrrrrrrrrRRkacRRk........",
- "...kcaakbrrrrrrRRbkaabkRk.......",
- "...kaabkaaarrRRaabkbabk.k.......",
- "...kkbkkcaaaggaaabkkbkk.........",
- "...ksskkcabaaaababkksSk.........",
- "...ksSkkbbbbbbbbbbkksSk.........",
- "....kk.kttttkkttttk.kk..........",
- ".......kttTtkktTttk.............",
- ".......kttTk..kTttk.............",
- "......kooook..kooook............",
- "......kkkkkk..kkkkkk............"],
-[[[23,9,"..l"],[23,10,".klk"],[23,11,".klmk"],[23,12,".klmk"],[23,13,".klmk"],[23,14,".klmk"],[23,15,".klmk"],[23,16,".klmk"],[23,17,".klmk"],[23,18,".klmk"],[23,19,".klmk"],[23,20,".klmk"],[22,21,"kgggggk"],[23,22,".kook"],[22,23,"ksskok"],[22,24,"ksskk"]],[[24,0,"...kk"],[24,1,"..klmk"],[24,2,"..klmk"],[24,3,"..klmk"],[24,4,"..klmk"],[24,5,"..klmk"],[24,6,"..klmk"],[24,7,"..klmk"],[24,8,"..klmk"],[24,9,"..klmk"],[24,10,"..klmk"],[24,11,"..klmk"],[24,12,"..klmk"],[23,13,".kgggggk"],[24,14,"..kook"],[24,15,"..kook"],[22,16,"..ksssk"],[22,17,"..kcaak"],[22,18,".kaabk"],[22,19,"kaabk"]],[[20,22,"...kkkkkkkkkk"],[20,23,"ksskgkllllllk"],[20,24,"ksskgkmmmmmmmk"],[20,25,"kkk.gkkkkkkkk"],[24,21,"g"],[24,26,"g"]]],
-[["D","hHi"],["E","sS"],["F","abc"],["J","rR"],["K","tT"],["L","o"],["M","lm"],["N","g"]]);
+mkH3(0,'D#7a1028,E#a85a40,F#3a4466,J#701030,K#141c50,L#2a1810,M#3a4a6a,N#8a5a00,k#14101f,h#e0443a,H#a8262e,i#ff7a45,I#ffb070,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#ffc020,U#d07800,x#7a1a20,a#d5dae6,b#7c859b,c#ffffff,r#d1303c,R#9c1c3c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8',[["D","hHiI"],["E","sSz"],["F","abc"],["J","rR"],["K","tT"],["L","o"],["M","lm"],["N","g"]],
+[
+ "..............k",
+ ".........k...kIk...k",
+ "........kik.kiihk.kik",
+ "....k..kiihkiihhhkkihhk..k",
+ "...khkkiihhhhhhhhhhhhhhkkhk",
+ "...khhiihhhhhhhhhhhhhhhhHhk",
+ "....khihhhhhhhhhhhhhhhhHHk",
+ "....khhhhhhhhhhhhhhhhhhHHk",
+ "...khhhhHhhhhHhhhhHhhhhHHHk",
+ "....khhHzhhhHzhhhHzhhhHHHk",
+ "....khHzsszHzsssHzssszHHk",
+ "....kHHseeessssseeeszHHk",
+ ".....kHswUUsssSswUUsskk",
+ ".....kkswuussSSswuusSk",
+ "......ksssssssssssssSk",
+ ".......kssssxxxsssSSk"],
+[
+ "........kkrrrrrrrrrRkk",
+ "......kkcakrrrrrrRRkabkk",
+ ".....kcaabkarrrrRRakbabbk",
+ ".....kaabkkcaagaabbkkbabk",
+ ".....kssk.kcaaaaabbk.kssk",
+ "......kk..koooggoook..kk",
+ "..........krraaaabrRk",
+ "..........krrkttTkRRk"],
+[
+ "..........kttTkktTTk",
+ "..........kttTk.ktTTk",
+ "..........kttTk.ktTTk",
+ ".........kcaabk.kaabbk",
+ ".........kaabk..kaabk",
+ ".........kaabk..kaabk",
+ "........kooook.kooook",
+ "........kkkkkk.kkkkkk"],
+[
+ "..........kttTkkkTtTk",
+ ".........kttTk..kkTttk",
+ "........kttTk.....kTttk",
+ ".......kcabk.......kaabk",
+ "......kaabk........kaabk",
+ ".....kaabk.........kaabk",
+ "....kooook........kooook",
+ "....kkkkkk........kkkkkk"],
+{"i":[0,0,[[23,6,"..l"],[23,7,".klk"],[23,8,".klmk"],[23,9,".klmk"],[23,10,".klmk"],[23,11,".klmk"],[23,12,".klmk"],[23,13,".klmk"],[23,14,".klmk"],[23,15,".klmk"],[23,16,".klmk"],[23,17,".klmk"],[23,18,".klmk"],[22,19,"kgggggk"],[23,20,".kook"],[23,21,".kok"]]],"w":[-1,0,[[4,0,"....kk"],[3,1,"...klmk"],[3,2,"..klmk"],[2,3,"..klmk"],[2,4,".klmk"],[1,5,".klmk"],[1,6,"klmk"],[0,7,"klmk"],[0,8,"kmk"],[3,9,"g"],[20,9,"kk"],[19,10,"kssk"],[4,10,"kgggk"],[19,11,"kcak"]]],"s":[3,1,[[24,17,"kkkkkkkk"],[23,18,"kgklllllll"],[22,19,"ksskgkmmmmmmmm"],[23,20,"kgkkkkkkkk"],[24,16,"g"],[24,21,"g"],[26,4,"mm"],[27,5,"mlm"],[28,6,"mlm"],[29,7,"mlm"],[29,8,"mlwm"],[30,9,"lwm"],[30,10,"lw"],[30,11,"lw"],[30,12,"lw"],[30,13,"lw"],[29,14,"mlw"],[29,15,"mlm"],[28,23,"mlm"],[29,22,"mlm"],[30,21,"ml"]]]});
 /* ===== 英雄1: 魔法使いシズク ===== */
-mkH2(1,'D#2e1a78,E#9a5038,F#6a70a8,G#1e2670,N#8a5a00,L#3a2410,Q#1a7a9a,j#a584ff,k#14101f,h#7a4dff,H#4d2fb8,s#ffd2a6,S#e0957a,e#14101f,p#5b6cff,P#3a45b8,c#c8b8ff,y#ffd24d,w#ffffff,o#8a5a2b,q#7ff3ff,v#eef0ff,V#aab0d8,u#b060ff,Y#b98300',
-["..................kkk...........",
- ".................khhhk..........",
- "...............kkhhHhk..........",
- ".............kkhhhhHk...........",
- "...........kkhhhhhHHk...........",
- "..........khjhhhhhHk............",
- ".........khjhhhhhhHHk...........",
- "........khjjhhhhhhhHHk..........",
- ".......kyyyyyyyyyyyYYYk.........",
- "...kkkkkhhhhhhhhhhhhHHkkkkk.....",
- "..khjjjhhhhhhhhhhhhhhhHHHHHk....",
- "...kkkkkvvvvvvvvvvvvvVkkkkk.....",
- ".....kvvvvSSSvvvSSSvvvVk........",
- ".....kvvskkkksskkkksvvVk........",
- ".....kvvswuessswuessvVVk........",
- ".....kvvswuessSwuesSvVVk........",
- ".....kvvsssssssssssSvVVk........",
- ".....kvVVsssskksssSSvVVk........",
- ".....kvVVkssssssSSkVvVVk........",
- ".....kvVkpkkssskkpkVVVk.........",
- ".....kvkpppykkkypppkVVk.........",
- "....kkkpppppyqypppppkVk.........",
- "...kcpkcppppyyypPPPPkkk.........",
- "...kppkppppppppPPPPPkppk........",
- "...ksskpppppppPPPPPPkssk........",
- "...ksskpyppppPPPPPyPkssk........",
- "....kkkpppppppPPPPPPkkk.........",
- "......kppppppPPPPPPPk...........",
- "......kyyppppPPPPPyyk...........",
- ".......kkkkkkkkkkkkk............",
- ".......kooook.kooook............",
- ".......kkkkkk.kkkkkk............"],
-[[[24,8,".kqk"],[24,9,"kqwqk"],[24,10,"kqqqk"],[24,11,".kqk"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[24,18,".kok"],[24,19,".kok"],[24,20,".kok"],[24,21,".kok"],[23,22,"kssok"],[23,23,"kssok"],[24,24,".kok"],[24,25,".kok"],[24,26,".kok"],[24,27,".kk"]],[[25,3,".kqk"],[25,4,"kqwqk"],[25,5,"kqqqk"],[25,6,".kqk"],[25,7,".kok"],[25,8,".kok"],[25,12,".kok"],[25,13,".kok"],[25,14,".kok"],[25,15,".kok"],[25,16,".kok"],[25,17,".kok"],[25,18,".kok"],[25,19,".kok"],[24,20,"kssok"],[24,21,"kssok"],[23,22,"kppk"],[25,22,"kok"],[25,23,".kk"],[23,1,"q"],[29,2,"q"],[22,5,"c"],[30,6,"c"]],[[21,19,"..........q"],[21,20,"kkkkkkkk.qwq"],[21,21,"ksoooooqkqwwq"],[21,22,"kskkkkkqqwwwq"],[21,23,"kkk....kqqwq"],[30,24,"q"],[29,18,"c"],[31,22,"c"],[28,25,"c"]]],
-[["D","hHj"],["E","sS"],["F","vV"],["G","pPc"],["N","yY"],["L","o"],["Q","q"]]);
+mkH3(1,'D#2e1a78,E#a85a40,F#6a70a8,G#1e2670,N#8a5a00,L#3a2410,Q#1a7a9a,k#14101f,h#7a4dff,H#4d2fb8,j#a584ff,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#c070ff,U#7a30c0,x#a03050,p#5b6cff,P#3a45b8,c#8f9cff,y#ffd24d,Y#b98300,o#8a5a2b,q#7ff3ff,v#f2f4ff,V#aab0d8',[["D","hHj"],["E","sSz"],["F","vV"],["G","pPc"],["N","yY"],["L","o"],["Q","q"]],
+[
+ "................kkk",
+ "...............kjhhk",
+ ".............kkjhhHk",
+ "...........kkjjhhHHk",
+ "..........kjjhhhhHHk",
+ ".........kjjhhhhhhHHk",
+ "........kyyyyyyyyyYYYk",
+ "...kkkkkjjhhhhhhhhhHHkkkkk",
+ "...kjjhhhhhhhhhhhhhhhHHHHHk",
+ "....kkkVVVVVVVVVVVVVVVkkk",
+ "......kvvvvsvvvvsvvvvVk",
+ "......kvseeessseeesvVVk",
+ "......kvswUUssswUUsvVVk",
+ "......kvswuusSswuusvVVk",
+ "......kvvsssssssssSvVVk",
+ "......kvvkssxxssSkvVVVk"],
+[
+ "......kvvkPyyqyyPkvVVk",
+ ".....kkvkpppyyypPPkVVkk",
+ "....kpckcpppppppPPPkVkPk",
+ "....kppkpypppppppyPkkPPk",
+ "....kssk.kpppppPPPk.kssk",
+ ".....kk..kyyppppPyyk..kk",
+ ".........kpppppPPPPk",
+ "........kpppypppPyPPk"],
+[
+ "........kpppppppPPPPk",
+ ".......kpppppppPPPPPPk",
+ ".......kpppypppPPPyPPk",
+ ".......kyypppppPPPPyyk",
+ "........kkyyyyyyyyykk",
+ ".........koook.koook",
+ "........kooook.kooook",
+ "........kkkkkk.kkkkkk"],
+[
+ "........kpppppppPPPPk",
+ ".......kpppppppPPPPPPk",
+ "......kppppypppPPPyPPPk",
+ ".....kyyppppppPPPPPPyyk",
+ "......kkyyyyyyyyyyykk",
+ "........koook...koook",
+ ".......kooook..kooook",
+ ".......kkkkkk..kkkkkk"],
+{"i":[0,0,[[24,5,".kqk"],[24,6,"kqwqk"],[24,7,"kqqqk"],[24,8,".kyk"],[24,9,".kok"],[24,10,".kok"],[24,11,".kok"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[24,18,".kok"],[24,19,".kok"],[23,20,"kssok"],[24,21,".kok"],[24,22,".kok"],[24,23,".kok"],[24,24,".kok"],[24,25,".kok"],[24,26,".kk"]]],"w":[-1,0,[[24,1,".kqk"],[24,2,"kqwqk"],[24,3,"kqqqk"],[24,4,".kyk"],[24,5,".kok"],[24,6,".kok"],[24,7,".kok"],[24,8,".kok"],[24,9,".kok"],[24,10,".kok"],[24,11,".kok"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[23,18,"kssok"],[22,19,"kppk"],[24,19,"kok"],[25,20,"kk"],[22,0,"q"],[29,1,"q"],[30,4,"c"],[21,3,"c"],[28,6,"q"]]],"s":[2,1,[[22,18,"kkkkkkkkk"],[21,19,"kssooooykqk"],[21,20,"kssooooykqwq"],[22,21,"kkkkkkkkqqq"],[30,17,"q"],[31,20,"w"],[29,15,"q"],[27,13,"c"],[30,23,"q"],[28,25,"c"],[31,12,"q"]]]});
 /* ===== 英雄2: 弓使いコハク ===== */
-mkH2(2,'D#0e4a2c,E#9a5038,F#3a2008,L#3a2410,N#8a5a00,X#8a8468,k#14101f,h#2fb36b,H#1b7a47,s#ffd2a6,S#e0957a,e#14101f,g#3dd27f,d#1b7a47,b#8a5a2b,B#5a3818,c#caffb0,w#ffffff,y#ffd24d,n#9a6230,N#5a3510,u#40e080,x#e8e0c0,r#ff4a4a',
-["..........kkkkkkkk..............",
- "........kkhhhhhhhhkk............",
- ".......khhhhhhhhhhhhk...........",
- "......khhhchhhhhhhhhHk..........",
- ".....khhhchhhhhhhhhhHHk.........",
- "....khhhhhhhhhhhhhhhhHHk........",
- "....khhhhkkkkkkkkkkhhHHk........",
- "...khhhhknnnnnnnnnNkhhHHk.......",
- "...khhhknnnnnnnnnnNNkhHHk.......",
- "...khhhknnsnnnnsnnnNkhHHk.......",
- "...khhhknsssnnsssnsNkhHHk.......",
- "...khhhkSSssSSSssSSSHkHHk.......",
- "...khhhkskkkksskkkksHkHHk.......",
- "...khhhkswuessswuesskhHHk.......",
- "...khhHkswuesssSwuesSkHHk.......",
- "....khHkggggggggggggdkHk........",
- "....khHkgggggggggggddkHk........",
- ".....kHHkggggggggggdkHHk........",
- "......kHHkkgggggddkkHHk.........",
- ".....kkhhhhkkkkkkhhhhHkk........",
- "....kgkhhhhhhhhhhhhhHHkgk.......",
- "...kggkbkhhhhhhhhhHHkbkggk......",
- "...kggkgbkhhhhhhHHkbdkgdk.......",
- "...ksskggbkggggddkbddkssk.......",
- "...ksskgggbkgggdkbdddkssk.......",
- "....kkkgygggbkkbdddydkkk........",
- "......kggggggBBdddddk...........",
- "......kkbbkkkkkkkbbkk...........",
- ".......kbbbk...kbbbk............",
- ".......kbBbk...kbBbk............",
- "......kBBBBk...kBBBBk...........",
- "......kkkkkk...kkkkkk..........."],
-[[[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x..kbk"],[26,13,"x..kbk"],[26,14,"x..kbk"],[26,15,"x..kbk"],[26,16,"x..kbk"],[26,17,"x..kbk"],[26,18,"x..kbk"],[26,19,"x..kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"]],[[24,6,"kk"],[23,7,"kbbk"],[24,8,".kbk"],[25,9,".kbk"],[22,10,"x...kbk"],[21,11,"x....kbk"],[20,12,"x......kbk"],[19,13,"x.......kbk"],[18,14,"kxxxxxxxxxkbkrr"],[17,15,"ksskkkkkkkkkbk"],[19,16,"x.......kbk"],[20,17,"x......kbk"],[21,18,"x....kbk"],[22,19,"x...kbk"],[25,20,".kbk"],[24,21,".kbk"],[23,22,"kbbk"],[24,23,"kk"]],[[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x..kbk"],[26,13,"x..kbk"],[26,14,"x..kbk"],[26,15,"x..kbk"],[26,16,"x..kbk"],[26,17,"x..kbk"],[26,18,"x..kbk"],[26,19,"x..kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"],[22,14,"cc"],[22,15,"ccc"]]],
-[["D","hHcgd"],["E","sS"],["F","nN"],["L","bB"],["N","y"],["X","x"]]);
+mkH3(2,'D#0e4a2c,E#a85a40,F#3a2008,L#3a2410,N#8a5a00,X#8a8468,J#8a1c28,k#14101f,h#2fb36b,H#1b7a47,c#7fe8a0,s#ffd9b0,S#e8a888,z#c87860,e#14101f,w#ffffff,u#50f090,U#18a050,g#3dd27f,d#1b7a47,b#8a5a2b,B#5a3818,n#a86a34,N#6a3c14,y#ffd24d,x#e8e0c0,r#ff4a4a',[["D","hHcgd"],["E","sSz"],["F","nN"],["L","bB"],["N","y"],["X","x"],["J","r"]],
+[
+ "............kkkkkkk",
+ "..........kkcchhhhhkk",
+ ".........kcchhhhhhhhHk",
+ "........kcchhhhhhhhhhHk",
+ ".......kchhhhhhhhhhhhHHk",
+ ".......khhhhhhhhhhhhhHHk",
+ "......khhhHkkkkkkkkkHHHHk",
+ "......khhHknnnnnnnnNkHHHk",
+ "......khhHknnNnnnNnnNkHHk",
+ "......khHknnznnnznnnNkHHk",
+ "......khHkzeeesszeeeskHHk",
+ "......khHkswUUssswUUskHHk",
+ "......khHkswuusSswuuSkHHk",
+ "......khHkggggggggggdkHHk",
+ ".......kHHkgggggggddkHHk",
+ "........kHHkkgggddkkHHk"],
+[
+ ".......kkhhhhkkkkhhhHHkk",
+ "......kgkhhhhhhhhhhHHkgdk",
+ ".....kggkkbgggggggddkkgdk",
+ ".....kggk.kgbgggggdk.kgdk",
+ ".....kssk.kggbggyddk.kssk",
+ "......kk..kbbbbbBBBk..kk",
+ "..........kgggggdddk",
+ "..........kggkkkkddk"],
+[
+ "..........kbbBk.kbBBk",
+ "..........kbbBk.kbBBk",
+ "..........kbbBk.kbBBk",
+ ".........kgggdk.kggddk",
+ ".........kbBBk..kbBBk",
+ ".........kbBBk..kbBBk",
+ "........kBBBBk.kBBBBk",
+ "........kkkkkk.kkkkkk"],
+[
+ "..........kbbBkkkbBBk",
+ ".........kbbBk..kkbBBk",
+ "........kbbBk.....kbBBk",
+ ".......kgggdk.....kggddk",
+ "......kbBBk........kbBBk",
+ ".....kbBBk.........kbBBk",
+ "....kBBBBk........kBBBBk",
+ "....kkkkkk........kkkkkk"],
+{"i":[0,0,[[2,13,".rr"],[2,14,".xx"],[2,15,"kxxk"],[2,16,"kbbk"],[2,17,"kbBk"],[2,18,"kbBk"],[3,19,"kk"],[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x.kbk"],[26,13,"x..kb"],[26,14,"x..kb"],[26,15,"x..kb"],[26,16,"x..kb"],[26,17,"x..kb"],[26,18,"x..kb"],[26,19,"x.kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"]]],"w":[-1,1,[[1,13,".rr"],[1,14,".xx"],[1,15,"kxxk"],[1,16,"kbbk"],[1,17,"kbBk"],[1,18,"kbBk"],[2,19,"kk"],[25,7,"kk"],[24,8,"kbbk"],[25,9,".kbk"],[26,10,".kbk"],[23,11,"x...kbk"],[22,12,"x.....kb"],[21,13,"x......kb"],[20,14,"x.......kb"],[16,15,"kkkkkkkkkkkkkbrr"],[15,16,"ksskxxxxxxxxxkbk"],[16,17,"kkkkx.......kb"],[21,18,"x......kb"],[22,19,"x.....kb"],[23,20,"x...kbk"],[26,21,".kbk"],[25,22,".kbk"],[24,23,"kbbk"],[25,24,"kk"]]],"s":[1,1,[[3,13,".rr"],[3,14,".xx"],[3,15,"kxxk"],[3,16,"kbbk"],[3,17,"kbBk"],[3,18,"kbBk"],[4,19,"kk"],[26,6,"kk"],[25,7,"kbbk"],[26,8,".kbk"],[27,9,".kbk"],[27,10,"x.kb"],[27,11,"x.kb"],[27,12,"x.kb"],[27,13,"x.kb"],[27,14,"x.kb"],[27,15,"x.kb"],[27,16,"x.kb"],[27,17,"x.kb"],[27,18,"x.kb"],[27,19,"x.kb"],[27,20,"x.kb"],[27,21,"x.kb"],[27,22,".kbk"],[26,23,".kbk"],[25,24,"kbbk"],[26,25,"kk"],[22,15,"cc"],[21,16,"ccc"],[22,17,"cc"],[29,16,"xxr"]]]});
 /* ===== 雑魚(16x16, 左半分) ===== */
 /* m0 スライム(青) */
 mk('m0','k#14101f,a#3fb6ff,b#1f6fd1,c#b8ecff,w#fff,e#14101f',

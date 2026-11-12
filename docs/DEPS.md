@@ -748,6 +748,11 @@
 - 98z-tower.js: TW
 - 99-main.js: run
 
+## 98p-pause.js
+- 98s-story.js: STY, styUpd
+- 98t-tutorial.js: TUT, tutUpd
+- 98y-finale.js: END, endUpd
+
 ## 98s-story.js
 - 10-sprites.js: SPR
 - 29-push.js: PUSH
@@ -774,11 +779,13 @@
 - 10-sprites.js: SPR
 - 29d-resicon.js: resIcon
 - 75-audio.js: tone
+- 76-bgm.js: bgmState, SONGS
 - 77-se.js: sOK, sNow
 - 91-meta.js: FU, fxToast
 - 93-achieve.js: AC_
 - 96s-smith.js: resGem
 - 98h-area.js: AREAS
+- 98p-pause.js: pzOn
 - 98s-story.js: SCN, TS, styQueue, STY, styBusy
 - 99-main.js: run, T
 
@@ -788,14 +795,15 @@
 - 91-meta.js: X, fxToast, fxOpen, fxMenu, FM
 
 ## 98yb-lancer.js(完全版のみ)
-- 10-sprites.js: mkH, SPR
+- 10-sprites.js: mkH2, SPR
 - 25-ui.js: refresh
 - 29d-resicon.js: resIcon
-- 30-battle.js: isBoss, hurt
+- 30-battle.js: isBoss, hurt, cutin
 - 35-battle-draw.js: drawHeroes
 - 70-show.js: banner
 - 75-audio.js: beep, tone
 - 77-se.js: sOK, sNow, fan
+- 84-charfx.js: CUTL, chSay
 - 91-meta.js: X, fxToast, FU
 - 93-achieve.js: AC_
 - 94-prestige.js: PGEN
@@ -859,4 +867,5 @@
 - 89d-title.js: ttGo
 - 90-extra.js: HS
 - 91-meta.js: featUpdate, featStart
+- 98p-pause.js: pzStep
 

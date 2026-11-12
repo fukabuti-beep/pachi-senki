@@ -6,7 +6,7 @@
      → エンディング(全画面のスタッフロール: 光が8方向へ飛ぶ・3人の行進・取り戻した土地・完)→「2周目へ」。
    ・はじめて見た時だけ 宝石10 と実績「虚無を払う者」。見た回数は localStorage['pachi2_end'] = {n}。
    ・会話は 98s の仕組み(SCN/styQueue)にシーンを1つ足すだけ。エンディングは会話が全部終わって演出が落ち着いてから出す(FU で見張る)。
-   ・ゲームは裏で動き続ける(放置の進行は止めない)。タップで早送り、最後に「2周目へ」で閉じる(放っておいても約45秒で閉じる)。
+   ・エンディングの間はゲームを止める(98p-pause。作り手の方針)。曲はタイトル曲に切り替え。タップで早送り、最後に「2周目へ」で閉じる(放っておいても約45秒で閉じる)。
    ・全画面の点滅はしない。reduced-motion では光の粒を減らす。 */
 SCN.push({id:'f1',t:'最終章 解き放たれる光',h:'STAGE 200',e:'b11',ei:7,L:[
   [9,'虚無の王の体から、ため込まれていた運の光が いっせいにあふれ出した――'],
@@ -70,13 +70,17 @@ function endClose(){if(!END.on)return;END.on=null;const el=$('edg');if(el)el.sty
 function endSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   if(k==0){[523,659,784,1047].forEach((f,i)=>tone(f,t+i*.18,.3,'square',.035));tone(131,t,1.2,'triangle',.05)}
   else{[784,988,1175,1568,1175,1568].forEach((f,i)=>tone(f,t+i*.12,.22,'square',.035));tone(196,t,1.4,'triangle',.05)}}catch(e){}}
-FU.push(dt=>{const E=END.on;if(!E)return;E.t+=dt*E.fast;
+/* エンディングの進行。エンディング中はゲームが止まる(98p)ので、98p の pzTick から呼ばれる。止める仕組みが無い時(テスト)は FU から */
+FU.push(dt=>{if(END.on&&!(typeof pzOn==='function'&&pzOn()))endUpd(dt)});
+function endUpd(dt){const E=END.on;if(!E)return;E.t+=dt*E.fast;
   const el=$('edg'),r=$('edgr');if(!el||!r)return;
   const H=($('edgv')&&$('edgv').clientHeight)||el.clientHeight||640,RH=r.scrollHeight||900,SP=38;   // 1秒に38px 流れる
   const y=H-E.t*SP;r.style.transform='translateY('+Math.round(y)+'px)';
   if(y<-RH+H*.35&&!E.done){E.done=1;$('edgb').style.display='block';if(E.first){const w=$('edgw');w.style.display='block';w.innerHTML='はじめてのエンディング!  '+(typeof resIcon==='function'?resIcon('gem'):'宝石')+' 10 獲得';}endSnd(1)}
-  if(E.t>Math.max(45,(RH+H)/SP+8))endClose();
-  endDraw(E)});
+  if(E.t>Math.max(45,(RH+H)/SP+8)){endClose();return}
+  endDraw(E)}
+/* エンディング中の曲: タイトル曲を流す(ゲームの曲と効果音は止まる) */
+{const o=bgmState;bgmState=function(){if(END.on&&SONGS.tt)return 'tt';return o.apply(this,arguments)}}
 /* 背景: 星空 + 光の玉が8方向へ飛んでいく + 地面を3人が歩く(180x320 のドット絵キャンバスを全画面に引き伸ばす) */
 function endDraw(E){const cv=$('edgc');if(!cv||!cv.getContext)return;const x=cv.getContext('2d');if(!x)return;const W=180,Hh=cv.height||320,t=E.t,GY=Hh-38,CY=Math.round(GY*.45);
   x.fillStyle='#05030f';x.fillRect(0,0,W,Hh);

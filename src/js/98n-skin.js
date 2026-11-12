@@ -48,7 +48,7 @@ FU.push(dt=>{SKT+=dt;if(SKT<2||!run)return;SKT=0;let ch=0;
 const SKSV={};
 function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=s.m||{};let r='';
   for(const q of src)r+='<rect x="'+q[0]+'" y="'+q[1]+'" width="1" height="1" fill="'+(m[q[2]]||q[2])+'"/>';
-  return SKSV[i][key]='<svg viewBox="0 0 16 16" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
+  const W=(SPR['h'+i]&&SPR['h'+i].width)||32;return SKSV[i][key]='<svg viewBox="0 0 '+W+' '+W+'" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
 function skName(i){return (typeof STH!=='undefined'&&STH[i])?STH[i].n:'英雄'+(i+1)}
 function skMenu(){let h='<!--sk--><div class="skh">衣装 <small>見た目だけ変わる(転生しても残る)</small></div>';
   for(const k of Object.keys(SKD)){const i=+k;if(i>2&&!(typeof lnOn==='function'&&lnOn()))continue;

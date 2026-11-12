@@ -27,6 +27,7 @@
  "bgmState": [
   "79b-bonus.js",
   "79c-titlebgm.js",
+  "98y-finale.js",
   "98ya-music.js"
  ],
  "bigHit": [
@@ -49,6 +50,9 @@
  ],
  "chDrawSB": [
   "89c-layer.js"
+ ],
+ "cutin": [
+  "98yb-lancer.js"
  ],
  "deathFx": [
   "98h-area.js"

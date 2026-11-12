@@ -8,6 +8,7 @@ G.at+=dt;if(G.at>.55/(G.rush>0?2:1)){G.at=0;G.ai=(G.ai+1)%3;heroAtk(G.ai,.8*(G.r
 if(G.sp>=100&&!cut&&!G.roul&&ultReady())ult();
 if(G.rush>0){if(!PUSH)G.rush-=dt;if(G.rush<=0){G.rush=0;G.combo=0;showMsg('RUSH終了','#aaa')}}
 ui+=dt;if(ui>.1){ui=0;refresh()}sv+=dt;if(sv>4){sv=0;try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}}featUpdate(dt)}
-function loop(ts){requestAnimationFrame(loop);const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run)update(HS>0?dt*.12:dt);drawP(T);drawB(T);drawMq(T)}
+function loop(ts){requestAnimationFrame(loop);const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run&&!(typeof pzStep==='function'&&pzStep(dt)))update(HS>0?dt*.12:dt);   /* 98p: 物語/ガイド/エンディング中は止める(1行フック) */
+drawP(T);drawB(T);drawMq(T)}
 spawn();refresh();requestAnimationFrame(loop);
 $('go').onclick=()=>{try{AC=AC||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}if(typeof ttGo==='function')try{ttGo()}catch(e){}$('ov').style.display='none';run=true;featStart();beep(660,.1);bgm()};

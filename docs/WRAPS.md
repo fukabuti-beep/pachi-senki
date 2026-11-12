@@ -10,12 +10,13 @@
 | `actTap` | 93b-mission.js |
 | `altOpen` | 98m-heroup.js |
 | `banner` | 88-bannerfx.js → 89c-layer.js |
-| `bgmState` | 79b-bonus.js → 79c-titlebgm.js → 98ya-music.js |
+| `bgmState` | 79b-bonus.js → 79c-titlebgm.js → 98y-finale.js → 98ya-music.js |
 | `bigHit` | 46-board-fx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96r-relic.js → 97u-app.js |
 | `btDraw` | 89c-layer.js |
 | `cbPress` | 89g-btnfx.js |
 | `cbShow` | 89g-btnfx.js |
 | `chDrawSB` | 89c-layer.js |
+| `cutin` | 98yb-lancer.js |
 | `deathFx` | 98h-area.js |
 | `drawB` | 84-charfx.js → 84b-atkfx.js → 86-gekiatsu.js → 87-hitev.js → 89c-layer.js → 89d-blackout.js → 89f-ultjp.js → 94c-herohp.js → 96-allies.js → 96r-relic.js → 96s-smith.js → 98b-active.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98z-tower.js |
 | `drawBgB` | 98h-area.js → 98z-tower.js |

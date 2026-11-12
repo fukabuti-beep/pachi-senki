@@ -1,0 +1,4 @@
+/* 物語・ガイド・エンディングの間(98p-pause): 盤面とスロットを少し暗くして、止まっていることを見せる */
+body.pz #pw,body.pz #slot{filter:brightness(.55) saturate(.7);transition:filter .25s}
+#pw,#slot{transition:filter .25s}
+@media (prefers-reduced-motion:reduce){body.pz #pw,body.pz #slot,#pw,#slot{transition:none}}

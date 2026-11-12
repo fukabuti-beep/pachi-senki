@@ -29,7 +29,7 @@ function heroDY(i,t){let dy=0;const J=CHR.j[i];
 function chSay(i,txt,dur){for(let k=CHR.sb.length-1;k>=0;k--)if(CHR.sb[k].i===i)CHR.sb.splice(k,1);if(CHR.sb.length<4)CHR.sb.push({i,txt,t0:T,d:dur||1.6})}
 function chSayAll(key){for(let i=0;i<3;i++){const s=chLine(i,key);setTimeout(()=>{try{chSay(i,s)}catch(e){}},i*180)}}
 function chDrawSB(t){for(let k=CHR.sb.length-1;k>=0;k--){const b=CHR.sb[k],p=t-b.t0;if(p>b.d){CHR.sb.splice(k,1);continue}
-  const s=p<.1?.5+p*5:1,a=Math.min(1,(b.d-p)*4),cy=[22,42,22][b.i];bc.font='11px '+FN;const w=Math.max(34,b.txt.length*11+10),h=18,cx=Math.max(w/2+3,Math.min(357-w/2,hx(b.i)+32+(b.i==0?6:b.i==2?-6:0)));bc.save();bc.globalAlpha=a;bc.translate(cx,cy);bc.scale(s,s);
+  const s=p<.1?.5+p*5:1,a=Math.min(1,(b.d-p)*4),cy=[22,42,22,42][b.i];bc.font='11px '+FN;const w=Math.max(34,b.txt.length*11+10),h=18,cx=Math.max(w/2+3,Math.min(357-w/2,hx(b.i)+32+(b.i==0?6:b.i==2?-6:0)));bc.save();bc.globalAlpha=a;bc.translate(cx,cy);bc.scale(s,s);
   bc.fillStyle='#000';bc.fillRect(-w/2-1,-h/2-1,w+2,h+2);bc.fillStyle='#fff';bc.fillRect(-w/2,-h/2,w,h);bc.fillStyle='#000';bc.fillRect(-3,h/2,6,2);bc.fillRect(-2,h/2+2,4,2);bc.fillRect(-1,h/2+4,2,2);bc.fillStyle='#fff';bc.fillRect(-2,h/2,4,1);bc.fillRect(-1,h/2+2,2,1);
   bc.fillStyle='#d8dcff';bc.fillRect(-w/2,h/2-3,w,3);bc.textAlign='center';bc.fillStyle='#14021f';bc.fillText(b.txt,0,4);bc.restore()}}
 // イベントのフック(本体は変更しない)

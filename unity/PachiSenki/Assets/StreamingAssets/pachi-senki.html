@@ -953,6 +953,12 @@ html body #fxm .fxl>div.altnav .fxb{margin:0;padding:6px 12px}
 #upx .hups.mid{color:#ffd400}
 #upx .hups.bad{color:#ff7a8a}
 
+/* 41-pause.css */
+/* 物語・ガイド・エンディングの間(98p-pause): 盤面とスロットを少し暗くして、止まっていることを見せる */
+body.pz #pw,body.pz #slot{filter:brightness(.55) saturate(.7);transition:filter .25s}
+#pw,#slot{transition:filter .25s}
+@media (prefers-reduced-motion:reduce){body.pz #pw,body.pz #slot,#pw,#slot{transition:none}}
+
 /* 41-pushhype.css */
 /* 押せ!!ボタンの熱さ(89h): ph1=赤 ph2=金 ph3=虹。ボタン(#pkB)の周りだけ光らせる。全画面は点滅させない */
 #push.ph2 #pkB canvas{filter:sepia(1) saturate(3.2) brightness(1.2) hue-rotate(2deg)}
@@ -1164,75 +1170,123 @@ const FREE_MAX=175;   // エリア7(宙域)の主まで。放置+自動強化の
 
 /* ---------- pixel sprites (すべてオリジナル) ----------
    mk(名,パレット,行,full): 行は左半分(鏡像) / full=true なら全幅。SPR[名]=canvas, PXL[名]=[x,y,色]の一覧(撃破の爆散用)
-   英雄: h0..h2 (待機A) +'b'(待機B) +'w'(構え) +'s'(攻撃)  16x16
+   英雄: h0..h2 (待機A) +'b'(待機B) +'w'(構え) +'s'(攻撃)  32x32
    雑魚: m0..m9 16x16 / ボス: b0..b3 24x24  (敵スプライト選択は enSpr()) */
 const SPR={},PXL={},SPW={};
 function mk(n,pal,rows,full){const p={};pal.split(',').forEach(s=>p[s[0]]=s.slice(1));const R=rows.map(r=>full?r:r+[...r].reverse().join('')),w=R[0].length,h=R.length;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),L=[];R.forEach((r,y)=>[...r].forEach((ch,i)=>{if(p[ch]){x.fillStyle=p[ch];x.fillRect(i,y,1,1);L.push([i,y,p[ch]])}}));SPR[n]=c;PXL[n]=L}
 /* 白シルエット(被弾フラッシュ用)。初回に生成してキャッシュ */
 function spw(n){if(SPW[n])return SPW[n];const s=SPR[n],c=document.createElement('canvas');c.width=s.width;c.height=s.height;const x=c.getContext('2d');x.drawImage(s,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#fff';x.fillRect(0,0,s.width,s.height);return SPW[n]=c}
-/* 英雄: 基本16行+パッチ(構え/攻撃)。待機Bは胴を1px沈める */
-function mkH(i,pal,base,wd,st){const bob=r=>['.'.repeat(16),...r.slice(0,12),...r.slice(13)],pa=(r,p)=>{const o=r.slice();p.forEach(q=>o[q[0]]=q[1]);return o};
-mk('h'+i,pal,base,1);mk('h'+i+'b',pal,bob(base),1);mk('h'+i+'w',pal,pa(base,wd),1);mk('h'+i+'s',pal,pa(base,st),1)}
-/* ===== 英雄0: 剣士(赤) ===== */
-mkH(0,'k#14101f,h#e0443a,H#a8262e,s#ffd2a6,S#d99a6c,e#14101f,a#d5dae6,b#7c859b,r#d1303c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8',
-["................",
- "....kkkkkkkk....",
- "...khhhhhhhhk...",
- "..khhHhhhhHhhk.l",
- "..khhhhhhhhhhklm",
- "..khhsssssshhklm",
- "...ksesssseskklm",
- "...kssssssssk.lm",
- "....kssSSsskkklm",
- "...kkaaaaaakgglm",
- "..krkaabbaakgkkm",
- "..krsaaaaaaksgm.",
- "...kkaattaakkgm.",
- "....kttTTttk.k..",
- "....kttkkttk....",
- "....koookkook..."],
-[[0,"..............l."],[1,"....kkkkkkkk..lm"],[2,"...khhhhhhhhk.lm"],[3,"..khhHhhhhHhhklm"],[9,"...kkaaaaaakkkm."],[10,"..krkaabbaakgkm."],[11,"..krsaaaaaaksgm."]],
-[[9,"...kkaaaaaakkk.."],[10,"..krkaabbaakglll"],[11,"..krsaaaaaaksgmm"],[12,"...kkaattaakkkmm."]]);
-/* ===== 英雄1: 魔法使い(紫) ===== */
-mkH(1,'k#14101f,h#7a4dff,H#4d2fb8,s#ffd2a6,S#d99a6c,e#14101f,p#5b6cff,P#3a45b8,c#c8b8ff,y#ffd24d,w#fff,o#8a5a2b,q#7ff3ff',
-["................",
- ".......kk.......",
- "......khhk......",
- ".....khhhhk.....",
- "...kkkhhhhkkk...",
- "..khhhhyyhhhhk..",
- "...kkkhhhhkkk...",
- "....ksssssssk...",
- "....kseSSSesk..q",
- "....ksssSSssk.qy",
- "...kkpppppppkkoq",
- "..kcpppyyppppko.",
- "..kcsppppppskoo.",
- "...kkpppPPppkko.",
- "....kpppPPppko..",
- "....kPPkkkPPk..."],
-[[7,"....ksssssssk.q."],[8,"....kseSSSesk.qq"],[9,"....ksssSSssk.qy"],[10,"...kkpppppppkkoq"],[11,"..kcpppyyppppkoq"],[12,"..kcsppppppskkoq"]],
-[[7,"....ksssssssk..q"],[8,"....kseSSSesk.qq"],[9,"....ksssSSsskqqy"],[10,"...kkpppppppqqqq"],[11,"..kcpppyyppppqqq"],[12,"..kcsppppppskkoq"]]);
-/* ===== 英雄2: 弓使い(緑) ===== */
-mkH(2,'k#14101f,h#2fb36b,H#1b7a47,s#ffd2a6,S#d99a6c,e#14101f,g#3dd27f,d#1b7a47,b#8a5a2b,B#5a3818,c#caffb0,w#fff,y#ffd24d',
-["................",
- ".....kkkkkk.....",
- "....khhhhhhk....",
- "...khhggghhhk.kb",
- "...khhhhhhhhk.bb",
- "...khhsssssshkb.",
- "...khsesssesk.b.",
- "....kssssssk..b.",
- "....kkssSSkk..b.",
- "....kggggggkk.b.",
- "...kdgdggdgkkkbb",
- "..kssgggggggsbkk",
- "..kskgggyygkkkb.",
- "...kkdddddddkbb.",
- "....kddkkddk.b..",
- "....kbbkkbbk...."],
-[[9,"....kggggggkk..b"],[10,"...kdgdggdgkkkbb"],[11,"..kssgggggggsbkk"],[12,"..kskgggyygkkkb."]],
-[[3,"...khhggghhhk..b"],[4,"...khhhhhhhhk.bb"],[5,"...khhsssssshkb."],[6,"...khsesssesk.b."],[7,"....kssssssk..b."],[8,"....kkssSSkk.bb."],[9,"....kggggggkkb.."],[10,"...kdgdggdgskbbb"],[11,"..kssgggggggsbyb"],[12,"..kskgggyygkkkbb"]]);
+/* 英雄: 32x32(戦闘画面では2倍=64px)。体の絵(body)に、コマごとの武器の絵(ov=[待機,構え,攻撃]、[x,y,文字列] の重ね描き)を足して4コマ作る。
+   待機Bは上半身を1px沈める。見た目は作り手提供のカットイン用イラスト(src/img)に合わせてある(赤いツンツン髪と銀の鎧/白い髪と紫の帽子/緑のフードと覆面)。
+   パレットの色は衣装(98n-skin の色の置きかえ表)が参照するので、変える時は衣装の表も合わせる */
+function mkH2(i,pal,body,ov){const W=body[0].length,put=(rows,o,dy)=>{const g=rows.map(r=>[...r]);o.forEach(q=>[...q[2]].forEach((ch,k)=>{const x=q[0]+k,y=q[1]+dy;if(ch!='.'&&x>=0&&x<W&&g[y])g[y][x]=ch}));return g.map(r=>r.join(''))},
+  bob=['.'.repeat(W),...body.slice(0,27),...body.slice(28)];
+  mk('h'+i,pal,put(body,ov[0],0),1);mk('h'+i+'b',pal,put(bob,ov[0],1),1);mk('h'+i+'w',pal,put(body,ov[1],0),1);mk('h'+i+'s',pal,put(body,ov[2],0),1)}
+/* ===== 英雄0: 剣士ホムラ ===== */
+mkH2(0,'k#14101f,h#e0443a,H#a8262e,i#ff8a5a,s#ffd2a6,S#d99a6c,e#14101f,w#ffffff,y#ffc020,a#d5dae6,b#7c859b,c#f4f8ff,r#d1303c,t#3556d6,T#22338f,o#6a3d1e,g#ffd24d,l#f4fbff,m#8fb0d8,n#5a6a88',
+["............k....k.....k........",
+ "...........khk..khk...khk.......",
+ "......k...khhk.khhhk.khhk.......",
+ ".....khk.khhhkkhhhhkkhhhk..k....",
+ ".....khhkhhihhhhhihhhhhhkkhk....",
+ "......khhhhihhhhhihhhhhhhhhk....",
+ ".....khhhhhhhhhhhhhhhhhhhhk.....",
+ "....khhhhhhhhhhhhhhhhhhhhhk.....",
+ "...khhhHhhhhhhhhhhhhhhhHhhk.....",
+ "....khHhhhhhhhhhhhhhhhhhHk......",
+ "....khhhhhsshhhhhhsshhhhhk......",
+ ".....khhhsssshhhhsssshhhHk......",
+ ".....khhsssssssssssssshhk.......",
+ ".....khskkkksssskkkksshk........",
+ ".....kssswykssssswykssk.........",
+ ".....kssswyksssSswyksSk.........",
+ ".....ksssssssssssssssSk.........",
+ "......kssssskkkssssSSk..........",
+ ".......ksssssssssSSSk...........",
+ "......krkkssssssskkrk...........",
+ ".....krrrrkkkkkkkrrrrkk.........",
+ "....kcakrrrrrrrrrrkacrrk........",
+ "...kcaakbrrrrrrrrbkaaakrk.......",
+ "...kaabkaaarrrraaakbaak.k.......",
+ "...kkbkkaaaaggaaaakkbkk.........",
+ "...ksskkaabaaaabaakkssk.........",
+ "...ksskkbbbbbbbbbbkkssk.........",
+ "....kk.kttttkkttttk.kk..........",
+ ".......kttTtkktTttk.............",
+ ".......kttTk..kTttk.............",
+ "......kooook..kooook............",
+ "......kkkkkk..kkkkkk............"],
+[[[23,9,"..l"],[23,10,".klk"],[23,11,".klmk"],[23,12,".klmk"],[23,13,".klmk"],[23,14,".klmk"],[23,15,".klmk"],[23,16,".klmk"],[23,17,".klmk"],[23,18,".klmk"],[23,19,".klmk"],[23,20,".klmk"],[22,21,"kgggggk"],[23,22,".kook"],[22,23,"ksskok"],[22,24,"ksskk"]],[[24,0,"...kk"],[24,1,"..klmk"],[24,2,"..klmk"],[24,3,"..klmk"],[24,4,"..klmk"],[24,5,"..klmk"],[24,6,"..klmk"],[24,7,"..klmk"],[24,8,"..klmk"],[24,9,"..klmk"],[24,10,"..klmk"],[24,11,"..klmk"],[24,12,"..klmk"],[23,13,".kgggggk"],[24,14,"..kook"],[24,15,"..kook"],[22,16,"..ksssk"],[22,17,"..kcaak"],[22,18,".kaabk"],[22,19,"kaabk"]],[[20,22,"...kkkkkkkkkk"],[20,23,"ksskgkllllllk"],[20,24,"ksskgkmmmmmmmk"],[20,25,"kkk.gkkkkkkkk"],[24,21,"g"],[24,26,"g"]]]);
+/* ===== 英雄1: 魔法使いシズク ===== */
+mkH2(1,'k#14101f,h#7a4dff,H#4d2fb8,s#ffd2a6,S#d99a6c,e#14101f,p#5b6cff,P#3a45b8,c#c8b8ff,y#ffd24d,w#ffffff,o#8a5a2b,q#7ff3ff,v#eef0ff,V#aab0d8,u#b060ff,Y#b98300',
+["..................kkk...........",
+ ".................khhhk..........",
+ "...............kkhhHhk..........",
+ ".............kkhhhhHk...........",
+ "...........kkhhhhhHHk...........",
+ "..........khhhhhhhHk............",
+ ".........khhhhhhhhHHk...........",
+ "........khhhhhhhhhhHHk..........",
+ ".......kyyyyyyyyyyyYYYk.........",
+ "...kkkkkhhhhhhhhhhhhHHkkkkk.....",
+ "..khhhhhhhhhhhhhhhhhhhHHHHHk....",
+ "...kkkkkvvvvvvvvvvvvvVkkkkk.....",
+ ".....kvvvvsssvvvsssvvvVk........",
+ ".....kvvskkkksskkkksvvVk........",
+ ".....kvvswukssswukssvVVk........",
+ ".....kvvswukssSwuksSvVVk........",
+ ".....kvvsssssssssssSvVVk........",
+ ".....kvVVsssskksssSSvVVk........",
+ ".....kvVVkssssssSSkVvVVk........",
+ ".....kvVkpkkssskkpkVVVk.........",
+ ".....kvkpppykkkypppkVVk.........",
+ "....kkkpppppyqypppppkVk.........",
+ "...kppkpppppyyypPPPPkkk.........",
+ "...kppkppppppppPPPPPkppk........",
+ "...ksskpppppppPPPPPPkssk........",
+ "...ksskpyppppPPPPPyPkssk........",
+ "....kkkpppppppPPPPPPkkk.........",
+ "......kppppppPPPPPPPk...........",
+ "......kyyppppPPPPPyyk...........",
+ ".......kkkkkkkkkkkkk............",
+ ".......kooook.kooook............",
+ ".......kkkkkk.kkkkkk............"],
+[[[24,8,".kqk"],[24,9,"kqwqk"],[24,10,"kqqqk"],[24,11,".kqk"],[24,12,".kok"],[24,13,".kok"],[24,14,".kok"],[24,15,".kok"],[24,16,".kok"],[24,17,".kok"],[24,18,".kok"],[24,19,".kok"],[24,20,".kok"],[24,21,".kok"],[23,22,"kssok"],[23,23,"kssok"],[24,24,".kok"],[24,25,".kok"],[24,26,".kok"],[24,27,".kk"]],[[25,3,".kqk"],[25,4,"kqwqk"],[25,5,"kqqqk"],[25,6,".kqk"],[25,7,".kok"],[25,8,".kok"],[25,12,".kok"],[25,13,".kok"],[25,14,".kok"],[25,15,".kok"],[25,16,".kok"],[25,17,".kok"],[25,18,".kok"],[25,19,".kok"],[24,20,"kssok"],[24,21,"kssok"],[23,22,"kppk"],[25,22,"kok"],[25,23,".kk"],[23,1,"q"],[29,2,"q"],[22,5,"c"],[30,6,"c"]],[[21,19,"..........q"],[21,20,"kkkkkkkk.qwq"],[21,21,"ksoooooqkqwwq"],[21,22,"kskkkkkqqwwwq"],[21,23,"kkk....kqqwq"],[30,24,"q"],[29,18,"c"],[31,22,"c"],[28,25,"c"]]]);
+/* ===== 英雄2: 弓使いコハク ===== */
+mkH2(2,'k#14101f,h#2fb36b,H#1b7a47,s#ffd2a6,S#d99a6c,e#14101f,g#3dd27f,d#1b7a47,b#8a5a2b,B#5a3818,c#caffb0,w#ffffff,y#ffd24d,n#9a6230,N#5a3510,u#40e080,x#e8e0c0,r#ff4a4a',
+["..........kkkkkkkk..............",
+ "........kkhhhhhhhhkk............",
+ ".......khhhhhhhhhhhhk...........",
+ "......khhhchhhhhhhhhHk..........",
+ ".....khhhchhhhhhhhhhHHk.........",
+ "....khhhhhhhhhhhhhhhhHHk........",
+ "....khhhhkkkkkkkkkkhhHHk........",
+ "...khhhhknnnnnnnnnNkhhHHk.......",
+ "...khhhknnnnnnnnnnNNkhHHk.......",
+ "...khhhknnsnnnnsnnnNkhHHk.......",
+ "...khhhknsssnnsssnsNkhHHk.......",
+ "...khhhkssssssssssssHkHHk.......",
+ "...khhhkskkkksskkkksHkHHk.......",
+ "...khhhkswukssswuksskhHHk.......",
+ "...khhHkswuksssSwuksSkHHk.......",
+ "....khHkggggggggggggdkHk........",
+ "....khHkgggggggggggddkHk........",
+ ".....kHHkggggggggggdkHHk........",
+ "......kHHkkgggggddkkHHk.........",
+ ".....kkhhhhkkkkkkhhhhHkk........",
+ "....kgkhhhhhhhhhhhhhHHkgk.......",
+ "...kggkbkhhhhhhhhhHHkbkggk......",
+ "...kggkgbkhhhhhhHHkbdkgdk.......",
+ "...ksskggbkggggddkbddkssk.......",
+ "...ksskgggbkgggdkbdddkssk.......",
+ "....kkkgygggbkkbdddydkkk........",
+ "......kggggggBBdddddk...........",
+ "......kkbbkkkkkkkbbkk...........",
+ ".......kbbbk...kbbbk............",
+ ".......kbBbk...kbBbk............",
+ "......kBBBBk...kBBBBk...........",
+ "......kkkkkk...kkkkkk..........."],
+[[[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x..kbk"],[26,13,"x..kbk"],[26,14,"x..kbk"],[26,15,"x..kbk"],[26,16,"x..kbk"],[26,17,"x..kbk"],[26,18,"x..kbk"],[26,19,"x..kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"]],[[24,6,"kk"],[23,7,"kbbk"],[24,8,".kbk"],[25,9,".kbk"],[22,10,"x...kbk"],[21,11,"x....kbk"],[20,12,"x......kbk"],[19,13,"x.......kbk"],[18,14,"kxxxxxxxxxkbkrr"],[17,15,"ksskkkkkkkkkbk"],[19,16,"x.......kbk"],[20,17,"x......kbk"],[21,18,"x....kbk"],[22,19,"x...kbk"],[25,20,".kbk"],[24,21,".kbk"],[23,22,"kbbk"],[24,23,"kk"]],[[25,6,"kk"],[24,7,"kbbk"],[25,8,".kbk"],[26,9,".kbk"],[26,10,"x.kbk"],[26,11,"x.kbk"],[26,12,"x..kbk"],[26,13,"x..kbk"],[26,14,"x..kbk"],[26,15,"x..kbk"],[26,16,"x..kbk"],[26,17,"x..kbk"],[26,18,"x..kbk"],[26,19,"x..kbk"],[26,20,"x.kbk"],[26,21,"x.kbk"],[26,22,".kbk"],[25,23,".kbk"],[24,24,"kbbk"],[25,25,"kk"],[22,14,"cc"],[22,15,"ccc"]]]);
 /* ===== 雑魚(16x16, 左半分) ===== */
 /* m0 スライム(青) */
 mk('m0','k#14101f,a#3fb6ff,b#1f6fd1,c#b8ecff,w#fff,e#14101f',
@@ -3065,7 +3119,9 @@ const PORTC=[];
 const PORTD=[
   {skin:'#ffd8b4',skinS:'#d9946a',hair:'#ff4a2a',hairS:'#a8180e',hairD:'#5a0a08',hairH:'#ffb070',iris:'#ffc020',cloth:'#2a3060',clothS:'#161a3a',acc:'#e82838',accS:'#8a0c1c',metal:'#e8eeff',metalS:'#8890b8',k:0},
   {skin:'#ffdcc0',skinS:'#c89070',hair:'#eef0ff',hairS:'#9aa0d0',hairD:'#5a609a',hairH:'#ffffff',iris:'#d080ff',cloth:'#1c2a7a',clothS:'#0e1440',acc:'#ffd400',accS:'#b08000',hat:'#7a34d0',hatS:'#3e1480',k:1},
-  {skin:'#ffd4a8',skinS:'#c88a5a',hair:'#9a6230',hairS:'#5a3510',hairD:'#2a1808',hairH:'#d09a60',iris:'#50ff90',cloth:'#1f7a3a',clothS:'#0f4a22',acc:'#7a4a1a',accS:'#4a2a08',hood:'#2fa854',hoodS:'#14602c',k:2}];
+  {skin:'#ffd4a8',skinS:'#c88a5a',hair:'#9a6230',hairS:'#5a3510',hairD:'#2a1808',hairH:'#d09a60',iris:'#50ff90',cloth:'#1f7a3a',clothS:'#0f4a22',acc:'#7a4a1a',accS:'#4a2a08',hood:'#2fa854',hoodS:'#14602c',k:2},
+  /* 3=槍使いツララ(完全版の 98yb が使う。絵のデータはここに置く=体験版では呼ばれないだけ) */
+  {skin:'#ffdcc4',skinS:'#d09878',hair:'#8fd8ff',hairS:'#5aa8e0',hairD:'#3a78b8',hairH:'#e4f8ff',iris:'#4a80d0',cloth:'#e8f4ff',clothS:'#9ab8d8',acc:'#3a5a9a',accS:'#27407a',metal:'#f4fbff',metalS:'#9ab8d8',k:3}];
 function portPoly(c,pts,col){c.fillStyle=col;c.beginPath();c.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)c.lineTo(pts[i],pts[i+1]);c.closePath();c.fill()}
 function portEll(c,x,y,rx,ry,col){c.fillStyle=col;c.beginPath();c.ellipse(x,y,rx,ry,0,0,TAU);c.fill()}
 function portFace(c,D,mask){
@@ -3091,6 +3147,8 @@ function portBuild(i){const D=PORTD[i],S=4,big=document.createElement('canvas');
   if(D.k==0)portPoly(c,[18,32,10,24,14,18,4,10,17,10,14,0,25,6,28,-4,34,5,42,-3,43,7,56,2,50,12,60,16,50,22,54,30,46,30],D.hairS);
   if(D.k==1){portPoly(c,[14,52,8,72,56,72,52,52,58,44,50,46,46,36,18,36,14,46,6,44],D.clothS);portPoly(c,[16,20,48,20,51,58,13,58],D.hairS);portPoly(c,[18,22,46,22,48,56,16,56],D.hair);for(let k=0;k<4;k++){c.fillStyle=D.hairD;c.fillRect(19+k*8,26,1,28)}}
   if(D.k==2){portEll(c,32,25,19,21,D.hoodS);portPoly(c,[12,32,52,32,58,62,6,62],D.hoodS)}
+  if(D.k==3){portPoly(c,[13,16,51,16,58,72,6,72],D.hairS);portPoly(c,[16,18,48,18,53,68,11,68],D.hair);for(let k=0;k<5;k++){c.fillStyle=D.hairD;c.fillRect(15+k*8.5,32,1,34)}
+    c.fillStyle=D.metalS;c.fillRect(55,2,2.4,70);portPoly(c,[56.2,-6,59.5,4,56.2,8,53,4],D.metal);portPoly(c,[56.2,-6,59.5,4,56.2,8],D.metalS)}
   // ---- 胴 ----
   portPoly(c,[2,72,6,60,20,53,44,53,58,60,62,72],D.cloth);portPoly(c,[34,53,44,53,58,60,62,72,40,72],D.clothS);
   if(D.k==0){portPoly(c,[2,60,10,52,22,55,20,66,6,68],D.metal);portPoly(c,[62,60,54,52,42,55,44,66,58,68],D.metalS);portPoly(c,[4,61,10,55,18,57,16,63,6,64],D.metalS);portPoly(c,[6,57,12,53,18,55,10,57],'#fff');
@@ -3100,6 +3158,8 @@ function portBuild(i){const D=PORTD[i],S=4,big=document.createElement('canvas');
     portEll(c,32,60,3.4,3.4,D.acc);portEll(c,32,60,2.2,2.2,D.iris);c.fillStyle='#fff';c.fillRect(31,58.8,1,1)}
   if(D.k==2){portPoly(c,[16,55,20,53,50,72,44,72],D.acc);portPoly(c,[17,55,19,54,46,71,44,72],D.accS);
     for(let k=0;k<3;k++){portPoly(c,[49+k*3,58,51+k*3,58,53+k*3,44,51+k*3,44],'#e8e0c0');portPoly(c,[50+k*3,44,55+k*3,39,52.5+k*3,45],'#ff4a4a')}}
+  if(D.k==3){portPoly(c,[2,60,10,52,22,55,20,66,6,68],D.metal);portPoly(c,[62,60,54,52,42,55,44,66,58,68],D.metalS);portPoly(c,[6,57,12,53,18,55,10,57],'#fff');
+    portPoly(c,[22,56,42,56,40,70,24,70],D.clothS);portPoly(c,[28,58,36,58,32,66],D.acc);portEll(c,32,60,2,2,D.hair);c.fillStyle='#fff';c.fillRect(31.2,59,1,1)}
   // ---- 首・顔 ----
   c.fillStyle=D.skinS;c.fillRect(27,43,10,11);portPoly(c,[27,44,37,44,37,48,32,50,27,48],'#a86a4a');
   portFace(c,D,D.k==2);
@@ -3113,6 +3173,8 @@ function portBuild(i){const D=PORTD[i],S=4,big=document.createElement('canvas');
   if(D.k==2){portEll(c,32,18,14,8,D.hairS);portPoly(c,[18,28,19,14,45,14,46,28,41,22,36,26,31,21,26,26,22,22],D.hair);portPoly(c,[33,19,44,18,46,28,41,22,37,25],D.hairS);
     c.strokeStyle=D.hood;c.lineWidth=4.5;c.beginPath();c.ellipse(32,26,16.5,18.5,0,Math.PI*1.02,Math.PI*1.98);c.stroke();c.fillStyle='rgba(10,30,15,.35)';c.fillRect(18,19,28,6);
     portPoly(c,[19,35,45,35,44,46,38,50,26,50,20,46],D.hood);portPoly(c,[33,35,45,35,44,46,38,50,34,50],D.hoodS);c.fillStyle=D.hoodS;c.fillRect(21,39,22,.8);c.fillRect(22,43,20,.8)}
+  if(D.k==3){portPoly(c,[17,31,17,15,23,10,41,10,47,15,47,31,44,22,40,28,36,21,32,28,28,21,24,28,20,22],D.hair);portPoly(c,[24,12,29,19,32,12],D.hairH);portPoly(c,[35,12,39,18,42,13],D.hairH);portPoly(c,[37,14,45,15,47,31,44,22,40,28],D.hairS);
+    c.fillStyle=D.skin;c.fillRect(20,29.2,10.5,1.6);c.fillRect(33.5,29.2,10.5,1.6)}   /* 眠そうな目: 上まぶたを少しかぶせる */
   // ---- 縮小(最近傍)→ 2値化 → 輪郭 ----
   const cv=document.createElement('canvas');cv.width=64;cv.height=72;const o=cv.getContext('2d');o.imageSmoothingEnabled=false;o.drawImage(big,0,0,64,72);
   try{const im=o.getImageData(0,0,64,72),d=im.data,W=64,H=72,op=new Uint8Array(W*H);
@@ -3126,7 +3188,7 @@ const PORTR={};
 function PORTRim(i,col){const k=i+col;if(PORTR[k]!==undefined)return PORTR[k];let r=null;try{const P=PORT(i);if(P){r=document.createElement('canvas');r.width=64;r.height=72;const x=r.getContext('2d');x.drawImage(P,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,64,72)}}catch(e){r=null}return PORTR[k]=r}
 /* ---------- 作り手提供のイラスト(src/img → build.js が PIMG に埋め込む) ----------
    読み込めたらカットインはこちらを優先。fx/fy = 画像内の顔の中心(0〜1)。テスト(ハーネス)では PIMG が無いので上のコード描画を使う。 */
-const PIMGI={},PIMGF={hero0:[.39,.30],hero1:[.50,.43],hero2:[.37,.38],trio:[.5,.43]};
+const PIMGI={},PIMGF={hero0:[.39,.30],hero1:[.50,.43],hero2:[.37,.38],hero3:[.5,.35],trio:[.5,.43]};   // hero3=ツララ(src/img/hero3.webp を置けば使われる)
 try{if(typeof PIMG!=='undefined'&&typeof Image!=='undefined')for(const k in PIMG){const im=new Image();im.onload=()=>{PIMGI[k]=im};im.src=PIMG[k]}}catch(e){}
 const PIMGR={};
 function PIMGRim(k,col){const key=k+col;if(PIMGR[key]!==undefined)return PIMGR[key];let r=null;try{const im=PIMGI[k];if(im){r=document.createElement('canvas');r.width=im.width;r.height=im.height;const x=r.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,r.width,r.height)}}catch(e){r=null}return PIMGR[key]=r}
@@ -3162,7 +3224,7 @@ function heroDY(i,t){let dy=0;const J=CHR.j[i];
 function chSay(i,txt,dur){for(let k=CHR.sb.length-1;k>=0;k--)if(CHR.sb[k].i===i)CHR.sb.splice(k,1);if(CHR.sb.length<4)CHR.sb.push({i,txt,t0:T,d:dur||1.6})}
 function chSayAll(key){for(let i=0;i<3;i++){const s=chLine(i,key);setTimeout(()=>{try{chSay(i,s)}catch(e){}},i*180)}}
 function chDrawSB(t){for(let k=CHR.sb.length-1;k>=0;k--){const b=CHR.sb[k],p=t-b.t0;if(p>b.d){CHR.sb.splice(k,1);continue}
-  const s=p<.1?.5+p*5:1,a=Math.min(1,(b.d-p)*4),cy=[22,42,22][b.i];bc.font='11px '+FN;const w=Math.max(34,b.txt.length*11+10),h=18,cx=Math.max(w/2+3,Math.min(357-w/2,hx(b.i)+32+(b.i==0?6:b.i==2?-6:0)));bc.save();bc.globalAlpha=a;bc.translate(cx,cy);bc.scale(s,s);
+  const s=p<.1?.5+p*5:1,a=Math.min(1,(b.d-p)*4),cy=[22,42,22,42][b.i];bc.font='11px '+FN;const w=Math.max(34,b.txt.length*11+10),h=18,cx=Math.max(w/2+3,Math.min(357-w/2,hx(b.i)+32+(b.i==0?6:b.i==2?-6:0)));bc.save();bc.globalAlpha=a;bc.translate(cx,cy);bc.scale(s,s);
   bc.fillStyle='#000';bc.fillRect(-w/2-1,-h/2-1,w+2,h+2);bc.fillStyle='#fff';bc.fillRect(-w/2,-h/2,w,h);bc.fillStyle='#000';bc.fillRect(-3,h/2,6,2);bc.fillRect(-2,h/2+2,4,2);bc.fillRect(-1,h/2+4,2,2);bc.fillStyle='#fff';bc.fillRect(-2,h/2,4,1);bc.fillRect(-1,h/2+2,2,1);
   bc.fillStyle='#d8dcff';bc.fillRect(-w/2,h/2-3,w,3);bc.textAlign='center';bc.fillStyle='#14021f';bc.fillText(b.txt,0,4);bc.restore()}}
 // イベントのフック(本体は変更しない)
@@ -6025,7 +6087,7 @@ FU.push(dt=>{SKT+=dt;if(SKT<2||!run)return;SKT=0;let ch=0;
 const SKSV={};
 function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=s.m||{};let r='';
   for(const q of src)r+='<rect x="'+q[0]+'" y="'+q[1]+'" width="1" height="1" fill="'+(m[q[2]]||q[2])+'"/>';
-  return SKSV[i][key]='<svg viewBox="0 0 16 16" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
+  const W=(SPR['h'+i]&&SPR['h'+i].width)||32;return SKSV[i][key]='<svg viewBox="0 0 '+W+' '+W+'" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
 function skName(i){return (typeof STH!=='undefined'&&STH[i])?STH[i].n:'英雄'+(i+1)}
 function skMenu(){let h='<!--sk--><div class="skh">衣装 <small>見た目だけ変わる(転生しても残る)</small></div>';
   for(const k of Object.keys(SKD)){const i=+k;if(i>2&&!(typeof lnOn==='function'&&lnOn()))continue;
@@ -6085,6 +6147,27 @@ function glMenu(){const R=OMR[OMI.r],K=OMK[OMI.k];
   return h+'</div>'}
 FM.push({n:'目標',r:glMenu});
 try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='遊ぶ');if(g&&g.t.indexOf('目標')<0)g.t.unshift('目標')}}catch(e){}
+
+/* ---------- 物語・ガイド・エンディングの間はゲームを止める (feature) ----------
+   作り手の方針「ゲームはゲーム、ストーリーはストーリーとして見られるように」。
+   会話シーン(98s)・チュートリアルの吹き出し(98t)・エンディング(98y)が **画面に出ている間** は、ゲームの進行(玉・スロット・戦闘・タイマー・効果音)を止める。
+   ・仕組み: 99-main の loop の1行フック。pzOn() の間は update() を呼ばず、pzTick() が 物語/ガイド/エンディング だけを進める。描画は続く(止まった絵が見える)。
+   ・メニューや演出でシーンが隠れている間は pzOn()=false(ゲームは動く)。シーンは自動送りで必ず終わるので、放置でも止まりっぱなしにならない。
+   ・BGM は流れ続ける(エンディング中は 98y が曲を差し替える)。ゲームが止まるので効果音は鳴らない。
+   ・盤面を少し暗くして「止まっている」ことを見せる(body.pz、css/41-pause.css)。
+   ・テスト用: window.PACHI_NOPAUSE=1 で無効(harness の既定。止める動きは tests/pause.js が確かめる)。 */
+const PZ={on:false,off:(typeof window!=='undefined'&&window.PACHI_NOPAUSE)?1:0};
+const pzVis=e=>!!(e&&e.style&&e.style.display==='block');
+function pzOn(){if(PZ.off)return false;try{
+  if(typeof END!=='undefined'&&END.on)return true;
+  if(typeof STY!=='undefined'&&STY.cur&&pzVis(STY.el))return true;
+  if(typeof TUT!=='undefined'&&TUT.cur&&pzVis(TUT.el))return true}catch(e){}
+  return false}
+function pzTick(dt){try{styUpd(dt)}catch(e){}try{tutUpd(dt)}catch(e){}try{if(typeof endUpd==='function')endUpd(dt)}catch(e){}}
+/* loop から毎フレーム呼ばれる。true を返したら update を飛ばす */
+function pzStep(dt){const on=pzOn();
+  if(on!==PZ.on){PZ.on=on;try{const b=document.body;if(b&&b.classList)b.classList[on?'add':'remove']('pz')}catch(e){}}
+  if(on)pzTick(dt);return on}
 
 /* ---------- 軽いストーリー(会話シーン) (feature) ----------
    3人の英雄(剣士ホムラ/魔法使いシズク/弓使いコハク。すべてオリジナル)が、世界の「運」を吸い込む虚無の王(魔王)ニヒラを目指して旅をする。
@@ -6343,7 +6426,7 @@ try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='その他');if(g
      → エンディング(全画面のスタッフロール: 光が8方向へ飛ぶ・3人の行進・取り戻した土地・完)→「2周目へ」。
    ・はじめて見た時だけ 宝石10 と実績「虚無を払う者」。見た回数は localStorage['pachi2_end'] = {n}。
    ・会話は 98s の仕組み(SCN/styQueue)にシーンを1つ足すだけ。エンディングは会話が全部終わって演出が落ち着いてから出す(FU で見張る)。
-   ・ゲームは裏で動き続ける(放置の進行は止めない)。タップで早送り、最後に「2周目へ」で閉じる(放っておいても約45秒で閉じる)。
+   ・エンディングの間はゲームを止める(98p-pause。作り手の方針)。曲はタイトル曲に切り替え。タップで早送り、最後に「2周目へ」で閉じる(放っておいても約45秒で閉じる)。
    ・全画面の点滅はしない。reduced-motion では光の粒を減らす。 */
 SCN.push({id:'f1',t:'最終章 解き放たれる光',h:'STAGE 200',e:'b11',ei:7,L:[
   [9,'虚無の王の体から、ため込まれていた運の光が いっせいにあふれ出した――'],
@@ -6407,13 +6490,17 @@ function endClose(){if(!END.on)return;END.on=null;const el=$('edg');if(el)el.sty
 function endSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   if(k==0){[523,659,784,1047].forEach((f,i)=>tone(f,t+i*.18,.3,'square',.035));tone(131,t,1.2,'triangle',.05)}
   else{[784,988,1175,1568,1175,1568].forEach((f,i)=>tone(f,t+i*.12,.22,'square',.035));tone(196,t,1.4,'triangle',.05)}}catch(e){}}
-FU.push(dt=>{const E=END.on;if(!E)return;E.t+=dt*E.fast;
+/* エンディングの進行。エンディング中はゲームが止まる(98p)ので、98p の pzTick から呼ばれる。止める仕組みが無い時(テスト)は FU から */
+FU.push(dt=>{if(END.on&&!(typeof pzOn==='function'&&pzOn()))endUpd(dt)});
+function endUpd(dt){const E=END.on;if(!E)return;E.t+=dt*E.fast;
   const el=$('edg'),r=$('edgr');if(!el||!r)return;
   const H=($('edgv')&&$('edgv').clientHeight)||el.clientHeight||640,RH=r.scrollHeight||900,SP=38;   // 1秒に38px 流れる
   const y=H-E.t*SP;r.style.transform='translateY('+Math.round(y)+'px)';
   if(y<-RH+H*.35&&!E.done){E.done=1;$('edgb').style.display='block';if(E.first){const w=$('edgw');w.style.display='block';w.innerHTML='はじめてのエンディング!  '+(typeof resIcon==='function'?resIcon('gem'):'宝石')+' 10 獲得';}endSnd(1)}
-  if(E.t>Math.max(45,(RH+H)/SP+8))endClose();
-  endDraw(E)});
+  if(E.t>Math.max(45,(RH+H)/SP+8)){endClose();return}
+  endDraw(E)}
+/* エンディング中の曲: タイトル曲を流す(ゲームの曲と効果音は止まる) */
+{const o=bgmState;bgmState=function(){if(END.on&&SONGS.tt)return 'tt';return o.apply(this,arguments)}}
 /* 背景: 星空 + 光の玉が8方向へ飛んでいく + 地面を3人が歩く(180x320 のドット絵キャンバスを全画面に引き伸ばす) */
 function endDraw(E){const cv=$('edgc');if(!cv||!cv.getContext)return;const x=cv.getContext('2d');if(!x)return;const W=180,Hh=cv.height||320,t=E.t,GY=Hh-38,CY=Math.round(GY*.45);
   x.fillStyle='#05030f';x.fillRect(0,0,W,Hh);
@@ -6463,25 +6550,41 @@ try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='集める');if(g
    ・ラップ: drawHeroes(英雄のすぐ後ろに描く)だけ。転生は PGEN の変化で検知。Math.random は加入後だけ使う。
    セーブ: localStorage['pachi2_lancer'] = {lv}。 */
 STH.push({n:'ツララ',r:'槍使い',c:'#8fd8ff'});
-mkH(3,'k#14101f,h#8fd8ff,H#5aa8e0,s#ffd2a6,S#d99a6c,e#14101f,a#e8f4ff,b#9ab8d8,t#3a5a9a,T#27407a,o#4a3a6a,l#f4fbff,m#b0c4d8,g#ffd24d',
-["..............l.",
- "....kkkkkkkk..l.",
- "...khhhhhhhhk.l.",
- "..khhHhhhhHhhkm.",
- "..khhhhhhhhhhkm.",
- "..khhsssssshhkm.",
- "..khsesssseshkm.",
- "..khssssssshkkm.",
- "..khkssSSskhkgm.",
- "..khkaaaaaakksm.",
- "...kkaabbaak.km.",
- "...ksaaaaaask.m.",
- "...kkaattaakk.m.",
- "....kttTTttk..m.",
- "....kttkkttk..m.",
- "....koookkook..."],
-[[0,"................"],[1,"....kkkkkkkk...."],[2,"...khhhhhhhhk..."],[3,"..khhHhhhhHhhk.."],[4,"..khhhhhhhhhhk.."],[5,"..khhsssssshhk.."],[6,"..khsesssseshk.."],[7,"..khssssssshkk.."],[8,"..khkssSSskhkg.."],[9,"..khkaaaaaaksmml"],[10,"...kkaabbaak...."],[11,"...ksaaaaaask..."],[12,"...kkaattaakk..."],[13,"....kttTTttk...."],[14,"....kttkkttk...."]],
-[[0,"................"],[1,"....kkkkkkkk...."],[2,"...khhhhhhhhk..."],[3,"..khhHhhhhHhhk.."],[4,"..khhhhhhhhhhk.."],[5,"..khhsssssshhk.."],[6,"..khsesssseshk.."],[7,"..khssssssshkk.."],[8,"..khkssSSskhk..."],[9,"..khkaaaaaakgmml"],[10,"...kkaabbaaksmml"],[11,"...ksaaaaaak...."],[12,"...kkaattaakk..."],[13,"....kttTTttk...."],[14,"....kttkkttk...."]]);
+/* ===== 英雄3: 槍使いツララ ===== */
+mkH2(3,'k#14101f,h#8fd8ff,H#5aa8e0,i#d8f4ff,s#ffd2a6,S#d99a6c,e#14101f,w#ffffff,u#4a80d0,a#e8f4ff,b#9ab8d8,t#3a5a9a,T#27407a,o#4a3a6a,l#f4fbff,m#b0c4d8,g#ffd24d',
+["................................",
+ "..........kkkkkkkk..............",
+ "........kkhhhhhhhhkk............",
+ ".......khhhhihhhhhhhk...........",
+ "......khhhhihhhhhhhhhk..........",
+ ".....khhhhihhhhhhhhhhHk.........",
+ ".....khhhhhhhhhhhhhhhHk.........",
+ "....khhhhhhhhhhhhhhhhhHk........",
+ "....khhhhhhhhhhhhhhhhhHk........",
+ "....khhhhhshhhhhhshhhhHk........",
+ "....khhhhssshhhhssshhHHk........",
+ "....khhhsssssssssssshHHk........",
+ "....khhsssssssssssssshHk........",
+ "....khhskkkksssskkkkshHk........",
+ "....khhssuukssssuuksshHk........",
+ "....khHssssssssSssssShHk........",
+ "....khHssssssssssssSShHk........",
+ "....khHHsssskkksssSSHhHk........",
+ "....khHHkssssssssSkHHhHk........",
+ "....khHkakkssssskkakHhHk........",
+ "....khHkaaaakkkkaaakHHk.........",
+ "...kkhkaaaaaaggaaaabkHkk........",
+ "..kaakkaaaaaaaaaabbbkkaak.......",
+ "..kaabkbaaaaaaaaabbbkbaak.......",
+ "..ksskkaabaaaaaabbabkkssk.......",
+ "..ksskkbbbbbbbbbbbbbkkssk.......",
+ "...kk.kkttttkkkttttkk.kk........",
+ "......kHkttTtkktTttkHk..........",
+ "......kk.kttTk.kTttk.kk.........",
+ ".........kttk...kttk............",
+ "........kooook.kooook...........",
+ "........kkkkkk.kkkkkk..........."],
+[[[26,0,".l"],[26,1,"klk"],[26,2,"klk"],[25,3,"klllk"],[25,4,"klmlk"],[25,5,".kmk"],[25,6,".kgk"],[25,7,".kmk"],[25,8,".kmk"],[25,9,".kmk"],[25,10,".kmk"],[25,11,".kmk"],[25,12,".kmk"],[25,13,".kmk"],[25,14,".kmk"],[25,15,".kmk"],[25,16,".kmk"],[25,17,".kmk"],[25,18,".kmk"],[25,19,".kmk"],[25,20,".kmk"],[25,21,".kmk"],[25,22,".kmk"],[25,23,".kmk"],[24,24,"ksskk"],[24,25,"ksskk"],[25,26,".kmk"],[25,27,".kmk"],[25,28,".kmk"],[25,29,".kk"]],[[14,23,"kkkkkkkkkkkkkkkk"],[13,24,"kmmmksskmmmmgklllk"],[14,25,"kkkkksskkkkkkklk"],[29,23,"kk"],[29,25,"kk"]],[[16,23,"kkkkkkkkkkkkkkkk"],[15,24,"kmksskmmmmmgkllll"],[16,25,"kkksskkkkkkkklll"],[29,22,"ll"],[29,26,"ll"]]]);
 const LN={lv:1,at:.7,h:-9,gen:0,ann:0};
 try{const v=Math.floor(+(JSON.parse(localStorage.getItem('pachi2_lancer')||'{}').lv));if(Number.isFinite(v)&&v>=1)LN.lv=Math.min(v,1e6)}catch(e){}
 function lnSave(){try{localStorage.setItem('pachi2_lancer',JSON.stringify({lv:LN.lv}))}catch(e){}}
@@ -6494,21 +6597,28 @@ function lnTap(){if(!lnBuy())fxToast('ゴールドが足りない','#aaa');try{g
 /* 突き: ボスの装甲を無視(hurt が ÷k するので、先に ×k しておく)。塔では装甲が無いのでそのまま */
 function lnHit(){LN.h=T;let d=atk()*1.5*cm()*lnMul();
   try{if(isBoss()&&!(typeof TW!=='undefined'&&TW.on))d*=hvBossK(G.stage)}catch(e){}
-  hurt(d,'#8fd8ff',0,Math.random()<critP());try{if(typeof sOK==='function'&&sOK()){const t=sNow();tone(1320,t,.04,'square',.02,880)}}catch(e){}}
+  const cr=Math.random()<critP();hurt(d,'#8fd8ff',0,cr);if(cr&&Math.random()<.2)lnSay('crit');try{if(typeof sOK==='function'&&sOK()){const t=sNow();tone(1320,t,.04,'square',.02,880)}}catch(e){}}
 FU.push(dt=>{if(!run)return;
   if(LN.gen!==PGEN){LN.gen=PGEN;if(LN.lv>1){LN.lv=1;lnSave()}}   // 転生(PGEN が進む)で槍術もリセット(通常強化と同じ)
   if(!lnOn())return;
   if(!LN.ann){LN.ann=1;if(!TS.s.j4){if(styQueue('j4')){const i=STY.q.indexOf('j4'),b=STY.q.indexOf('b2');STY.q.splice(i,1);STY.q.splice(b>=0?b+1:0,0,'j4')}try{fxToast('4人目の英雄 ツララ が仲間に!','#8fd8ff');banner('槍使い ツララ','#8fd8ff');fan()}catch(e){}}}
+  if(LN.st!==G.stage){const up=LN.st!=null&&G.stage>LN.st,wasB=LN.st%5===0;LN.st=G.stage;if(up&&wasB)lnSay('win');else if(up&&isBoss())lnSay('boss')}
   if(cut||RL||(typeof HV!=='undefined'&&HV.wipe>0))return;
   LN.at-=dt*(G.rush>0?2:1);if(LN.at<=0){LN.at=LNEV;lnHit()}
   if(typeof soulLv==='function'&&soulLv('auto')&&SOUL.auto){LN.bt=(LN.bt||0)-dt;if(LN.bt<=0){LN.bt=3;if(G.gold>=lnCost()*4)lnBuy()}}});
 /* 描画: 3人のすぐ右うしろ。突く時は前へ出る */
 {const _dh=drawHeroes;drawHeroes=function(t){const r=_dh.apply(this,arguments);try{if(lnOn())lnDraw(t)}catch(e){}return r}}
-function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-6+lg,y=56+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.13?'s':'w'):(Math.floor(t*2.6+2.1)%2?'b':''));
+function lnDraw(t){const d=t-LN.h,at=d>=0&&d<.26,lg=at?Math.round(Math.sin(d/.26*Math.PI)*26):0,x=hx(3)-8+lg,y=52+(at?0:Math.round(Math.sin(t*3+3)*1.2)),n='h3'+(at?(d<.13?'s':'w'):(Math.floor(t*2.6+2.1)%2?'b':''));
   bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(3)+2,114,40,4);
-  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,60,60);bc.globalAlpha=1}
-  bc.drawImage(SPR[n],x,y,60,60);
+  if(at){bc.globalAlpha=.3;bc.drawImage(SPR[n],x-Math.round(lg*.5),y,64,64);bc.globalAlpha=1}
+  bc.drawImage(SPR[n],x,y,64,64);
   if(d>=0&&d<.14){const q=d/.14;bc.globalAlpha=1-q;bc.fillStyle='#fff';bc.fillRect(x+58,y+34,Math.round(30+q*30),2);bc.fillStyle='#8fd8ff';bc.fillRect(x+58,y+37,Math.round(20+q*24),1);bc.globalAlpha=1}}
+/* カットインと吹き出し(docs/STORY.md の口調: マイペースで眠たがり)。大当たりのカットインは 加入後 4回に1回くらいツララ。
+   絵は src/img/hero3.webp があればそれ(build.js が PIMG に入れる)、無ければ 83b のコード描画 PORT(3)、それも無ければドット絵 */
+CUTL[3]=['つらぬくよー','ねむいけど…本気','氷槍、いくよー'];
+{const _c=cutin;cutin=function(h,txt,c,cb){try{if(lnOn()&&/大当たり/.test(String(txt))&&Math.random()<.25)h=3}catch(e){}return _c.call(this,h,txt,c,cb)}}
+const LNSAY={hit:['やったねー','当たったー','いい感じー'],crit:['そこだよー','つらぬくー','えいっ'],boss:['大きいねー','おきたー…やるよー'],win:['おつかれー','ふあ…勝ったー','ねていい?']};
+function lnSay(k){try{if(typeof chSay==='function'){const a=LNSAY[k];chSay(3,a[Math.floor(Math.random()*a.length)],1.6)}}catch(e){}}
 /* 強化画面「英雄」: 4枚目のカード(衣装の見出しの前に差し込む) */
 function lnCard(){const c=lnCost(),ok=G.gold>=c,f=(typeof hupFace==='function')?hupFace(3):'';
   if(!lnOn())return '<div class="hupc" style="--hc:#8fd8ff"><div class="huph"><b>??? 4人目の英雄</b></div><div class="lnj">氷原の主(STAGE '+LNST+')を倒すと 仲間になる</div></div>';
@@ -6708,7 +6818,8 @@ G.at+=dt;if(G.at>.55/(G.rush>0?2:1)){G.at=0;G.ai=(G.ai+1)%3;heroAtk(G.ai,.8*(G.r
 if(G.sp>=100&&!cut&&!G.roul&&ultReady())ult();
 if(G.rush>0){if(!PUSH)G.rush-=dt;if(G.rush<=0){G.rush=0;G.combo=0;showMsg('RUSH終了','#aaa')}}
 ui+=dt;if(ui>.1){ui=0;refresh()}sv+=dt;if(sv>4){sv=0;try{localStorage.setItem('pachi2',JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}))}catch(e){}}featUpdate(dt)}
-function loop(ts){requestAnimationFrame(loop);const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run)update(HS>0?dt*.12:dt);drawP(T);drawB(T);drawMq(T)}
+function loop(ts){requestAnimationFrame(loop);const dt=Math.max(0,Math.min(.05,(ts-last)/1000||0));last=ts;T+=dt;DT=dt;if(HS>0)HS-=dt;if(run&&!(typeof pzStep==='function'&&pzStep(dt)))update(HS>0?dt*.12:dt);   /* 98p: 物語/ガイド/エンディング中は止める(1行フック) */
+drawP(T);drawB(T);drawMq(T)}
 spawn();refresh();requestAnimationFrame(loop);
 $('go').onclick=()=>{try{AC=AC||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}if(typeof ttGo==='function')try{ttGo()}catch(e){}$('ov').style.display='none';run=true;featStart();beep(660,.1);bgm()};
 

@@ -4,15 +4,19 @@
    3) カットインのバリエーション: 1人 / 3人そろい踏み / ドアップ。キャラはカットインだけ等身イラスト(83b-portrait)、文字は従来の描き方
    どれも見た目だけ(当否・進行は変えない)。 */
 const CHR={j:[null,null,null],sb:[],lastRs:null,lastHit:0};
-const HLINE={
-  hit:['よっしゃ!!','きたー!!','いくぞ!!','当たった!','最高!!'],
-  reach:['来い!!','頼む…!','熱い!!','いけっ!','止まれ!'],
-  miss:['くっ…','次こそ!','惜しい!','まだまだ!'],
-  warn:['強敵だ!','気を付けろ!','燃えてきた!','でかいぞ!'],
-  win:['勝った!!','楽勝!','見たか!','やったー!'],
-  jp:['777!!!','大勝利!!','すごすぎ!','伝説だ!'],
-  relic:['お宝だ!','いい物だ!','光ってる!'],
-  rush:['連チャン!','止まらない!','まだ続く!']};
+/* 吹き出しの台詞は英雄ごと(docs/STORY.md の口調: ホムラ=熱血「俺/だぜ」・シズク=落ち着いた「わ/ね」・コハク=素直な観察役「僕/よ」)。
+   HLC[場面][英雄] から選ぶ。HLINE は3人分を合わせた一覧(旧名、互換のため残す) */
+const HLC={
+  hit:[['よっしゃ!!','きたぜ!!','いくぞ!!','燃えてきた!!'],['当たったわ!','いい流れね','計算どおり!','きたわね!'],['当たった!','見えてたよ!','やった!','きたきた!']],
+  reach:[['来い!!','いけぇっ!','熱いぜ!!'],['お願い…!','止まって!','魔力をこめて…!'],['頼む…!','いけっ!','狙いどおり…!']],
+  miss:[['くっ…!','次だ次!','まだまだ!'],['惜しいわね','次は来るわ','落ち着いて'],['惜しい!','次こそ!','あとちょっと…']],
+  warn:[['でかいな!','燃えてきた!','相手にとって不足なし!'],['強い魔力…気をつけて','大物よ!','油断しないで'],['強敵だ!','すごい気配…','足音が重い…']],
+  win:[['見たか!!','楽勝だぜ!','勝った!!'],['お見事ね','片づいたわ','やったわね!'],['やったー!','勝ったね!','ナイス!']],
+  jp:[['777!!!','大勝利だぜ!!','伝説だ!!'],['伝説の777…!','すごすぎるわ!','運の光ね!'],['777だ!!','信じられない!','見えてたよ!!']],
+  relic:[['お宝だ!','いい物ゲット!'],['魔力を感じる…','古い遺物ね'],['光ってる!','お宝みっけ!']],
+  rush:[['止まらねえ!','連チャンだ!'],['まだ続くわ!','連チャンね!'],['止まらない!','まだ続くよ!']]};
+const HLINE={};for(const k in HLC)HLINE[k]=[].concat(...HLC[k]);
+const chLine=(i,k)=>{const a=(HLC[k]||{})[i]||HLINE[k]||[''];return a[Math.floor(Math.random()*a.length)]};
 const chPick=a=>a[Math.floor(Math.random()*a.length)];
 // 1) ジャンプ: kind 0=1回ホップ 1=喜び(3回) 2=大喜び(高く4回)
 function chJump(i,kind,delay){CHR.j[i]={t0:T+(delay||0),k:kind}}
@@ -23,19 +27,19 @@ function heroDY(i,t){let dy=0;const J=CHR.j[i];
   return dy}
 // 2) 吹き出し
 function chSay(i,txt,dur){for(let k=CHR.sb.length-1;k>=0;k--)if(CHR.sb[k].i===i)CHR.sb.splice(k,1);if(CHR.sb.length<4)CHR.sb.push({i,txt,t0:T,d:dur||1.6})}
-function chSayAll(key){const used=new Set();for(let i=0;i<3;i++){let s=chPick(HLINE[key]);for(let k=0;k<3&&used.has(s);k++)s=chPick(HLINE[key]);used.add(s);setTimeout(()=>{try{chSay(i,s)}catch(e){}},i*180)}}
+function chSayAll(key){for(let i=0;i<3;i++){const s=chLine(i,key);setTimeout(()=>{try{chSay(i,s)}catch(e){}},i*180)}}
 function chDrawSB(t){for(let k=CHR.sb.length-1;k>=0;k--){const b=CHR.sb[k],p=t-b.t0;if(p>b.d){CHR.sb.splice(k,1);continue}
   const s=p<.1?.5+p*5:1,a=Math.min(1,(b.d-p)*4),cy=[22,42,22][b.i];bc.font='11px '+FN;const w=Math.max(34,b.txt.length*11+10),h=18,cx=Math.max(w/2+3,Math.min(357-w/2,hx(b.i)+32+(b.i==0?6:b.i==2?-6:0)));bc.save();bc.globalAlpha=a;bc.translate(cx,cy);bc.scale(s,s);
   bc.fillStyle='#000';bc.fillRect(-w/2-1,-h/2-1,w+2,h+2);bc.fillStyle='#fff';bc.fillRect(-w/2,-h/2,w,h);bc.fillStyle='#000';bc.fillRect(-3,h/2,6,2);bc.fillRect(-2,h/2+2,4,2);bc.fillRect(-1,h/2+4,2,2);bc.fillStyle='#fff';bc.fillRect(-2,h/2,4,1);bc.fillRect(-1,h/2+2,2,1);
   bc.fillStyle='#d8dcff';bc.fillRect(-w/2,h/2-3,w,3);bc.textAlign='center';bc.fillStyle='#14021f';bc.fillText(b.txt,0,4);bc.restore()}}
 // イベントのフック(本体は変更しない)
-{const o=bigHit;bigHit=function(jp){const r=o.apply(this,arguments);try{chJumpAll(jp?2:1);if(jp)chSayAll('jp');else if(G.combo>=2&&Math.random()<.6)chSay(Math.floor(Math.random()*3),chPick(HLINE.rush));else chSay(Math.floor(Math.random()*3),chPick(HLINE.hit))}catch(e){}return r}}
+{const o=bigHit;bigHit=function(jp){const r=o.apply(this,arguments);try{chJumpAll(jp?2:1);if(jp)chSayAll('jp');else if(G.combo>=2&&Math.random()<.6)(i=>chSay(i,chLine(i,'rush')))(Math.floor(Math.random()*3));else (i=>chSay(i,chLine(i,'hit')))(Math.floor(Math.random()*3))}catch(e){}return r}}
 {const o=kill;kill=function(){const wb=isBoss();const r=o.apply(this,arguments);try{if(wb&&run){chJumpAll(2);setTimeout(()=>{try{chSayAll('win')}catch(e){}},500)}else if(run&&Math.random()<.08)chJump(Math.floor(Math.random()*3),0)}catch(e){}return r}}
-{const o=spawn;spawn=function(){const r=o.apply(this,arguments);try{if(isBoss()&&run)setTimeout(()=>{try{chSay(1,chPick(HLINE.warn),1.8)}catch(e){}},900)}catch(e){}return r}}
+{const o=spawn;spawn=function(){const r=o.apply(this,arguments);try{if(isBoss()&&run)setTimeout(()=>{try{chSay(1,chLine(1,'warn'),1.8)}catch(e){}},900)}catch(e){}return r}}
 function chUpd(){const s=sp;
-  if(s&&s.type&&s.t>1.9&&CHR.lastRs!==s){CHR.lastRs=s;if(s.type==2||Math.random()<.5){chSay(Math.floor(Math.random()*3),chPick(HLINE.reach));chJump(Math.floor(Math.random()*3),0)}}
-  if(CHR.lastRs&&CHR.lastRs!==s){const was=CHR.lastRs;CHR.lastRs=null;if(!was.hit&&was.type==2&&Math.random()<.7)chSay(Math.floor(Math.random()*3),chPick(HLINE.miss))}
-  if(typeof RDR!=='undefined'&&RDR.show&&RDR.show.t0>CHR.lastRelic){CHR.lastRelic=RDR.show.t0;chJumpAll(1);chSay(0,chPick(HLINE.relic))}}
+  if(s&&s.type&&s.t>1.9&&CHR.lastRs!==s){CHR.lastRs=s;if(s.type==2||Math.random()<.5){(i=>chSay(i,chLine(i,'reach')))(Math.floor(Math.random()*3));chJump(Math.floor(Math.random()*3),0)}}
+  if(CHR.lastRs&&CHR.lastRs!==s){const was=CHR.lastRs;CHR.lastRs=null;if(!was.hit&&was.type==2&&Math.random()<.7)(i=>chSay(i,chLine(i,'miss')))(Math.floor(Math.random()*3))}
+  if(typeof RDR!=='undefined'&&RDR.show&&RDR.show.t0>CHR.lastRelic){CHR.lastRelic=RDR.show.t0;chJumpAll(1);chSay(0,chLine(0,'relic'))}}
 CHR.lastRelic=-1;
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{chUpd()}catch(e){}return r}}
 // 3) カットインのバリエーション(従来=0 / そろい踏み=1 / ドアップ=2)。cb と終了タイミングは従来と同じ(.65秒で cb、1.0秒で終了)

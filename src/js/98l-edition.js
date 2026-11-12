@@ -17,6 +17,8 @@ function edFullHtml(){return '<div class="fxh">完全版のご案内</div><div c
 function edOpenShop(){try{if(typeof window!=='undefined'&&window.open)window.open(BOOTH_URL,'_blank','noopener')}catch(e){}}
 if(!IS_FULL){
   {const _k=kill;kill=function(){const r=_k.apply(this,arguments);try{if(G.stage>FREE_MAX){G.stage=FREE_MAX;spawn();ED.n++;
+      // 体験版の終点(宙域の主)を倒した会話は体験版でも出す(docs/STORY.md: 話を途切れさせない)。ステージが進まないので物語側では拾えない
+      if(!ED.told){try{if(typeof styQueue==='function'&&typeof TS!=='undefined'&&!TS.s.b6)styQueue('b6')}catch(e){}}
       if(!ED.told){ED.told=1;presLater(()=>{try{fxShow(edFullHtml(),[['このまま遊ぶ',null,'g']])}catch(e){}},2600)}
       else if(ED.n%3===0)fxToast('体験版はここまで! 続きは完全版で','#ffd400')}}catch(e){}return r}}
   FM.push({n:'完全版',r:edFullHtml});

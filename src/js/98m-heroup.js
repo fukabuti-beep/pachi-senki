@@ -6,7 +6,8 @@ const HUPF={};   // 英雄の顔(SPR を data URL に。作れない環境では
 function hupFace(i){if(i in HUPF)return HUPF[i];let u='';try{const s=SPR['h'+i];if(s&&s.toDataURL)u=s.toDataURL()}catch(e){}return HUPF[i]=u}
 function hupMenu(){const ic=['hp','df','rg'];
   let h='<div class="fxs">英雄ごとに 守りを強化(ゴールド)。敵は先へ進むほど強くなる。ボス戦で 3人とも倒れると 1つ前のステージへ。体力が多いほど 攻撃も上がる(元気ボーナス)。転生でリセット。</div><div class="hupl">';
-  for(let i=0;i<3;i++){const n=HUPN[i],m=hvMax(i),r=Math.max(0,Math.min(1,HV.hp[i]/m)),f=hupFace(i);
+  for(let i=0;i<3;i++){const n=(typeof STH!=='undefined'&&STH[i])?[STH[i].r,STH[i].n,STH[i].c]:HUPN[i],   // 名前と色は物語(98s の STH=docs/STORY.md)に合わせる
+    m=hvMax(i),r=Math.max(0,Math.min(1,HV.hp[i]/m)),f=hupFace(i);
     h+='<div class="hupc" style="--hc:'+n[2]+'"><div class="huph">'+(f?'<img class="hupf" src="'+f+'" alt="">':'')+'<b>'+n[0]+' '+n[1]+'</b>'+
       '<span class="hupv">元気 +'+Math.round((hvGenki(i)-1)*100)+'% ・ 体力 '+fmt(Math.ceil(HV.hp[i]))+' / '+fmt(Math.ceil(m))+(HV.dn[i]?' <em>ダウン</em>':'')+'</span></div>'+
       '<div class="hupbar"><i style="width:'+Math.round(r*100)+'%"></i></div>'+hupSurvHtml(i)+'<div class="hupr">';

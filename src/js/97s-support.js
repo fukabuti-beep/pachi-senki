@@ -18,7 +18,7 @@ function supMark(){try{if(typeof MQP!=='undefined'&&MQP.n&&supFan()&&!/★/.test
 supMark();
 function supCelebrate(msg){supMark();banner('THANK YOU!!','#ffd400');try{kyuin(6,'#ffd400');jara()}catch(e){}
   try{if(typeof CF!=='undefined')for(let i=0;i<70&&CF.length<80;i++)CF.push({x:Math.random()*360,y:-10-Math.random()*60,vx:(Math.random()-.5)*40,vy:40+Math.random()*60,r:Math.random()*6,h:Math.floor(Math.random()*360),t0:T})}catch(e){}
-  try{chJumpAll(2);for(let i=0;i<3;i++)setTimeout(()=>chSay(i,['ありがとう!','うれしい!','感謝!!'][i],2.2),i*200)}catch(e){}
+  try{chJumpAll(2);for(let i=0;i<3;i++)setTimeout(()=>chSay(i,['恩に着るぜ!!','ありがとう、うれしいわ','ありがとう!'][i]   /* 口調は docs/STORY.md */,2.2),i*200)}catch(e){}
   fxToast(msg||'応援ありがとうございます!','#ffd400')}
 function supThanks(){SUP.n++;supSave();supCelebrate()}
 async function supBuy(id){const n=supNative();if(!n||SUP.busy)return;SUP.busy=1;try{const ok=await n.purchaseTip(id);if(ok){fxClose&&fxClose();supThanks()}else fxToast('購入は完了しませんでした','#aaa')}catch(e){fxToast('購入に失敗しました','#aaa')}SUP.busy=0}

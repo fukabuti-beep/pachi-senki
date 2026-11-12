@@ -42,6 +42,7 @@ npm test                            # build + smoke
 | tools/booth.py, tools/store-shots.js, tools/store-pack.py, tools/promo.js, tools/promo.sh | BOOTH の zip / 商品ページの画像 / 紹介動画 |
 | tools/font-subset.py, tools/cutout.py, tools/icons.py, tools/export-sprites.js | フォント絞り込み / イラストの切り抜き / アイコン / Unity 用のドット絵書き出し |
 | docs/APP.md, docs/BOOTH.md, docs/MONETIZE.md, docs/ONLINE.md, docs/UNITY.md | 説明書: アプリ化 / BOOTH 配布 / 収益化 / オンラインランキング / Unity 版 |
+| docs/STORY.md | 物語・キャラクターの設定資料(性格・一人称・語尾・使わない言葉・色・物語の流れ・伏線と回収)。台詞はここが正 |
 | docs/DEPS.md, docs/WRAPS.md | 自動生成(tools/deps.js --update): ファイル同士の依存 / 関数を包む順番 |
 | store/booth-page.md, store/privacy.html, store/shots/ | 配布用: 商品ページの文 / プライバシーポリシー / 商品ページの画像 |
 | booth/README.txt | BOOTH の zip に入れる説明書の元 |
@@ -103,7 +104,7 @@ npm test                            # build + smoke
 | 98e-bonustime.js | ボーナスタイム: プレイ6〜9分ごとに40秒(黄金タイム=G x2/魔石フィーバー=魔石 x3/討伐タイム=ダメージ x2)。毎日12時台・20〜21時台はゴールデンタイム(間隔半分)。SB.a/SB.g・resMs・update・drawB をラップ。当否は不変。`localStorage['pachi2_bt']`、転生で残る | feature |
 | 98f-hilo.js | ミニゲーム「ハイ&ロー」(STAGE30〜、95 の MGT ローテーションに追加、#fxg を共用)。最大3回 x2→x4→x8、外れても x1 は受け取れる、自動選択あり。mg2Start/mini/relicUpd をラップ | feature |
 | 98h-area.js | エリア(舞台)の変化: 25ステージごとに8エリア(草原→砂漠→氷原→火山→魔界→天空→宙域→虚空、201〜はII周目)。36 の drawBgB を置き換えてエリア別の背景(空/夕暮れ空/遠景/地面をエリアごとに1回だけオフスクリーン描画、エリア内は5ステージごとに夕暮れへ)+動く小物、到達/起動/転生時に「AREA n 名前」のタイトル帯(到達時は FINISH!! の後、FINISH 中は前エリアの背景)。敵: 草原以外は雑魚/ボス b0〜b3 をエリア色にパレット差し替え(図鑑は同種扱い=キーは enSpr のまま)、STAGE 25の倍数は新しいエリアの主 b4〜b11(図鑑に BOSS として追加、★基準 1/10/50、保存済みの撃破数はここで読む)。ボス: HP50%未満で「怒り状態!!」(赤オーラ)/エリアの主は「形態変化!!」(第2形態の色)、エリアの主は常にオーラ・撃破で光の柱+多重リング+AREA CLEAR!!。見た目のみ(HP/報酬/当否は不変)。フック無し: enSpr/drawEnemy(描画中だけ SPR を差し替え)/drawHP(エリアの主の名前)/deathFx/kill/update/drawB をラップ(テスト: tests/area.js) | feature/fx |
-| 98s-story.js | 軽いストーリー: 剣士ホムラ/魔法使いシズク/弓使いコハク(オリジナル)が虚無の王(魔王)ニヒラを目指す旅。エリア到達(a0〜a7)/エリアの主撃破(b0〜b7)/初JACKPOT/初転生 で2〜4行の会話を戦闘画面の下寄りに重ねる(顔は PIMGI→PORT→SPR、敵は SPR)。タップで文字送り→次の行、放置で1行約3秒、「とばす」。演出中(lyBig/lyBusyB/#rl #mg #fxg/MG/エリアのタイトル帯・大爆発/メニュー)は隠して停止。メニュー「物語」(FMGRP の「集める」に実行時に追加)で読み返し/再生。進行は `localStorage['pachi2_tut']`(98t と共用: s/g/skip/off/old)、キーが無い旧セーブは通過済みシーンを既読に。kill/update をラップ、Math.random 不使用(テスト: tests/tutorial.js) | feature |
+| 98s-story.js | 軽いストーリー(設定は docs/STORY.md、口調と骨組みは tests/story.js が確かめる): 剣士ホムラ/魔法使いシズク/弓使いコハク(オリジナル)が虚無の王(魔王)ニヒラを目指す旅。エリア到達(a0〜a7)/エリアの主撃破(b0〜b7)/初JACKPOT/初転生 で2〜4行の会話を戦闘画面の下寄りに重ねる(顔は PIMGI→PORT→SPR、敵は SPR)。タップで文字送り→次の行、放置で1行約3秒、「とばす」。演出中(lyBig/lyBusyB/#rl #mg #fxg/MG/エリアのタイトル帯・大爆発/メニュー)は隠して停止。メニュー「物語」(FMGRP の「集める」に実行時に追加)で読み返し/再生。進行は `localStorage['pachi2_tut']`(98t と共用: s/g/skip/off/old)、キーが無い旧セーブは通過済みシーンを既読に。kill/update をラップ、Math.random 不使用(テスト: tests/tutorial.js) | feature |
 | 98t-tutorial.js | チュートリアル: 序盤ガイド(玉→スロット→英雄→タップ→強化→RUSH)を対象(#pw/#slot/#bw/#hd/#ubt)のゆっくり光る枠(約0.7Hz、reduced-motion で停止)+英雄の吹き出しで順に。数秒で自動で消える/タップで次へ/スキップ。新機能ガイド(SP/ボス/☰/遠征/鍛冶屋/転生/魂の祭壇)は条件を満たした時に1回だけ。旧セーブは序盤+満たし済みを既読。物語シーン中は待つ。メニュー「遊び方」(その他)で一覧/もう一度/新機能ガイド ON・OFF。update をラップ | feature |
 | 98i-gemshop.js / css/39-gemshop.css | 宝石ショップ(メニュー「育てる」。29c の FMGRP へ実行時に '宝石' を追加): ブースト(魔石の加護=5分 魔石x2 宝石3・幸運の香=3分 大当たり約1.5倍 宝石4(hitRoll ラップ、RUSH/天井は不変)・重ねがけ上限あり、ゲーム時間で減る/ボーナスタイム招来 宝石3/遠征の早馬 -1時間 宝石2・今すぐ 30分ごと宝石1)、勲章(永続・逓増コスト: 戦神 ダメージ+4%/Lv・黄金 G+4%/Lv 各 10+5l MAX10、魔石 +10%/Lv 8+4l MAX10、遠征の羅針盤 -6%/Lv 12+6l MAX5、祭りの太鼓 ボーナスタイム+4秒/Lv 10+5l MAX5)、便利(ミッション入れ替え 1日1回 宝石3、自動強化ターボ=祭壇の自動強化を4倍速 宝石20)、見た目(玉の色/図柄の色/筐体テーマ body.gscN/称号=戦闘画面左下。性能不変)。`localStorage['pachi2_gemshop']`、すべて転生で残る。SB.a/SB.g・resMs・hitRoll・expGo・pxText・drawB・update をラップ。sim は `--gs=1` で勲章を自動購入(テスト: tests/gemshop.js) | feature |
 | 98j-expbtn.js / css/41-expbtn.css | 遠征ボタン(作り手の指摘「遠征の導線が無い」): 操作パネル #ctl の設定ボタンの前に #expb(旗アイコン)を JS で追加し、押すとメニューの遠征タブを直接開く(`expBtnOpen`)。右上の札で状態表示: 出発できる=GO/遠征中=残り時間(25m・3h)/帰還=!(ゆっくり脈動、reduced-motion で停止)。98d の EXP/expOpen/expDone/expLeft を読むだけ。チュートリアルの遠征ガイドもこのボタンを指す(テスト: tests/expbtn.js) | feature |
@@ -184,7 +185,8 @@ npm test                            # build + smoke
 6. テストが落ちたら、まず「ゲームの不具合」か「テストの前提が古い」かを切り分ける。前のコミットの版(git worktree)で同じテストを動かして比べ、根拠なしにテストを緩めない。
 7. バランスに触れたら sim を前後で3シード以上。新しい育成要素は「買う/買わない」の比較も取る(買わない方が得なら設計を見直す)。
 8. 画面に触れたら Playwright で撮って目で確認(文字の重なり・隠れ・はみ出し)。音と手触りは実機で未確認と報告する。
-9. 新しい機能には、つながっていることを確かめるテストを足す: 入口(メニュー/ボタン/強化画面)から開ける・セーブして読み直せる・転生/体験版でも壊れない。
+9. 台詞を足す・直す時は docs/STORY.md(性格・口調・伏線)に合わせ、tests/story.js を通す。前に言っていないことを前提にした台詞を書かない。物語の筋や伏線を足したら資料の表も更新する。
+10. 新しい機能には、つながっていることを確かめるテストを足す: 入口(メニュー/ボタン/強化画面)から開ける・セーブして読み直せる・転生/体験版でも壊れない。
 
 最終報告に必ず書くこと: プレイヤーから見た変化 / 変えたファイル / 新しく増えた依存とラップ(docs の差分) / 消した物 / 基準の増減 / テストと sim の結果 / 確認できていないこと。
 

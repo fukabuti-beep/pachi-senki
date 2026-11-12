@@ -724,6 +724,7 @@
 - 91-meta.js: fxShow, fxToast, FM
 - 94-prestige.js: presLater
 - 97s-support.js: BOOTH_URL
+- 98s-story.js: styQueue, TS
 
 ## 98m-heroup.js
 - 10-sprites.js: SPR
@@ -732,6 +733,7 @@
 - 94c-herohp.js: hvMax, HV, hvGenki, HUPD, hupOpen, HUP, hupCost, hupIcon, hvSurv, HVSAFE, hupBuy
 - 98c-upgroups.js: grpRefresh, UPG
 - 98i-altar.js: altOpen
+- 98s-story.js: STH
 
 ## 98s-story.js
 - 10-sprites.js: SPR

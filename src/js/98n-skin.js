@@ -25,8 +25,17 @@ const SKFR=['','b','w','s'],SKO={};   // SKO[コマ名]=元の色の一覧(初�
 const skOf=(i,id)=>(SKD[i]||[]).find(s=>s.id===id);
 const skCur=i=>{const s=skOf(i,SK.cur[i]||'d');return s&&skHas(i,s)?s:skOf(i,'d')};
 function skHas(i,s){if(!s)return false;if(s.id==='d'||SK.own[i+':'+s.id])return true;if(s.pr){try{const p=s.pr();return p[0]>=p[1]}catch(e){return false}}return false}
+/* 色のまとまり(10-sprites の HGRP: [基本色,[輪郭・影・光の色…]])を使って、基本色の置きかえから 影や輪郭の色も同じだけ動かす。
+   表に直接書いてある色はそちらを優先(作り手が色を指定できる) */
+function skHsl(h){const n=parseInt(h.slice(1),16),r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;let H=0,S=0;
+  if(d){S=d/(1-Math.abs(2*l-1));H=mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4;H*=60}return [H,S,l]}
+function skHex(H,S,L){H=((H%360)+360)%360;S=Math.max(0,Math.min(1,S));L=Math.max(0,Math.min(1,L));const c=(1-Math.abs(2*L-1))*S,x=c*(1-Math.abs(H/60%2-1)),m=L-c/2;
+  const q=H<60?[c,x,0]:H<120?[x,c,0]:H<180?[0,c,x]:H<240?[0,x,c]:H<300?[x,0,c]:[c,0,x];return '#'+q.map(v=>('0'+Math.round((v+m)*255).toString(16)).slice(-2)).join('')}
+function skMap(i,m){const o=Object.assign({},m||{});try{const G=(typeof HGRP!=='undefined'&&HGRP[i])||[];
+  for(const g of G){const to=o[g[0]];if(!to)continue;const a=skHsl(g[0]),b=skHsl(to);
+    for(const c of g[1]){if(o[c]||c===g[0])continue;const h=skHsl(c);o[c]=skHex(h[0]+(b[1]<.08?0:b[0]-a[0]),a[1]>.05?h[1]*b[1]/a[1]:b[1],a[2]>.02?h[2]*b[2]/a[2]:h[2])}}}catch(e){}return o}
 /* 塗り直し */
-function skApply(i){try{const s=skCur(i),m=(s&&s.m)||{};
+function skApply(i){try{const s=skCur(i),m=skMap(i,s&&s.m);
   for(const f of SKFR){const n='h'+i+f,c=SPR[n];if(!c||!PXL[n])continue;if(!SKO[n])SKO[n]=PXL[n].map(q=>q.slice());
     const x=c.getContext('2d');if(!x)continue;x.clearRect(0,0,c.width,c.height);
     PXL[n]=SKO[n].map(q=>{const col=m[q[2]]||q[2];x.fillStyle=col;x.fillRect(q[0],q[1],1,1);return [q[0],q[1],col]});
@@ -46,7 +55,7 @@ FU.push(dt=>{SKT+=dt;if(SKT<2||!run)return;SKT=0;let ch=0;
   if(ch)skSave()});
 /* 見本(16x16 のドット絵を SVG に。衣装ごとに1回作って覚える) */
 const SKSV={};
-function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=s.m||{};let r='';
+function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=skMap(i,s.m);let r='';
   for(const q of src)r+='<rect x="'+q[0]+'" y="'+q[1]+'" width="1" height="1" fill="'+(m[q[2]]||q[2])+'"/>';
   const W=(SPR['h'+i]&&SPR['h'+i].width)||32;return SKSV[i][key]='<svg viewBox="0 0 '+W+' '+W+'" width="40" height="40" shape-rendering="crispEdges">'+r+'</svg>'}
 function skName(i){return (typeof STH!=='undefined'&&STH[i])?STH[i].n:'英雄'+(i+1)}

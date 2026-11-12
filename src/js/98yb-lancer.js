@@ -10,22 +10,22 @@
    セーブ: localStorage['pachi2_lancer'] = {lv}。 */
 STH.push({n:'ツララ',r:'槍使い',c:'#8fd8ff'});
 /* ===== 英雄3: 槍使いツララ ===== */
-mkH2(3,'k#14101f,h#8fd8ff,H#5aa8e0,i#d8f4ff,s#ffd2a6,S#d99a6c,e#14101f,w#ffffff,u#4a80d0,a#e8f4ff,b#9ab8d8,t#3a5a9a,T#27407a,o#4a3a6a,l#f4fbff,m#b0c4d8,g#ffd24d',
+mkH2(3,'D#2a5a9a,E#9a5038,F#5a7aa8,K#141c50,L#241a3a,M#4a5a80,N#8a5a00,k#14101f,h#8fd8ff,H#5aa8e0,i#d8f4ff,s#ffd2a6,S#e0957a,e#14101f,w#ffffff,u#4a80d0,a#e8f4ff,b#9ab8d8,t#3a5a9a,T#27407a,o#4a3a6a,l#f4fbff,m#b0c4d8,g#ffd24d',
 ["................................",
  "..........kkkkkkkk..............",
  "........kkhhhhhhhhkk............",
- ".......khhhhihhhhhhhk...........",
- "......khhhhihhhhhhhhhk..........",
- ".....khhhhihhhhhhhhhhHk.........",
- ".....khhhhhhhhhhhhhhhHk.........",
- "....khhhhhhhhhhhhhhhhhHk........",
- "....khhhhhhhhhhhhhhhhhHk........",
+ ".......khhhhhhhhhhhhk...........",
+ "......khhiiiiihhhhhhhk..........",
+ ".....khhiiiiiiihhhhhHHk.........",
+ ".....khhhhhhhhhhhhhhHHk.........",
+ "....khhhhhhhhhhhhhhhHHHk........",
+ "....khhhhhhhhhhhhhhhHHHk........",
  "....khhhhhshhhhhhshhhhHk........",
  "....khhhhssshhhhssshhHHk........",
- "....khhhsssssssssssshHHk........",
+ "....khhhSSSssSSSSsSShHHk........",
  "....khhsssssssssssssshHk........",
  "....khhskkkksssskkkkshHk........",
- "....khhssuukssssuuksshHk........",
+ "....khhssuuessssuuesshHk........",
  "....khHssssssssSssssShHk........",
  "....khHssssssssssssSShHk........",
  "....khHHsssskkksssSSHhHk........",
@@ -43,7 +43,8 @@ mkH2(3,'k#14101f,h#8fd8ff,H#5aa8e0,i#d8f4ff,s#ffd2a6,S#d99a6c,e#14101f,w#ffffff,
  ".........kttk...kttk............",
  "........kooook.kooook...........",
  "........kkkkkk.kkkkkk..........."],
-[[[26,0,".l"],[26,1,"klk"],[26,2,"klk"],[25,3,"klllk"],[25,4,"klmlk"],[25,5,".kmk"],[25,6,".kgk"],[25,7,".kmk"],[25,8,".kmk"],[25,9,".kmk"],[25,10,".kmk"],[25,11,".kmk"],[25,12,".kmk"],[25,13,".kmk"],[25,14,".kmk"],[25,15,".kmk"],[25,16,".kmk"],[25,17,".kmk"],[25,18,".kmk"],[25,19,".kmk"],[25,20,".kmk"],[25,21,".kmk"],[25,22,".kmk"],[25,23,".kmk"],[24,24,"ksskk"],[24,25,"ksskk"],[25,26,".kmk"],[25,27,".kmk"],[25,28,".kmk"],[25,29,".kk"]],[[14,23,"kkkkkkkkkkkkkkkk"],[13,24,"kmmmksskmmmmgklllk"],[14,25,"kkkkksskkkkkkklk"],[29,23,"kk"],[29,25,"kk"]],[[16,23,"kkkkkkkkkkkkkkkk"],[15,24,"kmksskmmmmmgkllll"],[16,25,"kkksskkkkkkkklll"],[29,22,"ll"],[29,26,"ll"]]]);
+[[[26,0,".l"],[26,1,"klk"],[26,2,"klk"],[25,3,"klllk"],[25,4,"klmlk"],[25,5,".kmk"],[25,6,".kgk"],[25,7,".kmk"],[25,8,".kmk"],[25,9,".kmk"],[25,10,".kmk"],[25,11,".kmk"],[25,12,".kmk"],[25,13,".kmk"],[25,14,".kmk"],[25,15,".kmk"],[25,16,".kmk"],[25,17,".kmk"],[25,18,".kmk"],[25,19,".kmk"],[25,20,".kmk"],[25,21,".kmk"],[25,22,".kmk"],[25,23,".kmk"],[24,24,"ksskk"],[24,25,"ksskk"],[25,26,".kmk"],[25,27,".kmk"],[25,28,".kmk"],[25,29,".kk"]],[[14,23,"kkkkkkkkkkkkkkkk"],[13,24,"kmmmksskmmmmgklllk"],[14,25,"kkkkksskkkkkkklk"],[29,23,"kk"],[29,25,"kk"]],[[16,23,"kkkkkkkkkkkkkkkk"],[15,24,"kmksskmmmmmgkllll"],[16,25,"kkksskkkkkkkklll"],[29,22,"ll"],[29,26,"ll"]]],
+[["D","hHi"],["E","sS"],["F","ab"],["K","tT"],["L","o"],["M","lm"],["N","g"]]);
 const LN={lv:1,at:.7,h:-9,gen:0,ann:0};
 try{const v=Math.floor(+(JSON.parse(localStorage.getItem('pachi2_lancer')||'{}').lv));if(Number.isFinite(v)&&v>=1)LN.lv=Math.min(v,1e6)}catch(e){}
 function lnSave(){try{localStorage.setItem('pachi2_lancer',JSON.stringify({lv:LN.lv}))}catch(e){}}

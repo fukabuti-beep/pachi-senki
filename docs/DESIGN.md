@@ -30,6 +30,18 @@
 
 毎日のきっかけは増やしすぎない(開くたびにやる事が5つも6つもあると義務になる)。今は ログボ(自動)・おみくじ・ミッション・遠征 の4つ。これ以上は足さず、中身を良くする。
 
+## 1c. ドット絵の考え方(英雄の絵を描く・直す時)
+調べた資料: [Lospec: Pixel Art Outlines (using color)](https://lospec.com/articles/pixel-art-outlines-part-2-using-color) / [Pixel Parmesan: Anti-Aliasing Fundamentals](https://pixelparmesan.com/anti-aliasing-fundamentals-for-pixel-artists) / [pixnote: Shading & Lighting](https://pixnote.net/en/learn/shading) / [pixnote: Characters](https://pixnote.net/en/learn/character)
+| 考え方 | 中身 | このゲームでは(10-sprites の mkH2) |
+|---|---|---|
+| 光の向きを1つに決める | 光は左上、影は右と下。全員そろえる | 髪・帽子の左上に光の色、右側に影の色。額に前髪の影 |
+| 色のまとまり(ランプ) | 素材ごとに 影・基本・光 の3色まで。32px では段を増やすとうるさい | mat=[輪郭の文字,'基本・影・光'] |
+| 色相ずらし | 影は暗くするだけでなく青紫寄りに、光は黄寄りに | 赤い髪の影=赤紫、光=橙。肌の影=赤寄り |
+| 選択的な輪郭 | 輪郭を真っ黒にせず、となりの素材の暗い色に。影の側だけ濃く | 輪郭 k を自動で塗り分け(外側の右・下と目のふちは濃いまま) |
+| 明るさの差で読ませる | 色より明暗の差。目を細めても部分が分かれるか | 肌と髪、服と腕の明暗をはっきり |
+| シルエット | 黒く塗りつぶしても誰か分かる形に | ツンツン髪 / とんがり帽子 / フード / 長い髪 + 武器 |
+| ぼかさない | 小さい絵では輪郭をなめらかにしない。1ドットの位置で印象が変わる(特に目) | 目は 2x2 + まゆ。拡大は必ず整数倍(32px を2倍) |
+
 ## 2. 解放のペース(最高ステージ。空きが長い所に次の要素を置く)
 | STAGE | 出てくるもの |
 |---|---|

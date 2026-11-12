@@ -3,6 +3,9 @@
 各ファイルが使っている「他のファイルで宣言された名前」。新しく増えた依存はコミットの差分で確認する(不要な依存を作らない)。
 00-core(G など共通の土台)と 20-upgrades(BAL/atk など)への依存は省略。
 
+## 10-sprites.js
+- 29d-resicon.js: M
+
 ## 20-upgrades.js
 - 25-ui.js: refresh
 - 75-audio.js: beep
@@ -715,7 +718,7 @@
 - 98s-story.js: STH
 
 ## 98n-skin.js
-- 10-sprites.js: SPR, PXL, SPW
+- 10-sprites.js: HGRP, SPR, PXL, SPW
 - 29d-resicon.js: resIcon
 - 70-show.js: banner
 - 77-se.js: fan

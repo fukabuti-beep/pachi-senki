@@ -6,17 +6,17 @@
    ・手に入れ方(docs/DESIGN.md: 目標とごほうび・進み具合が見える): 宝石で買う / 条件を満たす(進み具合 7/10 を表示)。
    ・完全版だけの衣装や4人目の衣装は、@full のファイルが SKD に足す(skAdd)。
    セーブ: localStorage['pachi2_skin'] = {own:{'英雄:衣装':1}, cur:[衣装id,...]}。転生で残る。 */
-const SKGEM=150;   // 宝石で買う衣装の値段。やり込み要素なので高め(作り手の方針。sim の宝石収入は 1時間に約75個=1着 約2時間ぶん)
+const SKGEM=400;   // 宝石で買う衣装の値段。やり込み要素なので かなり高め(作り手の方針「やり込んでやっと手に入る達成感」)。条件つきも長く遊んで届く数に
 const SKD={
  0:[{id:'d',n:'いつもの'},
     {id:'blue',n:'蒼炎の剣士',gem:SKGEM,m:{'#e0443a':'#3a8cff','#a8262e':'#1f56b8','#d1303c':'#3a8cff'}},
-    {id:'gold',n:'黄金の鎧',lb:'JACKPOT 10回',pr:()=>[X.st.jp||0,10],m:{'#d5dae6':'#ffd24d','#7c859b':'#b98300'}}],
+    {id:'gold',n:'黄金の鎧',lb:'JACKPOT 50回',pr:()=>[X.st.jp||0,50],m:{'#d5dae6':'#ffd24d','#7c859b':'#b98300'}}],
  1:[{id:'d',n:'いつもの'},
     {id:'red',n:'紅の魔女',gem:SKGEM,m:{'#7a4dff':'#e0443a','#4d2fb8':'#a8262e','#5b6cff':'#c8324a','#3a45b8':'#8a1c30','#c8b8ff':'#ffc0c8'}},
-    {id:'white',n:'白の賢者',lb:'転生 5回',pr:()=>[X.pres||0,5],m:{'#7a4dff':'#cfd6ff','#4d2fb8':'#8f98c8','#5b6cff':'#eef1ff','#3a45b8':'#a8b0d8'}}],
+    {id:'white',n:'白の賢者',lb:'転生 20回',pr:()=>[X.pres||0,20],m:{'#7a4dff':'#cfd6ff','#4d2fb8':'#8f98c8','#5b6cff':'#eef1ff','#3a45b8':'#a8b0d8'}}],
  2:[{id:'d',n:'いつもの'},
     {id:'sun',n:'夕焼けの狩人',gem:SKGEM,m:{'#3dd27f':'#ff9a3d','#1b7a47':'#b8621a','#2fb36b':'#e07a2a','#caffb0':'#ffe0b0'}},
-    {id:'night',n:'夜の狩人',lb:'大当たり 300回',pr:()=>[X.st.hit||0,300],m:{'#3dd27f':'#4a5a9a','#1b7a47':'#27306a','#2fb36b':'#343c78','#caffb0':'#b8c4ff'}}]};
+    {id:'night',n:'夜の狩人',lb:'大当たり 3000回',pr:()=>[X.st.hit||0,3000],m:{'#3dd27f':'#4a5a9a','#1b7a47':'#27306a','#2fb36b':'#343c78','#caffb0':'#b8c4ff'}}]};
 const SK={own:{},cur:[]};
 try{const d=JSON.parse(localStorage.getItem('pachi2_skin')||'{}');if(d.own&&typeof d.own==='object')for(const k in d.own)if(d.own[k]&&/^\d:[a-z0-9]{1,10}$/.test(k))SK.own[k]=1;
   if(Array.isArray(d.cur))d.cur.slice(0,8).forEach((v,i)=>{if(typeof v==='string'&&/^[a-z0-9]{1,10}$/.test(v))SK.cur[i]=v})}catch(e){}
@@ -36,8 +36,14 @@ function skAdd(i,list){SKD[i]=(SKD[i]||[{id:'d',n:'いつもの'}]).concat(list.
 function skSet(i,id){const s=skOf(i,id);if(!s)return false;
   if(!skHas(i,s)){if(!s.gem){fxToast(s.lb?s.lb+' で手に入る':'まだ手に入らない','#aaa');return false}
     if(RES.gem<s.gem){fxToast('宝石が '+s.gem+' 個必要','#aaa');return false}
-    RES.gem-=s.gem;resSave();SK.own[i+':'+id]=1;try{banner('衣装 '+s.n,'#ff9ad0');fan()}catch(e){}}
+    RES.gem-=s.gem;resSave();SK.own[i+':'+id]=1;try{fxToast('衣装を手に入れた! '+skName(i)+'「'+s.n+'」','#ff9ad0');banner('衣装 '+s.n,'#ff9ad0');fan();if(typeof chJumpAll==='function')chJumpAll(2)}catch(e){}}
   SK.cur[i]=id;skSave();skApply(i);try{grpRefresh()}catch(e){}return true}
+/* 条件を満たした瞬間に知らせる(達成感: 黙って増えるのではなく、手に入った時に祝う)。2秒ごとに見る */
+let SKT=0;
+FU.push(dt=>{SKT+=dt;if(SKT<2||!run)return;SKT=0;let ch=0;
+  for(const k of Object.keys(SKD)){const i=+k;for(const s of SKD[i]){if(!s.pr||SK.own[i+':'+s.id])continue;let p=[0,1];try{p=s.pr()}catch(e){}
+    if(p[0]>=p[1]){SK.own[i+':'+s.id]=1;ch=1;try{fxToast('衣装を手に入れた! '+skName(i)+'「'+s.n+'」','#ff9ad0');banner('衣装 '+s.n,'#ff9ad0');fan();if(typeof chJumpAll==='function')chJumpAll(2)}catch(e){}}}}
+  if(ch)skSave()});
 /* 見本(16x16 のドット絵を SVG に。衣装ごとに1回作って覚える) */
 const SKSV={};
 function skSvg(i,s){const key=s.id;SKSV[i]=SKSV[i]||{};if(SKSV[i][key])return SKSV[i][key];const src=SKO['h'+i]||PXL['h'+i]||[],m=s.m||{};let r='';

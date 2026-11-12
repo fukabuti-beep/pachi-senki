@@ -77,7 +77,7 @@ SCN.push({id:'j4',t:'氷の中の槍使い',h:'STAGE 75 のあと',L:[
 /* 衣装: ツララと、完全版だけの3人の衣装(エンディングを見ると「光の衣」) */
 const lnEnd=()=>[(typeof END!=='undefined'?END.n:0)>0?1:0,1];
 skAdd(3,[{id:'sakura',n:'春の槍使い',gem:SKGEM,m:{'#8fd8ff':'#ffb0d0','#5aa8e0':'#e07aa8','#e8f4ff':'#fff0f6','#9ab8d8':'#e0a8c0'}},
-         {id:'tower',n:'塔の覇者',lb:'無限の塔 30階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),30],m:{'#8fd8ff':'#b48cff','#5aa8e0':'#7a5cd0','#e8f4ff':'#2a2040','#9ab8d8':'#14102e'}}]);
+         {id:'tower',n:'塔の覇者',lb:'無限の塔 50階',pr:()=>[(typeof TW!=='undefined'?TW.best:0),50],m:{'#8fd8ff':'#b48cff','#5aa8e0':'#7a5cd0','#e8f4ff':'#2a2040','#9ab8d8':'#14102e'}}]);
 skAdd(0,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#d5dae6':'#fff6c0','#7c859b':'#e0c060','#d1303c':'#fff','#3556d6':'#ffe9a0','#22338f':'#d0b050'}}]);
 skAdd(1,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#5b6cff':'#fff6c0','#3a45b8':'#e0c060','#c8b8ff':'#fff'}}]);
 skAdd(2,[{id:'light',n:'光の衣',lb:'エンディングを見る',pr:lnEnd,m:{'#3dd27f':'#fff6c0','#1b7a47':'#e0c060','#caffb0':'#fff'}}]);

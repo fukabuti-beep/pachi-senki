@@ -10,7 +10,8 @@ g.eval('RES.gem=0'); ok(g.eval("skSet(0,'blue')") === false && g.eval('skCur(0).
 g.eval('RES.gem=SKGEM+5'); ok(g.eval("skSet(0,'blue')") === true && g.eval('RES.gem') === 5 && g.eval('skCur(0).id') === 'blue', '宝石で買って着る');
 ok(g.eval("JSON.stringify(PXL.h0.map(q=>q[2]))") !== col0 && g.eval("PXL.h0.some(q=>q[2]==='#3a8cff')"), '色が塗り変わる');
 ok(g.eval("PXL.h0s.some(q=>q[2]==='#3a8cff')"), '攻撃のコマも変わる');
-ok(g.eval("skSet(0,'gold')") === false, '条件つきは満たすまで着られない'); g.eval('X.st.jp=10'); ok(g.eval("skSet(0,'gold')") === true, '条件を満たすと着られる');
+ok(g.eval("skSet(0,'gold')") === false, '条件つきは満たすまで着られない'); g.eval('X.st.jp=50;if(fxOpen)fxClose()'); g.advance(3, .05); ok(g.eval("SK.own['0:gold']") === 1, '条件を満たした時に手に入る(お知らせ)'); ok(g.eval("skSet(0,'gold')") === true, '条件を満たすと着られる');
+ok(g.eval('SKGEM') >= 400, '宝石の衣装は高め');
 g.eval("skSet(0,'d')"); ok(g.eval("JSON.stringify(PXL.h0.map(q=>q[2]))") === col0, 'いつもの に戻せる');
 g.eval("skSet(0,'blue')"); const st = g.store;
 const g2 = createGame({ seed: 5, storage: st }); ok(g2.eval('skCur(0).id') === 'blue' && g2.eval("PXL.h0.some(q=>q[2]==='#3a8cff')"), '読み直しても着ている');

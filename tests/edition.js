@@ -17,7 +17,7 @@ let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.error('FAIL: ' 
   const tmp = path.join(__dirname, '..', 'dist', 'edition-test-free.html'); const fake = path.join(__dirname, '..', 'src', 'js', '99z-fulltest.js');
   fs.writeFileSync(fake, "/* @full テスト用 */\nconst FULL_ONLY_MARK=1;\n");
   try { cp.execSync('node tools/build.js', { cwd: path.join(__dirname, '..'), env: Object.assign({}, process.env, { EDITION: 'free', OUT: 'dist/edition-test-free.html' }), stdio: 'ignore' });
-    const html = fs.readFileSync(tmp, 'utf8'); ok(/window\.PACHI_EDITION='free'/.test(html), '体験版の目印が無い'); ok(!/FULL_ONLY_MARK/.test(html), '@full のファイルが体験版に入った');
+    const html = fs.readFileSync(tmp, 'utf8'); ok(/window\.PACHI_EDITION='free'/.test(html), '体験版の目印が無い'); ok(!/FULL_ONLY_MARK/.test(html), '@full のファイルが体験版に入った'); ok(!/function twStart/.test(html), '無限の塔(@full)が体験版に入った');
   } finally { try { fs.unlinkSync(fake) } catch (e) {} try { fs.unlinkSync(tmp) } catch (e) {} }
   if (fails) { console.error(fails + ' edition failure(s)'); process.exit(1); }
   console.log('EDITION OK');

@@ -21,9 +21,16 @@ const a0 = g.eval('SB.a()');
 g.eval('hvHit(0,9999,true);hvHit(1,9999,true)'); ok(g.eval('HV.wipe') === 0, '2人ではまだ全滅しない');
 g.advance(3, .05); ok(g.eval('HV.dn[0]') === 1, 'ボス戦では起き上がらない');
 g.eval('hvHit(2,9999,true)'); ok(g.eval('HV.wipe') > 0 && g.eval('HV.rev') === 1, '全滅 → リベンジ');
-ok(g.eval('SB.a()') > a0 * 1.2, 'リベンジで攻撃アップ');
-g.advance(3, .05); ok(g.eval('HV.dn.every(d=>!d)') && g.eval('G.hp') === g.eval('G.mx'), '挑み直し: 全快+ボス全快');
+ok(g.eval('SB.a()') > a0 * 1.05, 'リベンジで攻撃アップ');
+g.advance(3, .05); ok(g.eval('HV.dn.every(d=>!d)') && g.eval('G.stage') === 19, '全滅で1つ前のステージへ: ' + g.eval('G.stage'));
+ok(g.eval('HV.rev') === 1, '手前のステージでもリベンジは残る');
+g.eval('G.hp=0;kill()'); ok(g.eval('G.stage') === 20 && g.eval('HV.rev') === 1, 'もう一度ボスへ(リベンジ付き)');
 g.eval('G.hp=0;kill()'); ok(g.eval('HV.rev') === 0, '倒したらリベンジ解除');
+// ボスの体力増し・元気ボーナス
+const dmg = st => { g.eval('G.stage=' + st + ';spawn();G.mx=G.hp=1e12;hurt(4000)'); return 1e12 - g.eval('G.hp') };
+const d60 = dmg(60), d61 = dmg(61); ok(d60 < d61 / 3.5 && d60 > d61 / 4.5, 'STAGE 60 のボスは装甲 ÷4: ' + d60 + ' / ' + d61);
+const d25 = dmg(25), d26 = dmg(26); ok(Math.abs(d25 - d26) / d26 < .01, 'STAGE 30 未満は装甲なし: ' + d25 + ' / ' + d26);
+g.eval('HV.hp[0]=hvMax(0)'); ok(Math.abs(g.eval('hvGenki(0)') - 1.3) < 1e-9, '満タンで元気+30%'); g.eval('HV.hp[0]=0'); ok(g.eval('hvGenki(0)') < 1.01, '体力0なら元気なし'); g.eval('hvHeal()');
 // 実際に攻撃してくる(長いボス戦で体力が減る)
 g.eval('fxClose();cut=null;G.jp=0;G.roul=0;G.stage=40;spawn();G.mx=G.hp=1e300'); g.advance(20, .05);
 ok(g.eval('HV.hp.some((h,i)=>h<hvMax(i))') || g.eval('HV.dn.some(d=>d)'), 'ボスが攻撃してくる');

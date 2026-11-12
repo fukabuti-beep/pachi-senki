@@ -19,3 +19,7 @@
 #upx .hupd{font-size:10px;line-height:1.2;color:#bfb6f0;text-align:center}
 #upx .hupp{font-size:11px;color:#ffd400}
 #upx .hupi{image-rendering:pixelated}
+#upx .hups{font-size:11px;margin:-2px 0 6px}
+#upx .hups.ok{color:#8dff9a}
+#upx .hups.mid{color:#ffd400}
+#upx .hups.bad{color:#ff7a8a}

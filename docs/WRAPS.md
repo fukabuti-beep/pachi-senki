@@ -31,7 +31,7 @@
 | `heroAtk` | 84b-atkfx.js → 94c-herohp.js → 96s-smith.js |
 | `heroDY` | 84b-atkfx.js |
 | `hitRoll` | 98i-gemshop.js |
-| `hurt` | 82-hitfx.js → 94-prestige.js |
+| `hurt` | 82-hitfx.js → 94-prestige.js → 94c-herohp.js |
 | `jackpot` | 87b-jpfx.js → 96s-smith.js → 97u-app.js |
 | `jpRush` | 89f-ultjp.js |
 | `kill` | 82-hitfx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 97u-app.js → 98b-active.js → 98h-area.js → 98l-edition.js → 98s-story.js → 98z-tower.js |

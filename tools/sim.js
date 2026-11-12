@@ -31,7 +31,7 @@ for (let seed = SEED0; seed < SEED0 + SEEDS; seed++) {
   w('mini',()=>__m.mini++);w('golden',()=>__m.golden++);w('buy',()=>__m.buys++);w('banner',()=>__m.banner++);w('cutin',()=>__m.cutin++);
   w('onChucker',()=>{__m.ch++;if(!(G.rush>0)){__m.dry++;if(__m.dry>__m.dryMax)__m.dryMax=__m.dry}})})()`);
   // 自動購入: 一番安い強化を買う(解放済み・未MAXのものだけ)
-  const buyer = `(function(){let b=-1,c=1e300;for(let i=0;i<UP.length;i++){if(G.stage>=(UP[i][4]||0)&&cost(i)<c){c=cost(i);b=i}}const h=typeof hupCheapest==='function'?hupCheapest():null;if(h&&h[2]<c){if(G.gold>=h[2])hupBuy(h[0],h[1]);return}if(b>=0&&G.gold>=c)buy(b)})()`;   // 英雄ごとの強化(94c)も安い順に
+  const buyer = `(function(){let b=-1,c=1e300;for(let i=0;i<UP.length;i++){if(G.stage>=(UP[i][4]||0)&&cost(i)<c){c=cost(i);b=i}}const h=typeof hupNeed==='function'?hupNeed():null;if(h&&h[2]<c){if(G.gold>=h[2])hupBuy(h[0],h[1]);return}if(b>=0&&G.gold>=c)buy(b)})()`;   // 英雄ごとの強化(94c)は ボス戦で持たない英雄がいる時だけ(hupNeed)
   const stageAt = {}; let rushN = 0, prevR = false, rushT = 0, feverT = 0, rushW = 0, feverW = 0, lastHit = 0, hitW = 0, ultW = 0, goldW = 0;
   const hist = [];
   const pres = []; let lastUp = 0, lastSt = 1, best = 1, recov = [];

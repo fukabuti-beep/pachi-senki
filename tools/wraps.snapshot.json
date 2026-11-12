@@ -116,7 +116,8 @@
  ],
  "hurt": [
   "82-hitfx.js",
-  "94-prestige.js"
+  "94-prestige.js",
+  "94c-herohp.js"
  ],
  "jackpot": [
   "87b-jpfx.js",

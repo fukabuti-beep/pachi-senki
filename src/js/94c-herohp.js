@@ -1,41 +1,59 @@
 /* ---------- 英雄の体力と敵の攻撃 (feature) ----------
    3人それぞれに体力(剣士は硬い・魔法使いは打たれ弱い)。敵が一定間隔で攻撃してくる(剣士が狙われやすい=かばう)。
-   ・雑魚戦: 攻撃は弱く、倒れても HVR 秒で起き上がる(体力40%)。放置の気持ちよさはそのまま。
+   ・雑魚戦: 倒れても HVR 秒で起き上がる(体力40%)。全滅は無い(作り手の方針「ボス戦だけ厳しく」)。中盤からは倒れている時間が増えて進みが鈍る。
    ・ボス戦(STAGE HVB 以降のボスと、無限の塔): 攻撃が強く、倒れた英雄はその戦いが終わるまで起きない(攻撃に参加しない)。
-     3人とも倒れたら「全滅」→ 少し間をおいて ボスの HP が全快して挑み直し + リベンジ(攻撃 +25%/回、最大5回、そのボスを倒すまで)。
+     3人とも倒れたら「全滅」→ 少し間をおいて 1つ前のステージへ戻る + リベンジ(攻撃 +10%/回、最大3回、そのボスを倒すまで)。
+   ・STAGE 30 からボスに装甲(受けるダメージ ÷hvBossK)=ボス戦が長くなり、守りが弱いと倒しきる前に全滅する。元気ボーナス(体力が多いほど攻撃+最大30%)。
      無限の塔では全滅で挑戦終了。
    ・ダメージは「基準体力 HB に対する割合」で決める(ステージで強くならない)→ ボス戦が長引くほど危ない = 攻撃か守り(英雄ごとの 体力/防御/回復 = HUP)を強化する理由。
    ・体力はセーブしない(読み込み時は全快)。ボスの登場/撃破・転生で全快。
    フック: なし(spawn/heroAtk/drawHeroes/drawB をラップ、SB.a にリベンジ、FU で更新)。テスト: tests/herohp.js */
 /* 英雄ごとの強化(強化画面の「英雄」グループ=98m-heroup が表示)。ゴールドで買い、転生でリセット(通常強化と同じ)。
    [体力 +15%/Lv MAX25, 防御 ダメージ÷(1+7%/Lv) MAX20, 回復 +20%/Lv MAX15]。解放 STAGE 10/15/20。セーブ localStorage['pachi2_hero']={lv:[[h,d,r]x3]} */
-const HUPD=[['体力','最大体力 +15%',35,10,25,.15],['防御','受けるダメージ -7%',60,15,20,.07],['回復','自然回復 +20%',80,20,15,.2]];
+// [名前,説明,基本コスト,解放STAGE,MAX,1Lvの効果,掛け算か]。体力/防御は上限なし・掛け算で伸びる(敵の強さ hvThr に追いつくための ゴールドの使い道)、回復は割合なので上限あり
+const HUPD=[['体力','最大体力 +18%',35,10,Infinity,1.18,1],['防御','受けるダメージ -11%',60,15,Infinity,1.12,1],['回復','自然回復 +20%',80,20,15,.2,0]];
+const HUPCG=1.9;   // 体力/防御のコストの伸び(ゴールドの伸び 1.32/STAGE に合わせ、育て続けるとずっと一定の割合を使う)
 const HUP={lv:[[1,1,1],[1,1,1],[1,1,1]]};
 try{const d=JSON.parse(localStorage.getItem('pachi2_hero')||'{}');if(Array.isArray(d.lv))for(let i=0;i<3;i++)for(let k=0;k<3;k++){const v=Math.floor(+((d.lv[i]||[])[k]));if(Number.isFinite(v)&&v>=1)HUP.lv[i][k]=Math.min(v,HUPD[k][4])}}catch(e){}
 function hupSave(){try{localStorage.setItem('pachi2_hero',JSON.stringify({lv:HUP.lv}))}catch(e){}}
 const hupL=(i,k)=>Math.min(HUP.lv[i][k],HUPD[k][4]);
-const hupM=(i,k)=>1+HUPD[k][5]*(hupL(i,k)-1);
-const hupCost=(i,k)=>HUP.lv[i][k]>=HUPD[k][4]?Infinity:Math.floor(HUPD[k][2]*BAL.costk*Math.pow(BAL.costgCap,HUP.lv[i][k]-1));
+const hupM=(i,k)=>HUPD[k][6]?Math.pow(HUPD[k][5],hupL(i,k)-1):1+HUPD[k][5]*(hupL(i,k)-1);
+const hupCost=(i,k)=>HUP.lv[i][k]>=HUPD[k][4]?Infinity:Math.floor(HUPD[k][2]*BAL.costk*Math.pow(HUPD[k][4]===Infinity?HUPCG:BAL.costgCap,HUP.lv[i][k]-1));
 const hupOpen=k=>Math.max(G.stage,X.best||0)>=HUPD[k][3];
 function hupBuy(i,k){i|=0;k|=0;if(!HUP.lv[i]||!HUPD[k]||!hupOpen(k))return false;const c=hupCost(i,k);if(!(G.gold>=c))return false;
   const r0=HV.hp[i]/hvMax(i);G.gold-=c;HUP.lv[i][k]++;hupSave();if(k==0&&!HV.dn[i])HV.hp[i]=hvMax(i)*r0;
   try{beep(1000,.1,'triangle');refresh()}catch(e){}return true}
 /* 一番安い英雄の強化 [i,k,cost](自動強化・sim 用) */
+/* ボス戦で持ちこたえる目安(秒)。英雄 i に飛んでくる平均ダメージ/秒 と自然回復から。Infinity=倒れない */
+function hvSurv(i,s){s=s==null?G.stage:s;const w=i==0?.5:.25,m=hvMax(i),dps=(1/HVK.bI)*w*HB*HVK.bP*hvThr(s)/hupM(i,1),rg=m*HVK.reg*hupM(i,2);return dps<=rg?Infinity:m/(dps-rg)}
+const HVSAFE=40;   // この秒数より短い英雄がいたら 守りを買う(自動強化・sim)
+/* 必要な時だけ買う: 一番もろい英雄の 体力/防御/回復 のうち 安いもの [i,k,cost]。みんな HVSAFE 秒以上もつなら null */
+function hupNeed(s){let wi=-1,ws=HVSAFE;for(let i=0;i<3;i++){const v=hvSurv(i,s);if(v<ws){ws=v;wi=i}}if(wi<0)return null;let b=null;
+  for(let k=0;k<3;k++){if(!hupOpen(k))continue;const c=hupCost(wi,k);if(c<Infinity&&(!b||c<b[2]))b=[wi,k,c]}return b}
 function hupCheapest(){let b=null;for(let i=0;i<3;i++)for(let k=0;k<3;k++){if(!hupOpen(k))continue;const c=hupCost(i,k);if(c<Infinity&&(!b||c<b[2]))b=[i,k,c]}return b}
 const HB=100,HVROLE=[1.4,.8,1],HVB=15,HVR=6,HVWIPE=2.6;
-const HVK={nI:3.2,nP:.06,bI:1.8,bP:.2,aP:.24,rage:1.3,reg:.003,regOut:.03};
+const HVK={nI:3.2,nP:.07,bI:1.8,bP:.2,aP:.24,rage:1.3,reg:.003,regOut:.03,t0:.25,tg:1.08};
 const HV={hp:[HB*1.4,HB*.8,HB],dn:[0,0,0],rt:[0,0,0],at:1.5,sh:null,wipe:0,rev:0,revSt:0,num:[],fl:[-9,-9,-9],told:0,wasB:0,twOn:0};
 try{HV.told=+(JSON.parse(localStorage.getItem('pachi2_hp')||'{}').told)||0}catch(e){}
-/* 序盤のボスはやさしく: STAGE 15 で 40% → STAGE 60 で 100%(塔は常に100%) */
-const hvRamp=()=>Math.min(1,.4+.6*Math.max(0,G.stage-HVB)/45);
+/* 敵の強さ(ダメージの倍率): STAGE 15 までは 0.25(序盤は順当に進める)→ 以降 1ステージごとに x1.08。
+   STAGE 30 で約0.8 / 50 で約3.7 / 75 で約25 / 100 で約170。雑魚の攻撃も同じ倍率なので、中盤からは守りを育てないと倒れている時間が増えて進みが鈍る。英雄の体力/防御を ゴールドで育て続けると追いつける(放っておくと中盤のボスで全滅=育成を促す)。塔は 2x階 のステージ相当 */
+const hvThr=s=>{s=s|0;return HVK.t0*Math.pow(HVK.tg,Math.max(0,s-HVB))*(s<30?Math.max(.3,.3+.7*(s-HVB)/15):1)};   // STAGE 30 まではさらに弱く(15 で 30% → 30 で 100%)=序盤のエリアの主でも全滅しにくい
 const hvMax=i=>HB*HVROLE[i]*hupM(i,0);
 const hvTower=()=>typeof TW!=='undefined'&&!!TW.on;
 const hvBoss=()=>hvTower()||(isBoss()&&G.stage>=HVB);
 function hvHeal(){for(let i=0;i<3;i++){HV.hp[i]=hvMax(i);HV.dn[i]=0;HV.rt[i]=0}HV.sh=null;HV.at=1.5}
-{const oa=SB.a;SB.a=()=>oa()*(1+.25*HV.rev)}
+{const oa=SB.a;SB.a=()=>oa()*(1+.1*HV.rev)}   // リベンジ: 全滅ごとに攻撃+10%(最大3回)。全滅が近道にならない程度
 /* 倒れている英雄は攻撃しない */
-{const _h=heroAtk;heroAtk=function(i){if(HV.dn[i])return;return _h.apply(this,arguments)}}
-{const _s=spawn;spawn=function(){const r=_s.apply(this,arguments);try{if(G.stage!==HV.revSt){HV.rev=0;HV.revSt=G.stage}if(isBoss()||HV.dn.some(d=>d))hvHeal();HV.wipe=0}catch(e){}return r}}
+/* 元気ボーナス: 体力が多い英雄ほど通常攻撃が強い(満タンで +HVGK)。守りを育てるとボス戦でも体力が残る=攻撃も伸びる */
+const HVGK=.3;
+const hvGenki=i=>HV.dn[i]?0:1+HVGK*Math.max(0,Math.min(1,HV.hp[i]/hvMax(i)));
+{const _h=heroAtk;heroAtk=function(i,m){if(HV.dn[i])return;return _h.call(this,i,(m==null?1:m)*hvGenki(i))}}
+/* ボス戦を長くする: STAGE 30 からボスに「装甲」(受けるダメージ ÷k、50 で ÷3、80 で ÷6、100〜 ÷8)。体力と倒した時のゴールドは そのまま(経済は変えない) */
+const hvBossK=s=>s<30?1:Math.min(8,1+(s-30)*.1);
+{const _hu=hurt;hurt=function(x){if(isBoss()&&!hvTower()){const k=hvBossK(G.stage);if(k>1){const a=Array.prototype.slice.call(arguments);a[0]=x/k;return _hu.apply(this,a)}}return _hu.apply(this,arguments)}}
+{const _s=spawn;spawn=function(){const r=_s.apply(this,arguments);try{
+    // リベンジは そのボスと、全滅で1つ戻った手前のステージの間だけ続く
+    if(G.stage>HV.revSt||G.stage<HV.revSt-1){HV.rev=0;HV.revSt=G.stage}if(isBoss()||HV.dn.some(d=>d))hvHeal();HV.wipe=0}catch(e){}return r}}
 function hvSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   if(k=='hit'){tone(150,t,.07,'square',.03,90)}
   else if(k=='bhit'){tone(110,t,.1,'sawtooth',.04,60);tone(70,t+.02,.12,'square',.03)}
@@ -46,16 +64,16 @@ function hvSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
 function hvPick(){let w=0;const c=[];for(let i=0;i<3;i++)if(!HV.dn[i]){const k=i==0?2:1;w+=k;c.push([i,k])}if(!c.length)return -1;let r=Math.random()*w;for(const q of c){r-=q[1];if(r<0)return q[0]}return c[c.length-1][0]}
 function hvHit(i,d,boss){if(HV.dn[i])return;HV.hp[i]=Math.max(0,HV.hp[i]-d);HV.fl[i]=T;if(HV.num.length<10)HV.num.push({i,t0:T,s:'-'+Math.max(1,Math.round(d)),c:boss?'#ff4a5a':'#ff9a9a'});hvSnd(boss?'bhit':'hit');
   if(HV.hp[i]<=0){HV.dn[i]=1;HV.rt[i]=boss?0:HVR;hvSnd('down');try{if(typeof ringFx==='function')ringFx(hx(i)+32,84,30,'#ff4a5a',3,.4)}catch(e){}
-    if(boss&&HV.dn.every(x=>x))hvWipe()}}
-function hvWipe(){HV.wipe=HVWIPE;HV.sh=null;
+    if(boss&&HV.dn.every(x=>x))hvWipe(boss)}}
+function hvWipe(boss){if(boss===undefined)boss=hvBoss();HV.wipe=HVWIPE;HV.sh=null;
   if(hvTower()){try{if(typeof twEnd==='function')twEnd(0)}catch(e){}HV.wipe=1.2}
-  else{HV.rev=Math.min(5,HV.rev+1);HV.revSt=G.stage}
-  hvSnd('wipe');try{banner(hvTower()?'全滅…':'全滅…!! リベンジ!!','#ff4a5a')}catch(e){}
-  if(!HV.told){HV.told=1;try{localStorage.setItem('pachi2_hp',JSON.stringify({told:1}))}catch(e){}try{fxToast('ボス戦で全滅すると挑み直し。強化の「英雄」で 体力・防御・回復 を上げよう','#ff9a9a')}catch(e){}}}
+  else if(boss){HV.rev=Math.min(3,HV.rev+1);HV.revSt=G.stage}
+  hvSnd('wipe');try{banner(hvTower()||!boss?'全滅…':'全滅…!! 1つ戻る','#ff4a5a')}catch(e){}
+  if(!HV.told){HV.told=1;try{localStorage.setItem('pachi2_hp',JSON.stringify({told:1}))}catch(e){}try{fxToast('ボス戦で全滅すると1つ前のステージへ。強化の「英雄」で 体力・防御・回復 を上げよう','#ff9a9a')}catch(e){}}}
 FU.push(dt=>{if(!run)return;const boss=hvBoss();
   // 塔の開始/ボス戦の開始で全快
   const tw=hvTower();if(tw&&!HV.twOn)hvHeal();HV.twOn=tw;
-  if(HV.wipe>0){HV.wipe-=dt;if(HV.wipe<=0){HV.wipe=0;hvHeal();if(!tw&&isBoss()){G.hp=G.mx;try{ENT=T}catch(e){}}hvSnd('up');if(!tw&&HV.rev>0){try{showMsg('リベンジ!! 攻撃 +'+(25*HV.rev)+'%','#ffd400')}catch(e){}}}return}
+  if(HV.wipe>0){HV.wipe-=dt;if(HV.wipe<=0){HV.wipe=0;hvHeal();if(!tw&&isBoss()){/* 全滅で1つ前のステージへ(ボス戦だけ) */HV.revSt=G.stage;G.stage=Math.max(1,G.stage-1);try{spawn();ENT=T}catch(e){}}hvSnd('up');if(!tw&&HV.rev>0){try{showMsg('リベンジ!! 攻撃 +'+(10*HV.rev)+'%','#ffd400')}catch(e){}}}return}
   // 自然回復・起き上がり
   for(let i=0;i<3;i++){const m=hvMax(i);if(HV.dn[i]){if(!boss&&HV.rt[i]>0){HV.rt[i]-=dt;if(HV.rt[i]<=0){HV.dn[i]=0;HV.hp[i]=m*.4;hvSnd('up')}}else if(!boss&&HV.rt[i]<=0){HV.dn[i]=0;HV.hp[i]=m*.4}continue}
     HV.hp[i]=Math.min(m,HV.hp[i]+m*(boss?HVK.reg:HVK.regOut)*hupM(i,2)*dt)}
@@ -66,7 +84,7 @@ FU.push(dt=>{if(!run)return;const boss=hvBoss();
   if(calm)return;
   HV.at-=dt;if(HV.at>0)return;HV.at=(boss?HVK.bI:HVK.nI)*(.85+Math.random()*.3);
   const i=hvPick();if(i<0)return;
-  let p=boss?((!tw&&G.stage%25==0)?HVK.aP:HVK.bP):HVK.nP;if(boss&&G.hp<G.mx*.5)p*=HVK.rage;if(boss&&!tw)p*=hvRamp();
+  let p=boss?((!tw&&G.stage%25==0)?HVK.aP:HVK.bP):HVK.nP;if(boss&&G.hp<G.mx*.5)p*=HVK.rage;p*=hvThr(tw&&typeof TW!=='undefined'?2*TW.f:G.stage);
   HV.sh={t0:T,i,d:HB*p/hupM(i,1),b:boss}});
 /* 描画: 体力バー・被弾の白光り・ダウン表示・飛んでくる攻撃・ダメージ数字 */
 const HVDK={};
@@ -91,11 +109,11 @@ function hvDraw(t){bc.save();
   for(let k=HV.num.length-1;k>=0;k--){const n=HV.num[k],a=T-n.t0;if(a>.9||a<0){HV.num.splice(k,1);continue}
     bc.globalAlpha=a>.6?(.9-a)/.3:1;bc.font='10px '+FN;bc.textAlign='center';bc.strokeStyle='#000';bc.lineWidth=3;const yy=Math.round(60-a*18);bc.strokeText(n.s,hx(n.i)+32,yy);bc.fillStyle=n.c;bc.fillText(n.s,hx(n.i)+32,yy)}
   bc.globalAlpha=1;
-  if(HV.rev>0&&!hvTower()&&isBoss()){bc.font='9px '+FN;bc.textAlign='left';bc.strokeStyle='#000';bc.lineWidth=3;bc.fillStyle='#ffd400';const tx='リベンジ 攻撃+'+(25*HV.rev)+'%';bc.strokeText(tx,52,140);bc.fillText(tx,52,140)}
+  if(HV.rev>0&&!hvTower()&&isBoss()){bc.font='9px '+FN;bc.textAlign='left';bc.strokeStyle='#000';bc.lineWidth=3;bc.fillStyle='#ffd400';const tx='リベンジ 攻撃+'+(10*HV.rev)+'%';bc.strokeText(tx,52,140);bc.fillText(tx,52,140)}
   bc.restore()}
 /* 転生で英雄の強化もリセット(通常強化と同じ扱い)。自動強化(魂の祭壇)は英雄の強化も安い順に買う */
 {const _p=presDo;presDo=function(){const r=_p.apply(this,arguments);try{HUP.lv=[[1,1,1],[1,1,1],[1,1,1]];hupSave();hvHeal()}catch(e){}return r}}
-let HUPT=1;FU.push(dt=>{try{if(typeof soulLv!=='function'||!soulLv('auto')||!SOUL.auto||!run)return;HUPT-=dt;if(HUPT>0)return;HUPT=2;const b=hupCheapest();if(b&&G.gold>=b[2])hupBuy(b[0],b[1])}catch(e){}});
+let HUPT=1;FU.push(dt=>{try{if(typeof soulLv!=='function'||!soulLv('auto')||!SOUL.auto||!run)return;HUPT-=dt;if(HUPT>0)return;HUPT=2;const b=hupNeed();if(b&&G.gold>=b[2])hupBuy(b[0],b[1])}catch(e){}});
 /* 強化アイコン(英雄の強化画面で使う): 体力=ハート / 防御=盾 / 回復=十字 */
 const ICN3={
   hp:['..........','.kk...kk..','krrk.krrk.','krwrkrrrk.','krrrrrrrk.','.krrrrrk..','..krrrk...','...krk....','....k.....','..........'],

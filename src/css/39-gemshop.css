@@ -53,3 +53,12 @@ body.gsc3 #app:not(.rush):not(.fev) .led.tp,body.gsc3 #app:not(.rush):not(.fev) 
 body.gsc3 #app:not(.rush):not(.fev) .led.lf,body.gsc3 #app:not(.rush):not(.fev) .led.rg{background-image:repeating-linear-gradient(180deg,#ff3a3a 0 4px,#050508 4px 8px,#5a5a6a 8px 12px,#050508 12px 16px)}
 body.gsc4 #app:not(.rush):not(.fev) .led.tp,body.gsc4 #app:not(.rush):not(.fev) .led.bt{background-image:repeating-linear-gradient(90deg,#ffd400 0 4px,#1a0e02 4px 8px,#fff4b0 8px 12px,#1a0e02 12px 16px)}
 body.gsc4 #app:not(.rush):not(.fev) .led.lf,body.gsc4 #app:not(.rush):not(.fev) .led.rg{background-image:repeating-linear-gradient(180deg,#ffd400 0 4px,#1a0e02 4px 8px,#fff4b0 8px 12px,#1a0e02 12px 16px)}
+/* 星空(5)・紅葉(6): 後から足したテーマ */
+body.gsc5{--ch1:#dfe4ff;--ch2:#7a5cff;--ch3:#1a1048}
+body.gsc5 #app:not(.rush):not(.fev){background:radial-gradient(1px 1px at 20% 12%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 72% 30%,#cfd6ff 50%,transparent 51%),radial-gradient(1px 1px at 44% 64%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 88% 82%,#b8a8ff 50%,transparent 51%),linear-gradient(#141048,#04020f 60%,#0e0a34)}
+body.gsc5 #app:not(.rush):not(.fev) .led.tp,body.gsc5 #app:not(.rush):not(.fev) .led.bt{background-image:repeating-linear-gradient(90deg,#b8a8ff 0 4px,#04020f 4px 8px,#fff 8px 12px,#04020f 12px 16px)}
+body.gsc5 #app:not(.rush):not(.fev) .led.lf,body.gsc5 #app:not(.rush):not(.fev) .led.rg{background-image:repeating-linear-gradient(180deg,#b8a8ff 0 4px,#04020f 4px 8px,#fff 8px 12px,#04020f 12px 16px)}
+body.gsc6{--ch1:#ffe0b8;--ch2:#e0522a;--ch3:#5a1a08}
+body.gsc6 #app:not(.rush):not(.fev){background:linear-gradient(#5a1c08,#1a0803 60%,#4a2206)}
+body.gsc6 #app:not(.rush):not(.fev) .led.tp,body.gsc6 #app:not(.rush):not(.fev) .led.bt{background-image:repeating-linear-gradient(90deg,#ff7a2a 0 4px,#1a0803 4px 8px,#ffd24d 8px 12px,#1a0803 12px 16px)}
+body.gsc6 #app:not(.rush):not(.fev) .led.lf,body.gsc6 #app:not(.rush):not(.fev) .led.rg{background-image:repeating-linear-gradient(180deg,#ff7a2a 0 4px,#1a0803 4px 8px,#ffd24d 8px 12px,#1a0803 12px 16px)}

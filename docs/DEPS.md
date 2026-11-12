@@ -809,6 +809,19 @@
 - 98z-tower.js: TW
 - 99-main.js: T, run
 
+## 98yc-shell.js(完全版のみ)
+- 70-show.js: banner
+- 75-audio.js: beep
+- 77-se.js: kyuin
+- 79b-bonus.js: seHl
+- 85-pachifx.js: mini
+- 91-meta.js: addGold, X, FU
+- 93-achieve.js: sbg
+- 94-prestige.js: PGEN
+- 95-minigames.js: MGT, mg2e, mg2Start, mg2c
+- 98-mgfx.js: mgTxt
+- 99-main.js: T
+
 ## 98z-tower.js(完全版のみ)
 - 10-sprites.js: enSpr
 - 29-push.js: PUSH

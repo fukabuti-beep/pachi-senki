@@ -37,8 +37,8 @@
 | `kill` | 82-hitfx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 97u-app.js → 98b-active.js → 98h-area.js → 98l-edition.js → 98s-story.js → 98z-tower.js |
 | `lyBig` | 89f-ultjp.js |
 | `lyBusyB` | 89f-ultjp.js |
-| `mg2Start` | 98f-hilo.js |
-| `mini` | 89c-layer.js → 95-minigames.js → 98f-hilo.js |
+| `mg2Start` | 98f-hilo.js → 98yc-shell.js |
+| `mini` | 89c-layer.js → 95-minigames.js → 98f-hilo.js → 98yc-shell.js |
 | `mrDraw` | 89c-layer.js |
 | `onAtk` | 46-board-fx.js |
 | `onChucker` | 46-board-fx.js → 89-horyu.js |

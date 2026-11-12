@@ -22,7 +22,7 @@ const GSC={   // 見た目(買い切り。0番は最初から持っている)
   ball:{n:'玉の色',L:[['銀玉',0,['#8a93b8','#e9eef8','#fff','#aab2d0']],['紅玉',6,['#7a1020','#ff4a5a','#ffd0d4','#c02030']],['翠玉',6,['#0c5a2a','#3ddc7a','#d8ffe4','#1e9a4a']],
     ['紫水晶',8,['#3a1470','#a066ff','#ecdcff','#6a3ac8']],['桜玉',10,['#a03a6a','#ffb0d0','#fff0f6','#e07aa8']],['黒鉄',10,['#000000','#3a3a4a','#c8c8e0','#1a1a24']]]},
   reel:{n:'図柄の色',L:[['標準',0],['七色',12],['氷結',10],['業火',10]]},
-  cab:{n:'筐体テーマ',L:[['標準',0],['桜吹雪',15],['深海',15],['漆黒',20],['黄金郷',25]]},
+  cab:{n:'筐体テーマ',L:[['標準',0],['桜吹雪',15],['深海',15],['漆黒',20],['黄金郷',25],['星空',150],['紅葉',150]]},
   title:{n:'称号',L:[['駆け出し',5],['釘読み名人',15],['確変の申し子',30],['777の使い手',50],['激アツ王',80],['伝説の打ち手',150],['宝石王',300]]}};
 const GSRC=[null,['#ff5a5a','#ffa04a','#ffd400','#7aff6a','#22e0ff','#5a8aff','#c87aff','#ff7ab0','#ffffff','#ffe14d'],['#e8fbff','#3aa0ff'],['#fff0a0','#ff3a1a']];
 const GS={lv:{},own:{ball:[0],reel:[0],cab:[0],title:[],turbo:0},sel:{ball:0,reel:0,cab:0,title:-1},bf:{ms:0,luck:0},sw:'',tb:1,spent:0,tab:0,msf:0};
@@ -134,7 +134,7 @@ function gsMenu(){const g=gsGem();let h='<div class="fxh">宝石ショップ</di
   return h+'<div class="fxs gsh">宝石の入手: JACKPOT / RUSHの高ランク / 図鑑★ / お宝 / ミッション / ログボ / 遠征 / 魔石くじ。使った宝石 累計 '+fmt(GS.spent)+'</div>'}
 /* 見本(色見本の小さな四角) */
 function gsSw(k,i){let c=[];if(k==='ball')c=[GSC.ball.L[i][2][1],GSC.ball.L[i][2][0]];else if(k==='reel')c=i?(GSRC[i].length>2?[GSRC[i][1],GSRC[i][6]]:GSRC[i]):['#ffe14d','#ff9a2a'];
-  else if(k==='cab')c=[['#e4e9ff','#ff2d7a'],['#ffd0e4','#ff5aa0'],['#bff4ff','#1a8ad8'],['#9a9ab0','#ff3a3a'],['#fff0a0','#e6a800']][i];else c=[i>=5?'#ffd400':'#7ff3ff','#140a30'];
+  else if(k==='cab')c=[['#e4e9ff','#ff2d7a'],['#ffd0e4','#ff5aa0'],['#bff4ff','#1a8ad8'],['#9a9ab0','#ff3a3a'],['#fff0a0','#e6a800'],['#c8d0ff','#7a5cff'],['#ffd0a0','#e0522a']][i];else c=[i>=5?'#ffd400':'#7ff3ff','#140a30'];
   return '<i class="gsv" style="background:'+c[0]+';box-shadow:inset -4px -4px 0 '+c[1]+',0 0 0 2px #000"></i>'}
 FM.push({n:'宝石ショップ',r:gsMenu});
 /* メニューのグループ分け(29c)に「宝石」を「育てる」へ入れる(29c は無編集。無ければ「その他」に入る) */

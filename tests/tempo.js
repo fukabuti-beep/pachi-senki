@@ -34,4 +34,13 @@ const calm = 'if(fxOpen)fxClose();RL=null;G.roul=0;G.jp=0;cut=null;PUSH=null;if(
 // 6) 演出の動きの設定: 既定は ふつう(端末の設定に関係なく動く)。ひかえめ は保存されて読み直せる
 { const g = createGame({ seed: 8 }); g.start(); ok(g.eval('moLow()') === false, '既定は ふつう'); g.eval('moSet(1)'); ok(g.eval('moLow()') === true, 'ひかえめ にできる');
   const g2 = createGame({ seed: 8, storage: g.store }); ok(g2.eval('moLow()') === true, '読み直しても ひかえめ'); g2.eval('moSet(0)'); ok(g2.eval('moLow()') === false, 'ふつう に戻せる'); }
+// 7) 攻撃エフェクト(84c)と追加の効果音(79d): つながっていること・上限・ゲームの乱数を使わないこと
+{ const g = createGame({ seed: 9 }); g.start(); g.advance(3, .05);
+  ok(g.eval("(function(){let n=0;const o=atkSwing;atkSwing=function(){n++;return o.apply(this,arguments)};HA[0]=T-.1;drawB(T);atkSwing=o;return n})()") >= 3, '振るエフェクトが戦闘の描画から呼ばれる');
+  ok(g.eval("(function(){let n=0;const o=atkProj;atkProj=function(){n++;return o.apply(this,arguments)};PR.push({i:1,t:.1,d:0,cr:0});drawB(T);atkProj=o;PR.length=0;return n})()") >= 1, '飛ぶエフェクトが戦闘の描画から呼ばれる');
+  g.eval('for(let i=0;i<40;i++)afxHit(i%4,i%2)'); ok(g.eval('AFX.length') <= 14, '当たりエフェクトの上限: ' + g.eval('AFX.length')); g.advance(1, .05); g.eval('drawB(T)'); ok(g.eval('AFX.length') === 0, '当たりエフェクトは消える');
+  g.eval("AFX.length=0;hurt(1,'#ffa070',0,0)"); ok(g.eval('AFX.length') === 1 && g.eval('AFX[0].i') === 0, '剣士の命中で斬り跡が出る');
+  const n = g.eval("(function(){let c=0;const o=Math.random;Math.random=function(){c++;return o()};try{for(let i=0;i<4;i++){afxHit(i,1);seSwing(i);atkSwing(i%3,60,52,.05);atkSwing(i%3,60,52,.15);atkProj({i:i%3,t:.1},.5,150,80)}afxDraw(T);seUi('ok');seBuy()}finally{Math.random=o}return c})()");
+  ok(n === 0, 'エフェクトと追加の効果音がゲームの乱数を使っている: ' + n);
+  ok(g.eval("typeof seUi==='function'&&typeof seBuy==='function'&&typeof seSwing==='function'"), '追加の効果音がある'); }
 console.log(fails ? fails + ' tempo failure(s)' : 'TEMPO OK'); process.exit(fails ? 1 : 0);

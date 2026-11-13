@@ -18,7 +18,7 @@
 | `chDrawSB` | 89c-layer.js |
 | `cutin` | 98yb-lancer.js |
 | `deathFx` | 98h-area.js |
-| `drawB` | 84-charfx.js → 84b-atkfx.js → 86-gekiatsu.js → 87-hitev.js → 89c-layer.js → 89d-blackout.js → 89f-ultjp.js → 94c-herohp.js → 96-allies.js → 96r-relic.js → 96s-smith.js → 98b-active.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98z-tower.js |
+| `drawB` | 84-charfx.js → 84b-atkfx.js → 84c-atkeffect.js → 86-gekiatsu.js → 87-hitev.js → 89c-layer.js → 89d-blackout.js → 89f-ultjp.js → 94c-herohp.js → 96-allies.js → 96r-relic.js → 96s-smith.js → 98b-active.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98z-tower.js |
 | `drawBgB` | 98h-area.js → 98z-tower.js |
 | `drawCut` | 84-charfx.js |
 | `drawEnemy` | 98h-area.js → 98z-tower.js |
@@ -32,7 +32,7 @@
 | `heroAtk` | 84b-atkfx.js → 94c-herohp.js → 96s-smith.js |
 | `heroDY` | 84b-atkfx.js |
 | `hitRoll` | 98i-gemshop.js |
-| `hurt` | 82-hitfx.js → 94-prestige.js → 94c-herohp.js |
+| `hurt` | 82-hitfx.js → 84c-atkeffect.js → 94-prestige.js → 94c-herohp.js |
 | `jackpot` | 87b-jpfx.js → 96s-smith.js → 97u-app.js |
 | `jpRush` | 89f-ultjp.js |
 | `kill` | 82-hitfx.js → 84-charfx.js → 86-gekiatsu.js → 93-achieve.js → 93b-mission.js → 96b-zukan.js → 96r-relic.js → 96s-smith.js → 97u-app.js → 98b-active.js → 98h-area.js → 98l-edition.js → 98s-story.js → 98z-tower.js |

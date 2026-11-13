@@ -139,9 +139,15 @@ function seCrit(){
   try{const t=AC.currentTime;if(t-sXT<.06)return;sXT=t;
     sBig(()=>{tone(1500,t,.09,'sawtooth',.05,3000);tone(2637,t+.05,.25,'sine',.04);tone(3136,t+.07,.2,'p25',.02);noise(t,.06,.05,'w')})}catch(e){}
 }
-function seHit(b){
+/* col=当てた英雄の色(30 の PR): 剣=ザシュ(明るいノイズ+下がる音)/ 杖=キラン / 弓=トスッ。それ以外は今までの音 */
+function seHit(b,col){
   if(!sOK())return;
-  try{const t=AC.currentTime;if(t-sHT<.09)return;sHT=t;noise(t,.03,.04,'w');tone(220,t,.05,'triangle',.04,90);if(b)tone(100,t,.12,'sine',.1,40)}catch(e){}
+  try{const t=AC.currentTime;if(t-sHT<.09)return;sHT=t;
+    if(col==='#ffa070'){noise(t,.04,.05,'w');tone(420,t,.06,'sawtooth',.03,110)}
+    else if(col==='#9ff'){tone(1175,t,.05,'sine',.03);tone(1760,t+.03,.07,'sine',.025);noise(t,.012,.03,'w')}
+    else if(col==='#bfa'){tone(520,t,.04,'triangle',.045,200);noise(t,.02,.02,'w')}
+    else{noise(t,.03,.04,'w');tone(220,t,.05,'triangle',.04,90)}
+    if(b)tone(100,t,.12,'sine',.1,40)}catch(e){}
 }
 /* ボス登場 */
 function seBoss(){

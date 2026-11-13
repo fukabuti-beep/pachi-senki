@@ -19,7 +19,7 @@ function sndHook(name,pre,post,sup){
 }
 sndHook('spawn',null,()=>{if(isBoss())seBoss()});
 sndHook('kill',()=>{if(isBoss())seBossDown();else seKill(false)},null,true);
-sndHook('hurt',(x,col,b,crit)=>{if(crit)seCrit();else seHit(b)});
+sndHook('hurt',(x,col,b,crit)=>{if(crit)seCrit();else seHit(b,col)});
 sndHook('bigHit',jp=>seWin(!!jp),null,true);
 sndHook('jackpot',()=>seJackpot());
 sndHook('pkHit',null,()=>seCombo(cmb),true);

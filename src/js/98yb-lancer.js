@@ -66,7 +66,7 @@ const lnCost=()=>Math.floor(50*BAL.costk*Math.pow(BAL.costg,LN.lv-1));
 function lnBuy(){if(!lnOn())return false;const c=lnCost();if(!(G.gold>=c))return false;G.gold-=c;LN.lv++;lnSave();try{beep(1000,.1,'triangle');refresh()}catch(e){}return true}
 function lnTap(){if(!lnBuy())fxToast('ゴールドが足りない','#aaa');try{grpRefresh()}catch(e){}}
 /* 突き: ボスの装甲を無視(hurt が ÷k するので、先に ×k しておく)。塔では装甲が無いのでそのまま */
-function lnHit(){LN.h=T;let d=atk()*1.5*cm()*lnMul();
+function lnHit(){try{if(typeof afxHit==='function')afxHit(3,0)}catch(e){}try{if(typeof seSwing==='function')seSwing(3)}catch(e){}LN.h=T;let d=atk()*1.5*cm()*lnMul();
   try{if(isBoss()&&!(typeof TW!=='undefined'&&TW.on))d*=hvBossK(G.stage)}catch(e){}
   const cr=Math.random()<critP();hurt(d,'#8fd8ff',0,cr);if(cr&&Math.random()<.2)lnSay('crit');try{if(typeof sOK==='function'&&sOK()){const t=sNow();tone(1320,t,.04,'square',.02,880)}}catch(e){}}
 FU.push(dt=>{if(!run)return;

@@ -60,6 +60,7 @@
  "drawB": [
   "84-charfx.js",
   "84b-atkfx.js",
+  "84c-atkeffect.js",
   "86-gekiatsu.js",
   "87-hitev.js",
   "89c-layer.js",
@@ -123,6 +124,7 @@
  ],
  "hurt": [
   "82-hitfx.js",
+  "84c-atkeffect.js",
   "94-prestige.js",
   "94c-herohp.js"
  ],

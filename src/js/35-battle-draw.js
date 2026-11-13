@@ -7,7 +7,7 @@ bc.fillStyle='rgba(0,0,0,.4)';bc.fillRect(hx(i)+10,114,44,4);bc.fillRect(hx(i)+1
 if(G.aw>0){const r=34+Math.sin(t*9+i)*3;bc.fillStyle='rgba(181,123,255,.28)';bc.beginPath();bc.arc(x+32,y+38,r,0,TAU);bc.fill();bc.fillStyle='rgba(255,225,77,.22)';bc.beginPath();bc.arc(x+32,y+38,r*.7,0,TAU);bc.fill();for(let k=0;k<5;k++){bc.fillStyle=k%2?'#ffe14d':'#e0c8ff';bc.fillRect(Math.round(x+10+k*11+Math.sin(t*4+k)*3),Math.round(y+62-((t*40+k*17)%64)),3,3)}}
 if(at&&lgA>8)for(let k=1;k<3;k++){const l2=Math.sin(Math.max(0,d-k*.045)/.3*Math.PI)*lgA;bc.globalAlpha=.34/k;bc.drawImage(SPR[n],hx(i)+Math.round(l2),y,SPR[n].width*2,64)}bc.globalAlpha=1;
 bc.drawImage(SPR[n],x,y,SPR[n].width*2,64);
-if(d>=.08&&d<.24){const q=(d-.08)/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=3;bc.beginPath();bc.arc(x+58,y+40,38+q*8,-1.35,.15);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=2;bc.beginPath();bc.arc(x+58,y+40,43+q*8,-1.2,0);bc.stroke()}
+if(typeof atkSwing==='function'){atkSwing(i,x,y,d)/* 84c: 英雄ごとの振るエフェクト */}else if(d>=.08&&d<.24){const q=(d-.08)/.16;bc.globalAlpha=1-q;if(i==0){bc.strokeStyle='#fff';bc.lineWidth=3;bc.beginPath();bc.arc(x+58,y+40,38+q*8,-1.35,.15);bc.stroke();bc.strokeStyle='#ff9a3d';bc.lineWidth=2;bc.beginPath();bc.arc(x+58,y+40,43+q*8,-1.2,0);bc.stroke()}
 else if(i==1){bc.fillStyle='#fff';bc.fillRect(x+78,y+35,14,2);bc.fillRect(x+84,y+29,2,14);bc.fillStyle='#7ff3ff';bc.fillRect(x+75,y+27,4,4);bc.fillRect(x+90,y+41,4,4)}
 else{bc.fillStyle='#caffb0';bc.fillRect(x+94,y+38,28*(1-q*.5),2);bc.fillStyle='#fff';bc.fillRect(x+94,y+38,10,2)}bc.globalAlpha=1}}}
 function drawEnemy(t){const sn=enSpr(),boss=isBoss(),S=SPR[sn],sc=boss?4:5,age=t-ENT,dl=boss?.35:.18;if(age>=0&&age<dl)return;const ia=age-dl,iw=boss?.5:.32;
@@ -31,7 +31,7 @@ drawBgB(t);modeBack(t);
 if(G.hit>pHit+.05&&t-hFl>(G.hit>1.2?.1:.22)){hFl=t;hFlD=G.hit>1.2?.17:.07}pHit=G.hit;
 drawHeroes(t);drawEnemy(t);G.hit=Math.max(0,G.hit-3*DT);
 drawFX(t);
-PR.forEach(p=>{const e=Math.min(1,p.t/.22),x=hx(p.i)+60+(EXX-8-hx(p.i)-60)*e,y=78+p.i*4-Math.sin(e*Math.PI)*18+e*6,c=HCOL[p.i];for(let k=4;k>=0;k--){bc.globalAlpha=1-k*.2;bc.fillStyle=k?c:'#fff';const s=k?9-k:6;bc.fillRect(Math.round(x-k*8*(1-e*.3)-s/2),Math.round(y+k*1.5-s/2),s,s)}
+PR.forEach(p=>{const e=Math.min(1,p.t/.22),x=hx(p.i)+60+(EXX-8-hx(p.i)-60)*e,y=78+p.i*4-Math.sin(e*Math.PI)*18+e*6,c=HCOL[p.i];if(typeof atkProj==='function'){atkProj(p,e,x,y);return}/* 84c: 英雄ごとの飛ぶエフェクト */for(let k=4;k>=0;k--){bc.globalAlpha=1-k*.2;bc.fillStyle=k?c:'#fff';const s=k?9-k:6;bc.fillRect(Math.round(x-k*8*(1-e*.3)-s/2),Math.round(y+k*1.5-s/2),s,s)}
 if(p.i==2){bc.globalAlpha=1;bc.fillStyle='#fff';bc.fillRect(Math.round(x),Math.round(y)-1,10,3)}bc.globalAlpha=1});
 drawHitFx(t);drawDeath(t);
 for(let i=PT.length-1;i>=0;i--){const p=PT[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.l-=.025;if(p.l<=0){PT.splice(i,1);continue}bc.globalAlpha=Math.min(1,p.l);bc.fillStyle=p.c;const s=p.l>.5?4:2;bc.fillRect(Math.round(p.x),Math.round(p.y),s,s)}bc.globalAlpha=1;

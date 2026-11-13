@@ -66,6 +66,7 @@
 - 83-cutin.js: drawCut
 - 84-charfx.js: heroDY
 - 84b-atkfx.js: heroDX
+- 84c-atkeffect.js: atkSwing, atkProj
 - 85-pachifx.js: drawRes
 - 89c-layer.js: lyNameX
 
@@ -167,6 +168,14 @@
 - 75-audio.js: sVo, sGr, SND, sNs, AC, sndResume, BG, bgNewBus
 - 76-bgm.js: SONGS, SCJ, bgPrep, SRANK, bgStep, CTY, bgmState, bgm
 
+## 79d-uise.js
+- 75-audio.js: AC, tone, sVo, sGr, sDst
+- 77-se.js: sOK
+- 78-sehooks.js: sndHook
+- 94b-soul.js: SOUL
+- 96s-smith.js: RES
+- 99-main.js: run
+
 ## 80-skillfx.js
 - 30-battle.js: FX, PT
 - 36-battle-bg.js: L
@@ -208,6 +217,11 @@
 - 75-audio.js: tone
 - 77-se.js: sOK, sNow
 - 84-charfx.js: heroDY
+- 99-main.js: T
+
+## 84c-atkeffect.js
+- 30-battle.js: hurt
+- 35-battle-draw.js: drawB
 - 99-main.js: T
 
 ## 85-pachifx.js
@@ -553,6 +567,7 @@
 - 75-audio.js: AC, sndResume
 
 ## 97w-save.js
+- 26-dots.js: cur
 - 29c-menugrp.js: FMGRP
 - 91-meta.js: X, fxShow, fxMenu, FU, fxToast, FM
 - 97u-app.js: appSend, UAPP
@@ -824,7 +839,9 @@
 - 70-show.js: banner
 - 75-audio.js: beep, tone
 - 77-se.js: sOK, sNow, fan
+- 79d-uise.js: seSwing
 - 84-charfx.js: CUTL, chSay
+- 84c-atkeffect.js: afxHit
 - 91-meta.js: X, fxToast, FU
 - 93-achieve.js: AC_
 - 94-prestige.js: PGEN

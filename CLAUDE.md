@@ -71,10 +71,12 @@ npm test                            # build + smoke
 | 70-show.js | 大当たり/ジャックポット演出の流れ `bigHit` `jackpot` `banner` | balance(流れ) / fx(見た目) |
 | 75-audio.js | WebAudio: `beep` `tone` `noise` BGM `bgm()` `kyuin` `jara` `fan` | sound |
 | 79b-bonus.js | ボーナスタイム中だけのBGMアレンジ(通常曲をテンポx1.15・全音上・4つ打ち・種類別リード。優先 JACKPOT>緊張>RUSH>FEVER>ボーナス>ボス>通常、bgmState をラップ)と SE `seExp`(遠征)/`seBt`(ボーナスタイム)/`seHl`(ハイ&ロー)。98d/98e/98f から1行で呼ぶ。キュインの耳疲れ対策(差し替え/音量逓減)は 77 の kyuin(テスト: tests/audio2.js) | sound |
+| 79d-uise.js | 効果音の追加(作り手の指摘「ゲーム全体の SE」): ボタンを押した音 `seUi(kind)`(document の click を1か所で聞く。決定/閉じる/タブで高さを変える)、攻撃の振り `seSwing(i)`(剣=風切り/杖=きらめき/弓=弦/槍=突き。同じ英雄0.2秒・全体0.07秒あける。声の枠 sVok と **Math.random を使わない**=当たりの出方と BGM を変えない)、買い物の成功 `seBuy()`(buy/hupBuy/smithUp/soulBuy/gsBuy*/skSet/lnBuy/kujiDraw を sndHook で包み、資源が減ったらチャリン)。命中音は 77 の `seHit(b,col)` を英雄ごとの音色に(テスト: tests/tempo.js・tests/audio.js) | sound |
 | 80-skillfx.js | スキルエフェクト `fire` `bolt` `arrow` `drawFX` `jpShow` | fx |
 | 83b-portrait.js | カットイン専用の等身イラスト(3人の胸像を図形で描画→2値化+輪郭でドット化)。`PORT(i)`、失敗時は null で SPR にフォールバック | fx |
 | 84-charfx.js | キャラクター演出: 英雄のジャンプ(`heroDY` を 35 の drawHeroes が y に加算=1行フック)、吹き出しセリフ、カットインのバリエーション(従来/3人そろい踏み/ドアップ) | fx |
 | 84b-atkfx.js | 攻撃モーションのバリエーション(heroAtk をラップ、剣士/魔法使い/弓使いの特殊モーション。`heroDX` を 35 に1行フック、heroDY を加算ラップ。見た目のみ) | fx |
+| 84c-atkeffect.js | 攻撃エフェクト(作り手の指摘「攻撃モーションに対してのエフェクト」「もっと派手に」。考え方は docs/DESIGN.md「エフェクトの考え方」): 英雄ごとに 予兆(武器の先の光)→ 振る `atkSwing(i,x,y,d)`(剣=5層の三日月/杖=二重の魔法陣と十字/弓=放つ光と風の筋)→ 飛ぶ `atkProj(p,e,x,y)`(斬撃波/ゆれる魔法の玉/矢)→ 当たる `afxHit(i,crit)`(白い大きな光+放射の線+形(X字/輪と星/つらぬく線/氷のひし形)+重力で落ちる破片。会心 x1.5 と十字、RUSH x1.2)。35 に1行フック2つ(drawHeroes と PR の描画)、hurt(色から英雄を見分ける)と drawB をラップ。槍は 98yb の lnHit が呼ぶ。fillRect のドットだけ・配列 AFX は上限14・**Math.random 不使用**(テスト: tests/tempo.js) | fx |
 | 85-pachifx.js | 予告 `ykLv`, 結果表示 `res`, 電飾 `drawMq`, ミニゲーム `mini` | fx(表示) / feature(ミニゲーム) |
 | 86-gekiatsu.js | 激アツ演出パック: 擬似連(NEXT×2〜4)・復活演出・RUSHリザルト(連チャン/獲得G/最高記録 `localStorage['pachi2_gk']`)。当否は変えない(テスト: tests/gekiatsu.js) | fx/feature |
 | 87-hitev.js | 大当たり後の分岐 `hitEvent`: 777=押せ!!→前置きアニメ3種(従来/777叩きつけ/カウントダウン)→`jackpot()`、確率`BAL.evP`=押せ!!→全画面ルーレット(押下時`BAL.supP`で超倍率x100/x300/x777)、他=戦闘画面のミニルーレット(非ブロッキング) | feature/fx |

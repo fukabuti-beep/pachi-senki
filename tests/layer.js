@@ -29,14 +29,14 @@ const idle = 'G.jp=0;G.roul=0;RL=null;PUSH=null;cut=null;HEV.jr=null;HEV.mr=null
 // (b) ミニゲーム: JACKPOT/押せ!!/ルーレット中は待って、終わってから1回だけ始まる
 {
   const g = createGame({ seed: 5 }); g.start(); g.advance(1);
-  g.eval(idle + 'G.stage=5;X.mgi=0;var __mg0=X.st.mg;G.jp=3;mini()');
+  g.eval(idle + 'G.stage=5;X.mgi=0;var __mg0=X.st.mg;G.jp=3;MI.go=1;mini()');
   ok(g.eval('!MG&&!MG2') && g.eval('LY.miniQ') === 1, 'JACKPOT 中にミニゲームが始まった/予約されない');
   g.eval('mini()'); ok(g.eval('X.st.mg') === g.eval('__mg0'), '待機中に回数が数えられた');
   g.eval('G.jp=0;JPX.p=null'); g.advance(.3);
   ok(g.eval('!!(MG||MG2)'), 'JACKPOT 後に待たせたミニゲームが始まらない');
   ok(g.eval('X.st.mg') === g.eval('__mg0') + 1, 'ミニゲームの回数が変わった: ' + (g.eval('X.st.mg') - g.eval('__mg0')));
   g.advance(10);
-  g.eval(idle + 'G.stage=5;X.mgi=0;RL={t:0,ph:0,a:0,a1:1,k:0,m:2,base:1,kick:0,last:-1};mini()');
+  g.eval(idle + 'G.stage=5;X.mgi=0;RL={t:0,ph:0,a:0,a1:1,k:0,m:2,base:1,kick:0,last:-1};MI.go=1;mini()');
   ok(g.eval('!MG&&!MG2'), 'ルーレット中にミニゲームが始まった');
   g.eval('RL=null;$("rl").style.display="none"'); g.advance(.3); ok(g.eval('!!(MG||MG2)'), 'ルーレット後に始まらない');
   // 転生で予約は破棄

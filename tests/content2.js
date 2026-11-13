@@ -60,7 +60,7 @@ const busyOff = 'sp=null;RL=null;G.roul=0;G.jp=0;cut=null;MG=null;MG2=null;HL=nu
   ok(g.eval("MGT.some(m=>m[0]==='hilo'&&m[2]===30)"), 'MGT に入っていない');
   let seen = 0, golds = [];
   for (let k = 0; k < 12; k++) {
-    g.eval(busyOff + 'G.stage=35;X.mgi=3;var __g0=G.gold;mini()');
+    g.eval(busyOff + 'G.stage=35;X.mgi=3;var __g0=G.gold;MI.go=1;mini()');
     if (g.eval('!!HL')) { seen++; g.eval('mini()'); ok(!g.eval('!!MG') && !g.eval('!!MG2'), 'ハイ&ロー中に別のミニゲーム');
       for (let i = 0; i < 60 && g.eval('!!HL'); i++) g.advance(.5);
       ok(!g.eval('!!HL'), '自動で決着しない'); golds.push(g.eval('G.gold-__g0')); }

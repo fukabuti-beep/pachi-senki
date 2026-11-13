@@ -270,7 +270,7 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null;hryUp=function(q,i,to
   g.eval('G.rush=15;startRoul(10)'); g.advance(7, .05, () => g.eval(KEEP.replace('G.q=0;', '')));
   ok(g.eval('__c.rt') >= 8, `ルーレットのティックが少ない: ${g.eval('__c.rt')}`); ok(g.eval('__c.rr') === 1, 'ルーレット結果音が1回でない: ' + g.eval('__c.rr'));
   // ミニゲーム
-  g.eval('__c.gen.length=0;G.stage=10;mini()'); g.advance(1); ok(g.eval('__c.gen').includes('start'), 'BONUS STOP 開始音が鳴らない');
+  g.eval('__c.gen.length=0;G.stage=10;MI.go=1;mini()'); g.advance(1); ok(g.eval('__c.gen').includes('start'), 'BONUS STOP 開始音が鳴らない');
   g.advance(8); g.eval('MG=null;MG2=null'); g.advance(3);
   g.eval("__c.gen.length=0;MG={t:0,s:0,x:0}"); g.advance(6); // BONUS STOP を直接起動(mini() は種類がローテーションするため)
   ok(g.eval('__c.gen').filter(k => k === 'tick').length >= 3, 'BONUS STOP のティックが鳴らない: ' + g.eval('__c.gen').join(','));

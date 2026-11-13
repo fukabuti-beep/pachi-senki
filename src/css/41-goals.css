@@ -16,3 +16,10 @@
 #fxm .mrb small{font-size:10px;color:#ffd400}
 #fxm .mrb.on{box-shadow:inset 2px 2px 0 #ffe56a,inset -2px -2px 0 #a87500,0 0 0 2px #000,0 0 8px rgba(255,212,0,.5)}
 #fxm .mrb.lk{opacity:.5}
+
+/* 作戦(いま出来ること)の行: 資源のアイコン+説明+開く先 */
+#fxm .glp{display:flex;align-items:center;gap:8px;width:100%;margin:5px 0;padding:8px;border:2px solid #4a3a8a;border-radius:4px;background:#1c1440;color:#fff;font-family:inherit;text-align:left;cursor:pointer}
+#fxm .glp span{flex:1;min-width:0}
+#fxm .glp b{display:block;font-size:13px;color:#ffd400;font-weight:normal}
+#fxm .glp small{display:block;font-size:12px;color:#d8d0ff;line-height:1.35;margin-top:2px}
+#fxm .glp i{font-style:normal;font-size:11px;color:#7dffa6;white-space:nowrap}

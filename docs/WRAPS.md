@@ -39,7 +39,7 @@
 | `lyBig` | 89f-ultjp.js |
 | `lyBusyB` | 89f-ultjp.js |
 | `mg2Start` | 98f-hilo.js → 98yc-shell.js |
-| `mini` | 89c-layer.js → 95-minigames.js → 98f-hilo.js → 98yc-shell.js |
+| `mini` | 89c-layer.js → 95-minigames.js → 98f-hilo.js → 98q-miniicon.js → 98yc-shell.js |
 | `mrDraw` | 89c-layer.js |
 | `onAtk` | 46-board-fx.js |
 | `onChucker` | 46-board-fx.js → 89-horyu.js |

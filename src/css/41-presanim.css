@@ -1,0 +1,22 @@
+/* 転生の演出(98r-presanim): 暗くなる → 魂の光が中央へ → 白い光が1回ふくらむ → 「転生!!」 */
+#prx{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 45%,#2a1460 0,#05031a 70%);font-family:inherit}
+#prx.on{display:flex;animation:prxin .35s ease-out}
+#prx s{position:absolute;left:50%;top:45%;width:8px;height:8px;margin:-4px;background:#c8b8ff;box-shadow:0 0 0 2px #7a4dff;text-decoration:none;transform:rotate(var(--a)) translateX(46vmin);animation:prxs 1.25s cubic-bezier(.5,0,.9,.5) var(--d) both}
+#prx.p2 s{display:none}
+#prx .prl{position:absolute;left:50%;top:45%;width:20vmin;height:20vmin;margin:-10vmin;border-radius:50%;background:radial-gradient(circle,#fff 0,#c8b8ff 45%,rgba(122,77,255,0) 70%);transform:scale(.2);opacity:.5;animation:prxg 1.5s ease-in both}
+#prx.p2 .prl{animation:prxb 1.6s ease-out both}
+#prx .prt{position:relative;z-index:2;margin-top:34vmin;text-align:center;color:#fff;text-shadow:0 2px 0 #14101f,2px 0 0 #14101f,-2px 0 0 #14101f,0 -2px 0 #14101f}
+#prx .prt small{display:block;font-size:15px;color:#e0d4ff}
+#prx .prt b{display:block;font-size:26px;color:#ffd400;font-weight:normal;margin-top:6px}
+#prx .prt b.big{font-size:46px;color:#fff;animation:prxt .5s cubic-bezier(.2,1.6,.4,1) both;margin-bottom:8px}
+#prx.p2 .prt{margin-top:0;color:#2a1460;text-shadow:none}
+#prx.p2 .prt small{color:#4d2fb8;font-size:17px}
+#prx.p2 .prt b.big{color:#7a4dff;text-shadow:0 3px 0 #fff}
+#prx.p2{animation:prxout 1.6s ease-in both}
+@keyframes prxin{from{opacity:0}to{opacity:1}}
+@keyframes prxs{from{transform:rotate(var(--a)) translateX(46vmin);opacity:0}30%{opacity:1}to{transform:rotate(calc(var(--a) + 200deg)) translateX(0);opacity:1}}
+@keyframes prxg{from{transform:scale(.2);opacity:.4}to{transform:scale(1.4);opacity:1}}
+@keyframes prxb{from{transform:scale(1.4);opacity:1}35%{transform:scale(14);opacity:1}to{transform:scale(14);opacity:1}}
+@keyframes prxt{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes prxout{0%,70%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#prx s,#prx .prl{animation:none!important}#prx .prl{transform:scale(1.4);opacity:.8}#prx.p2 .prl{transform:scale(14)}#prx .prt b.big{animation:none}}

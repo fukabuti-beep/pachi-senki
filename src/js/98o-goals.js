@@ -40,6 +40,24 @@ function glMenu(){const R=OMR[OMI.r],K=OMK[OMI.k];
   const L=glList().slice(0,6);
   h+='<div class="fxh" style="margin-top:12px">次の目標</div>'+(L.length?'<div class="fxs">もうすぐ届くものから順に</div>':'<div class="fxs">いまは全部達成! すごい!</div>')+'<div class="gll">';
   for(const g of L){const r=Math.max(0,Math.min(1,g[1]/g[2]));h+='<div class="glr"><div class="glt"><b>'+g[0]+'</b><i>'+fmt(Math.floor(g[1]))+' / '+fmt(g[2])+'</i></div><div class="glb"><u style="width:'+Math.round(r*100)+'%"></u></div><small>'+g[3]+'</small></div>'}
+  return h+'</div>'+glPlanHtml()}
+/* 作戦(作り手の方針「資源の使い方を、遊びながら自然に考えられるように」): いま手持ちの資源で出来ることを 資源ごとに並べる。
+   どれを選ぶかは遊び手の自由(おすすめは決めつけない)。押すとその強化画面が開く。他機能は typeof で確かめて読むだけ */
+function glPlan(){const L=[];const tr=f=>{try{f()}catch(e){}};
+  tr(()=>{let n=0;for(let i=0;i<UP.length;i++)if(G.stage>=(UP[i][4]||0)&&G.gold>=cost(i))n++;if(n)L.push(['gold','ゴールド','通常強化が '+n+' 種類 買える(攻撃・ゴールド・当たりやすさ…)','通常強化'])});
+  tr(()=>{if(typeof hupNeed!=='function')return;const h=hupNeed();if(!h)return;const v=hvSurv(h[0]);L.push(['gold','ゴールド','次のボス戦で '+STH[h[0]].n+' が 約'+Math.max(1,Math.round(v))+'秒で倒れそう → 守りを育てる','英雄'])});
+  tr(()=>{if(typeof RES==='undefined')return;let n=0;for(let i=0;i<3;i++)if(RES.ms>=wCost(RES.w[i])&&RES.gem>=wGem(RES.w[i]))n++;if(n)L.push(['ms','魔石','武器を '+n+' 本 きたえられる(その英雄の攻撃 +12%)','鍛冶屋'])});
+  tr(()=>{if(typeof GSM==='undefined')return;let n=0;for(const m of GSM){const l=gsLv(m.k);if(l<m.max&&RES.gem>=m.c(l))n++}if(n)L.push(['gem','宝石','勲章が '+n+' 種類 買える(ずっと続く強化)。衣装のために貯めるのも手','宝石屋'])});
+  tr(()=>{if(typeof SOULD==='undefined')return;let n=0;for(const d of SOULD){const l=soulLv(d.k);if(l<d.max&&soulFree()>=d.c(l))n++}if(n)L.push(['soul','魂','祭壇の強化が '+n+' 種類 できる(転生しても残る)','魂の祭壇'])});
+  tr(()=>{const gn=presGainShow(G.stage);if(gn>=1)L.push(['soul','転生','いま転生すると 魂 +'+fmt(gn)+'(STAGE 1 からやり直し。魂は攻撃とゴールドを底上げ)','魂の祭壇'])});
+  return L}
+function glPlanHtml(){const L=glPlan();let k=1;try{if(typeof hvLateK==='function')k=hvLateK(G.stage)}catch(e){}
+  let h='<div class="fxh" style="margin-top:12px">作戦</div><div class="fxs">'+(k>1.01?'この先の敵は守りが固い(いま 受けるダメージ ÷'+(k<10?k.toFixed(1):fmt(Math.round(k)))+'・STAGE が進むほど固くなる)。<br>':'')+(L.length?'いま出来ること。どれに使うかは自由':'いまは使える資源が無い。敵を倒して貯めよう')+'</div><div class="gll">';
+  for(const p of L)h+='<button type="button" class="glp" onclick="fxClose();upOpen(\''+p[3]+'\')">'+(typeof resIcon==='function'?resIcon(p[0]):'')+'<span><b>'+p[1]+'</b><small>'+p[2]+'</small></span><i>'+p[3]+' ▶</i></button>';
   return h+'</div>'}
+/* 進みが止まった時に1回だけ知らせる(90秒 同じ STAGE のまま+出来ることがある時。5分に1回まで) */
+const GLS={st:0,t:0,n:-999};
+FU.push(dt=>{if(!run)return;if(G.stage!==GLS.st){GLS.st=G.stage;GLS.t=0;return}GLS.t+=dt;
+  if(GLS.t>90&&T-GLS.n>300){GLS.t=0;try{if(glPlan().length){GLS.n=T;fxToast('進みが止まったら メニュー「目標」の 作戦 を見てみよう','#7dffa6')}}catch(e){}}});
 FM.push({n:'目標',r:glMenu});
 try{if(typeof FMGRP!=='undefined'){const g=FMGRP.find(x=>x.n==='遊ぶ');if(g&&g.t.indexOf('目標')<0)g.t.unshift('目標')}}catch(e){}

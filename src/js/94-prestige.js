@@ -44,7 +44,7 @@ function presAbort(){PGEN++;const tr=f=>{try{f()}catch(e){}};
 function presAsk(){
   const gn0=soulGain(G.stage);if(gn0<1){fxToast('STAGE '+PRES_MIN+' から転生できる','#aaa');return}
   const gn=presGainShow(G.stage),sa=presSbaShow();   // 表示は 魂の器(94b)込み・再出発の勢い(94b)抜き(QA: 実際の獲得と表示がずれていた)
-  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE 1 からやり直して 魂をもらう。<br><span style="color:#ffb0c8">最初から</span> STAGE・ゴールド・強化<br><span style="color:#7dffa6">残る</span> 魂・実績・最高記録・仲間'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>攻撃 x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',presDo],['やめる',()=>fxMenu(),'g']])}
+  fxShow('<div class="fxh">転生しますか?</div><div class="fxp">STAGE 1 からやり直して 魂をもらう。<br><span style="color:#ffb0c8">最初から</span> STAGE・ゴールド・強化<br><span style="color:#7dffa6">残る</span> 魂・実績・最高記録・仲間'+(presBusy()?'<br><span style="color:#ffb0c8">※進行中の演出(回転中の当たり等)は打ち切られます</span>':'')+'</div><div class="fxn">魂 +'+gn+'</div>'+presInfo(G.stage)+'<div class="fxs">魂 '+X.souls+' → '+(X.souls+gn)+'<br>攻撃 x'+sa.toFixed(1)+' → x'+(1+.1*(X.souls+gn)).toFixed(1)+' / ゴールド x'+SB.g().toFixed(2)+' → x'+(1+.05*(X.souls+gn)).toFixed(2)+'</div>',[['転生する!',()=>typeof presAnim==='function'?presAnim():presDo()],['やめる',()=>fxMenu(),'g']])}
 function presDo(){
   const gn=soulGain(G.stage);if(gn<1){fxClose();return 0}
   presAbort();

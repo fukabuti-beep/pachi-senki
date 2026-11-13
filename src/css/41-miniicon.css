@@ -1,0 +1,8 @@
+/* ミニゲームの札(98q-miniicon): 盤面の左上に小さく。ゆっくり脈打つ(約1Hz、動きを減らす設定では止める) */
+#mib{position:absolute;left:6px;top:6px;z-index:6;width:92px;padding:5px 4px 6px;border:2px solid #ffd400;border-radius:4px;background:linear-gradient(#3a2470,#1c1040);color:#fff;font-family:inherit;text-align:center;box-shadow:0 0 0 2px #14101f,0 3px 0 2px #14101f;cursor:pointer;animation:mibp 1s ease-in-out infinite}
+#mib b{display:block;font-size:13px;color:#ffd400;line-height:1.1;font-weight:normal}
+#mib small{display:block;font-size:10px;color:#cfe;margin-top:2px}
+#mib i{display:block;height:4px;margin-top:4px;background:#14101f;border-radius:2px;overflow:hidden}
+#mib u{display:block;height:100%;width:100%;background:#7dffa6}
+@keyframes mibp{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){#mib{animation:none}}

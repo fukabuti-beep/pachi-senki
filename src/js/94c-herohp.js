@@ -48,7 +48,10 @@ const hvGenki=i=>HV.dn[i]?0:1+HVGK*Math.max(0,Math.min(1,HV.hp[i]/hvMax(i)));
 {const _h=heroAtk;heroAtk=function(i,m){if(HV.dn[i])return;return _h.call(this,i,(m==null?1:m)*hvGenki(i))}}
 /* ボス戦を長くする: STAGE 30 からボスに「装甲」(受けるダメージ ÷k、50 で ÷3、80 で ÷6、100〜 ÷8)。体力と倒した時のゴールドは そのまま(経済は変えない) */
 const hvBossK=s=>s<30?1:Math.min(8,1+(s-30)*.1);
-{const _hu=hurt;hurt=function(x){if(isBoss()&&!hvTower()){const k=hvBossK(G.stage);if(k>1){const a=Array.prototype.slice.call(arguments);a[0]=x/k;return _hu.apply(this,a)}}return _hu.apply(this,arguments)}}
+/* 後半の敵の守り(作り手の方針「後半の敵を固くする」): STAGE BAL.lateS から 1ステージごとに 受けるダメージ ÷BAL.lateK(雑魚もボスも。体力とゴールドは不変、塔は対象外)。
+   体力を増やすとゴールドも増えて打ち消し合うので、守り(ダメージの割り算)で固くする */
+const hvLateK=s=>s>BAL.lateS?Math.pow(BAL.lateK,s-BAL.lateS):1;
+{const _hu=hurt;hurt=function(x){if(!hvTower()){const k=(isBoss()?hvBossK(G.stage):1)*hvLateK(G.stage);if(k>1){const a=Array.prototype.slice.call(arguments);a[0]=x/k;return _hu.apply(this,a)}}return _hu.apply(this,arguments)}}
 {const _s=spawn;spawn=function(){const r=_s.apply(this,arguments);try{
     // リベンジは そのボスと、全滅で1つ戻った手前のステージの間だけ続く
     if(G.stage>HV.revSt||G.stage<HV.revSt-1){HV.rev=0;HV.revSt=G.stage}if(isBoss()||HV.dn.some(d=>d))hvHeal();HV.wipe=0}catch(e){}return r}}

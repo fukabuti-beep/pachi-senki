@@ -419,6 +419,7 @@
 - 95-minigames.js: MG2, mg2End
 - 98b-active.js: ACT, cbHide
 - 98f-hilo.js: HL
+- 98r-presanim.js: presAnim
 
 ## 94b-soul.js
 - 25-ui.js: refresh
@@ -732,26 +733,44 @@
 ## 98o-goals.js
 - 21-pacing.js: spAdd
 - 29c-menugrp.js: FMGRP
+- 29d-resicon.js: resIcon
 - 70-show.js: banner
 - 77-se.js: kyuin, fan
 - 84-charfx.js: chJumpAll
 - 91-meta.js: fxToast, fxOpen, fxMenu, FU, X, FM
 - 92b-daily.js: dailyToday
 - 93-achieve.js: AC_
-- 94-prestige.js: SB
+- 94-prestige.js: SB, presGainShow
+- 94b-soul.js: SOULD, soulLv, soulFree
+- 94c-herohp.js: hupNeed, hvSurv, hvLateK
 - 96-allies.js: ALY
-- 96s-smith.js: resMs
+- 96s-smith.js: resMs, RES, wCost, wGem
 - 98h-area.js: AREAS
+- 98i-gemshop.js: GSM, gsLv
 - 98n-skin.js: SKD, skHas, skName
+- 98s-story.js: STH
 - 98y-finale.js: END
 - 98yb-lancer.js: lnOn
 - 98z-tower.js: TW
-- 99-main.js: run
+- 99-main.js: run, T
 
 ## 98p-pause.js
 - 98s-story.js: STY, styUpd
 - 98t-tutorial.js: TUT, tutUpd
 - 98y-finale.js: END, endUpd
+
+## 98q-miniicon.js
+- 75-audio.js: beep
+- 85-pachifx.js: mini
+- 91-meta.js: X, addGold, fxToast, FU
+- 93-achieve.js: sbg
+- 94-prestige.js: PGEN
+
+## 98r-presanim.js
+- 75-audio.js: tone
+- 77-se.js: sOK, sNow
+- 91-meta.js: fxEl, fxClose
+- 94-prestige.js: presDo, presGainShow, soulGain
 
 ## 98s-story.js
 - 10-sprites.js: SPR
@@ -843,9 +862,9 @@
 - 81-pxfont.js: pxText
 - 82-hitfx.js: deathFx, ringFx
 - 89c-layer.js: lyBusyB
-- 91-meta.js: X, fxToast, fxOpen, fxClose, fxShow, FU, FM
+- 91-meta.js: X, FU, fxToast, fxOpen, fxClose, fxShow, FM
 - 93-achieve.js: AC_
-- 94-prestige.js: SB
+- 94-prestige.js: SB, PGEN
 - 96s-smith.js: resMs, resGem, RI
 - 99-main.js: run, T
 

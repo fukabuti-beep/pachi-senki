@@ -25,10 +25,16 @@ function twMs(f){return 4*f}
 function twGem(f){return f%10==0?3:f%5==0?1:0}
 {const oa=SB.a;SB.a=()=>oa()*(1+twBless())}
 
-function twBusy(){try{if(typeof lyBusyB==='function'&&lyBusyB())return '演出中は始められない';if(G.roul||(typeof PUSH!=='undefined'&&PUSH))return '演出中は始められない'}catch(e){}return ''}
+function twBusy(){try{if(typeof lyBusyB==='function'&&lyBusyB())return '演出が終わりしだい始まる';if(G.roul||(typeof PUSH!=='undefined'&&PUSH))return '演出が終わりしだい始まる'}catch(e){}return ''}
+/* 予約した挑戦: 演出が終わったら始める。30秒たっても終わらなければ取り消し。転生したら取り消し */
+FU.push(()=>{const q=TW.q;if(!q||!run)return;if(typeof PGEN!=='undefined'&&PGEN!==q.g){TW.q=null;return}
+  if(!twBusy())twGo(q.f);else if(T-q.t>30){TW.q=null;fxToast('塔の予約を取り消した(演出が長引いた)','#aaa')}});
 function twStart(f){f=Math.max(1,Math.min(Math.floor(+f||1),TW.best+1,TWMAX));if(TW.on||!run)return;if(!twOpen()){fxToast('STAGE '+TWU+' で解放','#aaa');return}
-  const b=twBusy();if(b){fxToast(b,'#aaa');return}
   try{if(fxOpen)fxClose()}catch(e){}
+  /* 演出中(カットイン/JACKPOT/ルーレット/押せ!!)でも受け付ける(作り手の指摘: 育成が進むと演出が途切れず入れない)。演出が終わりしだい自動で始まる */
+  if(twBusy()){TW.q={f,t:T,g:typeof PGEN!=='undefined'?PGEN:0};fxToast('演出が終わりしだい 塔へ向かう','#b48cff');return}
+  twGo(f)}
+function twGo(f){TW.q=null;if(TW.on||!run)return;
   TW.sv={mx:G.mx,hp:G.hp};TW.on=1;TW.f0=f;TW.got={ms:0,gem:0,bless:0};TW.runs++;twSave();twFloor(f,1);
   try{banner('無限の塔 '+f+'階','#b48cff')}catch(e){}
   try{if(typeof sOK==='function'&&sOK()){const t=sNow();[392,523,659,784].forEach((q,i)=>tone(q,t+i*.08,.14,'square',.035));tone(98,t,.6,'sawtooth',.05,49)}}catch(e){}}

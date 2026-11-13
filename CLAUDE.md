@@ -126,7 +126,8 @@ npm test                            # build + smoke
 | 98yc-shell.js | **@full(完全版のみ)** ミニゲーム「宝玉かくし」(STAGE 45〜、95 の MGT に追加、#fxg を共用): 3つの杯に宝玉を隠して混ぜる(回数 5〜9、進むほど速い)→ 杯をタップ。当たり x6 / はずれ x1、4秒で自動選択(当てずっぽう)。転生は PGEN の変化で打ち切り。mg2Start/mini をラップ(98f と同じ形)(テスト: tests/shell.js) | feature |
 | 98p-pause.js / css/41-pause.css | 物語・ガイド・エンディングの間はゲームを止める(作り手の方針「ゲームはゲーム、ストーリーはストーリー」): 会話(98s)・ガイドの吹き出し(98t)・エンディング(98y)が**画面に出ている間**は `pzOn()`=true。99-main の loop の1行フック `pzStep(dt)` が update を飛ばし、`pzTick` が styUpd/tutUpd/endUpd だけ進める(描画は続く、BGM は流れる、効果音は鳴らない)。メニューや演出でシーンが隠れている間は止めない。盤面を暗く(body.pz)。テスト/sim は harness が `PACHI_NOPAUSE=1` で無効(止める動きは tests/pause.js) | feature |
 | 98q-miniicon.js / css/41-miniicon.css | ミニゲームは小さな札で知らせる(作り手の指摘「確定で時間を取られる」): ボス撃破で全画面を出さず、盤面の左上に札 #mib を `MIT`=25秒だけ表示。タップ(`miPlay`)でいつものミニゲーム、放置は時間切れで「おまかせ受け取り」(`miAuto`=x3 ぶんのゴールド、放置でも損なし)。札が出ている間に次が来たら前の分はおまかせ、転生(PGEN)で消える。mini をラップ(95 のローテーションより外、89c の待ち行列より内)(テスト: tests/tempo.js) | feature |
-| 98r-presanim.js / css/41-presanim.css | 転生の演出(作り手の指摘「押したら間が無く即開始」): 確認画面の「転生する!」(94 の presAsk の1行フック)→ `presAnim()`=約3秒の全画面演出 #prx(魂の光が中央へ集まる1.5秒 → 白い光が1回ふくらむ瞬間に presDo → 「転生!!」→ 消える)。全画面の点滅なし、reduced-motion はフェードのみ。harness(PACHI_NOPAUSE)では待たずに転生。presDo を直接呼ぶ所は今までどおり即時(テスト: tests/tempo.js) | fx |
+| 98r-presanim.js / css/41-presanim.css | 転生の演出(作り手の指摘「押したら間が無く即開始」「静止画みたい」): 確認画面の「転生する!」(94 の presAsk の1行フック)→ `presAnim()`=約3.6秒の全画面アニメーション #prx。**キャンバス(3px=1ドット)に毎フレーム描く**(CSS アニメーションに頼らない): 魂の粒がうずを巻いて中央の光の玉へ・英雄3人が光になって昇る・魂の数のカウントアップ(1.7秒)→ 光がはじける瞬間に presDo(setTimeout なので描画が止まっても必ず転生)→「転生!!」が落ちてはずむ・衝撃の輪・四方に飛ぶ粒。全画面の点滅なし(光は1回広がるだけ)、設定「演出の動き: ひかえめ」は暗転と文字だけ。演出中は body.pra で予告バナーを隠す。harness(PACHI_NOPAUSE)では待たずに転生(テスト: tests/tempo.js) | fx |
+| 98v-motion.js | 設定「演出の動き」ふつう/ひかえめ(作り手の指摘「ボタン演出も転生演出も静止画みたい」。原因=端末の「動きを減らす」が ON だと CSS の @media (prefers-reduced-motion) で動きを全部止めていた): 既定は **ふつう=端末の設定に関係なく動く**。読み込まれたスタイルの reduced-motion の @media を ふつう='not all'(無効)/ひかえめ='all'(常に有効)に書き換える(`moApply`)。設定パネル(#cfg)のフラッシュの下に1行足す。`moLow()` を JS の演出が見る。光の点滅は別の設定(フラッシュ。動きを減らす端末では初期 OFF のまま)。**新しい演出で動きを止めたい時は @media (prefers-reduced-motion) に書けば、この設定に連動する**。`pachi2_motion`(テスト: tests/tempo.js) | ui |
 | 98y-finale.js | **@full(完全版のみ)** 物語の最終章とエンディング(設定は docs/STORY.md): 98s の SCN に最終章 f1「解き放たれる光」を足し、b7(STAGE 200)を見たら待ち行列へ。f1 が終わって演出が落ち着いたら全画面のエンディング #edg(星空に光の玉が8方向へ・3人の行進・スタッフロール=英雄/取り戻した8つの土地/正気に戻った者/ありがとう、タップで早送り、最後に「2周目へ」、放置でも約45秒で閉じる。その間ゲームは止まり(98p)、曲はタイトル曲に(bgmState をラップ))。初回だけ宝石10+実績 end1。`localStorage['pachi2_end']`={n}。ラップなし(FU で見張る)(テスト: tests/finale.js) | feature/fx |
 | 99-main.js | メインループ `update` `loop`、起動処理 | 共有(**起動順に注意**) |
 
@@ -168,6 +169,7 @@ npm test                            # build + smoke
 - 描画: 戦闘=`#b`(360x150) 盤面=`#p`(360x400) をCanvas2Dで毎フレーム描画。スプライトは12x12ドットの**左半分を鏡像**する `mk()` 方式(英雄だけ 32x32 の全幅)(オリジナルのみ。既存IP/キャラの模倣は禁止)。
 - 音: `AC`(AudioContext)は**ユーザー操作後に生成**される。`AC` が無い/失敗しても落ちないこと。BGMは先読みスケジューラ(60ms interval)。
 - 性能: 60fps維持。iPhoneで重くなる `shadowBlur` の多用、毎フレームの大きな `createLinearGradient` 乱発、巨大配列は避ける。
+- **動き(点滅でないアニメーション)は端末の「動きを減らす」では止めない**(98v。作り手の方針: ワクワクが最優先)。止めるのは設定「演出の動き: ひかえめ」を選んだ時だけ。
 - **フラッシュは光過敏性への配慮が必要**: 全画面の高頻度点滅(3〜30Hz)は危険。`flash()`の頻度/強度は設定で「強/弱/OFF」に切り替えられるようにし、`prefers-reduced-motion` を尊重する。
 - ネットワーク依存禁止(例外: オンラインランキング 97t のみ。接続先 `RANK_SERVER`=https://pachi-rank.okumosiroiro.workers.dev(作り手の Cloudflare Workers+KV、変数名 RANK)。名前を決めた人だけ自己ベストを送信、ランキング画面を開いた時だけ一覧を取得。通信できなくてもゲームは普通に動くこと。テストは harness が PACHI_RANK_API='' で通信しない)。フォント `DotGothic16`(SIL OFL)は使う文字だけに絞った `src/font/DotGothic16-subset.woff2` を build.js が埋め込む(Google Fonts は読まない)。**新しい漢字を UI に足したら `python3 tools/font-subset.py <TTF>` で作り直す**(無い文字は等幅フォントで出る)。画像/音声ファイルは作らず、すべて**コード生成**。
   - 例外(作り手の指示): カットイン用キャラクターイラストは作り手提供の画像を `src/img/*.webp` に置き、`tools/build.js` が data URI として `PIMG` に埋め込む(単一HTMLのまま)。切り抜き/縮小は `python3 tools/cutout.py <元画像フォルダ>`。テスト(ハーネス)には入らないので、使う側は `typeof PIMG`/`PIMGI` を確認してコード描画(83b)にフォールバックする。
@@ -195,6 +197,7 @@ npm test                            # build + smoke
 | `pachi2_lancer` | 98yb | ツララの槍術 Lv | リセット |
 | `pachi2_menu` | 29c | 最後に開いたメニューのタブ | 残る |
 | `pachi2_mission` | 93b | デイリーミッション | 残る |
+| `pachi2_motion` | 98v | 演出の動き(ふつう/ひかえめ) | 残る |
 | `pachi2_music` | 98ya | 音楽室で選んだ曲 | 残る |
 | `pachi2_omi` | 98o | 今日のおみくじ {日付,種類,ランク} | 残る |
 | `pachi2_party` | 98g | 遠征隊(編成/仲間Lv) | 残る |

@@ -31,4 +31,7 @@ const calm = 'if(fxOpen)fxClose();RL=null;G.roul=0;G.jp=0;cut=null;PUSH=null;if(
 { const g = createGame({ seed: 7, storage: { pachi2: JSON.stringify({ v: 2, gold: 1e12, stage: 45, lv: [20, 5, 5, 20, 5, 5, 3, 3, 3, 3] }), pachi2_res: JSON.stringify({ ms: 900, gem: 40, w: [1, 1, 1] }) } }); g.start(); g.advance(1, .05);
   const L = JSON.parse(g.eval('JSON.stringify(glPlan())')); ok(L.length >= 3, '出来ることが並ぶ: ' + L.map(x => x[1]).join());
   ok(L.every(x => g.eval('UPG.list.some(u=>u[0]===' + JSON.stringify(x[3]) + ')')), '開く先の強化画面がある'); ok(g.eval("glMenu().indexOf('作戦')>0"), '目標タブに作戦'); }
+// 6) 演出の動きの設定: 既定は ふつう(端末の設定に関係なく動く)。ひかえめ は保存されて読み直せる
+{ const g = createGame({ seed: 8 }); g.start(); ok(g.eval('moLow()') === false, '既定は ふつう'); g.eval('moSet(1)'); ok(g.eval('moLow()') === true, 'ひかえめ にできる');
+  const g2 = createGame({ seed: 8, storage: g.store }); ok(g2.eval('moLow()') === true, '読み直しても ひかえめ'); g2.eval('moSet(0)'); ok(g2.eval('moLow()') === false, 'ふつう に戻せる'); }
 console.log(fails ? fails + ' tempo failure(s)' : 'TEMPO OK'); process.exit(fails ? 1 : 0);

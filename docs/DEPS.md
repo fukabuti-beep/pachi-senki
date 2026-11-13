@@ -767,10 +767,12 @@
 - 94-prestige.js: PGEN
 
 ## 98r-presanim.js
+- 10-sprites.js: SPR, spw
 - 75-audio.js: tone
 - 77-se.js: sOK, sNow
 - 91-meta.js: fxEl, fxClose
-- 94-prestige.js: presDo, presGainShow, soulGain
+- 94-prestige.js: presDo, soulGain, presGainShow
+- 98v-motion.js: moLow
 
 ## 98s-story.js
 - 10-sprites.js: SPR

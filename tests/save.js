@@ -5,10 +5,16 @@ let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.error('FAIL: ' 
   // 1) 書き出し→別の端末(空のセーブ)で読み込み
   const st1 = {}; const g = createGame({ seed: 1, storage: st1 }); g.start(); g.advance(1);
   g.eval('G.stage=42;G.gold=123456;localStorage.setItem("pachi2",JSON.stringify({v:2,gold:G.gold,stage:G.stage,lv:G.lv}));RES.gem=77;resSave&&resSave()');
-  const code = g.eval('svCode()'); ok(/^PACHI2:[A-Za-z0-9+/=]+:[a-z0-9]+$/.test(code), 'コードの形: ' + code.slice(0, 30));
+  const code = g.eval('svCode()'); ok(/^PACHI3:[a-z0-9]+\.[A-Za-z0-9_-]+:[a-z0-9]+$/.test(code), 'コードの形: ' + code.slice(0, 30));
+  // 短くなっていること(古い形式=圧縮なしの 7割以下)と、古い PACHI2: のコードも読めること
+  const old = g.eval('(function(){const body=svB64(JSON.stringify({v:1,t:Date.now(),d:svCollect()}));return "PACHI2:"+body+":"+svSum(body)})()');
+  ok(code.length < old.length * .7, '短くなっていない: ' + code.length + ' / ' + old.length);
+  ok(g.eval(`(function(){const p=svParse(${JSON.stringify(old)});return !!p&&!!p.d.pachi2})()`), '古いコードが読めない');
+  ok(g.eval(`(function(){const p=svParse(svCode()),c=svCollect();for(const k in c){let a=c[k];try{a=JSON.stringify(JSON.parse(a))}catch(e){}if(a!==p.d[k])return k}return ''})()`) === '', '圧縮して戻すと中身が変わる');
+  ok(g.eval('(function(){const b=[];for(let i=0;i<5000;i++)b.push((i*i*31+i)%251);const r=svUnLz(svLz(b),b.length);return !!r&&r.every((v,i)=>v===b[i])})()'), '圧縮の往復(でたらめなデータ)');
   ok(g.eval(`!!svParse(${JSON.stringify(code)})`), '自分のコードが読めない');
   ok(g.eval(`svParse(${JSON.stringify(code.slice(0, -2) + 'zz')})`) === null, '壊れたコードを受け付けた');
-  ok(g.eval(`svParse("PACHI2:abc:def")`) === null && g.eval(`svParse("")`) === null, '変なコードを受け付けた');
+  ok(g.eval(`svParse("PACHI3:5.abc:def")===null&&svParse("PACHI2:abc:def")`) === null && g.eval(`svParse("")`) === null, '変なコードを受け付けた');
   const st2 = {}; const h = createGame({ seed: 2, storage: st2 }); h.start(); h.advance(5, .05);   // 自動保存(4秒)で pachi2 ができてから
   h.eval('window.__rl=0;window.location=window.location||{};window.location.reload=()=>{window.__rl=1}');
   const r = h.eval(`(function(){const p=svParse(${JSON.stringify(code)});return svApply(p.d)})()`);

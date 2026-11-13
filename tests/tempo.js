@@ -45,10 +45,11 @@ const calm = 'if(fxOpen)fxClose();RL=null;G.roul=0;G.jp=0;cut=null;PUSH=null;if(
   ok(g.eval("typeof seUi==='function'&&typeof seBuy==='function'&&typeof seSwing==='function'"), '追加の効果音がある'); }
 // 8) ルーレットと押せ!!の音(79e): 登場・カウント・押下・回り始め・溜め・超倍率が鳴り、重ねていた古い音は鳴らない
 { const g = createGame({ seed: 10 }); g.start(); g.advance(1, .05);
-  g.eval("var __s={};['phSnd','seAori','seDecide','seHy','seCount','seRoulStart','seRoulTame','seRoulSup','seMiniTick','seMiniRes'].forEach(n=>{const o=eval(n);eval(n+'=function(){const k=n+(n===\\'phSnd\\'||n===\\'seHy\\'?\\':\\'+arguments[0]:\\'\\');__s[k]=(__s[k]||0)+1;return o.apply(this,arguments)}')})");
+  g.eval("var __s={};['phSnd','seAori','seDecide','seHy','seCount','seRoulStart','seRoulTame','seRoulSup','seMiniTick','seMiniRes','seKyuKyu'].forEach(n=>{const o=eval(n);eval(n+'=function(){const k=n+(n===\\'phSnd\\'||n===\\'seHy\\'?\\':\\'+arguments[0]:\\'\\');__s[k]=(__s[k]||0)+1;return o.apply(this,arguments)}')})");
   g.eval(calm + 'pushPrompt(()=>{},{ms:2400})'); g.advance(2, .05);
   const a = g.eval('JSON.stringify(__s)'); const s1 = JSON.parse(a);
   ok(s1['phSnd:in'] === 1 && s1.seAori === 1 && !s1['seHy:pop'], '押せ!!の登場は 熱さの音+煽り だけ: ' + a);
+  ok(s1.seKyuKyu === 1 && g.eval('seKyuKyu(3)') > g.eval('seKyuKyu(1)'), '押せ!!の登場で キュインキュイン(熱いほど長い)');
   ok(s1.seCount >= 2, 'カウントダウンの音: ' + s1.seCount);
   g.eval('pushPress(0)'); g.advance(.2, .05); const s2 = JSON.parse(g.eval('JSON.stringify(__s)'));
   ok(s2['phSnd:hit'] === 1 && s2.seDecide === 1 && !s2['seHy:wave'], '押下は 決定音+熱さの上乗せ だけ: ' + JSON.stringify(s2));

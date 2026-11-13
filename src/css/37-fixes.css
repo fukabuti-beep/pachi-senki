@@ -12,3 +12,8 @@ html body #fxm #fxmbt{position:sticky;bottom:-14px;z-index:2;margin:6px -14px -1
 
 /* 押せない(魔石不足など)ボタンを押せない見た目に */
 html body #fxm .fxb:disabled{opacity:.4;filter:grayscale(.8);cursor:default}
+
+/* 横にずれない(作り手の指摘「宝石ショップだけ上下だけでなく左右にも動いてスワイプしにくい」): スクロールする欄は縦だけ動く。
+   PC のマウスホイールはそのまま。中身が少し広くても、欄ごと横に引っ張られない(どの画面も同じ動き) */
+#fxm .rb,#fxg .rb,#upx{overflow-x:hidden!important;overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain}
+#fxm .fxl>div>*,#upx .fxl>div>*{min-width:0}

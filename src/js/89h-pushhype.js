@@ -11,11 +11,12 @@ const phOf=o=>{o=o||{};return o.jp?3:Math.max(1,Math.min(3,o.heat|0||1))};
 function phSnd(k,h){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow(),r=fanRoot();
   /* 音程は BGM の調から(以前は固定の和音で、BGM とぶつかることがあった)。押下の土台(ドン・振動・和音)は 79 の seDecide、ここは熱さの上乗せだけ */
   if(k==='in'){
-    sBoom(t,.5+h*.35);noise(t,.06,.08,'h');                                     // ドン(熱さで強く)
+    // 「キュインキュイン!!」(79e、熱さで2〜4回)→ 鳴り終わりに調に合わせた和音で決める
+    const kd=typeof seKyuKyu==='function'?seKyuKyu(h):0,tc=t+Math.max(0,kd-.12);
     const ch=h>=3?[0,4,7,12,16]:h==2?[0,4,7,12]:[0,4,7];
-    ch.forEach((s2,i)=>{tone(mf(r+12+s2),t+.04+i*.035,.32,'p25',.03);tone(mf(r+s2),t+.04+i*.035,.28,'triangle',.022)});
-    if(h>=2)sFat(mf(r-12),t+.05,.45,.03,mf(r+12),1);                            // 金: うなりが上がる
-    if(h>=3)[24,28,31].forEach((s2,i)=>sBell(mf(r+s2),t+.3+i*.06,.025,.4));      // 虹: 鐘
+    ch.forEach((s2,i)=>{tone(mf(r+12+s2),tc+i*.035,.32,'p25',.03);tone(mf(r+s2),tc+i*.035,.28,'triangle',.022)});
+    if(h>=2)sFat(mf(r-12),t+.05,Math.max(.45,kd),.025,mf(r+12),1);              // 金・虹: 下でうなりが上がる
+    if(h>=3)[24,28,31].forEach((s2,i)=>sBell(mf(r+s2),tc+.25+i*.06,.025,.4));   // 虹: 鐘
   }else if(k==='hit'){
     if(h>=2){sCrash(t,.05,.5);sFat(mf(r),t+.04,.55,.035,mf(r+24),1)}           // 金・虹: クラッシュ+駆け上がり
     if(h>=3){sBoom(t+.09,1.4);[24,28,31,36].forEach((s2,i)=>sBell(mf(r+s2),t+.36+i*.07,.026,.45));noise(t+.3,.05,.5,'h')}   // 虹: 2回目の衝撃「ドドン」+鐘

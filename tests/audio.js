@@ -147,7 +147,9 @@ const QUIET = 'sp=null;PUSH=null;RL=null;G.roul=0;cut=null;hryUp=function(q,i,to
   g.eval(`var __sw=[];(function(){const o=bgSwitch;bgSwitch=function(s,t){__sw.push({from:BG.s,to:s,st:BG.st,bus:BG.bus});return o.apply(this,arguments)}})()`);
   const want = (setup, st, label, sec = 4) => { for (let i = 0; i < sec * 2; i++) { g.eval(setup + ';' + QUIET); g.advance(.5); g.eval(KEEP) } const s = g.eval('BG.s'); ok(s === st, `${label}: BGM状態 ${s} (期待 ${st})`); };
   want('G.rush=0;G.fv=0;G.jp=0;G.stage=1', 'n', 'STAGE1');
-  want('G.rush=0;G.fv=0;G.jp=0;G.stage=12', 'n2', 'STAGE12'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=22', 'n3', 'STAGE22'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=41', 'n4', 'STAGE41');
+  // 自然に起きるフィーバー(99-main、1秒ごとに一定の確率)が最後の0.5秒に重なると曲が変わってしまうので、この確認の間は止める(乱数の並びで結果が揺れないように)
+  g.eval('var __fb=BAL.fevBase;BAL.fevBase=1e12');
+  want('G.rush=0;G.fv=0;G.jp=0;G.stage=12', 'n2', 'STAGE12'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=22', 'n3', 'STAGE22'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=41', 'n4', 'STAGE41'); g.eval('BAL.fevBase=__fb');
   want('G.rush=0;G.fv=0;G.jp=0;G.stage=25', 'b2', 'ボス25'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=10', 'b', 'ボス10'); want('G.rush=0;G.fv=0;G.jp=0;G.stage=11', 'n2', 'STAGE11');
   want('G.rush=0;G.jp=0;G.fv=30', 'f', 'FEVER'); want('G.rush=15;G.fv=0;G.jp=0', 'r', 'RUSH'); want('G.jp=30;G.rush=15', 'j', 'JACKPOT'); want('G.jp=0;G.rush=0;G.fv=0', 'n2', '復帰');
   // 緊張: 押せ!! で tn、押したら(PUSH解除後)抜ける。ルーレット回転中も tn

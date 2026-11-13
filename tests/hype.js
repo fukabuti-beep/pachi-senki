@@ -72,7 +72,8 @@ const idle = 'G.rush=0;G.roul=0;G.jp=0;sp=null;cut=null;PUSH=null;RL=null;MG=nul
   ok(g.eval('!UJ.s&&__jp===0'), '転生後に超必殺技/JACKPOT が残る');
   g.eval(`${idle}BK.force=1;BS.force=1;G.q=1;QL.length=0;QL.push({h:1,c:0});startSpin();sp.pzN=0;sp.rv=0;sp.type=2;`); g.advance(2.6);
   ok(g.eval('!!BS.s'), '(準備)巨大スロットが出ていない');
-  g.eval('presAbort()'); g.advance(.3);
+  // 本番の転生(presDo)は presAbort の後に 玉と保留を空にする。テスト用の「必ず暗転/巨大スロット」も外す(残った保留で次の回転が始まると、強制の設定でまた暗転が出てしまうため)
+  g.eval('BK.force=0;BS.force=0;presAbort();G.q=0;QL.length=0;balls.length=0'); g.advance(.3);
   ok(g.eval('!BK.s&&!BS.s'), '転生後に暗転/巨大スロットが残る');
   ok(!/hybs/.test(g.eval('$("slot").className')), '転生後もリールが隠れたまま');
   console.log('転生: OK');

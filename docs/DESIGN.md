@@ -56,6 +56,17 @@
 
 参考: [VFX のタイミング](https://www.vfxapprentice.com/blog/the-soul-of-effects-what-is-timing-in-vfx) / [LoL の VFX 指針の要約](https://www.vfxapprentice.com/blog/10-league-of-legends-vfx-design-tips) / [ドット絵とアニメの原則](https://www.sprite-ai.art/guides/animation-principles) / [当たった感じの作り方](https://uhiyama-lab.com/ja/notes/ue/game-feel-hit-feedback/) / [手応えのある戦闘](https://www.wayline.io/blog/making-combat-feel-impactful)
 
+## 1e. 音の考え方(75 / 77 / 79、作り手の指摘「もっと重厚に・聴いて気持ちいい音に」)
+| 考え方 | 中身 | このゲームでの使い方 |
+|---|---|---|
+| 重ねて作る | 大事な瞬間は 低音・形のある音・きらめき・響き を同じ瞬間に重ねる。1本の音では細い | `sBoom`(ドン)+ `sFat`(厚い金管)+ `sBell`(鐘)+ 響き |
+| 低音は体で聴く | パチンコ店の大当たりは「ドン」という重低音が体に来る。50〜150Hz の下がる音と低い雑音 | 大当たり・JACKPOT・押せ!!・激アツ・ボス は `sBoom`、強さは重要度で変える |
+| 機械の手応え | 実機はリールや役物が「ガコン」、玉は金属の「チャリ」、ボタンは振動する | `sClunk` / `sMetal` / `sBuzz` |
+| 差で気持ちよく | ふだんの音まで派手にすると疲れて、大当たりが目立たない | 命中・コンボ・保留は短く小さく(低音は雑音で少しだけ)。発音数の上限 tests/audio.js |
+| 耳に痛い高域を丸める | ノコギリ波そのままは「キンキン」する | 暖かい経路 `wm`(低域通過)を通す |
+| 調(キー)に合わせる | 効果音の音程は今の BGM の調から作る(不協和にしない) | `fanRoot` / `sLad` / `sRise` / `beep` の音階丸め |
+| 抽選に触れない | 音がゲームの乱数を使うと、音を変えただけで当たりの出方が変わる | 音の乱数は `sR()` |
+
 ## 2. 解放のペース(最高ステージ。空きが長い所に次の要素を置く)
 | STAGE | 出てくるもの |
 |---|---|

@@ -10,17 +10,17 @@ const PHY={h:0};
 const phOf=o=>{o=o||{};return o.jp?3:Math.max(1,Math.min(3,o.heat|0||1))};
 function phSnd(k,h){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   if(k==='in'){
-    tone(90,t,.32,'sine',.11,38);noise(t,.12,.18,'l');noise(t,.06,.08,'h');                  // ドン+打撃
+    sBoom(t,.6+h*.4);noise(t,.06,.08,'h');                  // ドン+打撃(重低音は熱さで強く)
     const ch=h>=3?[523,659,784,1047,1319]:h==2?[440,554,659,880]:[392,494,587];
     ch.forEach((f,i)=>{tone(f,t+.04+i*.03,.34,'square',.03);tone(f*2,t+.04+i*.03,.2,'triangle',.018)});
     if(h>=3){tone(220,t+.05,.7,'sawtooth',.035,1760);[1568,2093,2637].forEach((f,i)=>tone(f,t+.3+i*.06,.25,'triangle',.025))}
     else if(h==2)tone(330,t+.05,.45,'sawtooth',.03,1320);
   }else if(k==='hit'){
-    tone(120,t,.5,'sine',.13,30);tone(60,t,.6,'sawtooth',.06,28);noise(t,.16,.35,'l');noise(t+.02,.08,.18,'h');   // 落下+打撃
+    sBoom(t,1.2+h*.45);sBuzz(t+.01,.2+h*.08,.04+h*.012);tone(60,t,.6,'sawtooth',.05,28);noise(t+.02,.08,.18,'h');if(h>=2)sCrash(t,.05,.5);   // 落下+打撃+ボタンの振動「ブルッ」
     const base=h>=3?[523,659,784,1047,1319,1568]:h==2?[440,554,659,880,1109]:[392,494,587,784];
     base.forEach((f,i)=>{tone(f,t+.06+i*.045,.42,'square',.032);tone(f/2,t+.06+i*.045,.42,'sawtooth',.016)});
     if(h>=2)tone(330,t+.04,.6,'sawtooth',.04,h>=3?2637:1760);                                // 上昇キュイーン
-    if(h>=3){[2093,2637,3136,4186].forEach((f,i)=>tone(f,t+.36+i*.07,.3,'triangle',.028));noise(t+.3,.05,.5,'h')}
+    if(h>=3){[2093,2637,3136,4186].forEach((f,i)=>sBell(f,t+.36+i*.07,.025,.4));noise(t+.3,.05,.5,'h')}
   }}catch(e){}}
 function phCls(el,add,rm){try{let c=String(el.className||'').split(' ').filter(x=>x&&!rm.test(x));el.className=c.concat(add).join(' ')}catch(e){}}
 {const o=pushPrompt;pushPrompt=function(cb,opt){const was=PUSH,r=o.apply(this,arguments);

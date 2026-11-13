@@ -16,7 +16,9 @@ class Param {
   linearRampToValueAtTime(v, t) { return this._add('l', v, t); }
   exponentialRampToValueAtTime(v, t) { return this._add('e', v, t); }
   setTargetAtTime(v, t) { return this._add('s', v, t); }
-  cancelScheduledValues(t) { this.ev = this.ev.filter(e => e.t < t); return this; }
+  // 本物の Web Audio では、すでに過ぎた時刻の値は取り消せない(鳴った音は変わらない)。あとからまとめて計算するので、
+  // 「今より前」を指定された取り消しは「今から先」だけにする(過去の音量の記録を消すと、過去の区間を初期値1で計算してしまう)
+  cancelScheduledValues(t) { const c = Math.max(t, this.rec.now()); this.ev = this.ev.filter(e => e.t < c); return this; }
   at(t) {
     const ev = this.ev; if (!ev.length) return this.def;
     let i = -1; while (i + 1 < ev.length && ev[i + 1].t <= t) i++;

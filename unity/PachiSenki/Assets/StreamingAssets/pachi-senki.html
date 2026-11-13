@@ -2129,8 +2129,11 @@ function jackpot(){G.jp=5;const g=Math.floor(G.pool+G.stage*500*mul());G.gold+=g
    構成: 75=コア(このファイル) 76=BGM 77=SE 78=他ファイルの関数へのSEフック
    AC は 99-main.js が「開始」ボタンで生成する(ユーザー操作後)。AC が無い/壊れても例外は出さない。
    公開API: beep tone noise kyuin jara fan bgm / setVol(bgm,se) getVol() setMute(m) isMuted()
-   マスター: bg/se -> mx -> コンプ -> リミッタ -> ソフトクリップ(|y|<=.92) -> destination。BGMは曲ごとのバス(BG.bus)を通し、切替時にクロスフェード */
-let AC,SGR=null,SNB,SNBH,SNBM;
+   マスター: bg/se -> mx -> コンプ -> リミッタ -> ソフトクリップ(|y|<=.92) -> destination。
+   効果音の厚み(作り手の指摘「もっと重厚に」): se から 響き(rv: 4本の遅延の残響=店内の空気感)へ少し送る / 角を丸める暖かい経路 wm(低域通過 → se)/ 地鳴り用の低い雑音 'l'(ブラウンノイズ)。BGMは曲ごとのバス(BG.bus)を通し、切替時にクロスフェード */
+let AC,SGR=null,SNB,SNBH,SNBM,SNBL;
+/* 効果音専用の乱数(ゲームの Math.random を使わない=音の作りを変えても当たりの出方が変わらない) */
+let sRs=0x2f6b1d3;const sR=()=>{sRs=(sRs+0x6D2B79F5)|0;let t=Math.imul(sRs^sRs>>>15,1|sRs);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 let BG={nx:0,st:0,on:1,iv:0,s:'n',bus:null};
 const mf=n=>440*Math.pow(2,(n-69)/12);
 const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7],mg:1,bk:.6,sk:1.6};
@@ -2154,16 +2157,23 @@ function sGr(){
     try{const sh=AC.createWaveShaper(),N=2049,cv=new Float32Array(N);for(let i=0;i<N;i++){const x=i/(N-1)*2-1,a=Math.abs(x);cv[i]=(a<.7?a:.7+.28*Math.tanh((a-.7)/.28))*(x<0?-1:1)}sh.curve=cv;last.connect(sh);last=sh}catch(e){}
     last.connect(AC.destination);
     bg.connect(mx);se.connect(mx);ld.connect(bg);
+    // 暖かい経路: ノコギリ波などの耳に痛い高域を丸める(重厚な金管・地鳴り用)
+    let wm=se;try{const w0=AC.createGain(),lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;lp.Q.value=.6;w0.connect(lp);lp.connect(se);wm=w0}catch(e){wm=se}
+    // 響き: 長さの違う4本の遅延を低域通過で返して、短いホールの残響を作る(効果音だけ。BGM には掛けない)
+    try{const rin=AC.createGain(),rout=AC.createGain();rin.gain.value=.16;rout.gain.value=.55;se.connect(rin);rout.connect(mx);
+      [.037,.053,.071,.097].forEach((dt,i)=>{const d=AC.createDelay(1),fb=AC.createGain(),lp=AC.createBiquadFilter();d.delayTime.value=dt;lp.type='lowpass';lp.frequency.value=2600-i*300;fb.gain.value=.52-i*.04;
+        rin.connect(d);d.connect(lp);lp.connect(fb);fb.connect(d);lp.connect(rout)})}catch(e){}
     let dl=null;
     try{dl=AC.createDelay(1);const wet=AC.createGain(),fb=AC.createGain();wet.gain.value=.28;fb.gain.value=.3;dl.delayTime.value=.35;ld.connect(dl);dl.connect(wet);wet.connect(bg);dl.connect(fb);fb.connect(dl)}catch(e){dl=null}
     const sr=AC.sampleRate||44100,n=sr,w=new Float32Array(n),h=new Float32Array(n),m=new Float32Array(n);
-    for(let i=0;i<n;i++)w[i]=Math.random()*2-1;
+    const l=new Float32Array(n);let lb=0;
+    for(let i=0;i<n;i++){w[i]=sR()*2-1;lb=(lb+.02*w[i])/1.02;l[i]=lb*3.5}
     for(let i=0;i<n;i++)h[i]=(w[i]-(i?w[i-1]:0))*.6;
-    const lf=[];for(let i=0;i<93;i++)lf.push(Math.random()<.5?-1:1);
+    const lf=[];for(let i=0;i<93;i++)lf.push(sR()<.5?-1:1);
     for(let i=0;i<n;i++)m[i]=lf[Math.floor(i/3)%93];
     const mk=a=>{const b=AC.createBuffer(1,n,sr);try{b.getChannelData(0).set(a)}catch(e){}return b};
-    SNB=mk(w);SNBH=mk(h);SNBM=mk(m);
-    SGR={ac:AC,mx,bg,se,ld,dl};
+    SNB=mk(w);SNBH=mk(h);SNBM=mk(m);SNBL=mk(l);
+    SGR={ac:AC,mx,bg,se,ld,dl,wm};
     applyMix();
   }catch(e){SGR={ac:AC,bad:1}}
   return SGR.bad?null:SGR;
@@ -2226,14 +2236,14 @@ function sVo(f,t,d,ty,v,o){
   osc.connect(g);g.connect(typeof o.dest==='object'&&o.dest?o.dest:sDst(o.dest||'se'));
   osc.start(t);osc.stop(t+d+.02);
 }
-/* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) */
+/* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) / 'l' 低い地鳴り(ブラウンノイズ) */
 function sNs(t,v,d,k,dest){
   const s=AC.createBufferSource(),g=AC.createGain();
-  sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:SNB;
+  sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:k==='l'?(SNBL||SNB):SNB;
   v=Math.max(v,.0002);
   g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
   s.connect(g);g.connect(typeof dest==='object'&&dest?dest:sDst(dest||'se'));
-  s.start(t,Math.random()*.4,d+.02);
+  s.start(t,sR()*.4,d+.02);
 }
 
 /* --- 既存API(シグネチャ維持) --- */
@@ -2248,7 +2258,8 @@ function sSnap(f){
 }
 function beep(f,d=.08,t='square',v=.04){
   if(!AC||SND.m||SND.sup>0)return;
-  try{if(SND.supUntil&&AC.currentTime<SND.supUntil)return;tone(sSnap(f),AC.currentTime,d,t,v)}catch(e){}
+  try{if(SND.supUntil&&AC.currentTime<SND.supUntil)return;const g=sSnap(f),n=AC.currentTime;tone(g,n,d,t,v);
+    if(g>260&&d>=.05)tone(g/2,n,d*.9,'triangle',v*.55)}catch(e){}   // 1オクターブ下の三角波を重ねて 細い電子音に胴の鳴りを足す
 }
 /* BGMを一瞬下げる(ファンファーレ等を聞かせる) */
 function sDuck(a,d){const g=SGR&&!SGR.bad?SGR:null;if(!g||SND.m)return;try{const p=g.bg.gain,n=AC.currentTime,b=bgGain();p.cancelScheduledValues(n);p.setValueAtTime(b*(1-a),n);p.linearRampToValueAtTime(b,n+d)}catch(e){}}
@@ -2416,7 +2427,12 @@ function bgm(){
 
 /* ---------- SEライブラリ (sound担当) ----------
    すべて AC が無い/ミュート中は何もしない。音程は「今鳴っているBGMのキー」から作るので BGM と不協和にならない。
-   重要音は sPri++ で同時発音上限の枠を広げ、鳴らす間 sDuck() でBGMを少し下げる。 */
+   重要音は sPri++ で同時発音上限の枠を広げ、鳴らす間 sDuck() でBGMを少し下げる。
+   音作りの方針(作り手の指摘「もっと重厚に・聴いて気持ちいい音に」。参考=パチンコ店の実機音+8bit のオリジナル):
+     ・大事な瞬間は「ドン(重低音)+ 形のある音 + きらめき + 響き」を同じ瞬間に重ねる(sBoom / sFat / sBell)
+     ・機械の手応え: リール停止や役物は「ガコン」(sClunk)、玉と払い出しは金属の「チャリ」(sMetal)、押せ!!は振動「ブルッ」(sBuzz)
+     ・金管のスタブは 2本のノコギリを少しずらして厚く(sFat)、暖かい経路(wm)で耳に痛い高域を丸める
+     ・ふだんの音(命中・コンボ等)は短く控えめ=大事な瞬間との差で気持ちよさを作る。乱数は sR(ゲームの乱数は使わない) */
 const sOK=()=>AC&&!SND.m;
 const sNow=()=>AC.currentTime+.005;
 // 主和音ルート(minorなら平行長調): C5付近(66〜77)
@@ -2425,6 +2441,24 @@ const fanRoot=()=>{const pc=SND.min?(SND.pc+3)%12:SND.pc;return 72+((pc+6)%12)-6
 function sLad(i){const sc=SND.min?[0,3,5,7,10]:[0,2,4,7,9],b=60+((SND.pc+6)%12)-6;i=Math.max(0,i|0);let m=b+12*Math.floor(i/5)+sc[i%5];while(m>93)m-=12;return m}
 const sBig=f=>{sPri++;try{f()}finally{sPri--}};
 function sFlash(c){try{if(typeof flash==='function')flash(c)}catch(e){}}
+
+/* --- 音の部品 --- */
+function sTo(dest,f,t,d,ty,v,f2){if(!AC||SND.m)return;try{if(!sVok(t,d))return;sVo(f,t,d,ty,v,{f2,dest})}catch(e){}}
+const sW=(f,t,d,ty,v,f2)=>sTo('wm',f,t,d,ty,v,f2);   // 暖かい経路(高域を丸める)
+// 厚い金管: 少しずらした2本のノコギリ+1オクターブ下の三角波(胴)
+function sFat(f,t,d,v,f2,nb){sW(f*1.006,t,d,'sawtooth',v*.55,f2&&f2*1.006);sW(f*.994,t,d,'sawtooth',v*.55,f2&&f2*.994);if(!nb)tone(f/2,t,d,'triangle',v*.6,f2&&f2/2)}
+// 重低音ドン(s=強さ 0.3〜2.5): 下がる正弦+三角の芯+低い地鳴り+一瞬の打撃
+function sBoom(t,s){s=s||1;tone(140,t,.2+.32*s,'sine',Math.min(.24,.12*s),33);tone(70,t+.004,.14+.24*s,'triangle',Math.min(.13,.065*s),31);noise(t,Math.min(.15,.055*s),.1+.3*s,'l');noise(t,Math.min(.06,.03*s),.025,'h')}
+// ガコン(役物・リール停止): 胴の低い打撃+金属の短い鳴り+高い爪の音
+function sClunk(t,s){s=s||1;tone(200,t,.1,'triangle',.075*s,72);noise(t,.045*s,.05,'m');tone(2400,t,.016,'p12',.03*s,900);noise(t+.004,.05*s,.09,'l')}
+// チャリ(金属): 整数倍でない倍音で 玉やメダルの金属っぽさ
+function sMetal(f,t,v,d,k){d=d||.1;tone(f,t,d,'square',v*.5);tone(f*2.76,t,d*.7,'sine',v*.55);if(k!==2)tone(f*5.4,t,d*.45,'sine',v*.3)}
+// 鐘の余韻(きらめき)
+function sBell(f,t,v,d){d=d||.6;tone(f,t,d,'sine',v);tone(f*2.005,t,d*.6,'sine',v*.45);tone(f*3.01,t,d*.35,'triangle',v*.22)}
+// ブルッ(ボタンの振動): とても低いノコギリ
+function sBuzz(t,d,v){tone(44,t,d,'sawtooth',v,36);tone(88,t,d*.7,'square',v*.3,72)}
+// 衝撃のシンバル(クラッシュ): 白い雑音+高い雑音
+function sCrash(t,v,d){d=d||.9;noise(t,v,d,'w');noise(t,v*.8,d*.7,'h')}
 
 /* キュイン: n段の上昇スイープ。段ごとに(ノコギリ+1オクターブ上の矩形+微ディチューン)を重ね、最後は余韻とキラキラ
    耳の疲れ対策(音だけ。フラッシュは従来どおり): キュインごとに専用バス(sKB)を通し、
@@ -2446,161 +2480,171 @@ function sKyBus(n,t0,dur){
 function kyuin(n,c){
   n=Math.max(1,n|0);
   if(sOK())try{
-    const t0=sNow(),st=n>6?2:3,B=sKyBus(n,t0,n*.105+.45);
+    const t0=sNow(),st=n>6?2:3,B=sKyBus(n,t0,n*.105+.6);
     if(B!==0){const tk=(f,t,d,ty,v,f2)=>B?sTb(B.bus,f,t,d,ty,v,f2):tone(f,t,d,ty,v,f2);
     sBig(()=>{
+      if(n>=4)sBoom(t0,Math.min(2,.6+n*.12));   // 入りの重低音
       for(let i=0;i<n;i++){
         const f=900*Math.pow(2,i*st/12),t=t0+i*.105,last=i===n-1;
-        tk(f,t,.1,'sawtooth',.05,f*1.9);
-        tk(f*2,t,.1,'p25',.018,f*3.6);
-        tk(f*1.007,t+.012,.1,'sawtooth',.02,f*1.9*1.007);
-        if(i===0&&n>=4)tk(140,t,.14,'sine',.13,45);
-        if(last){tk(f*1.9,t+.1,.32,'sine',.03);noise(t+.02,.025,.2,'h')}
+        tk(f,t,.1,'sawtooth',.045,f*1.9);              // キュッと上がる本体
+        tk(f*1.008,t+.01,.1,'sawtooth',.022,f*1.9*1.008); // 少しずらして厚く
+        if(i%2===0||last)tk(f*2,t,.09,'p25',.016,f*3.6);   // 上の倍音(1段おき=発音数を抑える)
+        tk(f/2,t,.1,'triangle',.03,f*.95);             // 下の胴
+        if(last){tk(f*1.9,t+.1,.5,'sine',.03);tk(f*2.85,t+.12,.4,'sine',.014);noise(t+.02,.025,.25,'h')}
       }
+      if(n>=7){const te=t0+n*.105;tk(600,te,.55,'sawtooth',.03,2400);tk(1200,te+.05,.5,'p25',.012,4800);sBell(mf(fanRoot()+24),te+.1,.03,.9)}   // 大当たり級は「ギュイーン」と鐘
     });
-    if(n>=3)sDuck(.25,n*.105+.2);}
+    if(n>=3)sDuck(.25,n*.105+.3);}
   }catch(e){}
   // 画面フラッシュは約3Hzに間引く(光過敏性への配慮)。AC有無に依存しない
   for(let i=0;i<n;i++)if(i%3===0||i===n-1)setTimeout(()=>sFlash(((i/3)|0)%2?c:'#fff'),i*105);
 }
-/* ジャラジャラ(玉が払い出される音)。呼び出し頻度が高いので40msで間引く */
+/* ジャラジャラ(玉が払い出される音): 金属の「チャリ」。呼び出し頻度が高いので60msで間引く */
 let sJT=-1;
 function jara(){
   if(!sOK())return;
   try{const n=AC.currentTime;if(n-sJT<.06)return;sJT=n;
-    const f=2000+Math.random()*1000;tone(f,n,.03,'square',.02);
-    if(Math.random()<.5)tone(f*1.5,n+.012,.05,'triangle',.018);
-    if(Math.random()<.35)noise(n,.01,.02,'h')}catch(e){}
+    const f=1900+sR()*900;sMetal(f,n,.022,.05,2);
+    if(sR()<.4)tone(f*1.5,n+.012,.05,'triangle',.014);
+    if(sR()<.3)noise(n,.01,.02,'m')}catch(e){}
 }
-/* ファンファーレ: 主和音のアルペジオ(+1オクターブ下を重ねる)→最後に和音をロングで */
+/* ファンファーレ: 厚い金管の駆け上がり → 重低音つきの長い和音 + 鐘 */
 function fan(){
   if(!sOK())return;
   try{if(SND.fs&&AC.currentTime<SND.fs)return; // ボス撃破の専用ファンファーレ(seBossDown)と重ねない
     const n=sNow(),r=fanRoot();
     sBig(()=>{
-      [0,4,7,12,16].forEach((s,i)=>{tone(mf(r+s),n+i*.07,.14,'p25',.05);tone(mf(r+s-12),n+i*.07,.14,'triangle',.04)});
-      [0,4,7,12].forEach(s=>{tone(mf(r+s),n+.37,.5,'square',.032);tone(mf(r+s-12),n+.37,.5,'triangle',.035)});
-    });sDuck(.35,.9)}catch(e){}
+      [0,4,7,12,16].forEach((s,i)=>{tone(mf(r+s),n+i*.07,.14,'p25',.045);sW(mf(r+s-12),n+i*.07,.14,'sawtooth',.03)});
+      sBoom(n+.37,1);[0,4,7,12].forEach(s=>sFat(mf(r+s),n+.37,.6,.034,0,s>0));tone(mf(r-12),n+.37,.7,'triangle',.06);
+      sBell(mf(r+24),n+.4,.025,.8);
+    });sDuck(.35,1)}catch(e){}
 }
-/* コンボ音階: コンボ数に応じてペンタトニックを上昇(最大13段)。30ms間引き */
+/* コンボ音階: コンボ数に応じてペンタトニックを上昇(最大13段)。ふだんの音なので短く小さく、高い段だけ金属のきらめき */
 let sCT=-1;
 function seCombo(n){
   if(!sOK())return;
   try{const t=AC.currentTime;if(t-sCT<.05)return;sCT=t;const i=Math.min(Math.max(n-1,0),12),f=mf(sLad(i));
-    tone(f,t,.07,'triangle',.04);if(i>=8)tone(f*2,t,.05,'sine',.02)}catch(e){}
+    tone(f,t,.07,'triangle',.045);if(i>=8)tone(f*2.76,t,.05,'sine',.014)}catch(e){}   // 頻繁に鳴るので1〜2音だけ
 }
 function seMile(n){ // 10/25/50/100 コンボ到達
   if(!sOK())return;
-  try{const t=sNow(),b=n>=50?9:6;sBig(()=>{for(let i=0;i<4;i++)tone(mf(sLad(b+i*2)),t+i*.06,.18,'p25',.045)});sDuck(.2,.5)}catch(e){}
+  try{const t=sNow(),b=n>=50?9:6;sBig(()=>{sBoom(t,n>=50?.9:.5);for(let i=0;i<4;i++)tone(mf(sLad(b+i*2)),t+i*.06,.18,'p25',.045);sBell(mf(sLad(b+8)),t+.24,.03,.6)});sDuck(.2,.6)}catch(e){}
 }
-/* 保留増加: 保留数が増えるほど高い2音 */
+/* 保留増加「ポコン」: 胴の低い音+保留数が増えるほど高い金属音 */
 function sePend(q){
   if(!sOK())return;
-  try{const t=sNow(),r=fanRoot();tone(mf(r+[0,4,7,12][Math.min(Math.max(q-1,0),3)]),t,.07,'triangle',.04);tone(mf(r+7+[0,4,7,12][Math.min(Math.max(q-1,0),3)]),t+.06,.1,'p25',.03)}catch(e){}
+  try{const t=sNow(),r=fanRoot(),k=[0,4,7,12][Math.min(Math.max(q-1,0),3)];
+    tone(mf(r+k-12),t,.08,'triangle',.05,mf(r+k-12)*.7);tone(mf(r+k),t,.07,'triangle',.035);sMetal(mf(r+7+k),t+.05,.022,.12,2)}catch(e){}
 }
-function seSpin(){if(!sOK())return;try{const t=sNow();tone(400,t,.09,'sawtooth',.02,800);noise(t,.012,.06,'h')}catch(e){}}
-/* リール停止「カチッ」: 高域ノイズの一瞬 + 矩形の短い下降 + 胴鳴り(三角波)。左→中→右で 根音/長3度/5度 の小さな「ポン」を添える */
+/* 回転開始: レバーを引く「ガチャ」+ リールが回り出す音 */
+function seSpin(){if(!sOK())return;try{const t=sNow();sClunk(t,.6);tone(320,t+.02,.12,'sawtooth',.018,820);noise(t+.02,.012,.08,'h')}catch(e){}}
+/* リール停止「ガコッ」: 機械が止まる手応え。左→中→右で 根音/長3度/5度 の「ポン」、右は少し重い */
 function seReelStop(i){
   if(!sOK())return;
   try{const t=sNow(),r=fanRoot()-12;
-    noise(t,.05,.012,'h');tone(2600,t,.02,'p12',.04,1100);tone(190,t+.004,.05,'triangle',.07,95);
-    tone(mf(r+12+[0,4,7][i%3]),t+.01,.09,'p50',.03)}catch(e){}
+    sClunk(t,i%3===2?1.2:.9);tone(mf(r+12+[0,4,7][i%3]),t+.01,.11,'p50',.032)}catch(e){}
 }
 /* 予告音(段階別) 1=チャンス 2=チャンス!! 3=激アツ 4=激アツ確定。kyuin と同時に鳴るので「アクセント」に徹する */
 function seYk(L){
   if(!sOK())return;
   try{const t=sNow(),r=fanRoot()+12;
     sBig(()=>{
-      if(L===1)tone(mf(r+7),t,.3,'sine',.05);
-      else if(L===2){tone(mf(r+4),t,.25,'sine',.05);tone(mf(r+12),t+.1,.3,'sine',.05);sePipo(2,r+19,t+.2)}
-      else if(L===3){sePipo(3,r+19,t+.3);tone(70,t,.6,'sawtooth',.07,150);tone(mf(r-12),t+.25,.4,'p25',.05);tone(mf(r-5),t+.25,.4,'p25',.04);noise(t+.25,.05,.2,'w')}
-      else{sePipo(4,r+24,t+.3);tone(60,t,.8,'sawtooth',.08,180);noise(t+.2,.1,.9,'w');[0,4,7,12].forEach(s=>{tone(mf(r+s-12),t+.2,.6,'square',.035);tone(mf(r+s-24),t+.2,.6,'sawtooth',.025)})}
-    });if(L>=3)sDuck(.3,.9)}catch(e){}
+      if(L===1){sBell(mf(r+7),t,.035,.5)}
+      else if(L===2){sBell(mf(r+4),t,.03,.4);sBell(mf(r+12),t+.1,.035,.5);sePipo(2,r+19,t+.2)}
+      else if(L===3){sBoom(t+.2,1.4);sePipo(3,r+19,t+.3);tone(70,t,.6,'sawtooth',.05,150);sFat(mf(r-12),t+.25,.45,.045);sFat(mf(r-5),t+.25,.45,.035,0,1);noise(t+.25,.04,.3,'l')}
+      else{sBoom(t+.2,2.2);sePipo(4,r+24,t+.3);tone(60,t,.8,'sawtooth',.06,180);sCrash(t+.2,.07,1);[0,4,7,12].forEach((s,k)=>sFat(mf(r+s-12),t+.2,.7,.03,0,k>0));sBell(mf(r+24),t+.35,.03,1)}
+    });if(L>=3)sDuck(.3,1)}catch(e){}
 }
-/* リーチ: 鼓動 + 上昇音。SUPER は サイレン(2音交互) */
+/* リーチ: 心臓の鼓動「ドクン、ドクン」+ 上昇する「テロテロ」。SUPER は 厚いサイレン+地鳴り */
 function seReach(sup){
   if(!sOK())return;
-  try{const t=sNow();
+  try{const t=sNow(),r=fanRoot();
     sBig(()=>{
-      tone(70,t,.16,'sine',.15,40);tone(70,t+.22,.16,'sine',.15,40);
-      tone(300,t+.1,.6,'sawtooth',.03,900);
-      if(sup){for(let i=0;i<6;i++)tone(i%2?740:1046,t+.45+i*.14,.14,'square',.035);tone(55,t+.4,1,'sawtooth',.06,45)}
-    });sDuck(.25,1)}catch(e){}
+      [0,.24].forEach(o=>{tone(72,t+o,.18,'sine',.16,40);noise(t+o,.04,.12,'l')});
+      for(let i=0;i<6;i++)tone(mf(sRise(5+i)),t+.1+i*.05,.05,'p25',.03);
+      tone(300,t+.1,.6,'sawtooth',.022,900);
+      if(sup){for(let i=0;i<6;i++){const f=i%2?740:1046;sFat(f,t+.48+i*.14,.14,.03,0,1)}tone(55,t+.4,1,'sawtooth',.05,45);noise(t+.4,.05,1,'l');sBoom(t+.45,1)}
+    });sDuck(.25,1.1)}catch(e){}
 }
-/* 当たり確定: 重低音+クラッシュ+「ジャ・ジャ・ジャーン」の主和音スタブ(JPは上のオクターブも) */
+/* 当たり確定「ドン!! ジャ・ジャ・ジャーン」: 重低音+クラッシュ+厚い金管の主和音スタブ。JPは鐘の駆け上がりも */
 function seWin(jp){
   if(!sOK())return;
   try{const t=sNow(),r=fanRoot();
     sBig(()=>{
-      tone(110,t,.7,'sine',.2,32);noise(t,.12,.9,'w');
-      [0,.14,.28].forEach((o,k)=>[0,4,7].forEach(s=>{tone(mf(r-12+s+(k?k*0:0)),t+o,k===2?.7:.12,'square',.035);tone(mf(r+s),t+o,k===2?.7:.12,'sawtooth',.025)}));
-      if(jp)for(let i=0;i<8;i++)tone(mf(sLad(5+i*2)),t+.5+i*.07,.14,'p25',.045);
-    });seJaraStream(t+.8,1.4,jp?20:14);sDuck(.4,1.2)}catch(e){}
+      sBoom(t,2.2);sCrash(t,.09,1);
+      [0,.14,.28].forEach((o,k)=>{const L=k===2?.8:.12;sBoom(t+o,k===2?1.2:.5);[0,4,7].forEach((s,j)=>sFat(mf(r+s),t+o,L,.03,0,j>0));tone(mf(r-12),t+o,L,'triangle',.05)});
+      if(jp)for(let i=0;i<8;i++)sBell(mf(sLad(5+i*2)),t+.5+i*.07,.03,.35);
+    });seJaraStream(t+.8,1.4,jp?20:14);sDuck(.4,1.3)}catch(e){}
 }
-/* JACKPOT: 0.6秒ごとの上昇スタブ(画面フラッシュと同期)x6 + 約3秒のコイン雨 */
+/* JACKPOT: 0.6秒ごとに重低音つきの上昇スタブ(画面フラッシュと同期)x6 + 約3秒の金属の雨 + 最後の大きな和音 */
 function seJackpot(){
   if(!sOK())return;
   try{const t=sNow(),r=fanRoot();
     SND.supUntil=AC.currentTime+4; // 70-show.js 側の上昇ビープは抑止(こちらで鳴らす)
     sBig(()=>{
-      for(let i=0;i<6;i++){const f=r+[0,2,4,7,9,12][i];[0,4,7].forEach(s=>{tone(mf(f+s),t+i*.6,.4,'p25',.04);tone(mf(f+s-12),t+i*.6,.4,'triangle',.04)});noise(t+i*.6,.05,.15,'h')}
-      for(let i=0;i<34;i++){const o=Math.random()*3.2,f=2300+Math.random()*1500;tone(f,t+o,.04,'square',.018);if(i%2)tone(f*1.5,t+o+.012,.05,'triangle',.014)}
-      tone(mf(r+12),t+3.6,.8,'p25',.05);tone(mf(r+16),t+3.6,.8,'p25',.04);tone(mf(r+19),t+3.6,.8,'p25',.04);
-    });sDuck(.45,4)}catch(e){}
+      for(let i=0;i<6;i++){const f=r+[0,2,4,7,9,12][i],ti=t+i*.6;sBoom(ti,.7+i*.15);[0,4,7].forEach((s,j)=>{sFat(mf(f+s),ti,.42,.03,0,j>0);tone(mf(f+s+12),ti,.3,'p25',.022)});noise(ti,.05,.15,'h')}
+      for(let i=0;i<30;i++){const o=sR()*3.2,f=2100+sR()*1400;sMetal(f,t+o,.02,.05,2)}
+      sBoom(t+3.6,2.4);sCrash(t+3.6,.08,1.2);[0,4,7,12].forEach((s,j)=>sFat(mf(r+s+12),t+3.6,1,.03,0,j>0));sBell(mf(r+24),t+3.65,.035,1.2);
+    });sDuck(.45,4.4)}catch(e){}
 }
-/* 会心ヒット(チャキーン) と 通常ヒット(ポスッ)。通常は 70ms で間引く */
+/* 会心ヒット「ザシュイーン」: 打撃+切り裂く上昇+高い鐘 と 通常ヒット(英雄ごと)。通常は 90ms で間引く */
 let sHT=-1,sXT=-1;
 function seCrit(){
   if(!sOK())return;
   try{const t=AC.currentTime;if(t-sXT<.06)return;sXT=t;
-    sBig(()=>{tone(1500,t,.09,'sawtooth',.05,3000);tone(2637,t+.05,.25,'sine',.04);tone(3136,t+.07,.2,'p25',.02);noise(t,.06,.05,'w')})}catch(e){}
+    sBig(()=>{tone(130,t,.16,'sine',.1,40);noise(t,.07,.06,'w');noise(t,.03,.1,'l');tone(1400,t,.09,'sawtooth',.045,3200);tone(2637,t+.05,.35,'sine',.035)})}catch(e){}
 }
-/* col=当てた英雄の色(30 の PR): 剣=ザシュ(明るいノイズ+下がる音)/ 杖=キラン / 弓=トスッ。それ以外は今までの音 */
+/* col=当てた英雄の色(30 の PR): 剣=ザシュ / 杖=キラン / 弓=トスッ。どれにも小さな胴の「ドッ」を足す */
 function seHit(b,col){
   if(!sOK())return;
   try{const t=AC.currentTime;if(t-sHT<.09)return;sHT=t;
-    if(col==='#ffa070'){noise(t,.04,.05,'w');tone(420,t,.06,'sawtooth',.03,110)}
-    else if(col==='#9ff'){tone(1175,t,.05,'sine',.03);tone(1760,t+.03,.07,'sine',.025);noise(t,.012,.03,'w')}
+    noise(t,.07,.06,'l');   // 小さな胴の「ドッ」(雑音なので発音数に数えない)
+    if(col==='#ffa070'){noise(t,.04,.05,'w');tone(420,t,.06,'sawtooth',.026,110)}
+    else if(col==='#9ff'){tone(1175,t,.05,'sine',.03);tone(1760,t+.03,.08,'sine',.025);noise(t,.012,.03,'w')}
     else if(col==='#bfa'){tone(520,t,.04,'triangle',.045,200);noise(t,.02,.02,'w')}
     else{noise(t,.03,.04,'w');tone(220,t,.05,'triangle',.04,90)}
-    if(b)tone(100,t,.12,'sine',.1,40)}catch(e){}
+    if(b)sBoom(t,.6)}catch(e){}
 }
-/* ボス登場 */
+/* ボス登場「ブォォン」: 地鳴り+重低音+低い金管の不穏な和音(短2度のぶつかり)+警告の2音 */
 function seBoss(){
   if(!sOK())return;
-  try{const t=sNow();sBig(()=>{tone(65,t,.9,'sawtooth',.08,40);[0,.35,.7].forEach(o=>tone(o?494:370,t+o,.28,'square',.035));tone(220,t+.1,.5,'sawtooth',.04,208);noise(t,.04,.7,'w')});sDuck(.3,1.2)}catch(e){}
+  try{const t=sNow(),r=fanRoot();sBig(()=>{sBoom(t,1.8);noise(t,.07,1.2,'l');tone(55,t,1.1,'sawtooth',.05,40);
+    sFat(mf(r-24),t+.05,1,.04);sFat(mf(r-23),t+.05,1,.025,0,1);sFat(mf(r-17),t+.05,1,.03,0,1);
+    [0,.35,.7].forEach(o=>tone(o?494:370,t+o,.28,'square',.03));tone(220,t+.1,.5,'sawtooth',.03,208)});sDuck(.35,1.4)}catch(e){}
 }
-/* 敵撃破(コイン) ボスは音数が多い */
+/* 敵撃破: 小さな「ドッ」+ 金属の「チャリン」+ 上がる音階。ボスは音数が多い */
 function seKill(boss){
   if(!sOK())return;
-  try{const t=sNow(),n=boss?5:3;for(let i=0;i<n;i++)tone(mf(sLad(5+i*2)),t+i*.055,.1,'p25',.04);tone(mf(sLad(5+n*2)),t+n*.055,.22,'triangle',.035);noise(t,.02,.05,'h')}catch(e){}
+  try{const t=sNow(),n=boss?5:3;tone(130,t,.1,'sine',.08,45);noise(t,.07,.08,'l');
+    for(let i=0;i<n;i++)tone(mf(sLad(5+i*2)),t+i*.055,.1,'p25',.035);sMetal(mf(sLad(5+n*2)),t+n*.055,.03,.22);noise(t,.02,.05,'h')}catch(e){}
 }
-/* ゴールド(黄金玉) */
+/* ゴールド(黄金玉): 鐘の駆け上がり+金属のきらめき */
 function seGold(){
   if(!sOK())return;
-  try{const t=sNow();sBig(()=>{[0,1,2,3,4,5].forEach(i=>tone(mf(sLad(3+i*2)),t+i*.05,.12,'triangle',.04));tone(2093,t+.3,.35,'sine',.04);tone(3136,t+.34,.35,'sine',.03);noise(t,.03,.4,'m')})}catch(e){}
+  try{const t=sNow();sBig(()=>{sBoom(t,.5);[0,1,2,3,4,5].forEach(i=>sBell(mf(sLad(3+i*2)),t+i*.05,.03,.3));sBell(2093,t+.3,.035,.6);sMetal(3136,t+.34,.025,.4);noise(t,.03,.4,'m')})}catch(e){}
 }
 function seRare(){
   if(!sOK())return;
-  try{const t=sNow();sBig(()=>{for(let i=0;i<12;i++)tone(2300+Math.random()*1500,t+Math.random()*1.0,.04,'square',.016)})}catch(e){}
+  try{const t=sNow();sBig(()=>{sBoom(t,.6);for(let i=0;i<12;i++)sMetal(2100+sR()*1400,t+sR()*1.0,.018,.06,2);sBell(mf(fanRoot()+24),t+.1,.03,.7)})}catch(e){}
 }
-/* 覚醒 */
+/* 覚醒: 厚い上昇 → 頂点で重低音と和音 */
 function seAwaken(){
   if(!sOK())return;
-  try{const t=sNow();sBig(()=>{tone(180,t,.6,'sawtooth',.06,1400);tone(90,t,.6,'square',.04,700);noise(t,.04,.5,'h')})}catch(e){}
+  try{const t=sNow(),r=fanRoot();sBig(()=>{sFat(180,t,.6,.05,1400,1);tone(90,t,.6,'square',.03,700);noise(t,.04,.5,'h');noise(t,.04,.6,'l');
+    sBoom(t+.6,1.4);[0,7,12].forEach((s,j)=>sFat(mf(r+s),t+.6,.6,.03,0,j>0))});sDuck(.3,1.2)}catch(e){}
 }
-/* カットイン(必殺/大当たり): チャージのノイズと上昇 → 着弾の重低音 */
+/* カットイン(必殺/大当たり): 風を切る溜め+上昇 → 着弾の重低音とクラッシュ */
 function seCut(){
   if(!sOK())return;
-  try{const t=sNow();sBig(()=>{noise(t,.05,.35,'h');tone(160,t,.35,'sawtooth',.05,1100);tone(90,t+.35,.3,'sine',.2,35);noise(t+.35,.1,.3,'w')})}catch(e){}
+  try{const t=sNow();sBig(()=>{noise(t,.05,.35,'h');noise(t,.04,.35,'l');sFat(160,t,.35,.05,1100,1);sBoom(t+.35,1.8);sCrash(t+.35,.07,.5)});sDuck(.3,.8)}catch(e){}
 }
 function seUnlock(){
   if(!sOK())return;
-  try{const t=sNow();for(let i=0;i<4;i++)tone(mf(sLad(5+i*2)),t+i*.07,.14,'p25',.045)}catch(e){}
+  try{const t=sNow();for(let i=0;i<4;i++)sBell(mf(sLad(5+i*2)),t+i*.07,.035,.35);tone(mf(sLad(3)),t,.4,'triangle',.04)}catch(e){}
 }
 function seRushEnd(){
   if(!sOK())return;
-  try{const t=sNow(),r=fanRoot();[7,4,0].forEach((s,i)=>tone(mf(r+s),t+i*.12,.25,'triangle',.04))}catch(e){}
+  try{const t=sNow(),r=fanRoot();[7,4,0].forEach((s,i)=>sBell(mf(r+s),t+i*.12,.035,.4));tone(mf(r-12),t+.24,.5,'triangle',.05);sBoom(t+.24,.4)}catch(e){}
 }
 
 /* ---------- SEフック (sound担当) ----------
@@ -2702,11 +2746,12 @@ function seAori(ms,small){
     const t0=sNow(),end=t0+(ms||2400)/1000;
     let t=t0+.1,i=0;
     sBig(()=>{
+      sTb(bus,55,t0,Math.min(2.4,end-t0),'sawtooth',.03,110);   // 下で地鳴りが上がっていく(緊張)
       while(t<end-.05&&i<30){
         const f=mf(sRise(3+i)),acc=i%4===0;
-        sTb(bus,f,t,acc?.14:.09,'p25',acc?.055:.04);
+        sTb(bus,f,t,acc?.14:.09,'p25',acc?.05:.036);
         sTb(bus,f/2,t,.09,'triangle',.035);
-        if(acc)sTb(bus,f*2,t+.01,.08,'p12',.02);
+        if(acc){sTb(bus,f*2,t+.01,.08,'p12',.018);sTb(bus,90,t,.12,'sine',.1,45)}   // 拍の頭に低い「ドッ」
         t+=Math.max(.07,.15-.004*i)*(small?1.15:1);i++;
       }
     });
@@ -2719,17 +2764,17 @@ function seDecide(small){
     seAoriCut();
     const t=sNow(),r=fanRoot();
     sBig(()=>{
-      noise(t,.07,.03,'h');tone(3200,t,.025,'p12',.05,900);
-      tone(150,t,.18,'sine',.2,45);
-      tone(mf(r+12),t+.02,.09,'p25',.06);tone(mf(r+19),t+.1,small?.2:.3,'p25',.06);tone(mf(r+7),t+.1,.3,'triangle',.05);
-      if(!small){noise(t+.02,.08,.35,'m');tone(mf(r+24),t+.14,.5,'sine',.03);tone(mf(r+16),t+.2,.4,'p25',.035)}
-    });sDuck(.3,.5);
+      noise(t,.07,.03,'h');tone(3200,t,.025,'p12',.045,900);       // ポチッ
+      sBoom(t,small?1.3:2.2);sBuzz(t+.01,small?.18:.32,small?.05:.07); // ドン!+ ボタンの振動「ブルッ」
+      tone(mf(r+12),t+.02,.09,'p25',.055);tone(mf(r+19),t+.1,small?.2:.3,'p25',.055);tone(mf(r+7),t+.1,.3,'triangle',.05);
+      if(!small){sCrash(t+.02,.07,.5);noise(t+.02,.06,.35,'m');[0,4,7].forEach((s2,j)=>sFat(mf(r+s2+12),t+.14,.5,.026,0,j>0));sBell(mf(r+24),t+.18,.03,.7)}
+    });sDuck(.3,.6);
   }catch(e){}
 }
 /* ピポピポ: 高低2音の交互。n=往復数, hi=高い方の半音(MIDI) */
 function sePipo(n,hi,t0){
   if(!sOK())return;
-  try{const t=t0||sNow();for(let i=0;i<n;i++){tone(mf(hi),t+i*.16,.07,'p25',.035);tone(mf(hi-5),t+i*.16+.08,.07,'p25',.035)}}catch(e){}
+  try{const t=t0||sNow();for(let i=0;i<n;i++){tone(mf(hi),t+i*.16,.07,'p25',.033);tone(mf(hi-12),t+i*.16,.06,'triangle',.02);tone(mf(hi-5),t+i*.16+.08,.07,'p25',.033)}}catch(e){}
 }
 /* リーチ発展: k=1,2,3 と進むごとに音程が上がる(三和音の駆け上がり+鼓動)。sup=SUPERは上のオクターブも */
 function seReachStage(k,sup){
@@ -2737,32 +2782,33 @@ function seReachStage(k,sup){
   try{
     const t=sNow(),b=sRise(5+k*3);
     sBig(()=>{
-      tone(mf(b),t,.1,'p25',.05);tone(mf(b+4),t+.06,.1,'p25',.05);tone(mf(b+7),t+.12,.1,'p25',.05);tone(mf(b+12),t+.18,.3+.05*k,'p25',.055);
+      tone(mf(b),t,.1,'p25',.045);tone(mf(b+4),t+.06,.1,'p25',.045);tone(mf(b+7),t+.12,.1,'p25',.045);tone(mf(b+12),t+.18,.3+.05*k,'p25',.05);
       tone(mf(b-12),t,.4,'triangle',.06);
-      {const hv=sup&&k<3?.11:.15;tone(65+8*k,t,.14,'sine',hv,38);tone(65+8*k,t+.2,.14,'sine',hv,38)}
+      {const hv=sup&&k<3?.1:.14;tone(65+8*k,t,.14,'sine',hv,38);tone(65+8*k,t+.2,.14,'sine',hv,38);noise(t,.03,.12,'l');noise(t+.2,.03,.12,'l')}
+      if(k>=3||sup)sBoom(t+.18,.5+.25*k);
       if(sup){tone(mf(b+19),t+.24,.3,'sawtooth',.02,mf(b+24));noise(t+.18,.03,.3,'h')}
-    });sDuck(.2,.6);
+    });sDuck(.2,.7);
   }catch(e){}
 }
 /* リーチ中の3列目が減速していく「カ…カ…カ」: prog 0→1 で音程が上がる(期待感)。呼び出し側で間引く */
 function seReelTick(prog){
   if(!sOK())return;
   try{const t=AC.currentTime,i=Math.round(Math.min(1,Math.max(0,prog))*8);
-    tone(mf(sRise(5+i)),t,.05,'p50',.035);noise(t,.02,.015,'h');if(prog>.7)tone(mf(sRise(5+i))*2,t,.04,'triangle',.02)}catch(e){}
+    tone(mf(sRise(5+i)),t,.05,'p50',.033);noise(t,.02,.015,'h');noise(t,.02,.03,'l');if(prog>.7)tone(mf(sRise(5+i))*2,t,.04,'triangle',.02)}catch(e){}
 }
 /* ボス撃破: 爆発 → 勝利ファンファーレ(タタタターン タタターン) → 長い和音とキラキラ */
 function seBossDown(){
   if(!sOK())return;
   try{
-    const t=sNow(),r=fanRoot(),f0=t+.4;
+    const t=sNow(),r=fanRoot(),f0=t+.45;
     SND.fs=AC.currentTime+.25; // 同時に呼ばれる fan() を抑止
     sBig(()=>{
-      noise(t,.14,.8,'w');noise(t+.03,.07,.6,'m');tone(150,t,.6,'sawtooth',.13,28);tone(90,t,.5,'sine',.2,30);
-      [[0,0,.09],[0,.11,.09],[0,.22,.09],[4,.33,.2],[7,.57,.12],[12,.7,.15],[7,.88,.1],[12,1,.9]].forEach(([s,o,d])=>{
-        tone(mf(r+s),f0+o,d,'p25',.055);tone(mf(r+s-12),f0+o,d,'triangle',.05);if(o>.6)tone(mf(r+s+12),f0+o,d,'p12',.025)});
-      [0,4,7,12].forEach(s=>tone(mf(r+s+12),f0+1,.9,'square',.025));
-      for(let i=0;i<8;i++)tone(2400+Math.random()*1800,f0+1+i*.1,.05,'square',.016);
-    });sDuck(.45,2.2);
+      sBoom(t,2.5);noise(t,.13,1,'l');noise(t,.1,.7,'w');noise(t+.03,.06,.6,'m');tone(150,t,.6,'sawtooth',.1,28);   // 大爆発
+      [[0,0,.09],[0,.11,.09],[0,.22,.09],[4,.33,.2],[7,.57,.12],[12,.7,.15],[7,.88,.1],[12,1,1]].forEach(([s2,o,d])=>{
+        tone(mf(r+s2),f0+o,d,'p25',.05);sW(mf(r+s2-12),f0+o,d,'sawtooth',.03);tone(mf(r+s2-24),f0+o,d,'triangle',.04);if(o>.6)tone(mf(r+s2+12),f0+o,d,'p12',.022)});
+      sBoom(f0+1,1.6);sCrash(f0+1,.06,1.2);[0,4,7,12].forEach((s2,j)=>sFat(mf(r+s2+12),f0+1,1,.024,0,j>0));
+      for(let i=0;i<8;i++)sMetal(2300+sR()*1600,f0+1+i*.1,.016,.06,2);sBell(mf(r+24),f0+1.05,.03,1.2);
+    });sDuck(.45,2.4);
   }catch(e){}
 }
 /* ダブルアップ当落 */
@@ -2771,33 +2817,35 @@ function seDoubleWin(){
   try{
     const t=sNow(),r=fanRoot();
     sBig(()=>{
-      for(let i=0;i<7;i++){tone(mf(r+[0,4,7,12,16,19,24][i]),t+i*.06,.12,'p25',.05);tone(mf(r+[0,4,7,12,16,19,24][i]-12),t+i*.06,.1,'triangle',.04)}
-      tone(110,t,.5,'sine',.18,35);noise(t,.06,.3,'w');[0,4,7,12].forEach(s=>tone(mf(r+12+s),t+.45,.6,'square',.03));
-    });seJaraStream(t+.2,1,16);sDuck(.35,1.1);
+      for(let i=0;i<7;i++){const f=mf(r+[0,4,7,12,16,19,24][i]);tone(f,t+i*.06,.12,'p25',.045);tone(f/2,t+i*.06,.1,'triangle',.04)}
+      sBoom(t,1.8);sCrash(t,.06,.4);[0,4,7,12].forEach((s2,j)=>sFat(mf(r+12+s2),t+.45,.7,.026,0,j>0));sBell(mf(r+24),t+.5,.03,.8);
+    });seJaraStream(t+.2,1,16);sDuck(.35,1.2);
   }catch(e){}
 }
 function seDoubleLose(){
   if(!sOK())return;
-  try{const t=sNow(),r=fanRoot();sBig(()=>{[7,3,0,-5].forEach((s,i)=>{tone(mf(r+s-12),t+i*.13,.16,'sawtooth',.045,mf(r+s-12)*.94);tone(mf(r+s-24),t+i*.13,.16,'triangle',.05)});noise(t+.4,.03,.4,'w')});sDuck(.2,.8)}catch(e){}
+  try{const t=sNow(),r=fanRoot();sBig(()=>{[7,3,0,-5].forEach((s2,i)=>{sFat(mf(r+s2-12),t+i*.13,.16,.04,mf(r+s2-12)*.94,1);tone(mf(r+s2-24),t+i*.13,.16,'triangle',.05)});noise(t+.4,.05,.6,'l');tone(60,t+.4,.5,'sine',.1,35)});sDuck(.2,.9)}catch(e){}
 }
 /* ルーレット: 針が仕切りを通る「カッ」(p=進行度で少し高く) と 停止時の結果音(倍率で派手さが変わる) */
 let sRT=-1;
 function seRoulTick(p){
   if(!sOK())return;
-  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.04,500+300*p);noise(t,.02,.012,'h')}catch(e){}
+  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.035,500+300*p);noise(t,.02,.012,'h');noise(t,.02,.025,'l')}catch(e){}
 }
 function seRoulResult(m){
   if(!sOK())return;
   try{
     const t=sNow(),r=fanRoot();
     sBig(()=>{
-      if(m<5){tone(mf(r+12),t,.1,'p25',.05);tone(mf(r+19),t+.08,.25,'p25',.05)}
+      sClunk(t,1);   // 針が止まる「ガコン」
+      if(m<5){tone(mf(r+12),t,.1,'p25',.045);sBell(mf(r+19),t+.08,.03,.35)}
       else{
-        [0,4,7,12].forEach((s,i)=>{tone(mf(r+s+(m>=10?12:0)),t+i*.07,.15,'p25',.055);tone(mf(r+s-12),t+i*.07,.15,'triangle',.045)});
-        tone(110,t,.5,'sine',.18,35);if(m>=10){noise(t,.08,.6,'w');[0,4,7,12,16].forEach(s=>tone(mf(r+s+12),t+.35,.7,'square',.028))}
-        if(m>=50)for(let i=0;i<8;i++)tone(mf(sRise(10+i*2)),t+.5+i*.07,.14,'p25',.045);
+        [0,4,7,12].forEach((s2,i)=>{tone(mf(r+s2+(m>=10?12:0)),t+i*.07,.15,'p25',.05);tone(mf(r+s2-12),t+i*.07,.15,'triangle',.045)});
+        sBoom(t,m>=50?2.2:m>=10?1.5:.9);
+        if(m>=10){sCrash(t,.07,.7);[0,4,7,12].forEach((s2,j)=>sFat(mf(r+s2+12),t+.35,.8,.024,0,j>0));sBell(mf(r+24),t+.4,.03,.9)}
+        if(m>=50)for(let i=0;i<8;i++)sBell(mf(sRise(10+i*2)),t+.5+i*.07,.025,.3);
       }
-    });if(m>=5)seJaraStream(t+.15,m>=10?1.4:.7,m>=10?18:12);sDuck(.3,1);
+    });if(m>=5)seJaraStream(t+.15,m>=10?1.4:.7,m>=10?18:12);sDuck(.3,1.1);
   }catch(e){}
 }
 /* ジャラジャラ(玉/メダルが排出される連続音)。t0 から dur 秒、毎秒 dens 個。上限は dur*dens<=40 */
@@ -2806,9 +2854,10 @@ function seJaraStream(t0,dur,dens){
   try{
     const n=Math.min(40,Math.round(dur*dens));
     for(let i=0;i<n;i++){
-      const o=t0+(i+Math.random()*.7)/dens,f=2200+Math.random()*1400;
-      tone(f,o,.035,'square',.017);if(i%2)tone(f*1.5,o+.01,.05,'triangle',.014);if(i%3===0)noise(o,.012,.025,'m');
+      const o=t0+(i+sR()*.7)/dens,f=2000+sR()*1300;
+      sMetal(f,o,.017,.045,2);if(i%3===0)noise(o,.012,.03,'m');   // 金属の「チャラチャラ」
     }
+    noise(t0,.025,Math.min(1.6,dur),'m');   // 払い出し口の下でずっと鳴るザーッという金属音
   }catch(e){}
 }
 /* ミニゲーム汎用SE: start / tick(x=0..1の高さ) / coin / ok / good / great / bad */
@@ -2819,17 +2868,18 @@ function seGen(kind,x){
     const t=sNow(),r=fanRoot(),L=sGT[kind]||-1;
     if(kind==='coin'||kind==='tick'){if(t-L<(kind==='coin'?.05:.06))return;sGT[kind]=t}
     sBig(()=>{
-      if(kind==='start'){[0,4,7,12].forEach((s,i)=>tone(mf(r+s+12),t+i*.07,.1,'p25',.045));tone(mf(r),t,.3,'triangle',.05)}
-      else if(kind==='tick'){tone(mf(sRise(4+Math.round((x||0)*8))),t,.04,'p50',.035)}
-      else if(kind==='coin'){tone(988,t,.05,'square',.03);tone(1319,t+.05,.18,'square',.03);if(Math.random()<.4)noise(t,.01,.02,'m')}
-      else if(kind==='ok'){tone(mf(r+12),t,.09,'p25',.05);tone(mf(r+16),t+.08,.2,'p25',.05)}
-      else if(kind==='good'){[0,4,7,12].forEach((s,i)=>tone(mf(r+s+12),t+i*.07,.12,'p25',.055));tone(mf(r),t,.4,'triangle',.05);noise(t,.02,.2,'h')}
+      if(kind==='start'){sClunk(t,.8);[0,4,7,12].forEach((s2,i)=>tone(mf(r+s2+12),t+i*.07,.1,'p25',.04));tone(mf(r),t,.3,'triangle',.05);sBell(mf(r+24),t+.28,.025,.4)}
+      else if(kind==='tick'){tone(mf(sRise(4+Math.round((x||0)*8))),t,.04,'p50',.033);tone(150,t,.03,'triangle',.03,90)}
+      else if(kind==='coin'){sMetal(988,t,.03,.05,2);sMetal(1319,t+.05,.03,.16,2);if(sR()<.4)noise(t,.01,.02,'m')}
+      else if(kind==='ok'){tone(mf(r+12),t,.09,'p25',.045);sBell(mf(r+16),t+.08,.03,.3)}
+      else if(kind==='good'){sBoom(t,.6);[0,4,7,12].forEach((s2,i)=>tone(mf(r+s2+12),t+i*.07,.12,'p25',.05));tone(mf(r),t,.4,'triangle',.05);sBell(mf(r+24),t+.28,.03,.4)}
       else if(kind==='great'){
-        [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+i*.06,.13,'p25',.055);tone(mf(r+s),t+i*.06,.13,'triangle',.04)});
-        tone(110,t,.5,'sine',.18,35);[0,4,7,12].forEach(s=>tone(mf(r+s+12),t+.5,.7,'square',.028))}
-      else if(kind==='bad'){tone(mf(r+7),t,.12,'sawtooth',.04,mf(r+4));tone(mf(r),t+.14,.25,'sawtooth',.04,mf(r-3))}
+        sBoom(t,1.6);sCrash(t,.05,.4);
+        [0,4,7,12,16,19,24].forEach((s2,i)=>{tone(mf(r+s2+12),t+i*.06,.13,'p25',.05);tone(mf(r+s2),t+i*.06,.13,'triangle',.04)});
+        [0,4,7,12].forEach((s2,j)=>sFat(mf(r+s2+12),t+.5,.7,.024,0,j>0));sBell(mf(r+24),t+.55,.03,.8)}
+      else if(kind==='bad'){sFat(mf(r+7),t,.12,.035,mf(r+4),1);sFat(mf(r),t+.14,.25,.035,mf(r-3),1);noise(t+.14,.03,.3,'l')}
     });
-    if(kind==='great'){seJaraStream(t+.2,1,16);sDuck(.3,1)}
+    if(kind==='great'){seJaraStream(t+.2,1,16);sDuck(.3,1.1)}
   }catch(e){}
 }
 
@@ -2916,16 +2966,16 @@ function seExp(kind){
       if(kind==='go'){
         for(let i=0;i<4;i++)noise(t+i*.045,.03+.01*i,.04,'h'); // 小太鼓のロール
         [[7,0,.08],[7,.1,.08],[7,.2,.08],[12,.3,.32]].forEach(([s,o,d])=>{tone(mf(r+s),t+.18+o,d,'p25',.05);tone(mf(r+s-12),t+.18+o,d,'triangle',.04)});
-        tone(mf(r+16),t+.48,.3,'p12',.025);tone(110,t+.48,.2,'sine',.12,50);
+        tone(mf(r+16),t+.48,.3,'p12',.025);sBoom(t+.48,.7);
       }else if(kind==='ret'){
         [[16,0],[12,.18],[19,.36]].forEach(([s,o])=>{tone(mf(r+s),t+o,.4,'sine',.04);tone(mf(r+s+12),t+o,.12,'p12',.012)});
       }else{ // back / big
-        tone(90,t+.9,.25,'sine',.16,40);noise(t+.9,.05,.12,'w');
+        sBoom(t+.9,1.2);noise(t+.9,.05,.12,'w');
         for(let i=0;i<5;i++)tone(mf(sLad(5+i*2)),t+.95+i*.06,.12,'p25',.045);
         if(kind==='big'){
           tone(300,t+1.3,.5,'sawtooth',.03,1800);
           [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+1.6+i*.06,.13,'p25',.05);tone(mf(r+s),t+1.6+i*.06,.13,'triangle',.04)});
-          [0,4,7,12].forEach(s=>tone(mf(r+s+12),t+2.05,.7,'square',.026));
+          sBoom(t+2.05,1.6);[0,4,7,12].forEach((s,j)=>sFat(mf(r+s+12),t+2.05,.8,.024,0,j>0));sBell(mf(r+24),t+2.1,.03,.9);
         }
       }
     });
@@ -2949,7 +2999,7 @@ function seBt(kind,k){
           [24,19,16,12,16,19,24,31].forEach((s,i)=>{tone(mf(r+s),t1+i*.08,.18,'p12',.04);tone(mf(r+s)*2,t1+i*.08,.06,'sine',.015)});
           tone(mf(r+12),t1,.9,'triangle',.035);noise(t1+.6,.02,.4,'m');
         }else{ // 討伐: パワーコードのスタブ x3 + 突撃ラッパ
-          [0,.16,.32].forEach((o,i)=>{tone(mf(r-12),t1+o,.13,'sawtooth',.045);tone(mf(r-5),t1+o,.13,'sawtooth',.035);tone(80,t1+o,.12,'sine',.15,40);noise(t1+o,.05,.06,'w')});
+          [0,.16,.32].forEach((o,i)=>{sFat(mf(r-12),t1+o,.13,.045);sFat(mf(r-5),t1+o,.13,.035,0,1);sBoom(t1+o,.7);noise(t1+o,.05,.06,'w')});
           [[7,.5,.1],[7,.62,.1],[12,.74,.4]].forEach(([s,o,d])=>tone(mf(r+s),t1+o,d,'p25',.05));
         }
       }else if(kind==='end'){[12,7,4,0].forEach((s,i)=>tone(mf(r+s),t+i*.11,.22,'triangle',.04));tone(mf(r+19),t+.44,.3,'p12',.015)}
@@ -2969,13 +3019,13 @@ function seHl(kind,w){
         noise(t+.8,.04,.06,'h');tone(2200,t+.8,.06,'p12',.03,900); // ペラッ
       }else if(kind==='win'){
         const b=5+w*3;for(let i=0;i<2+w;i++)tone(mf(sRise(b+i*2)),t+i*.065,.12,'p25',.05);
-        tone(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.3,'square',.035);tone(110,t,.3,'sine',.14,40);
+        tone(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.3,'square',.032);sBoom(t,.5+w*.3);sBell(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.025,.4);
       }else if(kind==='lose'){tone(mf(r-5),t,.16,'sawtooth',.045);tone(mf(r-6),t+.2,.32,'sawtooth',.045,mf(r-8));tone(mf(r-17),t,.5,'triangle',.05)}
       else if(kind==='cash'){for(let i=0;i<3;i++)tone(mf(sLad(6+i*2)),t+i*.07,.12,'triangle',.04)}
       else if(kind==='perfect'){
-        tone(110,t,.6,'sine',.18,32);noise(t,.1,.8,'w');
+        sBoom(t,2);sCrash(t,.07,.8);
         [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+i*.06,.13,'p25',.055);tone(mf(r+s),t+i*.06,.13,'triangle',.04)});
-        [0,4,7,12,16].forEach(s=>tone(mf(r+s+12),t+.5,.9,'square',.026));
+        [0,4,7,12,16].forEach((s,j)=>sFat(mf(r+s+12),t+.5,.9,.022,0,j>0));sBell(mf(r+24),t+.55,.03,1);
       }
     });
     if(kind==='cash')seJaraStream(t+.15,.6,12);
@@ -2992,22 +3042,22 @@ function seHl(kind,w){
 function hyDuck(on){try{if(!AC||typeof SGR==='undefined'||!SGR||SGR.bad||!SGR.bg)return;if(on){const p=SGR.bg.gain,v=bgGain()*.3,t=AC.currentTime;try{p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(v,t+.5)}catch(e){p.value=v}}else applyMix()}catch(e){}}
 function seHy(k,a){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   switch(k){
-  case 'bko':hyDuck(1);tone(330,t,.9,'triangle',.05,82);tone(165,t+.05,1.1,'sawtooth',.025,55);noise(t,.03,.9,'l');break;
+  case 'bko':hyDuck(1);sBoom(t,1.2);tone(330,t,.9,'triangle',.05,82);tone(165,t+.05,1.1,'sawtooth',.025,55);noise(t,.03,.9,'l');break;
   case 'rel':hyDuck(0);if(a>=2){tone(220,t,.5,'sawtooth',.04,1760);[523,659,784,1047].forEach((f,i)=>tone(f,t+.18+i*.05,.25,'square',.03));noise(t,.05,.4,'h')}
     else if(a==1){tone(330,t,.35,'square',.035,990);tone(990,t+.3,.2,'square',.025)}else{tone(440,t,.4,'triangle',.03,220)}break;
   case 'crack':tone(2400,t,.05,'square',.03,1200);noise(t,.06,.08,'h');tone(1800,t+.09,.05,'square',.025,900);break;
-  case 'shatter':noise(t,.12,.45,'h');noise(t,.08,.25,'w');for(let i=0;i<8;i++)tone(3200-i*260+Math.random()*200,t+i*.035,.07,'square',.018);tone(110,t,.3,'sawtooth',.06,40);break;
-  case 'bigin':tone(80,t,.45,'sawtooth',.08,30);noise(t,.1,.35,'l');tone(392,t+.12,.3,'square',.03,784);break;
-  case 'bigstop':tone(a?110:150,t,.22,'square',.07,a?50:80);noise(t,.07,.12,'l');if(a)tone(1568,t+.05,.25,'square',.03,2093);break;
-  case 'bigwin':[784,988,1175,1568,1976].forEach((f,i)=>tone(f,t+i*.07,.18,'square',.035));tone(392,t,.6,'sawtooth',.03,784);break;
-  case 'charge':{const d=Math.max(.3,a||1);tone(110,t,d,'sawtooth',.04,880);tone(220,t,d,'square',.02,1760);noise(t,.03,d,'l');break}
-  case 'cut':tone(1175,t,.08,'square',.04);tone(1568,t+.07,.08,'square',.04);tone(2349,t+.14,.25,'square',.035,2637);noise(t,.05,.2,'h');break;
+  case 'shatter':sBoom(t,1.8);noise(t,.06,.6,'l');noise(t,.12,.45,'h');noise(t,.08,.25,'w');for(let i=0;i<8;i++)tone(3200-i*260+sR()*200,t+i*.035,.07,'square',.018);tone(110,t,.3,'sawtooth',.06,40);break;
+  case 'bigin':sBoom(t,2);sClunk(t,1.3);tone(80,t,.45,'sawtooth',.06,30);noise(t,.1,.35,'l');tone(392,t+.12,.3,'square',.03,784);break;
+  case 'bigstop':sClunk(t,a?1.5:1);if(a)sBoom(t,1);tone(a?110:150,t,.22,'square',.05,a?50:80);noise(t,.07,.12,'l');if(a)tone(1568,t+.05,.25,'square',.03,2093);break;
+  case 'bigwin':sBoom(t,2);sCrash(t,.06,.8);[784,988,1175,1568,1976].forEach((f,i)=>tone(f,t+i*.07,.18,'square',.032));sBell(1568,t+.35,.03,.9);tone(392,t,.6,'sawtooth',.03,784);break;
+  case 'charge':{const d=Math.max(.3,a||1);sFat(110,t,d,.045,880,1);tone(55,t,d,'sawtooth',.03,110);tone(220,t,d,'square',.02,1760);noise(t,.03,d,'l');break}
+  case 'cut':sBoom(t,.8);tone(1175,t,.08,'square',.04);tone(1568,t+.07,.08,'square',.04);tone(2349,t+.14,.25,'square',.035,2637);noise(t,.05,.2,'h');break;
   case 'fire':if(a==0){noise(t,.12,.35,'h');tone(1600,t,.3,'sawtooth',.04,200)}else if(a==1){tone(60,t,.8,'sawtooth',.07,40);noise(t,.1,.8,'l');tone(880,t,.6,'square',.02,110)}
     else{for(let i=0;i<6;i++){tone(2600-i*200,t+i*.05,.08,'square',.02,600)}noise(t,.08,.3,'h')}break;
-  case 'hit':tone(70,t,.6,'sawtooth',.09,28);noise(t,.16,.6,'l');noise(t+.05,.08,.3,'h');break;
-  case 'fail':tone(660,t,.12,'square',.035,330);tone(330,t+.12,.35,'triangle',.03,110);noise(t+.1,.04,.3,'l');break;
+  case 'hit':sBoom(t,2.5);sCrash(t,.07,.8);tone(70,t,.6,'sawtooth',.07,28);noise(t,.16,.6,'l');noise(t+.05,.08,.3,'h');break;
+  case 'fail':sFat(660,t,.12,.03,330,1);tone(330,t+.12,.35,'triangle',.03,110);noise(t+.1,.04,.3,'l');break;
   case 'pop':tone(784,t,.05,'square',.03,1568);tone(1568,t+.05,.06,'square',.025);break;
-  case 'wave':tone(196,t,.18,'square',.05,98);noise(t,.07,.15,'l');tone(1319,t+.02,.12,'square',.025,1760);break}
+  case 'wave':sBoom(t,.7);tone(196,t,.18,'square',.04,98);noise(t,.07,.15,'l');tone(1319,t+.02,.12,'square',.025,1760);break}
 }catch(e){}}
 
 /* ---------- タイトル曲 (sound担当): 「パチ戦記 序曲」 D major 136 / 16小節ループ(約28秒) + スタートのジングル ----------
@@ -3090,18 +3140,21 @@ function ttBgmGo(){
    ・命中の音は 77 の seHit を英雄ごとの音色に(78 のフックが色を渡す) */
 let sUiT=-9,sSwT=-9,sByT=-9;const sSwH=[-9,-9,-9,-9];
 function seUi(kind){if(!sOK())return;try{const t=AC.currentTime;if(t-sUiT<.05)return;sUiT=t;
-  if(kind==='x'){tone(520,t,.05,'square',.022,390)}                                  // 閉じる・やめる: 下がる
-  else if(kind==='ok'){tone(880,t,.05,'square',.026);tone(1320,t+.045,.08,'square',.024)}   // 決定: ピポッ
+  /* 押した手応え: どれも小さな胴の「コッ」(三角波の下降)を下に敷く */
+  tone(240,t,.04,'triangle',.035,120);
+  if(kind==='x'){tone(520,t,.05,'square',.02,390)}                                  // 閉じる・やめる: 下がる
+  else if(kind==='ok'){tone(880,t,.05,'square',.024);tone(1320,t+.045,.09,'p25',.024);tone(660,t+.045,.08,'triangle',.02)}   // 決定: ピポッ
   else if(kind==='tab'){tone(990,t,.035,'triangle',.03)}                               // タブ: 軽く
-  else{tone(760,t,.04,'square',.022,880)}}catch(e){}}
+  else{tone(760,t,.04,'square',.02,880)}}catch(e){}}
 /* 攻撃の振りは数が多い。①声の数の枠(sVok)を使わずに直接鳴らす(枠を埋めると BGM や大事な SE が間引かれる)
    ②ゲームの乱数 Math.random を使わない(75 の sNs は雑音の開始位置に乱数を使うので、ここでは時刻から決める。乱数を使うと当たりの出方がずれる) */
 function seSwing(i){if(!sOK())return;try{const t=AC.currentTime;if(t-sSwH[i]<.2||t-sSwT<.07)return;sSwH[i]=sSwT=t;const v=G.rush>0?.6:1,to=(f,a,d,ty,vv,f2)=>sVo(f,a,d,ty,vv,{f2}),nz=(a,vv,d)=>{const b=AC.createBufferSource(),g=AC.createGain();sGr();b.buffer=SNB;g.gain.setValueAtTime(Math.max(vv,.0002),a);g.gain.exponentialRampToValueAtTime(.0001,a+d);b.connect(g);g.connect(sDst('se'));b.start(a,(a*.37)%.4,d+.02)};
   if(i===0){nz(t,.035*v,.09);to(900,t+.06,.09,'sawtooth',.014*v,220)}
-  else if(i===1){to(1568,t+.05,.06,'sine',.02*v);to(2093,t+.09,.07,'sine',.018*v);to(2637,t+.13,.09,'sine',.014*v)}
+  else if(i===1){to(1568,t+.05,.06,'sine',.02*v);to(2637,t+.1,.09,'sine',.016*v)}
   else if(i===2){to(330,t+.07,.05,'triangle',.035*v,165);nz(t,.012*v,.03)}
   else{to(1200,t+.06,.07,'sawtooth',.016*v,2400);nz(t,.02*v,.05)}}catch(e){}}
-function seBuy(){if(!sOK())return;try{const t=AC.currentTime;if(t-sByT<.06)return;sByT=t;tone(1319,t,.05,'square',.03);tone(1760,t+.05,.06,'square',.03);tone(2637,t+.1,.12,'triangle',.028)}catch(e){}}
+/* 買い物「チャリーン」: レジの金属音(77 の sMetal)+小さな「ドッ」+鐘 */
+function seBuy(){if(!sOK())return;try{const t=AC.currentTime;if(t-sByT<.06)return;sByT=t;tone(130,t,.08,'sine',.07,55);sMetal(1319,t,.03,.07);sMetal(1760,t+.05,.03,.1);sBell(2637,t+.1,.025,.35)}catch(e){}}
 sndHook('heroAtk',i=>seSwing(i));
 /* 買い物: 資源の合計が減ったら成功。beep は消す(sup) */
 {const st=()=>{let a=0;try{a=G.gold}catch(e){}let b=0;try{if(typeof RES!=='undefined')b=RES.ms+RES.gem*1000}catch(e){}let c=0;try{if(typeof SOUL!=='undefined')c=SOUL.spent}catch(e){}return [a,b,c]};
@@ -3563,7 +3616,7 @@ function gkTrack(){const d=G.gold-GK.lg;GK.lg=G.gold;if(GK.rs){if(d>0)GK.rs.g+=d
       GK.rr={t0:T,n,g,k,jp,rec};GK.rr.sc=gkScore(GK.rr);GK.rr.gr=gkGrade(GK.rr.sc)[0];GK.tk=0;GK.fin=0}}
   const R=GK.rr;if(!R)return;const p=T-R.t0;
   if(p<1.2){if(T-GK.tk>.07){GK.tk=T;try{if(sOK())tone(1200+p*900,sNow(),.03,'square',.018)}catch(e){}}}
-  else if(!GK.fin){GK.fin=1;try{const G2=R.gr;if(G2[0]=='S'||G2=='A+'){kyuin(G2=='S+'?8:5,'#ffd400');shake()}if(sOK()){const t=sNow();tone(110,t,.25,'sawtooth',.06,55);noise(t,.05,.2,'l')}}catch(e){}gkChime(R.n>=5?4:R.n>=3?3:2);if(R.n>=3)try{jara()}catch(e){}if(R.rec)banner('NEW RECORD!! '+R.n+'連','#ffd400')}
+  else if(!GK.fin){GK.fin=1;try{const G2=R.gr;if(G2[0]=='S'||G2=='A+'){kyuin(G2=='S+'?8:5,'#ffd400');shake()}if(sOK()){const t=sNow();tone(110,t,.25,'sawtooth',.06,55);noise(t,.05,.2,'l');if(typeof sBoom==='function')sBoom(t,R.n>=5?2:R.n>=3?1.3:.7)/* 連チャン数で重さを変える */}}catch(e){}gkChime(R.n>=5?4:R.n>=3?3:2);if(R.n>=3)try{jara()}catch(e){}if(R.rec)banner('NEW RECORD!! '+R.n+'連','#ffd400')}
   if(p>3.8)GK.rr=null}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{gkTrack()}catch(e){GK.rs=null;GK.rr=null}return r}}
 // 描画(戦闘キャンバスの上に重ねる)
@@ -3639,7 +3692,7 @@ function mrDraw(t){const M=HEV.mr;if(!M)return;const cx=112,cy=29,R=22,W=WCH||wB
 const JRD=[0,2.6,2.8];
 function jpRush(){const v=HEV.jv!=null?HEV.jv:gkPick([.34,.33,.33]);if(!v){jackpot();return}HEV.jr={t0:T,k:0,v};showMsg(v==2?'JACKPOT COUNTDOWN!!':'777!!!','#ffd400')}
 function jrHue(t,o){const fl=typeof UX!=='undefined'&&UX.S?UX.S.fl:2;return Math.floor(t*(fl>0?260:60)+(o||0))%360}
-function jrBoom(k){shake();kyuin(3+k*2,'hsl('+jrHue(T,k*120)+',100%,60%)');burst(90+(k-1)*90,75,30,'hsl('+jrHue(T,k*90)+',100%,60%)');try{if(sOK())tone(220*k,sNow(),.25,'sawtooth',.05,110)}catch(e){}}
+function jrBoom(k){shake();kyuin(3+k*2,'hsl('+jrHue(T,k*120)+',100%,60%)');burst(90+(k-1)*90,75,30,'hsl('+jrHue(T,k*90)+',100%,60%)');try{if(sOK()){const t=sNow();tone(220*k,t,.25,'sawtooth',.05,110);if(typeof sBoom==='function')sBoom(t,.8+k*.5)/* 777 が1つ揃うごとに重く */}}catch(e){}}
 function jrUpd(){const J=HEV.jr;if(!J)return;const p=T-J.t0;
   if(J.v==1){while(J.k<3&&p>.35+J.k*.38){J.k++;jrBoom(J.k);if(J.k==3)flash('#ffd400')}if(p>1.6&&!J.b){J.b=1;banner('JACKPOT!!!','#ffd400');try{fan()}catch(e){}}}
   else{while(J.k<3&&p>.2+J.k*.62){J.k++;jrBoom(J.k);try{if(sOK())tone(660*Math.pow(1.5,J.k-1),sNow(),.18,'square',.04)}catch(e){}}if(p>2.1&&!J.b){J.b=1;flash('#fff');shake();banner('JACKPOT!!!','#ffd400');try{fan();jara()}catch(e){}}}
@@ -4256,17 +4309,17 @@ const PHY={h:0};
 const phOf=o=>{o=o||{};return o.jp?3:Math.max(1,Math.min(3,o.heat|0||1))};
 function phSnd(k,h){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
   if(k==='in'){
-    tone(90,t,.32,'sine',.11,38);noise(t,.12,.18,'l');noise(t,.06,.08,'h');                  // ドン+打撃
+    sBoom(t,.6+h*.4);noise(t,.06,.08,'h');                  // ドン+打撃(重低音は熱さで強く)
     const ch=h>=3?[523,659,784,1047,1319]:h==2?[440,554,659,880]:[392,494,587];
     ch.forEach((f,i)=>{tone(f,t+.04+i*.03,.34,'square',.03);tone(f*2,t+.04+i*.03,.2,'triangle',.018)});
     if(h>=3){tone(220,t+.05,.7,'sawtooth',.035,1760);[1568,2093,2637].forEach((f,i)=>tone(f,t+.3+i*.06,.25,'triangle',.025))}
     else if(h==2)tone(330,t+.05,.45,'sawtooth',.03,1320);
   }else if(k==='hit'){
-    tone(120,t,.5,'sine',.13,30);tone(60,t,.6,'sawtooth',.06,28);noise(t,.16,.35,'l');noise(t+.02,.08,.18,'h');   // 落下+打撃
+    sBoom(t,1.2+h*.45);sBuzz(t+.01,.2+h*.08,.04+h*.012);tone(60,t,.6,'sawtooth',.05,28);noise(t+.02,.08,.18,'h');if(h>=2)sCrash(t,.05,.5);   // 落下+打撃+ボタンの振動「ブルッ」
     const base=h>=3?[523,659,784,1047,1319,1568]:h==2?[440,554,659,880,1109]:[392,494,587,784];
     base.forEach((f,i)=>{tone(f,t+.06+i*.045,.42,'square',.032);tone(f/2,t+.06+i*.045,.42,'sawtooth',.016)});
     if(h>=2)tone(330,t+.04,.6,'sawtooth',.04,h>=3?2637:1760);                                // 上昇キュイーン
-    if(h>=3){[2093,2637,3136,4186].forEach((f,i)=>tone(f,t+.36+i*.07,.3,'triangle',.028));noise(t+.3,.05,.5,'h')}
+    if(h>=3){[2093,2637,3136,4186].forEach((f,i)=>sBell(f,t+.36+i*.07,.025,.4));noise(t+.3,.05,.5,'h')}
   }}catch(e){}}
 function phCls(el,add,rm){try{let c=String(el.className||'').split(' ').filter(x=>x&&!rm.test(x));el.className=c.concat(add).join(' ')}catch(e){}}
 {const o=pushPrompt;pushPrompt=function(cb,opt){const was=PUSH,r=o.apply(this,arguments);
@@ -4656,11 +4709,12 @@ const hvLateK=s=>s>BAL.lateS?Math.pow(BAL.lateK,s-BAL.lateS):1;
     // リベンジは そのボスと、全滅で1つ戻った手前のステージの間だけ続く
     if(G.stage>HV.revSt||G.stage<HV.revSt-1){HV.rev=0;HV.revSt=G.stage}if(isBoss()||HV.dn.some(d=>d))hvHeal();HV.wipe=0}catch(e){}return r}}
 function hvSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
-  if(k=='hit'){tone(150,t,.07,'square',.03,90)}
-  else if(k=='bhit'){tone(110,t,.1,'sawtooth',.04,60);tone(70,t+.02,.12,'square',.03)}
-  else if(k=='down'){[523,392,262].forEach((f,i)=>tone(f,t+i*.08,.1,'square',.03))}
-  else if(k=='wipe'){[392,330,262,196].forEach((f,i)=>tone(f,t+i*.16,.18,'triangle',.04))}
-  else if(k=='up'){[392,523,659,784].forEach((f,i)=>tone(f,t+i*.06,.1,'square',.03))}}catch(e){}}
+  /* 音の部品(77 の sBoom 等)で 被弾は鈍い打撃、ダウンは崩れ落ちる音、全滅は重い下降、復活は鐘(96 の作り手の指摘「もっと重厚に」) */
+  if(k=='hit'){tone(150,t,.07,'square',.025,90);tone(110,t,.08,'sine',.06,50);noise(t,.02,.05,'l')}
+  else if(k=='bhit'){sBoom(t,.5);tone(110,t,.1,'sawtooth',.035,60);noise(t,.03,.06,'w')}
+  else if(k=='down'){[523,392,262].forEach((f,i)=>tone(f,t+i*.08,.1,'square',.026));sBoom(t+.24,.6)}
+  else if(k=='wipe'){sBoom(t,1.4);[392,330,262,196].forEach((f,i)=>sFat(f,t+i*.16,.2,.03,f*.97,1));tone(98,t+.5,.6,'triangle',.06)}
+  else if(k=='up'){[392,523,659,784].forEach((f,i)=>sBell(f,t+i*.06,.03,.3))}}catch(e){}}
 /* 敵の攻撃: 生きている英雄から選ぶ(剣士は2倍狙われる) */
 function hvPick(){let w=0;const c=[];for(let i=0;i<3;i++)if(!HV.dn[i]){const k=i==0?2:1;w+=k;c.push([i,k])}if(!c.length)return -1;let r=Math.random()*w;for(const q of c){r-=q[1];if(r<0)return q[0]}return c[c.length-1][0]}
 function hvHit(i,d,boss){if(HV.dn[i])return;HV.hp[i]=Math.max(0,HV.hp[i]-d);HV.fl[i]=T;if(HV.num.length<10)HV.num.push({i,t0:T,s:'-'+Math.max(1,Math.round(d)),c:boss?'#ff4a5a':'#ff9a9a'});hvSnd(boss?'bhit':'hit');
@@ -5416,7 +5470,7 @@ function actTgUpd(dt){
   g.x+=g.vx*dt;g.y+=Math.sin((T-g.t0)*3+g.ph)*.4;if(g.x<-30||g.x>390){ACT.tg=null;showMsg(g.k.n+'は逃げた…','#9aa0c8')}}
 
 /* --- 3) ボス演出 --- */
-{const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);try{if(isBoss()&&run){ACT.warn={t0:T};try{if(sOK()){const t=sNow();for(let i=0;i<4;i++){tone(880,t+i*.4,.18,'sawtooth',.035,660);tone(660,t+i*.4+.2,.18,'sawtooth',.035,880)}}}catch(e){}}}catch(e){}return r}}
+{const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);try{if(isBoss()&&run){ACT.warn={t0:T};try{if(sOK()){const t=sNow();for(let i=0;i<4;i++){tone(880,t+i*.4,.18,'sawtooth',.035,660);tone(660,t+i*.4+.2,.18,'sawtooth',.035,880);tone(110,t+i*.4,.36,'sawtooth',.03,82);noise(t+i*.4,.05,.3,'l')}if(typeof sBoom==='function')sBoom(t,1.4)/* 79/77 の重低音 */}}catch(e){}}}catch(e){}return r}}
 {const _k=kill;kill=function(){const wb=isBoss(),s0=G.stage;const r=_k.apply(this,arguments);try{if(wb&&run){ACT.fin={t0:T};HS=Math.max(HS,.5);shake()}
   if(run&&G.stage>s0&&s0%10==0)actMile(s0)}catch(e){}return r}}
 /* --- 5) 10ステージごとの節目: 「STAGE n 突破!!」+ 紙吹雪 --- */

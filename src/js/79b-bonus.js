@@ -45,16 +45,16 @@ function seExp(kind){
       if(kind==='go'){
         for(let i=0;i<4;i++)noise(t+i*.045,.03+.01*i,.04,'h'); // 小太鼓のロール
         [[7,0,.08],[7,.1,.08],[7,.2,.08],[12,.3,.32]].forEach(([s,o,d])=>{tone(mf(r+s),t+.18+o,d,'p25',.05);tone(mf(r+s-12),t+.18+o,d,'triangle',.04)});
-        tone(mf(r+16),t+.48,.3,'p12',.025);tone(110,t+.48,.2,'sine',.12,50);
+        tone(mf(r+16),t+.48,.3,'p12',.025);sBoom(t+.48,.7);
       }else if(kind==='ret'){
         [[16,0],[12,.18],[19,.36]].forEach(([s,o])=>{tone(mf(r+s),t+o,.4,'sine',.04);tone(mf(r+s+12),t+o,.12,'p12',.012)});
       }else{ // back / big
-        tone(90,t+.9,.25,'sine',.16,40);noise(t+.9,.05,.12,'w');
+        sBoom(t+.9,1.2);noise(t+.9,.05,.12,'w');
         for(let i=0;i<5;i++)tone(mf(sLad(5+i*2)),t+.95+i*.06,.12,'p25',.045);
         if(kind==='big'){
           tone(300,t+1.3,.5,'sawtooth',.03,1800);
           [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+1.6+i*.06,.13,'p25',.05);tone(mf(r+s),t+1.6+i*.06,.13,'triangle',.04)});
-          [0,4,7,12].forEach(s=>tone(mf(r+s+12),t+2.05,.7,'square',.026));
+          sBoom(t+2.05,1.6);[0,4,7,12].forEach((s,j)=>sFat(mf(r+s+12),t+2.05,.8,.024,0,j>0));sBell(mf(r+24),t+2.1,.03,.9);
         }
       }
     });
@@ -78,7 +78,7 @@ function seBt(kind,k){
           [24,19,16,12,16,19,24,31].forEach((s,i)=>{tone(mf(r+s),t1+i*.08,.18,'p12',.04);tone(mf(r+s)*2,t1+i*.08,.06,'sine',.015)});
           tone(mf(r+12),t1,.9,'triangle',.035);noise(t1+.6,.02,.4,'m');
         }else{ // 討伐: パワーコードのスタブ x3 + 突撃ラッパ
-          [0,.16,.32].forEach((o,i)=>{tone(mf(r-12),t1+o,.13,'sawtooth',.045);tone(mf(r-5),t1+o,.13,'sawtooth',.035);tone(80,t1+o,.12,'sine',.15,40);noise(t1+o,.05,.06,'w')});
+          [0,.16,.32].forEach((o,i)=>{sFat(mf(r-12),t1+o,.13,.045);sFat(mf(r-5),t1+o,.13,.035,0,1);sBoom(t1+o,.7);noise(t1+o,.05,.06,'w')});
           [[7,.5,.1],[7,.62,.1],[12,.74,.4]].forEach(([s,o,d])=>tone(mf(r+s),t1+o,d,'p25',.05));
         }
       }else if(kind==='end'){[12,7,4,0].forEach((s,i)=>tone(mf(r+s),t+i*.11,.22,'triangle',.04));tone(mf(r+19),t+.44,.3,'p12',.015)}
@@ -98,13 +98,13 @@ function seHl(kind,w){
         noise(t+.8,.04,.06,'h');tone(2200,t+.8,.06,'p12',.03,900); // ペラッ
       }else if(kind==='win'){
         const b=5+w*3;for(let i=0;i<2+w;i++)tone(mf(sRise(b+i*2)),t+i*.065,.12,'p25',.05);
-        tone(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.3,'square',.035);tone(110,t,.3,'sine',.14,40);
+        tone(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.3,'square',.032);sBoom(t,.5+w*.3);sBell(mf(sRise(b+(2+w)*2)),t+(2+w)*.065,.025,.4);
       }else if(kind==='lose'){tone(mf(r-5),t,.16,'sawtooth',.045);tone(mf(r-6),t+.2,.32,'sawtooth',.045,mf(r-8));tone(mf(r-17),t,.5,'triangle',.05)}
       else if(kind==='cash'){for(let i=0;i<3;i++)tone(mf(sLad(6+i*2)),t+i*.07,.12,'triangle',.04)}
       else if(kind==='perfect'){
-        tone(110,t,.6,'sine',.18,32);noise(t,.1,.8,'w');
+        sBoom(t,2);sCrash(t,.07,.8);
         [0,4,7,12,16,19,24].forEach((s,i)=>{tone(mf(r+s+12),t+i*.06,.13,'p25',.055);tone(mf(r+s),t+i*.06,.13,'triangle',.04)});
-        [0,4,7,12,16].forEach(s=>tone(mf(r+s+12),t+.5,.9,'square',.026));
+        [0,4,7,12,16].forEach((s,j)=>sFat(mf(r+s+12),t+.5,.9,.022,0,j>0));sBell(mf(r+24),t+.55,.03,1);
       }
     });
     if(kind==='cash')seJaraStream(t+.15,.6,12);

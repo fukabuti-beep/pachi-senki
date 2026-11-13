@@ -6,18 +6,21 @@
    ・命中の音は 77 の seHit を英雄ごとの音色に(78 のフックが色を渡す) */
 let sUiT=-9,sSwT=-9,sByT=-9;const sSwH=[-9,-9,-9,-9];
 function seUi(kind){if(!sOK())return;try{const t=AC.currentTime;if(t-sUiT<.05)return;sUiT=t;
-  if(kind==='x'){tone(520,t,.05,'square',.022,390)}                                  // 閉じる・やめる: 下がる
-  else if(kind==='ok'){tone(880,t,.05,'square',.026);tone(1320,t+.045,.08,'square',.024)}   // 決定: ピポッ
+  /* 押した手応え: どれも小さな胴の「コッ」(三角波の下降)を下に敷く */
+  tone(240,t,.04,'triangle',.035,120);
+  if(kind==='x'){tone(520,t,.05,'square',.02,390)}                                  // 閉じる・やめる: 下がる
+  else if(kind==='ok'){tone(880,t,.05,'square',.024);tone(1320,t+.045,.09,'p25',.024);tone(660,t+.045,.08,'triangle',.02)}   // 決定: ピポッ
   else if(kind==='tab'){tone(990,t,.035,'triangle',.03)}                               // タブ: 軽く
-  else{tone(760,t,.04,'square',.022,880)}}catch(e){}}
+  else{tone(760,t,.04,'square',.02,880)}}catch(e){}}
 /* 攻撃の振りは数が多い。①声の数の枠(sVok)を使わずに直接鳴らす(枠を埋めると BGM や大事な SE が間引かれる)
    ②ゲームの乱数 Math.random を使わない(75 の sNs は雑音の開始位置に乱数を使うので、ここでは時刻から決める。乱数を使うと当たりの出方がずれる) */
 function seSwing(i){if(!sOK())return;try{const t=AC.currentTime;if(t-sSwH[i]<.2||t-sSwT<.07)return;sSwH[i]=sSwT=t;const v=G.rush>0?.6:1,to=(f,a,d,ty,vv,f2)=>sVo(f,a,d,ty,vv,{f2}),nz=(a,vv,d)=>{const b=AC.createBufferSource(),g=AC.createGain();sGr();b.buffer=SNB;g.gain.setValueAtTime(Math.max(vv,.0002),a);g.gain.exponentialRampToValueAtTime(.0001,a+d);b.connect(g);g.connect(sDst('se'));b.start(a,(a*.37)%.4,d+.02)};
   if(i===0){nz(t,.035*v,.09);to(900,t+.06,.09,'sawtooth',.014*v,220)}
-  else if(i===1){to(1568,t+.05,.06,'sine',.02*v);to(2093,t+.09,.07,'sine',.018*v);to(2637,t+.13,.09,'sine',.014*v)}
+  else if(i===1){to(1568,t+.05,.06,'sine',.02*v);to(2637,t+.1,.09,'sine',.016*v)}
   else if(i===2){to(330,t+.07,.05,'triangle',.035*v,165);nz(t,.012*v,.03)}
   else{to(1200,t+.06,.07,'sawtooth',.016*v,2400);nz(t,.02*v,.05)}}catch(e){}}
-function seBuy(){if(!sOK())return;try{const t=AC.currentTime;if(t-sByT<.06)return;sByT=t;tone(1319,t,.05,'square',.03);tone(1760,t+.05,.06,'square',.03);tone(2637,t+.1,.12,'triangle',.028)}catch(e){}}
+/* 買い物「チャリーン」: レジの金属音(77 の sMetal)+小さな「ドッ」+鐘 */
+function seBuy(){if(!sOK())return;try{const t=AC.currentTime;if(t-sByT<.06)return;sByT=t;tone(130,t,.08,'sine',.07,55);sMetal(1319,t,.03,.07);sMetal(1760,t+.05,.03,.1);sBell(2637,t+.1,.025,.35)}catch(e){}}
 sndHook('heroAtk',i=>seSwing(i));
 /* 買い物: 資源の合計が減ったら成功。beep は消す(sup) */
 {const st=()=>{let a=0;try{a=G.gold}catch(e){}let b=0;try{if(typeof RES!=='undefined')b=RES.ms+RES.gem*1000}catch(e){}let c=0;try{if(typeof SOUL!=='undefined')c=SOUL.spent}catch(e){}return [a,b,c]};

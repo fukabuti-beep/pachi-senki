@@ -41,7 +41,7 @@ function mrDraw(t){const M=HEV.mr;if(!M)return;const cx=112,cy=29,R=22,W=WCH||wB
 const JRD=[0,2.6,2.8];
 function jpRush(){const v=HEV.jv!=null?HEV.jv:gkPick([.34,.33,.33]);if(!v){jackpot();return}HEV.jr={t0:T,k:0,v};showMsg(v==2?'JACKPOT COUNTDOWN!!':'777!!!','#ffd400')}
 function jrHue(t,o){const fl=typeof UX!=='undefined'&&UX.S?UX.S.fl:2;return Math.floor(t*(fl>0?260:60)+(o||0))%360}
-function jrBoom(k){shake();kyuin(3+k*2,'hsl('+jrHue(T,k*120)+',100%,60%)');burst(90+(k-1)*90,75,30,'hsl('+jrHue(T,k*90)+',100%,60%)');try{if(sOK())tone(220*k,sNow(),.25,'sawtooth',.05,110)}catch(e){}}
+function jrBoom(k){shake();kyuin(3+k*2,'hsl('+jrHue(T,k*120)+',100%,60%)');burst(90+(k-1)*90,75,30,'hsl('+jrHue(T,k*90)+',100%,60%)');try{if(sOK()){const t=sNow();tone(220*k,t,.25,'sawtooth',.05,110);if(typeof sBoom==='function')sBoom(t,.8+k*.5)/* 777 が1つ揃うごとに重く */}}catch(e){}}
 function jrUpd(){const J=HEV.jr;if(!J)return;const p=T-J.t0;
   if(J.v==1){while(J.k<3&&p>.35+J.k*.38){J.k++;jrBoom(J.k);if(J.k==3)flash('#ffd400')}if(p>1.6&&!J.b){J.b=1;banner('JACKPOT!!!','#ffd400');try{fan()}catch(e){}}}
   else{while(J.k<3&&p>.2+J.k*.62){J.k++;jrBoom(J.k);try{if(sOK())tone(660*Math.pow(1.5,J.k-1),sNow(),.18,'square',.04)}catch(e){}}if(p>2.1&&!J.b){J.b=1;flash('#fff');shake();banner('JACKPOT!!!','#ffd400');try{fan();jara()}catch(e){}}}

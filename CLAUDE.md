@@ -69,7 +69,7 @@ npm test                            # build + smoke
 | 50-slot.js | スロット抽選/回転 `startSpin` `updSpin` | balance |
 | 60-roulette.js | ルーレット `startRoul` `updRoul` | balance |
 | 70-show.js | 大当たり/ジャックポット演出の流れ `bigHit` `jackpot` `banner` | balance(流れ) / fx(見た目) |
-| 75-audio.js | WebAudio: `beep` `tone` `noise` BGM `bgm()` `kyuin` `jara` `fan` | sound |
+| 75-audio.js | WebAudio: `beep` `tone` `noise` BGM `bgm()` `kyuin` `jara` `fan`。効果音の厚み: se → 響き(4本の遅延の残響、BGM には掛けない)・暖かい経路 `wm`(低域通過 → se)・低い地鳴りの雑音 `'l'`(ブラウンノイズ)。`beep` は1オクターブ下の三角波を重ねる。音の乱数は `sR()`(**効果音は Math.random を使わない**=音を変えても当たりの出方が変わらない) | sound |
 | 79b-bonus.js | ボーナスタイム中だけのBGMアレンジ(通常曲をテンポx1.15・全音上・4つ打ち・種類別リード。優先 JACKPOT>緊張>RUSH>FEVER>ボーナス>ボス>通常、bgmState をラップ)と SE `seExp`(遠征)/`seBt`(ボーナスタイム)/`seHl`(ハイ&ロー)。98d/98e/98f から1行で呼ぶ。キュインの耳疲れ対策(差し替え/音量逓減)は 77 の kyuin(テスト: tests/audio2.js) | sound |
 | 79d-uise.js | 効果音の追加(作り手の指摘「ゲーム全体の SE」): ボタンを押した音 `seUi(kind)`(document の click を1か所で聞く。決定/閉じる/タブで高さを変える)、攻撃の振り `seSwing(i)`(剣=風切り/杖=きらめき/弓=弦/槍=突き。同じ英雄0.2秒・全体0.07秒あける。声の枠 sVok と **Math.random を使わない**=当たりの出方と BGM を変えない)、買い物の成功 `seBuy()`(buy/hupBuy/smithUp/soulBuy/gsBuy*/skSet/lnBuy/kujiDraw を sndHook で包み、資源が減ったらチャリン)。命中音は 77 の `seHit(b,col)` を英雄ごとの音色に(テスト: tests/tempo.js・tests/audio.js) | sound |
 | 80-skillfx.js | スキルエフェクト `fire` `bolt` `arrow` `drawFX` `jpShow` | fx |
@@ -146,7 +146,7 @@ npm test                            # build + smoke
 | 36-battle-bg.js | 戦闘画面の背景 `drawBgB`(98h が置き換え)・状態別オーバーレイ・枠 | fx |
 | 46-board-fx.js | 盤面の動的演出(オーバーレイ/電飾/センター窓/保留ランプ/玉の軌跡/入賞口の発光) | fx |
 | 76-bgm.js / 79-songs.js | BGM エンジン(先読みスケジューラ・`SONGS`・`bgmState`)と追加曲 | sound |
-| 77-se.js / 78-sehooks.js / 79-se2.js / 79c-hypese.js | 効果音ライブラリ(`sOK` `sNow` `kyuin` 等)と、他ファイルの関数を包んで SE を足すフック、激アツ演出用 SE `seHy` | sound |
+| 77-se.js / 78-sehooks.js / 79-se2.js / 79c-hypese.js | 効果音ライブラリ(`sOK` `sNow` `kyuin` 等)と、他ファイルの関数を包んで SE を足すフック、激アツ演出用 SE `seHy`。音の部品(77、作り手の指摘「もっと重厚に・聴いて気持ちいい音に」、参考=パチンコ店の実機音+8bit): `sBoom`(重低音ドン)/`sClunk`(役物・リール停止のガコン)/`sMetal`(玉・払い出しの金属音)/`sBell`(鐘の余韻)/`sBuzz`(ボタンの振動ブルッ)/`sFat`(2本のノコギリの厚い金管)/`sCrash`。大事な瞬間はこれらを同じ瞬間に重ね、ふだんの音(命中・コンボ等)は短く小さく(発音数の上限は tests/audio.js)。考え方は docs/DESIGN.md「音の考え方」 | sound |
 | 81-pxfont.js | ドットフォント `pxText`(5x7)とダメージ数字/コンボ表示 | fx |
 | 82-hitfx.js | 被弾スパーク/撃破の爆散/コイン/衝撃波リング `ringFx` `deathFx`(hurt/kill をラップ) | fx |
 | 83-cutin.js | カットインの描画 `drawCut` | fx |

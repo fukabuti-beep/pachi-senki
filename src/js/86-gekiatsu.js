@@ -44,7 +44,7 @@ function gkTrack(){const d=G.gold-GK.lg;GK.lg=G.gold;if(GK.rs){if(d>0)GK.rs.g+=d
       GK.rr={t0:T,n,g,k,jp,rec};GK.rr.sc=gkScore(GK.rr);GK.rr.gr=gkGrade(GK.rr.sc)[0];GK.tk=0;GK.fin=0}}
   const R=GK.rr;if(!R)return;const p=T-R.t0;
   if(p<1.2){if(T-GK.tk>.07){GK.tk=T;try{if(sOK())tone(1200+p*900,sNow(),.03,'square',.018)}catch(e){}}}
-  else if(!GK.fin){GK.fin=1;try{const G2=R.gr;if(G2[0]=='S'||G2=='A+'){kyuin(G2=='S+'?8:5,'#ffd400');shake()}if(sOK()){const t=sNow();tone(110,t,.25,'sawtooth',.06,55);noise(t,.05,.2,'l')}}catch(e){}gkChime(R.n>=5?4:R.n>=3?3:2);if(R.n>=3)try{jara()}catch(e){}if(R.rec)banner('NEW RECORD!! '+R.n+'連','#ffd400')}
+  else if(!GK.fin){GK.fin=1;try{const G2=R.gr;if(G2[0]=='S'||G2=='A+'){kyuin(G2=='S+'?8:5,'#ffd400');shake()}if(sOK()){const t=sNow();tone(110,t,.25,'sawtooth',.06,55);noise(t,.05,.2,'l');if(typeof sBoom==='function')sBoom(t,R.n>=5?2:R.n>=3?1.3:.7)/* 連チャン数で重さを変える */}}catch(e){}gkChime(R.n>=5?4:R.n>=3?3:2);if(R.n>=3)try{jara()}catch(e){}if(R.rec)banner('NEW RECORD!! '+R.n+'連','#ffd400')}
   if(p>3.8)GK.rr=null}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);try{gkTrack()}catch(e){GK.rs=null;GK.rr=null}return r}}
 // 描画(戦闘キャンバスの上に重ねる)

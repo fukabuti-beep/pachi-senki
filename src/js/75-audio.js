@@ -2,8 +2,11 @@
    構成: 75=コア(このファイル) 76=BGM 77=SE 78=他ファイルの関数へのSEフック
    AC は 99-main.js が「開始」ボタンで生成する(ユーザー操作後)。AC が無い/壊れても例外は出さない。
    公開API: beep tone noise kyuin jara fan bgm / setVol(bgm,se) getVol() setMute(m) isMuted()
-   マスター: bg/se -> mx -> コンプ -> リミッタ -> ソフトクリップ(|y|<=.92) -> destination。BGMは曲ごとのバス(BG.bus)を通し、切替時にクロスフェード */
-let AC,SGR=null,SNB,SNBH,SNBM;
+   マスター: bg/se -> mx -> コンプ -> リミッタ -> ソフトクリップ(|y|<=.92) -> destination。
+   効果音の厚み(作り手の指摘「もっと重厚に」): se から 響き(rv: 4本の遅延の残響=店内の空気感)へ少し送る / 角を丸める暖かい経路 wm(低域通過 → se)/ 地鳴り用の低い雑音 'l'(ブラウンノイズ)。BGMは曲ごとのバス(BG.bus)を通し、切替時にクロスフェード */
+let AC,SGR=null,SNB,SNBH,SNBM,SNBL;
+/* 効果音専用の乱数(ゲームの Math.random を使わない=音の作りを変えても当たりの出方が変わらない) */
+let sRs=0x2f6b1d3;const sR=()=>{sRs=(sRs+0x6D2B79F5)|0;let t=Math.imul(sRs^sRs>>>15,1|sRs);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 let BG={nx:0,st:0,on:1,iv:0,s:'n',bus:null};
 const mf=n=>440*Math.pow(2,(n-69)/12);
 const SND={b:.7,s:.9,m:0,sup:0,supUntil:0,mv:26,pc:9,min:1,pcs:[9,11,0,2,4,5,7],mg:1,bk:.6,sk:1.6};
@@ -27,16 +30,23 @@ function sGr(){
     try{const sh=AC.createWaveShaper(),N=2049,cv=new Float32Array(N);for(let i=0;i<N;i++){const x=i/(N-1)*2-1,a=Math.abs(x);cv[i]=(a<.7?a:.7+.28*Math.tanh((a-.7)/.28))*(x<0?-1:1)}sh.curve=cv;last.connect(sh);last=sh}catch(e){}
     last.connect(AC.destination);
     bg.connect(mx);se.connect(mx);ld.connect(bg);
+    // 暖かい経路: ノコギリ波などの耳に痛い高域を丸める(重厚な金管・地鳴り用)
+    let wm=se;try{const w0=AC.createGain(),lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;lp.Q.value=.6;w0.connect(lp);lp.connect(se);wm=w0}catch(e){wm=se}
+    // 響き: 長さの違う4本の遅延を低域通過で返して、短いホールの残響を作る(効果音だけ。BGM には掛けない)
+    try{const rin=AC.createGain(),rout=AC.createGain();rin.gain.value=.16;rout.gain.value=.55;se.connect(rin);rout.connect(mx);
+      [.037,.053,.071,.097].forEach((dt,i)=>{const d=AC.createDelay(1),fb=AC.createGain(),lp=AC.createBiquadFilter();d.delayTime.value=dt;lp.type='lowpass';lp.frequency.value=2600-i*300;fb.gain.value=.52-i*.04;
+        rin.connect(d);d.connect(lp);lp.connect(fb);fb.connect(d);lp.connect(rout)})}catch(e){}
     let dl=null;
     try{dl=AC.createDelay(1);const wet=AC.createGain(),fb=AC.createGain();wet.gain.value=.28;fb.gain.value=.3;dl.delayTime.value=.35;ld.connect(dl);dl.connect(wet);wet.connect(bg);dl.connect(fb);fb.connect(dl)}catch(e){dl=null}
     const sr=AC.sampleRate||44100,n=sr,w=new Float32Array(n),h=new Float32Array(n),m=new Float32Array(n);
-    for(let i=0;i<n;i++)w[i]=Math.random()*2-1;
+    const l=new Float32Array(n);let lb=0;
+    for(let i=0;i<n;i++){w[i]=sR()*2-1;lb=(lb+.02*w[i])/1.02;l[i]=lb*3.5}
     for(let i=0;i<n;i++)h[i]=(w[i]-(i?w[i-1]:0))*.6;
-    const lf=[];for(let i=0;i<93;i++)lf.push(Math.random()<.5?-1:1);
+    const lf=[];for(let i=0;i<93;i++)lf.push(sR()<.5?-1:1);
     for(let i=0;i<n;i++)m[i]=lf[Math.floor(i/3)%93];
     const mk=a=>{const b=AC.createBuffer(1,n,sr);try{b.getChannelData(0).set(a)}catch(e){}return b};
-    SNB=mk(w);SNBH=mk(h);SNBM=mk(m);
-    SGR={ac:AC,mx,bg,se,ld,dl};
+    SNB=mk(w);SNBH=mk(h);SNBM=mk(m);SNBL=mk(l);
+    SGR={ac:AC,mx,bg,se,ld,dl,wm};
     applyMix();
   }catch(e){SGR={ac:AC,bad:1}}
   return SGR.bad?null:SGR;
@@ -99,14 +109,14 @@ function sVo(f,t,d,ty,v,o){
   osc.connect(g);g.connect(typeof o.dest==='object'&&o.dest?o.dest:sDst(o.dest||'se'));
   osc.start(t);osc.stop(t+d+.02);
 }
-/* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) */
+/* ノイズ: k='w' 白色 / 'h' 高域(ハット) / 'm' 金属質(NES風周期ノイズ) / 'l' 低い地鳴り(ブラウンノイズ) */
 function sNs(t,v,d,k,dest){
   const s=AC.createBufferSource(),g=AC.createGain();
-  sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:SNB;
+  sGr();s.buffer=k==='h'?SNBH:k==='m'?SNBM:k==='l'?(SNBL||SNB):SNB;
   v=Math.max(v,.0002);
   g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
   s.connect(g);g.connect(typeof dest==='object'&&dest?dest:sDst(dest||'se'));
-  s.start(t,Math.random()*.4,d+.02);
+  s.start(t,sR()*.4,d+.02);
 }
 
 /* --- 既存API(シグネチャ維持) --- */
@@ -121,7 +131,8 @@ function sSnap(f){
 }
 function beep(f,d=.08,t='square',v=.04){
   if(!AC||SND.m||SND.sup>0)return;
-  try{if(SND.supUntil&&AC.currentTime<SND.supUntil)return;tone(sSnap(f),AC.currentTime,d,t,v)}catch(e){}
+  try{if(SND.supUntil&&AC.currentTime<SND.supUntil)return;const g=sSnap(f),n=AC.currentTime;tone(g,n,d,t,v);
+    if(g>260&&d>=.05)tone(g/2,n,d*.9,'triangle',v*.55)}catch(e){}   // 1オクターブ下の三角波を重ねて 細い電子音に胴の鳴りを足す
 }
 /* BGMを一瞬下げる(ファンファーレ等を聞かせる) */
 function sDuck(a,d){const g=SGR&&!SGR.bad?SGR:null;if(!g||SND.m)return;try{const p=g.bg.gain,n=AC.currentTime,b=bgGain();p.cancelScheduledValues(n);p.setValueAtTime(b*(1-a),n);p.linearRampToValueAtTime(b,n+d)}catch(e){}}

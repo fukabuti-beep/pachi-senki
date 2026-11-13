@@ -56,11 +56,12 @@ const hvLateK=s=>s>BAL.lateS?Math.pow(BAL.lateK,s-BAL.lateS):1;
     // リベンジは そのボスと、全滅で1つ戻った手前のステージの間だけ続く
     if(G.stage>HV.revSt||G.stage<HV.revSt-1){HV.rev=0;HV.revSt=G.stage}if(isBoss()||HV.dn.some(d=>d))hvHeal();HV.wipe=0}catch(e){}return r}}
 function hvSnd(k){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
-  if(k=='hit'){tone(150,t,.07,'square',.03,90)}
-  else if(k=='bhit'){tone(110,t,.1,'sawtooth',.04,60);tone(70,t+.02,.12,'square',.03)}
-  else if(k=='down'){[523,392,262].forEach((f,i)=>tone(f,t+i*.08,.1,'square',.03))}
-  else if(k=='wipe'){[392,330,262,196].forEach((f,i)=>tone(f,t+i*.16,.18,'triangle',.04))}
-  else if(k=='up'){[392,523,659,784].forEach((f,i)=>tone(f,t+i*.06,.1,'square',.03))}}catch(e){}}
+  /* 音の部品(77 の sBoom 等)で 被弾は鈍い打撃、ダウンは崩れ落ちる音、全滅は重い下降、復活は鐘(96 の作り手の指摘「もっと重厚に」) */
+  if(k=='hit'){tone(150,t,.07,'square',.025,90);tone(110,t,.08,'sine',.06,50);noise(t,.02,.05,'l')}
+  else if(k=='bhit'){sBoom(t,.5);tone(110,t,.1,'sawtooth',.035,60);noise(t,.03,.06,'w')}
+  else if(k=='down'){[523,392,262].forEach((f,i)=>tone(f,t+i*.08,.1,'square',.026));sBoom(t+.24,.6)}
+  else if(k=='wipe'){sBoom(t,1.4);[392,330,262,196].forEach((f,i)=>sFat(f,t+i*.16,.2,.03,f*.97,1));tone(98,t+.5,.6,'triangle',.06)}
+  else if(k=='up'){[392,523,659,784].forEach((f,i)=>sBell(f,t+i*.06,.03,.3))}}catch(e){}}
 /* 敵の攻撃: 生きている英雄から選ぶ(剣士は2倍狙われる) */
 function hvPick(){let w=0;const c=[];for(let i=0;i<3;i++)if(!HV.dn[i]){const k=i==0?2:1;w+=k;c.push([i,k])}if(!c.length)return -1;let r=Math.random()*w;for(const q of c){r-=q[1];if(r<0)return q[0]}return c[c.length-1][0]}
 function hvHit(i,d,boss){if(HV.dn[i])return;HV.hp[i]=Math.max(0,HV.hp[i]-d);HV.fl[i]=T;if(HV.num.length<10)HV.num.push({i,t0:T,s:'-'+Math.max(1,Math.round(d)),c:boss?'#ff4a5a':'#ff9a9a'});hvSnd(boss?'bhit':'hit');

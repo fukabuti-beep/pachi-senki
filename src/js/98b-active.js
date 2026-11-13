@@ -40,7 +40,7 @@ function actTgUpd(dt){
   g.x+=g.vx*dt;g.y+=Math.sin((T-g.t0)*3+g.ph)*.4;if(g.x<-30||g.x>390){ACT.tg=null;showMsg(g.k.n+'は逃げた…','#9aa0c8')}}
 
 /* --- 3) ボス演出 --- */
-{const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);try{if(isBoss()&&run){ACT.warn={t0:T};try{if(sOK()){const t=sNow();for(let i=0;i<4;i++){tone(880,t+i*.4,.18,'sawtooth',.035,660);tone(660,t+i*.4+.2,.18,'sawtooth',.035,880)}}}catch(e){}}}catch(e){}return r}}
+{const _sp=spawn;spawn=function(){const r=_sp.apply(this,arguments);try{if(isBoss()&&run){ACT.warn={t0:T};try{if(sOK()){const t=sNow();for(let i=0;i<4;i++){tone(880,t+i*.4,.18,'sawtooth',.035,660);tone(660,t+i*.4+.2,.18,'sawtooth',.035,880);tone(110,t+i*.4,.36,'sawtooth',.03,82);noise(t+i*.4,.05,.3,'l')}if(typeof sBoom==='function')sBoom(t,1.4)/* 79/77 の重低音 */}}catch(e){}}}catch(e){}return r}}
 {const _k=kill;kill=function(){const wb=isBoss(),s0=G.stage;const r=_k.apply(this,arguments);try{if(wb&&run){ACT.fin={t0:T};HS=Math.max(HS,.5);shake()}
   if(run&&G.stage>s0&&s0%10==0)actMile(s0)}catch(e){}return r}}
 /* --- 5) 10ステージごとの節目: 「STAGE n 突破!!」+ 紙吹雪 --- */

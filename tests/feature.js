@@ -154,7 +154,9 @@ for (const bad of ['{bad json', 'null', '[]', '"x"', JSON.stringify({ t: 'x', so
     ok(g.eval('G.gold') > g0 && fin(g.eval('G.gold')), ty + ': pays out with no input');
   }
   // 連打は放置より多い
-  const tap = (n) => { g.eval("G.stage=25;MG2=null;mg2Start('tap')"); for (let i = 0; i < n; i++) g.eval('mg2Tap({})'); const before = g.eval('G.gold'); g.advance(6, 0.05); return g.eval('G.gold') - before; };
+  // ミニゲームの払い出し(mg2Fin)だけを測る(6秒の間の撃破や大当たりの収入が混ざると、乱数しだいで放置が勝つことがあった)
+  g.eval('var __pay=0;(function(){const o=mg2Fin;mg2Fin=function(){const g0=G.gold;const r=o.apply(this,arguments);__pay+=G.gold-g0;return r}})()');
+  const tap = (n) => { g.eval("G.stage=25;MG2=null;__pay=0;mg2Start('tap')"); for (let i = 0; i < n; i++) g.eval('mg2Tap({})'); g.advance(6, 0.05); return g.eval('__pay'); };
   ok(tap(50) > tap(0), 'tapping beats idle');
   g.eval("G.stage=25;MG2=null;mg2Start('chest');mg2Tap({clientX:0})"); ok(g.eval('MG2.s') === 1 && g.eval('MG2.pk') === 0, 'chest tap picks');
   g.eval('mg2Tap({clientX:0})'); g.advance(3, 0.05); ok(g.eval('MG2') === null, 'chest result closes');

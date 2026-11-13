@@ -102,7 +102,8 @@ function seDoubleLose(){
 let sRT=-1;
 function seRoulTick(p){
   if(!sOK())return;
-  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.035,500+300*p);noise(t,.02,.012,'h');noise(t,.02,.025,'l')}catch(e){}
+  // 玉が仕切りに当たる金属の「カチッ」。止まる直前(p>.75)は低い鼓動が混ざって期待を高める
+  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.035,500+300*p);noise(t,.03,.03,'m');noise(t,.02,.025,'l');if(p>.75)tone(72,t,.14,'sine',.06+.08*(p-.75)*4,40)}catch(e){}
 }
 function seRoulResult(m){
   if(!sOK())return;

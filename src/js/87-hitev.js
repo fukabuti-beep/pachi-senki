@@ -19,10 +19,10 @@ function mrNext(){const base=HEV.mq.shift();if(base==null){HEV.mr=null;return}
   const tg=-1.5708-(k+.2+Math.random()*.6)*SG;HEV.mr={a:0,a1:((tg%TAU)+TAU)%TAU+TAU*4,t:0,k,m:WS[k],base,ph:0,last:-1,kick:0}}
 function mrUpd(dt){const M=HEV.mr;if(!M)return;M.t+=dt;M.kick*=.82;
   if(M.ph==0){const D=2.2,p=Math.min(1,M.t/D),e=1-Math.pow(1-p,3);M.a=M.a1*e;
-    const idx=Math.floor((((-1.5708-M.a)%TAU)+TAU)%TAU/SG);if(idx!=M.last){M.last=idx;M.kick=.5;if(p>.55)try{if(sOK())tone(700+p*500,sNow(),.025,'square',.012)}catch(e){}}
+    const idx=Math.floor((((-1.5708-M.a)%TAU)+TAU)%TAU/SG);if(idx!=M.last){M.last=idx;M.kick=.5;if(p>.55)try{if(typeof seMiniTick==='function')seMiniTick(p);/* 79e */}catch(e){}}
     if(p>=1){M.ph=1;M.t=0;const m=M.m;hurt(M.base*m,'#ffd400',1,m>=5);G.gold+=Math.floor(G.stage*40*m*mul());burst(112,29,m>=10?40:12,'#ffd400');
       if(m>=10){banner('ROULETTE x'+m+'!!','#ffd400');kyuin(m>=50?8:5,'#ffd400');if(G.rush>0)G.rush=Math.min(15,G.rush+3);try{seRoulResult(m)}catch(e){}}
-      else try{if(sOK()){const t=sNow();tone(1320,t,.08,'square',.025);tone(1760,t+.07,.12,'square',.025)}}catch(e){}}}
+      else try{if(typeof seMiniRes==='function')seMiniRes();/* 79e */}catch(e){}}}
   else if(M.t>(M.m>=10?1.6:1.0))mrNext()}
 function mrDraw(t){const M=HEV.mr;if(!M)return;const cx=112,cy=29,R=22,W=WCH||wBuild();
   const a=Math.min(1,M.ph==0?M.t*6:(M.m>=10?1.6:1)-M.t>.25?1:((M.m>=10?1.6:1)-M.t)*4);

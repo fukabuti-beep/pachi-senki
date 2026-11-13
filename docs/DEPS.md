@@ -35,6 +35,8 @@
 - 25-ui.js: flash, shake
 - 75-audio.js: AC, tone, beep
 - 77-se.js: kyuin
+- 79e-roulse.js: seCount
+- 89h-pushhype.js: phSnd
 
 ## 29b-upicons.js
 - 26-dots.js: UX
@@ -132,8 +134,8 @@
 
 ## 77-se.js
 - 25-ui.js: flash
-- 75-audio.js: AC, SND, sPri, sGr, tone, noise, sDuck
-- 79-se2.js: sTb, sePipo, seJaraStream
+- 75-audio.js: AC, SND, sPri, sVok, sVo, tone, noise, sGr, sDuck
+- 79-se2.js: sTb, sePipo, sRise, seJaraStream
 - 99-main.js: last
 
 ## 78-sehooks.js
@@ -148,7 +150,7 @@
 ## 79-se2.js
 - 36-battle-bg.js: L
 - 75-audio.js: SND, AC, sVok, sVo, sGr, noise, tone, sDuck
-- 77-se.js: sOK, sNow, sBig, fanRoot
+- 77-se.js: sOK, sNow, sBig, fanRoot, sBoom, sBuzz, sCrash, sFat, sBell, sW, sMetal, sClunk
 
 ## 79-songs.js
 - 76-bgm.js: SONGS, SCJ, SCD, SCP, bgPrep
@@ -156,13 +158,13 @@
 ## 79b-bonus.js
 - 75-audio.js: sVo, noise, tone, sDuck
 - 76-bgm.js: SONGS, bgPrep, SRANK, bgStep, bgmState, bgBand
-- 77-se.js: sOK, sNow, fanRoot, sBig, sLad
+- 77-se.js: sOK, sNow, fanRoot, sBig, sBoom, sLad, sFat, sBell, sCrash
 - 79-se2.js: seJaraStream, sePipo, sRise
 - 98e-bonustime.js: BT, BTK
 
 ## 79c-hypese.js
 - 75-audio.js: AC, SGR, bgGain, applyMix, tone, noise
-- 77-se.js: sOK, sNow
+- 77-se.js: sOK, sNow, sBoom, sClunk, sCrash, sBell, sFat
 
 ## 79c-titlebgm.js
 - 75-audio.js: sVo, sGr, SND, sNs, AC, sndResume, BG, bgNewBus
@@ -170,11 +172,18 @@
 
 ## 79d-uise.js
 - 75-audio.js: AC, tone, sVo, sGr, sDst
-- 77-se.js: sOK
+- 77-se.js: sOK, sMetal, sBell
 - 78-sehooks.js: sndHook
 - 94b-soul.js: SOUL
 - 96s-smith.js: RES
 - 99-main.js: run
+
+## 79e-roulse.js
+- 60-roulette.js: updRoul
+- 75-audio.js: tone, noise, sDuck, AC
+- 77-se.js: sOK, sNow, fanRoot, sClunk, sBig, sBoom, sFat, sMetal, sBell
+- 78-sehooks.js: sndHook
+- 79-se2.js: sePipo
 
 ## 80-skillfx.js
 - 30-battle.js: FX, PT
@@ -239,7 +248,7 @@
 - 50-slot.js: startSpin, updSpin
 - 70-show.js: banner, bigHit
 - 75-audio.js: tone, noise
-- 77-se.js: sOK, sNow, seReelStop, kyuin, seSpin, jara
+- 77-se.js: sOK, sNow, seReelStop, kyuin, seSpin, sBoom, jara
 - 99-main.js: T, update
 
 ## 87-hitev.js
@@ -253,8 +262,9 @@
 - 60-roulette.js: startRoul, WS, SG, WCH, wBuild
 - 70-show.js: banner, jackpot
 - 75-audio.js: tone
-- 77-se.js: sOK, sNow, kyuin, fan, jara
+- 77-se.js: kyuin, sOK, sNow, sBoom, fan, jara
 - 79-se2.js: seRoulResult
+- 79e-roulse.js: seMiniTick, seMiniRes
 - 86-gekiatsu.js: thickTxt, gkPick
 - 99-main.js: T, update
 
@@ -350,7 +360,7 @@
 - 99-main.js: T, update
 
 ## 89g-btnfx.js
-- 29-push.js: pushPrompt, PUSH, pushPress
+- 29-push.js: pushPress, PUSH
 - 79c-hypese.js: seHy
 - 94-prestige.js: presLater
 - 98b-active.js: cbShow, cbPress, ACT
@@ -359,8 +369,8 @@
 ## 89h-pushhype.js
 - 29-push.js: pushPrompt, PUSH, pushPress
 - 30-battle.js: burst
-- 75-audio.js: tone, noise
-- 77-se.js: sOK, sNow
+- 75-audio.js: noise, tone
+- 77-se.js: sOK, sNow, fanRoot, sBoom, sFat, sBell, sCrash
 - 94-prestige.js: presLater
 
 ## 90-extra.js
@@ -451,8 +461,8 @@
 - 30-battle.js: isBoss, heroAtk, hurt, spawn
 - 35-battle-draw.js: drawHeroes, drawB
 - 70-show.js: banner
-- 75-audio.js: beep, tone
-- 77-se.js: sOK, sNow
+- 75-audio.js: beep, tone, noise
+- 77-se.js: sOK, sNow, sBoom, sFat, sBell
 - 82-hitfx.js: ringFx
 - 84-charfx.js: heroDY
 - 84b-atkfx.js: heroDX
@@ -591,8 +601,8 @@
 - 35-battle-draw.js: drawB
 - 36-battle-bg.js: L
 - 70-show.js: banner
-- 75-audio.js: tone
-- 77-se.js: sOK, sNow, kyuin, fan, jara
+- 75-audio.js: tone, noise
+- 77-se.js: sOK, sNow, kyuin, fan, sBoom, jara
 - 86-gekiatsu.js: gkPick, thickTxt
 - 90-extra.js: HS
 - 91-meta.js: fxEl

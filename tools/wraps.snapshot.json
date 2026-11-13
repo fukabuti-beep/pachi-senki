@@ -196,7 +196,6 @@
  ],
  "pushPrompt": [
   "87b-jpfx.js",
-  "89g-btnfx.js",
   "89h-pushhype.js"
  ],
  "pxText": [
@@ -244,6 +243,7 @@
   "98-mgfx.js"
  ],
  "updRoul": [
+  "79e-roulse.js",
   "87d-roulquick.js"
  ],
  "updSpin": [

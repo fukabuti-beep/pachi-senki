@@ -1718,7 +1718,7 @@ function pkDraw(cv,down){if(!cv||!cv.getContext)return;const N=55,c=cv.getContex
     else col=down?'#520010':'#8a0018'}}
   if(col){c.fillStyle=col;c.fillRect(x,y,1,1)}}}
 try{pkDraw($('pkC0'),0);pkDraw($('pkC1'),1)}catch(e){}
-function pkSnd(){if(typeof AC==='undefined'||!AC||typeof tone!=='function')return;try{const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.08,.12,'square',.05))}catch(e){}}
+function pkSnd(){if(typeof phSnd==='function')return;/* 89h の熱さの音が登場音(調に合わせてある)。重ねると濁る */if(typeof AC==='undefined'||!AC||typeof tone!=='function')return;try{const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.08,.12,'square',.05))}catch(e){}}
 function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
  const ms=o.ms||2400;PUSH={cb,done:0,small:!!o.small,tm:[]};
  el.className='';void el.offsetWidth;
@@ -1726,7 +1726,7 @@ function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
  if(el.style&&el.style.setProperty)el.style.setProperty('--pkms',ms+'ms');
  $('pkT').textContent=o.txt||(o.jp?'777 押せ!!':'押せ!!');
  pkSnd();
- for(let k=1;k*900<ms;k++)PUSH.tm.push(setTimeout(()=>{if(typeof beep==='function')beep(1568+k*120,.09,'square',.04)},k*900));
+ for(let k=1;k*900<ms;k++)PUSH.tm.push(setTimeout(()=>{if(typeof seCount==='function')seCount(k);/* 79e: ガコッと1段ずつ上がる */else if(typeof beep==='function')beep(1568+k*120,.09,'square',.04)},k*900));
  PUSH.tm.push(setTimeout(()=>pushPress(1),ms))}
 function pushPress(auto){const P0=PUSH;if(!P0||P0.done)return;P0.done=1;P0.tm.forEach(clearTimeout);
  const el=$('push');el.className+=' hit';$('pkT').textContent='GO!!';
@@ -2830,7 +2830,8 @@ function seDoubleLose(){
 let sRT=-1;
 function seRoulTick(p){
   if(!sOK())return;
-  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.035,500+300*p);noise(t,.02,.012,'h');noise(t,.02,.025,'l')}catch(e){}
+  // 玉が仕切りに当たる金属の「カチッ」。止まる直前(p>.75)は低い鼓動が混ざって期待を高める
+  try{const t=AC.currentTime;if(t-sRT<.07)return;sRT=t;tone(900+700*p,t,.03,'p50',.035,500+300*p);noise(t,.03,.03,'m');noise(t,.02,.025,'l');if(p>.75)tone(72,t,.14,'sine',.06+.08*(p-.75)*4,40)}catch(e){}
 }
 function seRoulResult(m){
   if(!sOK())return;
@@ -3163,6 +3164,35 @@ sndHook('heroAtk',i=>seSwing(i));
 /* ボタンの音: 1か所で聞く(ゲーム開始後だけ。押せ!!や盤面のタップは それぞれの音があるので除く) */
 try{document.addEventListener('click',e=>{try{if(!run)return;const b=e.target&&e.target.closest&&e.target.closest('button');if(!b||b.id==='pkB'||b.id==='mib')return;
   const tx=b.textContent||'';seUi(/閉じる|やめる|とばす|OFF/.test(tx)?'x':/する|引く|挑戦|受け取|買う|OK|はい|着る|戻す/.test(tx)?'ok':(b.className||'').indexOf('fxb')>=0?'ok':/tab|fmg|upg|seg/.test((b.className||'')+(b.parentNode&&b.parentNode.className||''))?'tab':'')}catch(x){}},true)}catch(e){}
+
+/* ---------- ルーレットと押せ!! の音の整理 (sound) ----------
+   作り手の指摘「ルーレット周りの音(押せ!!ボタン)が未着手」。点検で分かったこと:
+     ・押せ!!が出た瞬間に 4つの音(29 の登場音 / 78 の煽り / 89g のポップ / 89h の熱さの和音)が重なり、29 と 89h の和音は調が固定で BGM とぶつかることがあった
+     ・押した瞬間も 4つ(キュイン / 決定音 / 89g の衝撃波 / 89h の和音)が重なって濁っていた
+     ・カウントダウンは細い電子音1つ、ルーレットは回り始めの音が無く、超倍率の溜めはキュインだけ、戦闘画面のミニルーレットはほぼ聞こえない
+   整理: 押せ!!の登場=89h の熱さの音(調に合わせた)+78 の煽り / 押下=キュイン+決定音(79 seDecide)+89h は熱さの上乗せだけ。
+   ここで足す音: seCount(押せ!!のカウント)/ seRoulStart(回り始め)/ seRoulTame(超倍率の「…!?」の溜め)/ seRoulSup(超倍率の解放)/ seMiniTick・seMiniRes(ミニルーレット)。
+   部品は 77 の sBoom / sClunk / sMetal / sBell / sFat。音の乱数は sR(ゲームの乱数は使わない)。 */
+/* 押せ!!のカウント(0.9秒ごと、29 から呼ぶ): 「ガコッ」と音程が1段ずつ上がる(調に合わせる) */
+function seCount(k){if(!sOK())return;try{const t=sNow(),r=fanRoot(),s=[0,2,4,7,9,12][Math.min(5,Math.max(0,k-1))];
+  sClunk(t,.55);tone(mf(r+12+s),t,.1,'p25',.042);tone(mf(r+s),t,.1,'triangle',.035);noise(t,.04,.08,'l')}catch(e){}}
+/* ルーレットが回り始める: 「ガコン」+ うなりが上がる + 玉がジャラッと走る */
+function seRoulStart(){if(!sOK())return;try{const t=sNow();sBig(()=>{sClunk(t,1.3);sBoom(t,.8);sFat(110,t,.7,.03,440,1);noise(t,.04,.6,'l');
+  for(let i=0;i<7;i++)sMetal(1700+sR()*900,t+.06+i*.055,.016,.04,2)});sDuck(.2,.8)}catch(e){}}
+/* 超倍率の溜め「…!?」(約1.1秒): 小太鼓のロールが詰まっていき、地鳴りが上がり、鼓動が2つ */
+function seRoulTame(){if(!sOK())return;try{const t=sNow();sBig(()=>{let o=0;for(let i=0;i<16;i++){noise(t+o,.025+.003*i,.04,'h');noise(t+o,.03,.05,'l');o+=Math.max(.035,.11-.006*i)}
+  sFat(55,t,1.1,.035,220,1);tone(70,t+.2,.18,'sine',.14,40);tone(70,t+.6,.18,'sine',.16,40);noise(t+.2,.05,.15,'l');noise(t+.6,.05,.15,'l')});sDuck(.35,1.3)}catch(e){}}
+/* 超倍率の解放: 「ギュイーン」と駆け上がる鐘(大きな重低音は 79 の seRoulResult(50) が鳴らす)。x777 は鐘をもう一段 */
+function seRoulSup(m){if(!sOK())return;try{const t=sNow(),r=fanRoot();sBig(()=>{sFat(300,t,.6,.04,2400,1);tone(150,t,.6,'sawtooth',.03,1200);
+  [12,16,19,24,28,31].forEach((s,i)=>sBell(mf(r+s),t+.15+i*.06,.03,.5));if(m>=777){sePipo(4,r+31,t+.6);sBoom(t+.55,1.2);sBell(mf(r+36),t+.6,.035,1.2)}})}catch(e){}}
+/* ミニルーレット(87、戦闘画面の小さいもの): 仕切りの金属音と、小さな当たりの鐘(x10 以上は 79 の seRoulResult) */
+let sMT=-1;
+function seMiniTick(p){if(!sOK())return;try{const t=AC.currentTime;if(t-sMT<.06)return;sMT=t;tone(900+p*600,t,.03,'p50',.022);noise(t,.02,.03,'m')}catch(e){}}
+function seMiniRes(){if(!sOK())return;try{const t=sNow(),r=fanRoot();sClunk(t,.6);tone(mf(r+12),t,.08,'p25',.035);sBell(mf(r+19),t+.07,.03,.35)}catch(e){}}
+/* ルーレット本体(60)につなぐ: 回り始め / 溜め / 解放 は RL の状態の変化で鳴らす(60 は触らない) */
+sndHook('startRoul',null,()=>{try{if(typeof RL!=='undefined'&&RL)seRoulStart()}catch(e){}});
+{const o=updRoul;updRoul=function(dt){const R=typeof RL!=='undefined'?RL:null,sq=R&&R.sq,sx=R&&R.sx;const r=o.apply(this,arguments);
+  try{if(R&&R===RL){if(R.sq&&!sq)seRoulTame();if(R.sx&&!sx)seRoulSup(R.m2||100)}}catch(e){}return r}}
 
 /* ---------- skill fx: 烈火斬(fire) / 雷撃陣(bolt) / 千矢雨(arrow) + カメラ(ズーム/揺れ) + JACKPOT ----------
    FX[]={k,t0}。p = 発動からの秒数。draw は戦闘キャンバス(bc)のワールド空間(カメラ変換の内側) */
@@ -3670,10 +3700,10 @@ function mrNext(){const base=HEV.mq.shift();if(base==null){HEV.mr=null;return}
   const tg=-1.5708-(k+.2+Math.random()*.6)*SG;HEV.mr={a:0,a1:((tg%TAU)+TAU)%TAU+TAU*4,t:0,k,m:WS[k],base,ph:0,last:-1,kick:0}}
 function mrUpd(dt){const M=HEV.mr;if(!M)return;M.t+=dt;M.kick*=.82;
   if(M.ph==0){const D=2.2,p=Math.min(1,M.t/D),e=1-Math.pow(1-p,3);M.a=M.a1*e;
-    const idx=Math.floor((((-1.5708-M.a)%TAU)+TAU)%TAU/SG);if(idx!=M.last){M.last=idx;M.kick=.5;if(p>.55)try{if(sOK())tone(700+p*500,sNow(),.025,'square',.012)}catch(e){}}
+    const idx=Math.floor((((-1.5708-M.a)%TAU)+TAU)%TAU/SG);if(idx!=M.last){M.last=idx;M.kick=.5;if(p>.55)try{if(typeof seMiniTick==='function')seMiniTick(p);/* 79e */}catch(e){}}
     if(p>=1){M.ph=1;M.t=0;const m=M.m;hurt(M.base*m,'#ffd400',1,m>=5);G.gold+=Math.floor(G.stage*40*m*mul());burst(112,29,m>=10?40:12,'#ffd400');
       if(m>=10){banner('ROULETTE x'+m+'!!','#ffd400');kyuin(m>=50?8:5,'#ffd400');if(G.rush>0)G.rush=Math.min(15,G.rush+3);try{seRoulResult(m)}catch(e){}}
-      else try{if(sOK()){const t=sNow();tone(1320,t,.08,'square',.025);tone(1760,t+.07,.12,'square',.025)}}catch(e){}}}
+      else try{if(typeof seMiniRes==='function')seMiniRes();/* 79e */}catch(e){}}}
   else if(M.t>(M.m>=10?1.6:1.0))mrNext()}
 function mrDraw(t){const M=HEV.mr;if(!M)return;const cx=112,cy=29,R=22,W=WCH||wBuild();
   const a=Math.min(1,M.ph==0?M.t*6:(M.m>=10?1.6:1)-M.t>.25?1:((M.m>=10?1.6:1)-M.t)*4);
@@ -4281,8 +4311,8 @@ function hyTxtB(s,x,y,px,fill){if(typeof thickTxt==='function')thickTxt(bc,s,x,y
    ハンドル(#hd): 押すたびに小さな衝撃波(連打でも 0.12 秒に1回)。
    動きは CSS アニメーション(transform/opacity のみ)。prefers-reduced-motion では動きを止める。 */
 function hbRe(el,cls){try{if(!el)return;const c=String(el.className||'').split(' ').filter(x=>x&&x!==cls).join(' ');el.className=c;void el.offsetWidth;el.className=(c?c+' ':'')+cls}catch(e){}}
-{const o=pushPrompt;pushPrompt=function(){const was=PUSH,r=o.apply(this,arguments);try{if(!was&&PUSH)seHy('pop')}catch(e){}return r}}
-{const o=pushPress;pushPress=function(auto){const P0=PUSH,ok=P0&&!P0.done,r=o.apply(this,arguments);try{if(ok){seHy('wave');const e=$('push');if(e&&e.className.indexOf('hyw')<0)e.className+=' hyw'}}catch(e){}return r}}
+/* 押せ!!の音は 89h(熱さの音)と 78/79(煽り・決定音)にまとめた(重ねると濁るため、ここでは鳴らさない。79e の説明) */
+{const o=pushPress;pushPress=function(auto){const P0=PUSH,ok=P0&&!P0.done,r=o.apply(this,arguments);try{if(ok){const e=$('push');if(e&&e.className.indexOf('hyw')<0)e.className+=' hyw'}}catch(e){}return r}}
 // チャンスボタン
 let HBG=null;
 function hbGhost(){if(HBG)return HBG;try{HBG=document.createElement('div');HBG.id='hycbg';HBG.innerHTML='<b>CHANCE</b><i>PUSH</i><s></s>';if(HBG.style)HBG.style.display='none';document.body.appendChild(HBG)}catch(e){HBG=null}return HBG}
@@ -4307,19 +4337,17 @@ function hbGhost(){if(HBG)return HBG;try{HBG=document.createElement('div');HBG.i
    光過敏配慮: 全画面の点滅は足さない(ボタン周りだけ、明暗の明滅でなく色相の回転とゆっくりした脈動)。reduced-motion では動きを止める。 */
 const PHY={h:0};
 const phOf=o=>{o=o||{};return o.jp?3:Math.max(1,Math.min(3,o.heat|0||1))};
-function phSnd(k,h){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow();
+function phSnd(k,h){try{if(typeof sOK!=='function'||!sOK())return;const t=sNow(),r=fanRoot();
+  /* 音程は BGM の調から(以前は固定の和音で、BGM とぶつかることがあった)。押下の土台(ドン・振動・和音)は 79 の seDecide、ここは熱さの上乗せだけ */
   if(k==='in'){
-    sBoom(t,.6+h*.4);noise(t,.06,.08,'h');                  // ドン+打撃(重低音は熱さで強く)
-    const ch=h>=3?[523,659,784,1047,1319]:h==2?[440,554,659,880]:[392,494,587];
-    ch.forEach((f,i)=>{tone(f,t+.04+i*.03,.34,'square',.03);tone(f*2,t+.04+i*.03,.2,'triangle',.018)});
-    if(h>=3){tone(220,t+.05,.7,'sawtooth',.035,1760);[1568,2093,2637].forEach((f,i)=>tone(f,t+.3+i*.06,.25,'triangle',.025))}
-    else if(h==2)tone(330,t+.05,.45,'sawtooth',.03,1320);
+    sBoom(t,.5+h*.35);noise(t,.06,.08,'h');                                     // ドン(熱さで強く)
+    const ch=h>=3?[0,4,7,12,16]:h==2?[0,4,7,12]:[0,4,7];
+    ch.forEach((s2,i)=>{tone(mf(r+12+s2),t+.04+i*.035,.32,'p25',.03);tone(mf(r+s2),t+.04+i*.035,.28,'triangle',.022)});
+    if(h>=2)sFat(mf(r-12),t+.05,.45,.03,mf(r+12),1);                            // 金: うなりが上がる
+    if(h>=3)[24,28,31].forEach((s2,i)=>sBell(mf(r+s2),t+.3+i*.06,.025,.4));      // 虹: 鐘
   }else if(k==='hit'){
-    sBoom(t,1.2+h*.45);sBuzz(t+.01,.2+h*.08,.04+h*.012);tone(60,t,.6,'sawtooth',.05,28);noise(t+.02,.08,.18,'h');if(h>=2)sCrash(t,.05,.5);   // 落下+打撃+ボタンの振動「ブルッ」
-    const base=h>=3?[523,659,784,1047,1319,1568]:h==2?[440,554,659,880,1109]:[392,494,587,784];
-    base.forEach((f,i)=>{tone(f,t+.06+i*.045,.42,'square',.032);tone(f/2,t+.06+i*.045,.42,'sawtooth',.016)});
-    if(h>=2)tone(330,t+.04,.6,'sawtooth',.04,h>=3?2637:1760);                                // 上昇キュイーン
-    if(h>=3){[2093,2637,3136,4186].forEach((f,i)=>sBell(f,t+.36+i*.07,.025,.4));noise(t+.3,.05,.5,'h')}
+    if(h>=2){sCrash(t,.05,.5);sFat(mf(r),t+.04,.55,.035,mf(r+24),1)}           // 金・虹: クラッシュ+駆け上がり
+    if(h>=3){sBoom(t+.09,1.4);[24,28,31,36].forEach((s2,i)=>sBell(mf(r+s2),t+.36+i*.07,.026,.45));noise(t+.3,.05,.5,'h')}   // 虹: 2回目の衝撃「ドドン」+鐘
   }}catch(e){}}
 function phCls(el,add,rm){try{let c=String(el.className||'').split(' ').filter(x=>x&&!rm.test(x));el.className=c.concat(add).join(' ')}catch(e){}}
 {const o=pushPrompt;pushPrompt=function(cb,opt){const was=PUSH,r=o.apply(this,arguments);

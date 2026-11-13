@@ -47,7 +47,7 @@
 | `presAsk` | 98i-altar.js |
 | `presDo` | 94b-soul.js → 94c-herohp.js → 98i-altar.js |
 | `pushPress` | 89g-btnfx.js → 89h-pushhype.js |
-| `pushPrompt` | 87b-jpfx.js → 89g-btnfx.js → 89h-pushhype.js |
+| `pushPrompt` | 87b-jpfx.js → 89h-pushhype.js |
 | `pxText` | 98i-gemshop.js |
 | `reelShow` | 89e-bigslot.js |
 | `relicUpd` | 98f-hilo.js |
@@ -60,6 +60,6 @@
 | `stopMG` | 95-minigames.js |
 | `ult` | 93b-mission.js |
 | `updMG` | 98-mgfx.js |
-| `updRoul` | 87d-roulquick.js |
+| `updRoul` | 79e-roulse.js → 87d-roulquick.js |
 | `updSpin` | 86-gekiatsu.js |
 | `update` | 84-charfx.js → 86-gekiatsu.js → 87-hitev.js → 87b-jpfx.js → 89-horyu.js → 89c-layer.js → 89d-blackout.js → 89e-bigslot.js → 89f-ultjp.js → 92b-daily.js → 93b-mission.js → 96r-relic.js → 96s-smith.js → 97t-rank.js → 98b-active.js → 98c-upgroups.js → 98e-bonustime.js → 98h-area.js → 98i-gemshop.js → 98s-story.js → 98t-tutorial.js |

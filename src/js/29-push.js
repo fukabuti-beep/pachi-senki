@@ -17,7 +17,7 @@ function pkDraw(cv,down){if(!cv||!cv.getContext)return;const N=55,c=cv.getContex
     else col=down?'#520010':'#8a0018'}}
   if(col){c.fillStyle=col;c.fillRect(x,y,1,1)}}}
 try{pkDraw($('pkC0'),0);pkDraw($('pkC1'),1)}catch(e){}
-function pkSnd(){if(typeof AC==='undefined'||!AC||typeof tone!=='function')return;try{const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.08,.12,'square',.05))}catch(e){}}
+function pkSnd(){if(typeof phSnd==='function')return;/* 89h の熱さの音が登場音(調に合わせてある)。重ねると濁る */if(typeof AC==='undefined'||!AC||typeof tone!=='function')return;try{const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.08,.12,'square',.05))}catch(e){}}
 function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
  const ms=o.ms||2400;PUSH={cb,done:0,small:!!o.small,tm:[]};
  el.className='';void el.offsetWidth;
@@ -25,7 +25,7 @@ function pushPrompt(cb,o){o=o||{};const el=$('push');if(!el||PUSH){cb();return}
  if(el.style&&el.style.setProperty)el.style.setProperty('--pkms',ms+'ms');
  $('pkT').textContent=o.txt||(o.jp?'777 押せ!!':'押せ!!');
  pkSnd();
- for(let k=1;k*900<ms;k++)PUSH.tm.push(setTimeout(()=>{if(typeof beep==='function')beep(1568+k*120,.09,'square',.04)},k*900));
+ for(let k=1;k*900<ms;k++)PUSH.tm.push(setTimeout(()=>{if(typeof seCount==='function')seCount(k);/* 79e: ガコッと1段ずつ上がる */else if(typeof beep==='function')beep(1568+k*120,.09,'square',.04)},k*900));
  PUSH.tm.push(setTimeout(()=>pushPress(1),ms))}
 function pushPress(auto){const P0=PUSH;if(!P0||P0.done)return;P0.done=1;P0.tm.forEach(clearTimeout);
  const el=$('push');el.className+=' hit';$('pkT').textContent='GO!!';

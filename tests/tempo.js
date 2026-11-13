@@ -43,4 +43,17 @@ const calm = 'if(fxOpen)fxClose();RL=null;G.roul=0;G.jp=0;cut=null;PUSH=null;if(
   const n = g.eval("(function(){let c=0;const o=Math.random;Math.random=function(){c++;return o()};try{for(let i=0;i<4;i++){afxHit(i,1);seSwing(i);atkSwing(i%3,60,52,.05);atkSwing(i%3,60,52,.15);atkProj({i:i%3,t:.1},.5,150,80)}afxDraw(T);seUi('ok');seBuy()}finally{Math.random=o}return c})()");
   ok(n === 0, 'エフェクトと追加の効果音がゲームの乱数を使っている: ' + n);
   ok(g.eval("typeof seUi==='function'&&typeof seBuy==='function'&&typeof seSwing==='function'"), '追加の効果音がある'); }
+// 8) ルーレットと押せ!!の音(79e): 登場・カウント・押下・回り始め・溜め・超倍率が鳴り、重ねていた古い音は鳴らない
+{ const g = createGame({ seed: 10 }); g.start(); g.advance(1, .05);
+  g.eval("var __s={};['phSnd','seAori','seDecide','seHy','seCount','seRoulStart','seRoulTame','seRoulSup','seMiniTick','seMiniRes'].forEach(n=>{const o=eval(n);eval(n+'=function(){const k=n+(n===\\'phSnd\\'||n===\\'seHy\\'?\\':\\'+arguments[0]:\\'\\');__s[k]=(__s[k]||0)+1;return o.apply(this,arguments)}')})");
+  g.eval(calm + 'pushPrompt(()=>{},{ms:2400})'); g.advance(2, .05);
+  const a = g.eval('JSON.stringify(__s)'); const s1 = JSON.parse(a);
+  ok(s1['phSnd:in'] === 1 && s1.seAori === 1 && !s1['seHy:pop'], '押せ!!の登場は 熱さの音+煽り だけ: ' + a);
+  ok(s1.seCount >= 2, 'カウントダウンの音: ' + s1.seCount);
+  g.eval('pushPress(0)'); g.advance(.2, .05); const s2 = JSON.parse(g.eval('JSON.stringify(__s)'));
+  ok(s2['phSnd:hit'] === 1 && s2.seDecide === 1 && !s2['seHy:wave'], '押下は 決定音+熱さの上乗せ だけ: ' + JSON.stringify(s2));
+  g.advance(1.5, .05); g.eval(calm + 'G.rush=15;startRoul(10)'); g.advance(.1, .05); ok(g.eval('__s.seRoulStart') === 1, 'ルーレットの回り始めの音');
+  g.eval('RL.sup=1;RL.t=99'); g.advance(.2, .05); g.eval('if(RL){RL.st=.85}'); g.advance(.2, .05); ok(g.eval('__s.seRoulTame') === 1, '超倍率の溜めの音');
+  g.eval('if(RL){RL.st=1.95}'); g.advance(.2, .05); ok(g.eval('__s.seRoulSup') === 1, '超倍率の解放の音');
+  g.eval('RL=null;G.roul=0;$("rl").style.display="none"'); }
 console.log(fails ? fails + ' tempo failure(s)' : 'TEMPO OK'); process.exit(fails ? 1 : 0);

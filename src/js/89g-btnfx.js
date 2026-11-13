@@ -5,8 +5,8 @@
    ハンドル(#hd): 押すたびに小さな衝撃波(連打でも 0.12 秒に1回)。
    動きは CSS アニメーション(transform/opacity のみ)。prefers-reduced-motion では動きを止める。 */
 function hbRe(el,cls){try{if(!el)return;const c=String(el.className||'').split(' ').filter(x=>x&&x!==cls).join(' ');el.className=c;void el.offsetWidth;el.className=(c?c+' ':'')+cls}catch(e){}}
-{const o=pushPrompt;pushPrompt=function(){const was=PUSH,r=o.apply(this,arguments);try{if(!was&&PUSH)seHy('pop')}catch(e){}return r}}
-{const o=pushPress;pushPress=function(auto){const P0=PUSH,ok=P0&&!P0.done,r=o.apply(this,arguments);try{if(ok){seHy('wave');const e=$('push');if(e&&e.className.indexOf('hyw')<0)e.className+=' hyw'}}catch(e){}return r}}
+/* 押せ!!の音は 89h(熱さの音)と 78/79(煽り・決定音)にまとめた(重ねると濁るため、ここでは鳴らさない。79e の説明) */
+{const o=pushPress;pushPress=function(auto){const P0=PUSH,ok=P0&&!P0.done,r=o.apply(this,arguments);try{if(ok){const e=$('push');if(e&&e.className.indexOf('hyw')<0)e.className+=' hyw'}}catch(e){}return r}}
 // チャンスボタン
 let HBG=null;
 function hbGhost(){if(HBG)return HBG;try{HBG=document.createElement('div');HBG.id='hycbg';HBG.innerHTML='<b>CHANCE</b><i>PUSH</i><s></s>';if(HBG.style)HBG.style.display='none';document.body.appendChild(HBG)}catch(e){HBG=null}return HBG}
